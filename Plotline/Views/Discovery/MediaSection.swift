@@ -6,6 +6,8 @@ struct MediaSection: View {
     let items: [MediaItem]
     let style: MediaCard.CardStyle
 
+    @Environment(\.navigationNamespace) private var namespace
+
     init(title: String, items: [MediaItem], style: MediaCard.CardStyle = .poster) {
         self.title = title
         self.items = items
@@ -38,6 +40,9 @@ struct MediaSection: View {
                         ForEach(items) { item in
                             NavigationLink(value: item) {
                                 MediaCard(item: item, style: style)
+                                    .if(namespace != nil) { view in
+                                        view.matchedTransitionSource(id: item.id, in: namespace!)
+                                    }
                             }
                             .buttonStyle(.plain)
                         }
@@ -68,48 +73,13 @@ struct MediaSection: View {
     }
 }
 
-// MARK: - Shimmer Effect
-
-extension View {
-    func shimmering() -> some View {
-        modifier(ShimmerModifier())
-    }
-}
-
-struct ShimmerModifier: ViewModifier {
-    @State private var phase: CGFloat = 0
-
-    func body(content: Content) -> some View {
-        content
-            .overlay {
-                GeometryReader { geometry in
-                    LinearGradient(
-                        colors: [
-                            .clear,
-                            .white.opacity(0.1),
-                            .clear
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: geometry.size.width * 2)
-                    .offset(x: -geometry.size.width + (geometry.size.width * 2 * phase))
-                }
-                .clipped()
-            }
-            .onAppear {
-                withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
-                    phase = 1
-                }
-            }
-    }
-}
-
 // MARK: - Featured Section (Large Backdrop Style)
 
 struct FeaturedSection: View {
     let title: String
     let items: [MediaItem]
+
+    @Environment(\.navigationNamespace) private var namespace
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -123,6 +93,9 @@ struct FeaturedSection: View {
                     ForEach(items) { item in
                         NavigationLink(value: item) {
                             FeaturedCard(item: item)
+                                .if(namespace != nil) { view in
+                                    view.matchedTransitionSource(id: item.id, in: namespace!)
+                                }
                         }
                         .buttonStyle(.plain)
                     }

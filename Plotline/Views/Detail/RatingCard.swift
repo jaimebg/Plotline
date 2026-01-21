@@ -154,7 +154,35 @@ struct RatingCard: View {
     // MARK: - Accessibility
 
     private var accessibilityLabel: String {
-        "\(rating.shortName): \(rating.value)"
+        var label = "\(rating.shortName) rating: \(rating.value)"
+
+        switch rating.ratingType {
+        case .imdb:
+            if let normalized = rating.normalizedValue {
+                let outOf10 = normalized * 10
+                label = "IMDb rating: \(String(format: "%.1f", outOf10)) out of 10"
+            }
+        case .rottenTomatoes:
+            let isFresh = (rating.normalizedValue ?? 0) >= 0.60
+            label = "Rotten Tomatoes: \(rating.value), \(isFresh ? "Fresh" : "Rotten")"
+        case .metacritic:
+            if let normalized = rating.normalizedValue {
+                let score = Int(normalized * 100)
+                let sentiment: String
+                if normalized >= 0.61 {
+                    sentiment = "Generally Favorable"
+                } else if normalized >= 0.40 {
+                    sentiment = "Mixed"
+                } else {
+                    sentiment = "Generally Unfavorable"
+                }
+                label = "Metacritic score: \(score) out of 100, \(sentiment)"
+            }
+        case .unknown:
+            break
+        }
+
+        return label
     }
 }
 

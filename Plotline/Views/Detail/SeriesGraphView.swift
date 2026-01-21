@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Accessibility
 
 /// Interactive rating graph for TV series episodes using Swift Charts
 struct SeriesGraphView: View {
@@ -176,6 +177,8 @@ struct SeriesGraphView: View {
                 .background(Color.plotlineCard.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
+        .accessibilityChartDescriptor(SeriesGraphAccessibility(episodes: episodes, seasonNumber: seasonNumber))
+        .accessibilityLabel("Episode ratings chart for season \(seasonNumber)")
     }
 
     // MARK: - Selected Episode Detail
@@ -392,6 +395,88 @@ struct AllSeasonsGraphView: View {
             .metacriticGreen
         ]
         return colors[(season - 1) % colors.count]
+    }
+}
+
+// MARK: - Audio Graph Accessibility
+
+/// Provides audio graph accessibility for VoiceOver users
+struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
+    let episodes: [EpisodeMetric]
+    let seasonNumber: Int
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let validEpisodes = episodes.filter { $0.hasValidRating }.sorted { $0.episodeNumber < $1.episodeNumber }
+
+        // X-axis: Episode numbers
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Episode",
+            range: Double(validEpisodes.first?.episodeNumber ?? 1)...Double(validEpisodes.last?.episodeNumber ?? 10),
+            gridlinePositions: validEpisodes.map { Double($0.episodeNumber) }
+        ) { value in
+            "Episode \(Int(value))"
+        }
+
+        // Y-axis: Ratings
+        let ratings = validEpisodes.map(\.rating)
+        let minRating = (ratings.min() ?? 0) - 0.5
+        let maxRating = min((ratings.max() ?? 10) + 0.5, 10)
+
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "IMDb Rating",
+            range: minRating...maxRating,
+            gridlinePositions: [0, 2.5, 5, 7.5, 10].filter { $0 >= minRating && $0 <= maxRating }
+        ) { value in
+            String(format: "%.1f", value)
+        }
+
+        // Data series
+        let dataPoints = validEpisodes.map { episode in
+            AXDataPoint(
+                x: Double(episode.episodeNumber),
+                y: episode.rating,
+                label: "\(episode.title): \(episode.formattedRating)"
+            )
+        }
+
+        let series = AXDataSeriesDescriptor(
+            name: "Episode Ratings for Season \(seasonNumber)",
+            isContinuous: true,
+            dataPoints: dataPoints
+        )
+
+        return AXChartDescriptor(
+            title: "Episode Ratings Graph",
+            summary: makeSummary(from: validEpisodes),
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [series]
+        )
+    }
+
+    private func makeSummary(from episodes: [EpisodeMetric]) -> String {
+        guard !episodes.isEmpty else {
+            return "No episode data available"
+        }
+
+        let ratings = episodes.map(\.rating)
+        let average = ratings.reduce(0, +) / Double(ratings.count)
+        let highest = episodes.max { $0.rating < $1.rating }
+        let lowest = episodes.min { $0.rating < $1.rating }
+
+        var summary = "Season \(seasonNumber) has \(episodes.count) episodes. "
+        summary += "Average rating is \(String(format: "%.1f", average)). "
+
+        if let highest = highest {
+            summary += "Highest rated: Episode \(highest.episodeNumber) (\(highest.title)) with \(highest.formattedRating). "
+        }
+
+        if let lowest = lowest {
+            summary += "Lowest rated: Episode \(lowest.episodeNumber) (\(lowest.title)) with \(lowest.formattedRating)."
+        }
+
+        return summary
     }
 }
 

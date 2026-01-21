@@ -1,5 +1,18 @@
 import SwiftUI
 
+// MARK: - Navigation Namespace Environment Key
+
+private struct NavigationNamespaceKey: EnvironmentKey {
+    static let defaultValue: Namespace.ID? = nil
+}
+
+extension EnvironmentValues {
+    var navigationNamespace: Namespace.ID? {
+        get { self[NavigationNamespaceKey.self] }
+        set { self[NavigationNamespaceKey.self] = newValue }
+    }
+}
+
 // MARK: - View Extensions
 
 extension View {
@@ -128,5 +141,74 @@ extension AnyTransition {
     /// Scale and fade transition
     static var scaleAndFade: AnyTransition {
         .scale(scale: 0.9).combined(with: .opacity)
+    }
+}
+
+// MARK: - Shimmer Effect
+
+struct ShimmerModifier: ViewModifier {
+    @State private var phase: CGFloat = 0
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                GeometryReader { geometry in
+                    LinearGradient(
+                        colors: [
+                            .clear,
+                            .white.opacity(0.2),
+                            .clear
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: geometry.size.width * 2)
+                    .offset(x: -geometry.size.width + (geometry.size.width * 2 * phase))
+                }
+            )
+            .mask(content)
+            .onAppear {
+                withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                    phase = 1
+                }
+            }
+    }
+}
+
+extension View {
+    /// Applies a shimmer loading effect
+    func shimmering() -> some View {
+        modifier(ShimmerModifier())
+    }
+}
+
+// MARK: - Navigation Zoom Transition
+
+extension View {
+    /// Applies zoom navigation transition with matched geometry
+    func zoomTransitionSource(id: some Hashable, in namespace: Namespace.ID) -> some View {
+        self.matchedTransitionSource(id: id, in: namespace)
+    }
+
+    /// Applies zoom navigation destination
+    func zoomTransitionDestination(id: some Hashable, in namespace: Namespace.ID) -> some View {
+        self.navigationTransition(.zoom(sourceID: id, in: namespace))
+    }
+}
+
+// MARK: - Accessibility Extensions
+
+extension View {
+    /// Adds standard plotline accessibility traits
+    func plotlineAccessibility(
+        label: String,
+        hint: String? = nil,
+        traits: AccessibilityTraits = []
+    ) -> some View {
+        self
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(label)
+            .accessibilityHint(hint ?? "")
+            .accessibilityAddTraits(traits)
     }
 }

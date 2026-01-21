@@ -4,6 +4,7 @@ import SwiftUI
 struct DiscoveryView: View {
     @State private var viewModel = DiscoveryViewModel()
     @State private var navigationPath = NavigationPath()
+    @Namespace private var namespace
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -20,11 +21,13 @@ struct DiscoveryView: View {
                 }
                 .navigationDestination(for: MediaItem.self) { item in
                     MediaDetailView(media: item)
+                        .navigationTransition(.zoom(sourceID: item.id, in: namespace))
                 }
                 .refreshable {
                     await viewModel.refresh()
                 }
         }
+        .environment(\.navigationNamespace, namespace)
         .preferredColorScheme(.dark)
         .task {
             await viewModel.loadContent()
@@ -118,6 +121,7 @@ struct DiscoveryView: View {
                     ForEach(viewModel.searchResults) { item in
                         NavigationLink(value: item) {
                             SearchResultRow(item: item)
+                                .matchedTransitionSource(id: item.id, in: namespace)
                         }
                         .buttonStyle(.plain)
                     }

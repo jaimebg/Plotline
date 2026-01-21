@@ -421,6 +421,15 @@ struct StatCard: View {
         .padding(.vertical, 12)
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        if let subtitle = subtitle {
+            return "\(title): \(value), \(subtitle)"
+        }
+        return "\(title): \(value)"
     }
 }
 
@@ -469,6 +478,18 @@ struct EpisodeRow: View {
         .padding(.vertical, 10)
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        var label = "Episode \(episode.episodeNumber): \(episode.title)"
+        if episode.hasValidRating {
+            label += ", rated \(episode.formattedRating) out of 10"
+        } else {
+            label += ", no rating available"
+        }
+        return label
     }
 }
 
@@ -492,6 +513,8 @@ struct InfoRow: View {
         .padding(.vertical, 8)
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 6))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 
