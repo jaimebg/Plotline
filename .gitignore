@@ -1,0 +1,22 @@
+# Secrets
+Secrets.xcconfig
+Plotline/Secrets.plist
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# CocoaPods
+Pods/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
+
+# IDE
+*.xcworkspace/xcuserdata/
