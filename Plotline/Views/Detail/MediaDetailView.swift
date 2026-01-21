@@ -38,7 +38,9 @@ struct MediaDetailView: View {
                     ScorecardsView(
                         ratings: viewModel.ratings,
                         isLoading: viewModel.isLoadingRatings,
-                        error: viewModel.ratingsError
+                        error: viewModel.ratingsError,
+                        imdbId: viewModel.media.imdbId,
+                        title: viewModel.media.displayTitle
                     )
 
                     // Overview

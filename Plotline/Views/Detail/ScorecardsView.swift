@@ -5,11 +5,15 @@ struct ScorecardsView: View {
     let ratings: [RatingSource]
     let isLoading: Bool
     let error: String?
+    let imdbId: String?
+    let title: String?
 
-    init(ratings: [RatingSource], isLoading: Bool = false, error: String? = nil) {
+    init(ratings: [RatingSource], isLoading: Bool = false, error: String? = nil, imdbId: String? = nil, title: String? = nil) {
         self.ratings = ratings
         self.isLoading = isLoading
         self.error = error
+        self.imdbId = imdbId
+        self.title = title
     }
 
     var body: some View {
@@ -38,7 +42,7 @@ struct ScorecardsView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
                 ForEach(ratings) { rating in
-                    RatingCard(rating: rating, style: .standard)
+                    RatingCard(rating: rating, style: .standard, imdbId: imdbId, title: title)
                 }
             }
         }
@@ -96,11 +100,19 @@ struct ScorecardsView: View {
 
 struct CompactScorecardsView: View {
     let ratings: [RatingSource]
+    let imdbId: String?
+    let title: String?
+
+    init(ratings: [RatingSource], imdbId: String? = nil, title: String? = nil) {
+        self.ratings = ratings
+        self.imdbId = imdbId
+        self.title = title
+    }
 
     var body: some View {
         HStack(spacing: 16) {
             ForEach(ratings) { rating in
-                RatingCard(rating: rating, style: .minimal)
+                RatingCard(rating: rating, style: .minimal, imdbId: imdbId, title: title)
             }
         }
     }

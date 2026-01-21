@@ -119,6 +119,25 @@ enum RatingType: String, CaseIterable {
             return color
         }
     }
+
+    /// Returns the URL for this rating platform
+    func url(imdbId: String?, title: String?) -> URL? {
+        switch self {
+        case .imdb:
+            guard let imdbId else { return nil }
+            return URL(string: "https://www.imdb.com/title/\(imdbId)/")
+        case .rottenTomatoes:
+            guard let title else { return nil }
+            let searchQuery = title.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? title
+            return URL(string: "https://www.rottentomatoes.com/search?search=\(searchQuery)")
+        case .metacritic:
+            guard let title else { return nil }
+            let searchQuery = title.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? title
+            return URL(string: "https://www.metacritic.com/search/\(searchQuery)/")
+        case .unknown:
+            return nil
+        }
+    }
 }
 
 // MARK: - Preview Data

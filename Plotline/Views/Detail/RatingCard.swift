@@ -2,8 +2,12 @@ import SwiftUI
 
 /// Individual rating card for IMDb, Rotten Tomatoes, or Metacritic
 struct RatingCard: View {
+    @Environment(\.openURL) private var openURL
+
     let rating: RatingSource
     let style: CardStyle
+    let imdbId: String?
+    let title: String?
 
     enum CardStyle {
         case standard   // Full card with icon and label
@@ -11,20 +15,38 @@ struct RatingCard: View {
         case minimal    // Just icon and value
     }
 
-    init(rating: RatingSource, style: CardStyle = .standard) {
+    init(rating: RatingSource, style: CardStyle = .standard, imdbId: String? = nil, title: String? = nil) {
         self.rating = rating
         self.style = style
+        self.imdbId = imdbId
+        self.title = title
+    }
+
+    private var ratingURL: URL? {
+        rating.ratingType.url(imdbId: imdbId, title: title)
+    }
+
+    private func openRatingURL() {
+        guard let url = ratingURL else { return }
+        openURL(url)
     }
 
     var body: some View {
-        switch style {
-        case .standard:
-            standardCard
-        case .compact:
-            compactCard
-        case .minimal:
-            minimalCard
+        Group {
+            switch style {
+            case .standard:
+                standardCard
+            case .compact:
+                compactCard
+            case .minimal:
+                minimalCard
+            }
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            openRatingURL()
+        }
+        .opacity(ratingURL != nil ? 1.0 : 0.6)
     }
 
     // MARK: - Standard Card
