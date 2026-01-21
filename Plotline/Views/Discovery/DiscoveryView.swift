@@ -157,13 +157,17 @@ struct SearchResultRow: View {
                         .frame(width: 60, height: 90)
                         .clipped()
 
-                case .failure, _:
+                case .failure:
                     Rectangle()
                         .fill(Color.plotlineCard)
                         .overlay {
                             Image(systemName: item.isTVSeries ? "tv" : "film")
                                 .foregroundStyle(.secondary)
                         }
+
+                @unknown default:
+                    Rectangle()
+                        .fill(Color.plotlineCard)
                 }
             }
             .frame(width: 60, height: 90)

@@ -112,4 +112,12 @@ The star feature uses Swift Charts to visualize episode ratings:
 
 - **Never commit unless explicitly told**: Do not create commits automatically. Wait for the user to explicitly request a commit.
 - **Before committing**: When the user asks to commit, spawn the `code-simplifier:code-simplifier` agent to review and simplify recently modified code before creating the commit.
+- **Use Conventional Commits**: Follow the conventional commits specification for commit messages:
+  - `feat:` for new features
+  - `fix:` for bug fixes
+  - `refactor:` for code refactoring
+  - `style:` for formatting/style changes
+  - `docs:` for documentation
+  - `chore:` for maintenance tasks
+  - Example: `feat: add episode ratings grid for TV series`
 - **When building features**: Use the `apple-docs` MCP tools to check Apple Developer Documentation for correct API usage, best practices, and platform compatibility

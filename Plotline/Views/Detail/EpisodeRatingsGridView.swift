@@ -139,24 +139,26 @@ struct EpisodeRatingsGridView: View {
         let episodes = episodesBySeason[season]
         let episode = episodes?.first { $0.episodeNumber == episodeNumber }
 
-        if episodes == nil {
+        switch (episodes, episode) {
+        case (nil, _):
             // Season data not loaded yet
             placeholderCell(text: "?")
-        } else if let episode {
-            // Episode exists in this season
-            if episode.hasValidRating {
-                let category = RatingCategory.category(for: episode.rating)
-                Text(episode.formattedRating)
-                    .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                    .foregroundStyle(category == .good ? .black : .white)
-                    .frame(width: cellSize, height: 36)
-                    .background(category.color)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            } else {
-                // Episode exists but has N/A rating
-                placeholderCell(text: "N/A", font: .caption2)
-            }
-        } else {
+
+        case (_, let episode?) where episode.hasValidRating:
+            // Episode exists with valid rating
+            let category = RatingCategory.category(for: episode.rating)
+            Text(episode.formattedRating)
+                .font(.system(.subheadline, design: .monospaced, weight: .bold))
+                .foregroundStyle(category == .good ? .black : .white)
+                .frame(width: cellSize, height: 36)
+                .background(category.color)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+        case (_, let episode?) where !episode.hasValidRating:
+            // Episode exists but has N/A rating
+            placeholderCell(text: "N/A", font: .caption2)
+
+        default:
             // Episode number doesn't exist for this season (shorter season)
             emptyCell
         }

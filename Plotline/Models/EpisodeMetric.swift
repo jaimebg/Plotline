@@ -38,17 +38,11 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
         "Season \(seasonNumber), Episode \(episodeNumber)"
     }
 
-    /// Checks if rating data is valid
+    /// Checks if rating data is valid (not N/A and parses to a positive number)
     var hasValidRating: Bool {
         let cleaned = cleanedRating.lowercased()
-        // Check for various N/A formats and empty strings
-        guard !cleaned.isEmpty,
-              cleaned != "n/a",
-              cleaned != "na",
-              cleaned != "-" else {
-            return false
-        }
-        return rating > 0.0
+        let invalidValues: Set<String> = ["", "n/a", "na", "-"]
+        return !invalidValues.contains(cleaned) && rating > 0.0
     }
 
     // MARK: - Initializers
