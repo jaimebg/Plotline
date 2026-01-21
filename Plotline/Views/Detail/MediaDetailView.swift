@@ -38,6 +38,8 @@ struct MediaDetailView: View {
                     ScorecardsView(
                         ratings: viewModel.ratings,
                         tmdbScore: viewModel.media.voteAverage,
+                        mediaId: viewModel.media.id,
+                        isTVSeries: viewModel.media.isTVSeries,
                         isLoading: viewModel.isLoadingRatings,
                         error: viewModel.ratingsError,
                         imdbId: viewModel.media.imdbId,

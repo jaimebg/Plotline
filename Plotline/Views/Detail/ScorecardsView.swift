@@ -4,14 +4,18 @@ import SwiftUI
 struct ScorecardsView: View {
     let ratings: [RatingSource]
     let tmdbScore: Double?
+    let mediaId: Int
+    let isTVSeries: Bool
     let isLoading: Bool
     let error: String?
     let imdbId: String?
     let title: String?
 
-    init(ratings: [RatingSource], tmdbScore: Double? = nil, isLoading: Bool = false, error: String? = nil, imdbId: String? = nil, title: String? = nil) {
+    init(ratings: [RatingSource], tmdbScore: Double? = nil, mediaId: Int = 0, isTVSeries: Bool = false, isLoading: Bool = false, error: String? = nil, imdbId: String? = nil, title: String? = nil) {
         self.ratings = ratings
         self.tmdbScore = tmdbScore
+        self.mediaId = mediaId
+        self.isTVSeries = isTVSeries
         self.isLoading = isLoading
         self.error = error
         self.imdbId = imdbId
@@ -49,7 +53,7 @@ struct ScorecardsView: View {
             HStack(spacing: 12) {
                 // TMDB score first
                 if let score = tmdbScore, score > 0 {
-                    TMDBRatingCard(score: score)
+                    TMDBRatingCard(score: score, mediaId: mediaId, isTVSeries: isTVSeries)
                 }
 
                 // External ratings

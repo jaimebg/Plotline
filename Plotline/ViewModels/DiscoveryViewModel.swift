@@ -8,7 +8,7 @@ final class DiscoveryViewModel {
 
     var trendingMovies: [MediaItem] = []
     var trendingSeries: [MediaItem] = []
-    var popularMovies: [MediaItem] = []
+    var topRatedMovies: [MediaItem] = []
     var topRatedSeries: [MediaItem] = []
 
     var searchResults: [MediaItem] = []
@@ -43,13 +43,13 @@ final class DiscoveryViewModel {
             // Fetch all content concurrently
             async let movies = tmdbService.fetchTrendingMovies()
             async let series = tmdbService.fetchTrendingSeries()
-            async let popular = tmdbService.fetchPopularMovies()
-            async let topRated = tmdbService.fetchTopRatedSeries()
+            async let topMovies = tmdbService.fetchTopRatedMovies()
+            async let topSeries = tmdbService.fetchTopRatedSeries()
 
             self.trendingMovies = try await movies
             self.trendingSeries = try await series
-            self.popularMovies = try await popular
-            self.topRatedSeries = try await topRated
+            self.topRatedMovies = try await topMovies
+            self.topRatedSeries = try await topSeries
 
         } catch {
             self.errorMessage = error.localizedDescription
@@ -139,7 +139,7 @@ extension DiscoveryViewModel {
         let vm = DiscoveryViewModel()
         vm.trendingMovies = [.moviePreview]
         vm.trendingSeries = [.preview]
-        vm.popularMovies = [.moviePreview]
+        vm.topRatedMovies = [.moviePreview]
         vm.topRatedSeries = [.preview]
         return vm
     }

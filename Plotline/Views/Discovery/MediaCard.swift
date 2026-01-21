@@ -56,6 +56,7 @@ struct MediaCard: View {
                         .foregroundStyle(.primary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
+                        .frame(height: 40, alignment: .top) // Fixed height for consistent card sizes
 
                     HStack(spacing: 4) {
                         if let year = item.year {
@@ -100,6 +101,8 @@ struct MediaCard: View {
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
+                    .frame(width: style.width, height: style.height)
+                    .clipped()
 
             case .failure:
                 placeholder

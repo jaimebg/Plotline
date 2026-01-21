@@ -76,8 +76,8 @@ struct DiscoveryView: View {
                     MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
                     MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
 
-                    if !viewModel.popularMovies.isEmpty {
-                        MediaSection(title: "Popular Movies", items: viewModel.popularMovies)
+                    if !viewModel.topRatedMovies.isEmpty {
+                        MediaSection(title: "Top Rated Movies", items: viewModel.topRatedMovies)
                     }
 
                     if !viewModel.topRatedSeries.isEmpty {
@@ -154,6 +154,8 @@ struct SearchResultRow: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        .frame(width: 60, height: 90)
+                        .clipped()
 
                 case .failure, _:
                     Rectangle()

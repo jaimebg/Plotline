@@ -145,7 +145,7 @@ struct DiscoverySkeletonView: View {
                 // Trending Series skeleton
                 SkeletonSection(style: .poster, itemCount: 5)
 
-                // Popular Movies skeleton
+                // Top Rated Movies skeleton
                 SkeletonSection(style: .poster, itemCount: 5)
             }
             .padding(.vertical)

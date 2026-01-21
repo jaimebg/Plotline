@@ -212,10 +212,19 @@ struct RatingCard: View {
 
 /// Rating card for TMDB user scores
 struct TMDBRatingCard: View {
+    @Environment(\.openURL) private var openURL
+
     let score: Double
+    let mediaId: Int
+    let isTVSeries: Bool
 
     private var formattedScore: String {
         String(format: "%.1f", score)
+    }
+
+    private var tmdbURL: URL? {
+        let mediaType = isTVSeries ? "tv" : "movie"
+        return URL(string: "https://www.themoviedb.org/\(mediaType)/\(mediaId)")
     }
 
     var body: some View {
@@ -240,6 +249,12 @@ struct TMDBRatingCard: View {
         .padding(.horizontal, 12)
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if let url = tmdbURL {
+                openURL(url)
+            }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("TMDB user rating: \(formattedScore) out of 10")
     }

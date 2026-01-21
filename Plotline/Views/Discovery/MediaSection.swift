@@ -124,6 +124,8 @@ struct FeaturedCard: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        .frame(width: 320, height: 180)
+                        .clipped()
 
                 case .failure:
                     Rectangle()
