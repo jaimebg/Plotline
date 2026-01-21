@@ -19,7 +19,7 @@ struct DiscoveryView: View {
                     viewModel.search()
                 }
                 .navigationDestination(for: MediaItem.self) { item in
-                    MediaDetailPlaceholder(item: item)
+                    MediaDetailView(media: item)
                 }
                 .refreshable {
                     await viewModel.refresh()
@@ -236,97 +236,6 @@ struct SearchResultRow: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-// MARK: - Media Detail Placeholder (Phase 2)
-
-struct MediaDetailPlaceholder: View {
-    let item: MediaItem
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Backdrop
-                if let backdropURL = item.backdropURL {
-                    AsyncImage(url: backdropURL) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(16/9, contentMode: .fill)
-                        default:
-                            Rectangle()
-                                .fill(Color.plotlineCard)
-                                .aspectRatio(16/9, contentMode: .fill)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 220)
-                    .clipped()
-                    .overlay(alignment: .bottom) {
-                        LinearGradient.fadeToBlack
-                            .frame(height: 100)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 16) {
-                    // Title
-                    Text(item.displayTitle)
-                        .font(.system(.title, weight: .bold))
-                        .foregroundStyle(.white)
-
-                    // Metadata
-                    HStack(spacing: 12) {
-                        if let year = item.year {
-                            Text(year)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        if item.voteAverage > 0 {
-                            HStack(spacing: 4) {
-                                Image(systemName: "star.fill")
-                                    .foregroundStyle(Color.imdbYellow)
-                                Text(item.formattedRating)
-                                    .foregroundStyle(.white)
-                            }
-                        }
-
-                        Text(item.isTVSeries ? "TV Series" : "Movie")
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.plotlineCard)
-                            .clipShape(Capsule())
-                    }
-                    .font(.subheadline)
-
-                    // Overview
-                    Text(item.overview)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .lineSpacing(4)
-
-                    // Phase 2 placeholder
-                    VStack(spacing: 12) {
-                        Divider()
-                            .background(Color.plotlineCard)
-
-                        Text("Ratings and graph coming in Phase 2")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.plotlineCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .padding(.top)
-                }
-                .padding(.horizontal)
-            }
-        }
-        .background(Color.plotlineBackground)
-        .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
     }
 }
 
