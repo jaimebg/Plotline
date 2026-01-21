@@ -3,6 +3,18 @@ import SwiftUI
 extension Color {
     // MARK: - Brand Colors
 
+    /// Primary accent - dark red
+    static let plotlinePrimary = Color(hex: "C40C0C")
+
+    /// Secondary accent - orange
+    static let plotlineSecondaryAccent = Color(hex: "FF6500")
+
+    /// Tertiary accent - burnt orange
+    static let plotlineTertiary = Color(hex: "CC561E")
+
+    /// Highlight - golden yellow
+    static let plotlineGold = Color(hex: "F6CE71")
+
     /// Main background color (dark)
     static let plotlineBackground = Color(hex: "121212")
 
@@ -15,13 +27,13 @@ extension Color {
     /// Secondary text color
     static let plotlineSecondary = Color(hex: "A0A0A0")
 
-    // MARK: - Rating Colors
+    // MARK: - Rating Colors (Industry Standard)
 
     /// IMDb yellow
-    static let imdbYellow = Color(hex: "F5C518")
+    static let imdbYellow = Color(hex: "F6CE71")
 
     /// Rotten Tomatoes red (rotten)
-    static let rottenRed = Color(hex: "FA320A")
+    static let rottenRed = Color(hex: "C40C0C")
 
     /// Rotten Tomatoes green (fresh)
     static let rottenGreen = Color(hex: "0AC855")
@@ -30,21 +42,21 @@ extension Color {
     static let metacriticGreen = Color(hex: "66CC33")
 
     /// Metacritic yellow (mixed)
-    static let metacriticYellow = Color(hex: "FFCC33")
+    static let metacriticYellow = Color(hex: "F6CE71")
 
     /// Metacritic red (unfavorable)
-    static let metacriticRed = Color(hex: "FF0000")
+    static let metacriticRed = Color(hex: "C40C0C")
 
     // MARK: - Chart Gradient Colors
 
     /// High rating color for charts
-    static let chartHigh = Color(hex: "4CAF50")
+    static let chartHigh = Color(hex: "F6CE71")
 
     /// Medium rating color for charts
-    static let chartMedium = Color(hex: "FFEB3B")
+    static let chartMedium = Color(hex: "FF6500")
 
     /// Low rating color for charts
-    static let chartLow = Color(hex: "F44336")
+    static let chartLow = Color(hex: "C40C0C")
 
     // MARK: - Hex Initializer
 
@@ -83,6 +95,13 @@ extension LinearGradient {
         colors: [.chartLow, .chartMedium, .chartHigh],
         startPoint: .bottom,
         endPoint: .top
+    )
+
+    /// Brand gradient (red to gold)
+    static let plotlineGradient = LinearGradient(
+        colors: [.plotlinePrimary, .plotlineSecondaryAccent, .plotlineGold],
+        startPoint: .leading,
+        endPoint: .trailing
     )
 
     /// Vertical fade to black (for backdrop overlays)
