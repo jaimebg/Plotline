@@ -8,14 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		3F0AA3F82F215B9F00DE0C25 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F0AA3F72F215B9F00DE0C25 /* README.md */; };
-		3F65C3BB2F20ED9200A13300 /* PRD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F65C3BA2F20ED8A00A13300 /* PRD.md */; };
 		3F65C3EB2F20F0F400A13300 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F65C3EA2F20F0F400A13300 /* CLAUDE.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		3F0AA3F72F215B9F00DE0C25 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		3F65C3AA2F20EBFD00A13300 /* Plotline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Plotline.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3F65C3BA2F20ED8A00A13300 /* PRD.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRD.md; sourceTree = "<group>"; };
 		3F65C3EA2F20F0F400A13300 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -43,7 +41,6 @@
 			children = (
 				3F0AA3F72F215B9F00DE0C25 /* README.md */,
 				3F65C3EA2F20F0F400A13300 /* CLAUDE.md */,
-				3F65C3BA2F20ED8A00A13300 /* PRD.md */,
 				3F65C3AC2F20EBFD00A13300 /* Plotline */,
 				3F65C3AB2F20EBFD00A13300 /* Products */,
 			);
@@ -121,7 +118,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3F65C3BB2F20ED9200A13300 /* PRD.md in Resources */,
 				3F65C3EB2F20F0F400A13300 /* CLAUDE.md in Resources */,
 				3F0AA3F82F215B9F00DE0C25 /* README.md in Resources */,
 			);
