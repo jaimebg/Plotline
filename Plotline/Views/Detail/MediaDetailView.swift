@@ -37,6 +37,7 @@ struct MediaDetailView: View {
                     // Ratings section
                     ScorecardsView(
                         ratings: viewModel.ratings,
+                        tmdbScore: viewModel.media.voteAverage,
                         isLoading: viewModel.isLoadingRatings,
                         error: viewModel.ratingsError,
                         imdbId: viewModel.media.imdbId,
@@ -46,10 +47,15 @@ struct MediaDetailView: View {
                     // Overview
                     overviewSection
 
+                    // Movie-specific content
+                    if !viewModel.isTVSeries {
+                        movieFeaturesSection
+                    }
+
                     // Series-specific content
                     if viewModel.isTVSeries {
-                        // Episode ratings grid
-                        if !viewModel.episodesBySeason.isEmpty {
+                        // Episode ratings grid (hidden for shows with 100+ eps/season due to API limits)
+                        if viewModel.shouldShowEpisodeGrid {
                             EpisodeRatingsGridView(
                                 episodesBySeason: viewModel.episodesBySeason,
                                 totalSeasons: viewModel.totalSeasons
@@ -148,12 +154,6 @@ struct MediaDetailView: View {
                         .foregroundStyle(.primary.opacity(0.9))
                 }
 
-                if viewModel.media.voteAverage > 0 {
-                    Label(viewModel.media.formattedRating, systemImage: "star.fill")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.imdbYellow)
-                }
-
                 if let totalSeasons = viewModel.media.totalSeasons, viewModel.media.isTVSeries {
                     Label("\(totalSeasons) Seasons", systemImage: "film.stack")
                         .font(.subheadline)
@@ -222,6 +222,46 @@ struct MediaDetailView: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .lineSpacing(4)
+        }
+    }
+
+    // MARK: - Movie Features Section
+
+    @ViewBuilder
+    private var movieFeaturesSection: some View {
+        // Awards
+        if viewModel.hasAwards, let awards = viewModel.awardsData {
+            AwardsView(awards: awards)
+        }
+
+        // Box Office
+        if viewModel.hasBoxOffice, let boxOffice = viewModel.boxOffice {
+            BoxOfficeView(boxOffice: boxOffice)
+        }
+
+        // Franchise Timeline
+        if viewModel.hasCollectionData, let collectionName = viewModel.media.collectionName {
+            FranchiseTimelineView(
+                movies: viewModel.collectionMovies,
+                collectionName: collectionName,
+                currentMovieId: viewModel.media.id,
+                isLoading: viewModel.isLoadingCollection
+            )
+        }
+
+        // Filmography
+        if viewModel.hasFilmographyData {
+            FilmographyView(
+                selectedType: Binding(
+                    get: { viewModel.selectedFilmographyType },
+                    set: { viewModel.selectedFilmographyType = $0 }
+                ),
+                directorName: viewModel.director?.name,
+                actorName: viewModel.leadActor?.name,
+                directorFilmography: viewModel.directorFilmography,
+                actorFilmography: viewModel.actorFilmography,
+                isLoading: viewModel.isLoadingFilmography
+            )
         }
     }
 

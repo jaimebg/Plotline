@@ -110,5 +110,6 @@ The star feature uses Swift Charts to visualize episode ratings:
 
 ## Workflow Rules
 
-- **Before committing**: Always spawn the `code-simplifier:code-simplifier` agent to review and simplify recently modified code before creating a commit
+- **Never commit unless explicitly told**: Do not create commits automatically. Wait for the user to explicitly request a commit.
+- **Before committing**: When the user asks to commit, spawn the `code-simplifier:code-simplifier` agent to review and simplify recently modified code before creating the commit.
 - **When building features**: Use the `apple-docs` MCP tools to check Apple Developer Documentation for correct API usage, best practices, and platform compatibility

@@ -3,9 +3,9 @@ import Foundation
 /// Unified model representing both movies and TV series from TMDB
 struct MediaItem: Identifiable, Codable, Hashable {
     let id: Int
-    let overview: String
-    let posterPath: String?
-    let backdropPath: String?
+    var overview: String
+    var posterPath: String?
+    var backdropPath: String?
     let voteAverage: Double
     let voteCount: Int
     let genreIds: [Int]?
@@ -28,6 +28,13 @@ struct MediaItem: Identifiable, Codable, Hashable {
     var externalRatings: [RatingSource]?
     var seasonEpisodes: [EpisodeMetric]?
     var totalSeasons: Int?
+
+    // Movie-specific enriched data
+    var budget: Int?
+    var revenue: Int?
+    var collectionId: Int?
+    var collectionName: String?
+    var awards: String?
 
     // MARK: - Computed Properties
 
@@ -69,6 +76,13 @@ struct MediaItem: Identifiable, Codable, Hashable {
         mediaType == .tv || name != nil
     }
 
+    /// Box office data computed from budget and revenue
+    var boxOffice: BoxOfficeData? {
+        guard let budget = budget, let revenue = revenue else { return nil }
+        let data = BoxOfficeData(budget: budget, revenue: revenue)
+        return data.hasData ? data : nil
+    }
+
     // MARK: - Coding Keys
 
     enum CodingKeys: String, CodingKey {
@@ -88,6 +102,11 @@ struct MediaItem: Identifiable, Codable, Hashable {
         case externalRatings
         case seasonEpisodes
         case totalSeasons
+        case budget
+        case revenue
+        case collectionId
+        case collectionName
+        case awards
     }
 
     // MARK: - Custom Decoder (handles missing fields from person results)
@@ -111,6 +130,11 @@ struct MediaItem: Identifiable, Codable, Hashable {
         externalRatings = try container.decodeIfPresent([RatingSource].self, forKey: .externalRatings)
         seasonEpisodes = try container.decodeIfPresent([EpisodeMetric].self, forKey: .seasonEpisodes)
         totalSeasons = try container.decodeIfPresent(Int.self, forKey: .totalSeasons)
+        budget = try container.decodeIfPresent(Int.self, forKey: .budget)
+        revenue = try container.decodeIfPresent(Int.self, forKey: .revenue)
+        collectionId = try container.decodeIfPresent(Int.self, forKey: .collectionId)
+        collectionName = try container.decodeIfPresent(String.self, forKey: .collectionName)
+        awards = try container.decodeIfPresent(String.self, forKey: .awards)
     }
 
     // MARK: - Memberwise Initializer
@@ -131,7 +155,12 @@ struct MediaItem: Identifiable, Codable, Hashable {
         imdbId: String? = nil,
         externalRatings: [RatingSource]? = nil,
         seasonEpisodes: [EpisodeMetric]? = nil,
-        totalSeasons: Int? = nil
+        totalSeasons: Int? = nil,
+        budget: Int? = nil,
+        revenue: Int? = nil,
+        collectionId: Int? = nil,
+        collectionName: String? = nil,
+        awards: String? = nil
     ) {
         self.id = id
         self.overview = overview
@@ -149,6 +178,11 @@ struct MediaItem: Identifiable, Codable, Hashable {
         self.externalRatings = externalRatings
         self.seasonEpisodes = seasonEpisodes
         self.totalSeasons = totalSeasons
+        self.budget = budget
+        self.revenue = revenue
+        self.collectionId = collectionId
+        self.collectionName = collectionName
+        self.awards = awards
     }
 }
 

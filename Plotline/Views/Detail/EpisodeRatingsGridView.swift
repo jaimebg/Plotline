@@ -41,7 +41,8 @@ struct EpisodeRatingsGridView: View {
     private let cellSpacing: CGFloat = 6
 
     private var maxEpisodes: Int {
-        episodesBySeason.values.map { $0.count }.max() ?? 0
+        // Find the highest episode number across all seasons (not array count)
+        episodesBySeason.values.flatMap { $0 }.map { $0.episodeNumber }.max() ?? 0
     }
 
     private var seasonNumbers: [Int] {
@@ -138,21 +139,32 @@ struct EpisodeRatingsGridView: View {
         let episodes = episodesBySeason[season]
         let episode = episodes?.first { $0.episodeNumber == episodeNumber }
 
-        if let episode, episode.hasValidRating {
-            let category = RatingCategory.category(for: episode.rating)
-            Text(episode.formattedRating)
-                .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                .foregroundStyle(category == .good ? .black : .white)
-                .frame(width: cellSize, height: 36)
-                .background(category.color)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-        } else if episodes == nil || (episodes?.count ?? 0) < episodeNumber {
-            // Season not loaded or episode not yet aired
+        if episodes == nil {
+            // Season data not loaded yet
             placeholderCell(text: "?")
+        } else if let episode {
+            // Episode exists in this season
+            if episode.hasValidRating {
+                let category = RatingCategory.category(for: episode.rating)
+                Text(episode.formattedRating)
+                    .font(.system(.subheadline, design: .monospaced, weight: .bold))
+                    .foregroundStyle(category == .good ? .black : .white)
+                    .frame(width: cellSize, height: 36)
+                    .background(category.color)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            } else {
+                // Episode exists but has N/A rating
+                placeholderCell(text: "N/A", font: .caption2)
+            }
         } else {
-            // Episode exists but no valid rating
-            placeholderCell(text: "N/A", font: .caption2)
+            // Episode number doesn't exist for this season (shorter season)
+            emptyCell
         }
+    }
+
+    private var emptyCell: some View {
+        Color.clear
+            .frame(width: cellSize, height: 36)
     }
 
     private func placeholderCell(text: String, font: Font.TextStyle = .subheadline) -> some View {

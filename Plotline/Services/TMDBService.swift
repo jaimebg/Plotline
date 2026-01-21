@@ -141,9 +141,9 @@ struct TMDBService {
 
         let response: TMDBResponse = try await networkManager.fetch(TMDBResponse.self, from: url)
 
-        // Filter to only movies and TV shows
+        // Filter to only movies and TV shows with posters
         return response.results.filter { item in
-            item.mediaType == .movie || item.mediaType == .tv
+            (item.mediaType == .movie || item.mediaType == .tv) && item.posterPath != nil
         }
     }
 
@@ -160,7 +160,8 @@ struct TMDBService {
         }
 
         let response: TMDBResponse = try await networkManager.fetch(TMDBResponse.self, from: url)
-        return response.results
+        // Filter out items without posters
+        return response.results.filter { $0.posterPath != nil }
     }
 
     /// Search only TV series
@@ -176,7 +177,8 @@ struct TMDBService {
         }
 
         let response: TMDBResponse = try await networkManager.fetch(TMDBResponse.self, from: url)
-        return response.results
+        // Filter out items without posters
+        return response.results.filter { $0.posterPath != nil }
     }
 
     // MARK: - Credits
@@ -197,6 +199,28 @@ struct TMDBService {
         }
 
         return try await networkManager.fetch(TMDBCreditsResponse.self, from: url)
+    }
+
+    // MARK: - Collections
+
+    /// Fetch collection details (franchise movies)
+    func fetchCollection(id: Int) async throws -> TMDBCollectionResponse {
+        guard let url = buildURL(path: "/collection/\(id)") else {
+            throw NetworkError.invalidURL
+        }
+
+        return try await networkManager.fetch(TMDBCollectionResponse.self, from: url)
+    }
+
+    // MARK: - Person Credits
+
+    /// Fetch movie credits for a person (filmography)
+    func fetchPersonMovieCredits(personId: Int) async throws -> TMDBPersonCreditsResponse {
+        guard let url = buildURL(path: "/person/\(personId)/movie_credits") else {
+            throw NetworkError.invalidURL
+        }
+
+        return try await networkManager.fetch(TMDBPersonCreditsResponse.self, from: url)
     }
 
     // MARK: - Private Helpers

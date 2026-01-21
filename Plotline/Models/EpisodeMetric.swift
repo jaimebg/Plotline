@@ -10,14 +10,19 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
 
     // MARK: - Computed Properties
 
+    /// Cleaned rating string (trimmed whitespace)
+    private var cleanedRating: String {
+        imdbRating.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Rating as Double for Swift Charts
     var rating: Double {
-        Double(imdbRating) ?? 0.0
+        Double(cleanedRating) ?? 0.0
     }
 
     /// Formatted rating string (e.g., "8.5")
     var formattedRating: String {
-        if let value = Double(imdbRating) {
+        if let value = Double(cleanedRating) {
             return String(format: "%.1f", value)
         }
         return imdbRating
@@ -35,7 +40,15 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
 
     /// Checks if rating data is valid
     var hasValidRating: Bool {
-        rating > 0.0 && imdbRating.lowercased() != "n/a"
+        let cleaned = cleanedRating.lowercased()
+        // Check for various N/A formats and empty strings
+        guard !cleaned.isEmpty,
+              cleaned != "n/a",
+              cleaned != "na",
+              cleaned != "-" else {
+            return false
+        }
+        return rating > 0.0
     }
 
     // MARK: - Initializers

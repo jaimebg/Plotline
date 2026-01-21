@@ -94,6 +94,8 @@ struct OMDbSeasonResponse: Codable {
     }
 
     /// Convert episodes to EpisodeMetric array
+    /// Note: Returns ALL episodes including those with N/A ratings.
+    /// Views should filter for valid ratings when needed (e.g., charts).
     func toEpisodeMetrics() -> [EpisodeMetric] {
         guard let episodes = episodes, let seasonNum = seasonNumber else {
             return []
@@ -107,7 +109,7 @@ struct OMDbSeasonResponse: Codable {
                 title: episode.title,
                 imdbRating: episode.imdbRating
             )
-        }.filter { $0.hasValidRating }
+        }
     }
 }
 

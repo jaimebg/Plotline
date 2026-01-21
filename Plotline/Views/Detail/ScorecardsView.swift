@@ -3,17 +3,23 @@ import SwiftUI
 /// Horizontal row of rating scorecards
 struct ScorecardsView: View {
     let ratings: [RatingSource]
+    let tmdbScore: Double?
     let isLoading: Bool
     let error: String?
     let imdbId: String?
     let title: String?
 
-    init(ratings: [RatingSource], isLoading: Bool = false, error: String? = nil, imdbId: String? = nil, title: String? = nil) {
+    init(ratings: [RatingSource], tmdbScore: Double? = nil, isLoading: Bool = false, error: String? = nil, imdbId: String? = nil, title: String? = nil) {
         self.ratings = ratings
+        self.tmdbScore = tmdbScore
         self.isLoading = isLoading
         self.error = error
         self.imdbId = imdbId
         self.title = title
+    }
+
+    private var hasAnyRating: Bool {
+        !ratings.isEmpty || (tmdbScore ?? 0) > 0
     }
 
     var body: some View {
@@ -26,9 +32,9 @@ struct ScorecardsView: View {
             // Content
             if isLoading {
                 loadingView
-            } else if let error = error, ratings.isEmpty {
+            } else if let error = error, !hasAnyRating {
                 errorView(message: error)
-            } else if ratings.isEmpty {
+            } else if !hasAnyRating {
                 emptyView
             } else {
                 ratingsRow
@@ -41,6 +47,12 @@ struct ScorecardsView: View {
     private var ratingsRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
+                // TMDB score first
+                if let score = tmdbScore, score > 0 {
+                    TMDBRatingCard(score: score)
+                }
+
+                // External ratings
                 ForEach(ratings) { rating in
                     RatingCard(rating: rating, style: .standard, imdbId: imdbId, title: title)
                 }

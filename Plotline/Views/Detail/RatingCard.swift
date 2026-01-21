@@ -52,27 +52,27 @@ struct RatingCard: View {
     // MARK: - Standard Card
 
     private var standardCard: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             // Icon
             ratingIcon
-                .font(.title2)
+                .font(.title3)
 
             // Value
             Text(rating.displayValue)
-                .font(.system(.title3, design: .monospaced, weight: .bold))
+                .font(.system(.subheadline, design: .monospaced, weight: .bold))
                 .foregroundStyle(.primary)
 
             // Source label
             Text(rating.shortName)
-                .font(.caption)
+                .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }
-        .frame(minWidth: 80)
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .frame(minWidth: 70)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
         .background(Color.plotlineCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
     }
@@ -205,6 +205,43 @@ struct RatingCard: View {
         }
 
         return label
+    }
+}
+
+// MARK: - TMDB Rating Card
+
+/// Rating card for TMDB user scores
+struct TMDBRatingCard: View {
+    let score: Double
+
+    private var formattedScore: String {
+        String(format: "%.1f", score)
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            // TMDB icon
+            Image(systemName: "person.3.fill")
+                .font(.title3)
+                .foregroundStyle(Color.plotlineSecondaryAccent)
+
+            // Value
+            Text(formattedScore)
+                .font(.system(.subheadline, design: .monospaced, weight: .bold))
+                .foregroundStyle(.primary)
+
+            // Source label
+            Text("TMDB")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .frame(minWidth: 70)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(Color.plotlineCard)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("TMDB user rating: \(formattedScore) out of 10")
     }
 }
 

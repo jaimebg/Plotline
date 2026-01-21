@@ -12,6 +12,9 @@ struct OMDbService {
     // Cache for OMDb responses to avoid repeated API calls
     private let cache = OMDbCache.shared
 
+    // Cache version - increment when data format changes to invalidate old cache
+    private let cacheVersion = "v2"
+
     private init() {}
 
     // MARK: - Public Methods
@@ -66,8 +69,8 @@ struct OMDbService {
 
     /// Fetch episode ratings for a specific season
     func fetchSeasonEpisodes(imdbId: String, season: Int) async throws -> [EpisodeMetric] {
-        // Check cache first
-        let cacheKey = "\(imdbId)_S\(season)"
+        // Check cache first (versioned key invalidates old data)
+        let cacheKey = "\(cacheVersion)_\(imdbId)_S\(season)"
         if let cached = await cache.getEpisodes(for: cacheKey) {
             return cached
         }
@@ -87,6 +90,19 @@ struct OMDbService {
         }
 
         let episodes = response.toEpisodeMetrics()
+
+        #if DEBUG
+        // Log episode count (OMDb API limits to 100 episodes per season)
+        if episodes.count >= 100 {
+            print("⚠️ OMDb S\(season): Hit 100 episode limit - show may have more episodes")
+        }
+        // Log episodes with invalid ratings for debugging
+        let invalidEpisodes = episodes.filter { !$0.hasValidRating }
+        if !invalidEpisodes.isEmpty {
+            print("⚠️ OMDb S\(season): \(invalidEpisodes.count) episodes with invalid ratings")
+        }
+        print("✅ OMDb S\(season): \(episodes.count) total, \(episodes.filter { $0.hasValidRating }.count) valid")
+        #endif
 
         // Cache the result
         await cache.setEpisodes(episodes, for: cacheKey)

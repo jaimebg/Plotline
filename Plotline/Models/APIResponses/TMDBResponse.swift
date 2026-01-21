@@ -6,13 +6,6 @@ struct TMDBResponse: Codable {
     let results: [MediaItem]
     let totalPages: Int
     let totalResults: Int
-
-    enum CodingKeys: String, CodingKey {
-        case page
-        case results
-        case totalPages
-        case totalResults
-    }
 }
 
 /// Response for TMDB movie/tv detail with external IDs
@@ -29,6 +22,9 @@ struct TMDBDetailResponse: Codable {
     let title: String?
     let releaseDate: String?
     let runtime: Int?
+    let budget: Int?
+    let revenue: Int?
+    let belongsToCollection: MovieCollection?
 
     // TV-specific
     let name: String?
@@ -38,24 +34,6 @@ struct TMDBDetailResponse: Codable {
 
     // External IDs (from append_to_response)
     let externalIds: ExternalIds?
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case overview
-        case posterPath
-        case backdropPath
-        case voteAverage
-        case voteCount
-        case genres
-        case title
-        case releaseDate
-        case runtime
-        case name
-        case firstAirDate
-        case numberOfSeasons
-        case numberOfEpisodes
-        case externalIds
-    }
 
     /// Converts to MediaItem for unified handling
     func toMediaItem(mediaType: MediaType) -> MediaItem {
@@ -75,7 +53,11 @@ struct TMDBDetailResponse: Codable {
             imdbId: externalIds?.imdbId,
             externalRatings: nil,
             seasonEpisodes: nil,
-            totalSeasons: numberOfSeasons
+            totalSeasons: numberOfSeasons,
+            budget: budget,
+            revenue: revenue,
+            collectionId: belongsToCollection?.id,
+            collectionName: belongsToCollection?.name
         )
     }
 }
@@ -92,13 +74,6 @@ struct ExternalIds: Codable {
     let facebookId: String?
     let instagramId: String?
     let twitterId: String?
-
-    enum CodingKeys: String, CodingKey {
-        case imdbId
-        case facebookId
-        case instagramId
-        case twitterId
-    }
 }
 
 /// Response for TMDB credits endpoint
@@ -120,14 +95,6 @@ struct CastMember: Codable, Identifiable, Hashable {
         guard let path = profilePath else { return nil }
         return URL(string: "https://image.tmdb.org/t/p/w185\(path)")
     }
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case character
-        case profilePath
-        case order
-    }
 }
 
 /// Crew member from TMDB
@@ -137,12 +104,194 @@ struct CrewMember: Codable, Identifiable, Hashable {
     let job: String
     let department: String
     let profilePath: String?
+}
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case job
-        case department
-        case profilePath
+// MARK: - Collection Models
+
+/// Movie collection reference from detail response
+struct MovieCollection: Codable, Identifiable, Hashable {
+    let id: Int
+    let name: String
+    let posterPath: String?
+    let backdropPath: String?
+
+    var posterURL: URL? {
+        guard let path = posterPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w500\(path)")
+    }
+
+    var backdropURL: URL? {
+        guard let path = backdropPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/original\(path)")
+    }
+}
+
+/// Full collection response from TMDB /collection/{id}
+struct TMDBCollectionResponse: Codable, Identifiable {
+    let id: Int
+    let name: String
+    let overview: String?
+    let posterPath: String?
+    let backdropPath: String?
+    let parts: [CollectionMovie]
+}
+
+/// Movie within a collection
+struct CollectionMovie: Codable, Identifiable, Hashable {
+    let id: Int
+    let title: String
+    let overview: String?
+    let releaseDate: String?
+    let voteAverage: Double
+    let voteCount: Int
+    let posterPath: String?
+    let backdropPath: String?
+
+    /// Year extracted from release date
+    var year: String? {
+        guard let date = releaseDate, date.count >= 4 else { return nil }
+        return String(date.prefix(4))
+    }
+
+    /// Year as integer for sorting
+    var yearInt: Int? {
+        year.flatMap { Int($0) }
+    }
+
+    var posterURL: URL? {
+        guard let path = posterPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w342\(path)")
+    }
+
+    /// Formatted rating string
+    var formattedRating: String {
+        String(format: "%.1f", voteAverage)
+    }
+
+    /// Convert to MediaItem for navigation
+    func toMediaItem() -> MediaItem {
+        MediaItem(
+            id: id,
+            overview: overview ?? "",
+            posterPath: posterPath,
+            backdropPath: backdropPath,
+            voteAverage: voteAverage,
+            voteCount: voteCount,
+            genreIds: nil,
+            title: title,
+            releaseDate: releaseDate,
+            name: nil,
+            firstAirDate: nil,
+            mediaType: .movie
+        )
+    }
+}
+
+// MARK: - Person Credits Models
+
+/// Response for TMDB /person/{id}/movie_credits
+struct TMDBPersonCreditsResponse: Codable {
+    let id: Int
+    let cast: [PersonCastCredit]
+    let crew: [PersonCrewCredit]
+}
+
+/// Cast credit for a person (movies they acted in)
+struct PersonCastCredit: Codable, Identifiable, Hashable {
+    let id: Int
+    let title: String?
+    let character: String?
+    let releaseDate: String?
+    let voteAverage: Double
+    let voteCount: Int
+    let posterPath: String?
+    let popularity: Double
+    let adult: Bool?
+
+    /// Year extracted from release date
+    var year: String? {
+        guard let date = releaseDate, date.count >= 4 else { return nil }
+        return String(date.prefix(4))
+    }
+
+    var posterURL: URL? {
+        guard let path = posterPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w342\(path)")
+    }
+
+    /// Formatted rating string
+    var formattedRating: String {
+        String(format: "%.1f", voteAverage)
+    }
+
+    /// Convert to MediaItem for navigation
+    func toMediaItem() -> MediaItem {
+        MediaItem(
+            id: id,
+            overview: "",
+            posterPath: posterPath,
+            backdropPath: nil,
+            voteAverage: voteAverage,
+            voteCount: voteCount,
+            genreIds: nil,
+            title: title,
+            releaseDate: releaseDate,
+            name: nil,
+            firstAirDate: nil,
+            mediaType: .movie
+        )
+    }
+}
+
+/// Crew credit for a person (movies they worked on)
+struct PersonCrewCredit: Codable, Identifiable, Hashable {
+    let id: Int
+    let title: String?
+    let job: String?
+    let department: String?
+    let releaseDate: String?
+    let voteAverage: Double
+    let voteCount: Int
+    let posterPath: String?
+    let popularity: Double
+    let adult: Bool?
+
+    /// Year extracted from release date
+    var year: String? {
+        guard let date = releaseDate, date.count >= 4 else { return nil }
+        return String(date.prefix(4))
+    }
+
+    var posterURL: URL? {
+        guard let path = posterPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w342\(path)")
+    }
+
+    /// Formatted rating string
+    var formattedRating: String {
+        String(format: "%.1f", voteAverage)
+    }
+
+    /// Check if this is a director credit
+    var isDirector: Bool {
+        job?.lowercased() == "director"
+    }
+
+    /// Convert to MediaItem for navigation
+    func toMediaItem() -> MediaItem {
+        MediaItem(
+            id: id,
+            overview: "",
+            posterPath: posterPath,
+            backdropPath: nil,
+            voteAverage: voteAverage,
+            voteCount: voteCount,
+            genreIds: nil,
+            title: title,
+            releaseDate: releaseDate,
+            name: nil,
+            firstAirDate: nil,
+            mediaType: .movie
+        )
     }
 }
