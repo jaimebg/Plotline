@@ -60,7 +60,7 @@ struct SeriesGraphView: View {
                     .foregroundStyle(Color.plotlineGold)
                 Text("Episode Ratings")
                     .font(.system(.headline, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
 
             Spacer()
@@ -134,7 +134,7 @@ struct SeriesGraphView: View {
                     if selectedEpisodeNumber == episode.episodeNumber {
                         Text(episode.formattedRating)
                             .font(.system(.caption2, design: .monospaced, weight: .bold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.plotlineCard)
@@ -148,7 +148,7 @@ struct SeriesGraphView: View {
         .chartXAxis {
             AxisMarks(values: xAxisValues) { value in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                    .foregroundStyle(Color.white.opacity(0.1))
+                    .foregroundStyle(Color.primary.opacity(0.1))
                 AxisValueLabel {
                     if let episode = value.as(Int.self) {
                         Text("E\(episode)")
@@ -161,7 +161,7 @@ struct SeriesGraphView: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: [0, 2.5, 5, 7.5, 10]) { value in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                    .foregroundStyle(Color.white.opacity(0.1))
+                    .foregroundStyle(Color.primary.opacity(0.1))
                 AxisValueLabel {
                     if let rating = value.as(Double.self) {
                         Text(String(format: "%.0f", rating))
@@ -195,7 +195,7 @@ struct SeriesGraphView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(episode.title)
                     .font(.subheadline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
 
                 Text(episode.fullCode)
@@ -212,7 +212,7 @@ struct SeriesGraphView: View {
                     .foregroundStyle(Color.imdbYellow)
                 Text(episode.formattedRating)
                     .font(.system(.title3, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
         }
         .padding()
@@ -324,7 +324,7 @@ struct AllSeasonsGraphView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("All Seasons Overview")
                 .font(.system(.headline, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             Chart {
                 ForEach(seasonData, id: \.season) { data in
@@ -344,7 +344,7 @@ struct AllSeasonsGraphView: View {
             .chartYAxis {
                 AxisMarks(position: .leading, values: [0, 5, 10]) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                        .foregroundStyle(Color.white.opacity(0.1))
+                        .foregroundStyle(Color.primary.opacity(0.1))
                     AxisValueLabel {
                         if let rating = value.as(Double.self) {
                             Text(String(format: "%.0f", rating))

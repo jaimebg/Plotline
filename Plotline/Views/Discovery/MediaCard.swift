@@ -53,7 +53,7 @@ struct MediaCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.displayTitle)
                         .font(.system(.subheadline, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
 

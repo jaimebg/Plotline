@@ -17,7 +17,7 @@ struct ScorecardsView: View {
             // Section header
             Text("Ratings")
                 .font(.system(.headline, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             // Content
             if isLoading {
@@ -124,7 +124,7 @@ struct SingleRatingView: View {
 
             Text(rating.displayValue)
                 .font(.system(.subheadline, design: .monospaced, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             if showLabel {
                 Text(rating.shortName)
@@ -146,7 +146,7 @@ struct SingleRatingView: View {
         case .metacritic:
             Text("M")
                 .font(.system(.caption2, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .frame(width: 16, height: 16)
                 .background(metacriticColor)
                 .clipShape(RoundedRectangle(cornerRadius: 3))

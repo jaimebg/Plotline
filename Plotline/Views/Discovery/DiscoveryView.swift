@@ -2,8 +2,10 @@ import SwiftUI
 
 /// Main discovery screen with trending and popular content
 struct DiscoveryView: View {
+    @Environment(\.themeManager) private var themeManager
     @State private var viewModel = DiscoveryViewModel()
     @State private var navigationPath = NavigationPath()
+    @State private var showSettings = false
     @Namespace private var namespace
 
     var body: some View {
@@ -26,9 +28,24 @@ struct DiscoveryView: View {
                 .refreshable {
                     await viewModel.refresh()
                 }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showSettings = true
+                        } label: {
+                            Image(systemName: "gear")
+                                .font(.system(size: 17))
+                                .foregroundStyle(Color.plotlinePrimary)
+                        }
+                    }
+                }
+                .sheet(isPresented: $showSettings) {
+                    SettingsView()
+                        .preferredColorScheme(themeManager.colorScheme)
+                }
         }
         .environment(\.navigationNamespace, namespace)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(themeManager.colorScheme)
         .task {
             await viewModel.loadContent()
         }
@@ -38,14 +55,11 @@ struct DiscoveryView: View {
 
     @ViewBuilder
     private var content: some View {
-        Group {
-            if viewModel.isSearchActive {
-                searchResultsView
-            } else {
-                mainContentView
-            }
+        if viewModel.isSearchActive {
+            searchResultsView
+        } else {
+            mainContentView
         }
-        .animation(.none, value: viewModel.isSearchActive)
     }
 
     // MARK: - Main Content
@@ -53,46 +67,21 @@ struct DiscoveryView: View {
     @ViewBuilder
     private var mainContentView: some View {
         if viewModel.isLoading && !viewModel.hasContent {
-            loadingView
+            DiscoverySkeletonView()
         } else if let error = viewModel.errorMessage, !viewModel.hasContent {
             errorView(message: error)
         } else {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 28) {
-                    // Featured/Trending section
-                    if !viewModel.trendingMovies.isEmpty {
-                        FeaturedSection(
-                            title: "Trending Now",
-                            items: Array(viewModel.trendingMovies.prefix(5))
-                        )
-                    }
+                    MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
+                    MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
 
-                    // Trending Movies
-                    MediaSection(
-                        title: "Trending Movies",
-                        items: viewModel.trendingMovies
-                    )
-
-                    // Trending Series
-                    MediaSection(
-                        title: "Trending Series",
-                        items: viewModel.trendingSeries
-                    )
-
-                    // Popular Movies
                     if !viewModel.popularMovies.isEmpty {
-                        MediaSection(
-                            title: "Popular Movies",
-                            items: viewModel.popularMovies
-                        )
+                        MediaSection(title: "Popular Movies", items: viewModel.popularMovies)
                     }
 
-                    // Top Rated Series
                     if !viewModel.topRatedSeries.isEmpty {
-                        MediaSection(
-                            title: "Top Rated Series",
-                            items: viewModel.topRatedSeries
-                        )
+                        MediaSection(title: "Top Rated Series", items: viewModel.topRatedSeries)
                     }
                 }
                 .padding(.vertical)
@@ -129,12 +118,6 @@ struct DiscoveryView: View {
         }
     }
 
-    // MARK: - Loading View
-
-    private var loadingView: some View {
-        DiscoverySkeletonView()
-    }
-
     // MARK: - Error View
 
     private func errorView(message: String) -> some View {
@@ -160,7 +143,6 @@ struct SearchResultRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Poster thumbnail
             AsyncImage(url: item.posterURL) { phase in
                 switch phase {
                 case .empty:
@@ -173,26 +155,22 @@ struct SearchResultRow: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
 
-                case .failure:
+                case .failure, _:
                     Rectangle()
                         .fill(Color.plotlineCard)
                         .overlay {
                             Image(systemName: item.isTVSeries ? "tv" : "film")
                                 .foregroundStyle(.secondary)
                         }
-
-                @unknown default:
-                    Rectangle().fill(Color.plotlineCard)
                 }
             }
             .frame(width: 60, height: 90)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            // Info
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.displayTitle)
                     .font(.system(.headline, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .lineLimit(2)
 
                 HStack(spacing: 8) {
@@ -218,7 +196,7 @@ struct SearchResultRow: View {
                             .foregroundStyle(Color.imdbYellow)
                         Text(item.formattedRating)
                             .font(.subheadline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                     }
                 }
             }

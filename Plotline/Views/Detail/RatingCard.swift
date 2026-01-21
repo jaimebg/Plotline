@@ -38,7 +38,7 @@ struct RatingCard: View {
             // Value
             Text(rating.displayValue)
                 .font(.system(.title3, design: .monospaced, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             // Source label
             Text(rating.shortName)
@@ -65,7 +65,7 @@ struct RatingCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(rating.displayValue)
                     .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
 
                 Text(rating.shortName)
                     .font(.caption2)
@@ -90,7 +90,7 @@ struct RatingCard: View {
 
             Text(rating.displayValue)
                 .font(.system(.caption, design: .monospaced, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
@@ -145,7 +145,7 @@ struct RatingCard: View {
 
         Text("M")
             .font(.system(.caption, design: .rounded, weight: .bold))
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
             .frame(width: 20, height: 20)
             .background(color)
             .clipShape(RoundedRectangle(cornerRadius: 4))

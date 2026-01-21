@@ -15,25 +15,37 @@ extension Color {
     /// Highlight - golden yellow
     static let plotlineGold = Color(hex: "F6CE71")
 
-    /// Main background color (dark)
-    static let plotlineBackground = Color(hex: "121212")
+    // MARK: - Adaptive Background Colors
+    // Note: plotlineBackground, plotlineBlack, plotlineCard, plotlineSecondary
+    // are auto-generated from Asset Catalog color sets
 
-    /// Pure black for OLED screens
-    static let plotlineBlack = Color(hex: "000000")
+    // MARK: - Fallback Colors (for programmatic use)
 
-    /// Card background color
-    static let plotlineCard = Color(hex: "1E1E1E")
+    /// Dark mode background
+    static let plotlineBackgroundDark = Color(hex: "121212")
 
-    /// Secondary text color
-    static let plotlineSecondary = Color(hex: "A0A0A0")
+    /// Light mode background
+    static let plotlineBackgroundLight = Color(hex: "F5F5F5")
+
+    /// Dark mode card
+    static let plotlineCardDark = Color(hex: "1E1E1E")
+
+    /// Light mode card
+    static let plotlineCardLight = Color(hex: "FFFFFF")
+
+    /// Dark mode secondary text
+    static let plotlineSecondaryDark = Color(hex: "A0A0A0")
+
+    /// Light mode secondary text
+    static let plotlineSecondaryLight = Color(hex: "666666")
 
     // MARK: - Rating Colors (Industry Standard)
 
-    /// IMDb yellow
-    static let imdbYellow = Color(hex: "F6CE71")
+    /// IMDb yellow (same as plotlineGold)
+    static let imdbYellow = plotlineGold
 
-    /// Rotten Tomatoes red (rotten)
-    static let rottenRed = Color(hex: "C40C0C")
+    /// Rotten Tomatoes red (same as plotlinePrimary)
+    static let rottenRed = plotlinePrimary
 
     /// Rotten Tomatoes green (fresh)
     static let rottenGreen = Color(hex: "0AC855")
@@ -41,22 +53,42 @@ extension Color {
     /// Metacritic green (favorable)
     static let metacriticGreen = Color(hex: "66CC33")
 
-    /// Metacritic yellow (mixed)
-    static let metacriticYellow = Color(hex: "F6CE71")
+    /// Metacritic yellow (same as plotlineGold)
+    static let metacriticYellow = plotlineGold
 
-    /// Metacritic red (unfavorable)
-    static let metacriticRed = Color(hex: "C40C0C")
+    /// Metacritic red (same as plotlinePrimary)
+    static let metacriticRed = plotlinePrimary
 
     // MARK: - Chart Gradient Colors
 
-    /// High rating color for charts
-    static let chartHigh = Color(hex: "F6CE71")
+    /// High rating color for charts (same as plotlineGold)
+    static let chartHigh = plotlineGold
 
-    /// Medium rating color for charts
-    static let chartMedium = Color(hex: "FF6500")
+    /// Medium rating color for charts (same as plotlineSecondaryAccent)
+    static let chartMedium = plotlineSecondaryAccent
 
-    /// Low rating color for charts
-    static let chartLow = Color(hex: "C40C0C")
+    /// Low rating color for charts (same as plotlinePrimary)
+    static let chartLow = plotlinePrimary
+
+    // MARK: - Episode Rating Grid Colors
+
+    /// Awesome: 9.0+ (bright green)
+    static let ratingAwesome = Color(hex: "4CAF50")
+
+    /// Great: 8.0-8.9 (light green)
+    static let ratingGreat = Color(hex: "8BC34A")
+
+    /// Good: 7.0-7.9 (yellow)
+    static let ratingGood = Color(hex: "FFEB3B")
+
+    /// Regular: 6.0-6.9 (orange)
+    static let ratingRegular = Color(hex: "FF9800")
+
+    /// Bad: 5.0-5.9 (red)
+    static let ratingBad = Color(hex: "F44336")
+
+    /// Garbage: < 5.0 (purple)
+    static let ratingGarbage = Color(hex: "9C27B0")
 
     // MARK: - Hex Initializer
 

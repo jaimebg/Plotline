@@ -9,11 +9,13 @@ final class MediaDetailViewModel {
     var media: MediaItem
     var ratings: [RatingSource] = []
     var episodes: [EpisodeMetric] = []
+    var episodesBySeason: [Int: [EpisodeMetric]] = [:]
     var selectedSeason: Int = 1
     var totalSeasons: Int = 1
 
     var isLoadingRatings = false
     var isLoadingEpisodes = false
+    var isLoadingAllSeasons = false
     var ratingsError: String?
     var episodesError: String?
 
@@ -52,8 +54,9 @@ final class MediaDetailViewModel {
         // Then fetch OMDb data in parallel
         async let ratingsTask: () = fetchRatings()
         async let episodesTask: () = fetchEpisodesIfSeries()
+        async let allSeasonsTask: () = fetchAllSeasons()
 
-        _ = await (ratingsTask, episodesTask)
+        _ = await (ratingsTask, episodesTask, allSeasonsTask)
     }
 
     /// Fetch ratings from OMDb
@@ -112,6 +115,47 @@ final class MediaDetailViewModel {
         guard season != selectedSeason else { return }
         selectedSeason = season
         await fetchEpisodes()
+    }
+
+    /// Fetch all seasons' episodes for the grid view
+    @MainActor
+    func fetchAllSeasons() async {
+        guard media.isTVSeries else { return }
+        guard let imdbId = media.imdbId else {
+            episodesError = "No IMDb ID available"
+            return
+        }
+
+        isLoadingAllSeasons = true
+        episodesError = nil
+
+        // Fetch all seasons concurrently
+        await withTaskGroup(of: (Int, [EpisodeMetric]?).self) { group in
+            for season in 1...totalSeasons {
+                group.addTask {
+                    do {
+                        let episodes = try await self.omdbService.fetchSeasonEpisodes(
+                            imdbId: imdbId,
+                            season: season
+                        )
+                        return (season, episodes)
+                    } catch {
+                        #if DEBUG
+                        print("Failed to fetch season \(season): \(error)")
+                        #endif
+                        return (season, nil)
+                    }
+                }
+            }
+
+            for await (season, episodes) in group {
+                if let episodes = episodes {
+                    episodesBySeason[season] = episodes
+                }
+            }
+        }
+
+        isLoadingAllSeasons = false
     }
 
     // MARK: - Private Methods
@@ -204,6 +248,10 @@ extension MediaDetailViewModel {
         let vm = MediaDetailViewModel(media: .preview)
         vm.ratings = RatingSource.previewRatings
         vm.episodes = EpisodeMetric.breakingBadS5
+        vm.episodesBySeason = [
+            1: EpisodeMetric.breakingBadS1,
+            5: EpisodeMetric.breakingBadS5
+        ]
         vm.totalSeasons = 5
         return vm
     }

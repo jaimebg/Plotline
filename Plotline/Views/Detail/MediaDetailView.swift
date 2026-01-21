@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Detail view for movies and TV series
 struct MediaDetailView: View {
+    @Environment(\.themeManager) private var themeManager
     @State private var viewModel: MediaDetailViewModel
     @State private var scrollOffset: CGFloat = 0
     @State private var titleVisible: Bool = false
@@ -45,11 +46,16 @@ struct MediaDetailView: View {
 
                     // Series-specific content
                     if viewModel.isTVSeries {
-                        seasonSection
+                        // Episode ratings grid
+                        if !viewModel.episodesBySeason.isEmpty {
+                            EpisodeRatingsGridView(
+                                episodesBySeason: viewModel.episodesBySeason,
+                                totalSeasons: viewModel.totalSeasons
+                            )
+                        } else if viewModel.isLoadingAllSeasons {
+                            episodeGridLoadingView
+                        }
                     }
-
-                    // Additional info
-                    additionalInfoSection
                 }
                 .padding()
                 .padding(.top, -20) // Overlap with gradient for seamless transition
@@ -70,12 +76,12 @@ struct MediaDetailView: View {
             ToolbarItem(placement: .principal) {
                 Text(viewModel.media.displayTitle)
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                     .opacity(titleVisible ? 1 : 0)
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(themeManager.colorScheme)
         .task {
             await viewModel.loadDetails()
         }
@@ -130,14 +136,14 @@ struct MediaDetailView: View {
             // Title
             Text(viewModel.media.displayTitle)
                 .font(.system(.title, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             // Metadata row
             HStack(spacing: 12) {
                 if let year = viewModel.media.year {
                     Label(year, systemImage: "calendar")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(.primary.opacity(0.9))
                 }
 
                 if viewModel.media.voteAverage > 0 {
@@ -149,7 +155,7 @@ struct MediaDetailView: View {
                 if let totalSeasons = viewModel.media.totalSeasons, viewModel.media.isTVSeries {
                     Label("\(totalSeasons) Seasons", systemImage: "film.stack")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(.primary.opacity(0.9))
                 }
             }
             .labelStyle(.titleAndIcon)
@@ -162,20 +168,13 @@ struct MediaDetailView: View {
     private var backdropImage: some View {
         AsyncImage(url: viewModel.media.backdropURL) { phase in
             switch phase {
-            case .empty:
-                Rectangle()
-                    .fill(Color.plotlineCard)
-                    .shimmering()
-
             case .success(let image):
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-
             case .failure:
                 fallbackView
-
-            @unknown default:
+            case .empty, _:
                 Rectangle()
                     .fill(Color.plotlineCard)
                     .shimmering()
@@ -205,7 +204,7 @@ struct MediaDetailView: View {
 
             Image(systemName: viewModel.media.isTVSeries ? "tv" : "film")
                 .font(.system(size: 60))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(.primary.opacity(0.3))
         }
     }
 
@@ -215,7 +214,7 @@ struct MediaDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Overview")
                 .font(.system(.headline, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
             Text(viewModel.media.overview)
                 .font(.body)
@@ -224,294 +223,30 @@ struct MediaDetailView: View {
         }
     }
 
-    // MARK: - Season Section (TV Series)
+    // MARK: - Episode Grid Loading
 
-    @ViewBuilder
-    private var seasonSection: some View {
+    private var episodeGridLoadingView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Section header with season picker
-            HStack {
-                Text("Episodes")
-                    .font(.system(.headline, weight: .semibold))
-                    .foregroundStyle(.white)
-
-                Spacer()
-
-                // Season picker
-                if viewModel.totalSeasons > 1 {
-                    Menu {
-                        ForEach(viewModel.seasonNumbers, id: \.self) { season in
-                            Button("Season \(season)") {
-                                Task {
-                                    await viewModel.selectSeason(season)
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text("Season \(viewModel.selectedSeason)")
-                                .font(.subheadline)
-                            Image(systemName: "chevron.down")
-                                .font(.caption)
-                        }
-                        .foregroundStyle(Color.plotlineGold)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.plotlineCard)
-                        .clipShape(Capsule())
-                    }
-                }
-            }
-
-            // Season stats
-            if viewModel.hasEpisodes {
-                seasonStatsView
-            }
-
-            // Episode list or loading/error state
-            if viewModel.isLoadingEpisodes {
-                episodeLoadingView
-            } else if viewModel.episodesError != nil, !viewModel.hasEpisodes {
-                episodeErrorView
-            } else if viewModel.hasEpisodes {
-                episodeListView
-            } else {
-                Text("No episode data available")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
-            }
-
-            // Episode ratings graph
-            if viewModel.hasEpisodes {
-                SeriesGraphView(
-                    episodes: viewModel.episodes,
-                    seasonNumber: viewModel.selectedSeason
-                )
-            }
-        }
-    }
-
-    // MARK: - Season Stats
-
-    private var seasonStatsView: some View {
-        HStack(spacing: 16) {
-            if let avg = viewModel.averageEpisodeRating {
-                StatCard(
-                    title: "Average",
-                    value: String(format: "%.1f", avg),
-                    icon: "chart.line.uptrend.xyaxis"
-                )
-            }
-
-            if let highest = viewModel.highestRatedEpisode {
-                StatCard(
-                    title: "Highest",
-                    value: highest.formattedRating,
-                    subtitle: "E\(highest.episodeNumber)",
-                    icon: "arrow.up"
-                )
-            }
-
-            if let lowest = viewModel.lowestRatedEpisode {
-                StatCard(
-                    title: "Lowest",
-                    value: lowest.formattedRating,
-                    subtitle: "E\(lowest.episodeNumber)",
-                    icon: "arrow.down"
-                )
-            }
-        }
-    }
-
-    // MARK: - Episode List
-
-    private var episodeListView: some View {
-        VStack(spacing: 8) {
-            ForEach(viewModel.episodes) { episode in
-                EpisodeRow(episode: episode)
-            }
-        }
-    }
-
-    private var episodeLoadingView: some View {
-        VStack(spacing: 8) {
-            ForEach(0..<5, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.plotlineCard)
-                    .frame(height: 60)
-                    .shimmering()
-            }
-        }
-    }
-
-    private var episodeErrorView: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "exclamationmark.triangle")
-            Text("Could not load episodes")
-        }
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.plotlineCard)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-
-    // MARK: - Additional Info
-
-    private var additionalInfoSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Information")
+            Text("IMDb Scores")
                 .font(.system(.headline, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
 
-            VStack(spacing: 8) {
-                if let imdbId = viewModel.media.imdbId {
-                    InfoRow(label: "IMDb ID", value: imdbId)
-                }
-
-                InfoRow(label: "Type", value: viewModel.media.isTVSeries ? "TV Series" : "Movie")
-
-                if viewModel.media.voteCount > 0 {
-                    InfoRow(label: "Vote Count", value: "\(viewModel.media.voteCount.formatted())")
-                }
-
-                if viewModel.isTVSeries, viewModel.totalSeasons > 0 {
-                    InfoRow(label: "Total Seasons", value: "\(viewModel.totalSeasons)")
+            VStack(spacing: 6) {
+                ForEach(0..<8, id: \.self) { _ in
+                    HStack(spacing: 6) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.plotlineCard)
+                            .frame(width: 32, height: 36)
+                        ForEach(0..<5, id: \.self) { _ in
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.plotlineCard)
+                                .frame(width: 58, height: 36)
+                        }
+                    }
+                    .shimmering()
                 }
             }
         }
-    }
-}
-
-// MARK: - Supporting Views
-
-struct StatCard: View {
-    let title: String
-    let value: String
-    var subtitle: String? = nil
-    let icon: String
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(Color.plotlineGold)
-
-            Text(value)
-                .font(.system(.title3, design: .monospaced, weight: .bold))
-                .foregroundStyle(.white)
-
-            if let subtitle = subtitle {
-                Text(subtitle)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(Color.plotlineCard)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabel)
-    }
-
-    private var accessibilityLabel: String {
-        if let subtitle = subtitle {
-            return "\(title): \(value), \(subtitle)"
-        }
-        return "\(title): \(value)"
-    }
-}
-
-struct EpisodeRow: View {
-    let episode: EpisodeMetric
-
-    var body: some View {
-        HStack(spacing: 12) {
-            // Episode number
-            Text("\(episode.episodeNumber)")
-                .font(.system(.headline, design: .monospaced, weight: .bold))
-                .foregroundStyle(Color.plotlineGold)
-                .frame(width: 30)
-
-            // Title
-            VStack(alignment: .leading, spacing: 2) {
-                Text(episode.title)
-                    .font(.subheadline)
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-
-                Text(episode.shortCode)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            // Rating
-            if episode.hasValidRating {
-                HStack(spacing: 4) {
-                    Image(systemName: "star.fill")
-                        .font(.caption2)
-                        .foregroundStyle(Color.imdbYellow)
-                    Text(episode.formattedRating)
-                        .font(.system(.subheadline, design: .monospaced, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-            } else {
-                Text("N/A")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(Color.plotlineCard)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabel)
-    }
-
-    private var accessibilityLabel: String {
-        var label = "Episode \(episode.episodeNumber): \(episode.title)"
-        if episode.hasValidRating {
-            label += ", rated \(episode.formattedRating) out of 10"
-        } else {
-            label += ", no rating available"
-        }
-        return label
-    }
-}
-
-struct InfoRow: View {
-    let label: String
-    let value: String
-
-    var body: some View {
-        HStack {
-            Text(label)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            Spacer()
-
-            Text(value)
-                .font(.subheadline)
-                .foregroundStyle(.white)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.plotlineCard)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label): \(value)")
     }
 }
 

@@ -12,10 +12,10 @@ Plotline is an iOS app for exploring movies and TV series with analytical qualit
 
 ```bash
 # Build the project
-xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 15' build
+xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' build
 
 # Run tests (when added)
-xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 15' test
+xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
 # Clean build
 xcodebuild -project Plotline.xcodeproj -scheme Plotline clean
@@ -83,8 +83,32 @@ The star feature uses Swift Charts to visualize episode ratings:
 
 ## UI Guidelines
 
-- Strictly dark mode (`.preferredColorScheme(.dark)`)
-- Background: `#121212` or pure black `#000000` for OLED
+### Theme Support
+- **Both light and dark mode are supported** - defaults to system appearance
+- User can override via Settings > Appearance (Light/Dark)
+- Theme managed by `ThemeManager` in `App/ThemeManager.swift`
+
+### Adaptive Colors
+- Use `.primary` for text instead of `.white` - adapts automatically
+- Use `.secondary` for subdued text
+- Background colors use Asset Catalog color sets that adapt:
+  - `Color.plotlineBackground` - light gray (#F5F5F5) / dark (#121212)
+  - `Color.plotlineCard` - white / dark gray (#1E1E1E)
+  - `Color.plotlineSecondary` - adapts for both modes
+- Brand accent colors (`.plotlinePrimary`, `.plotlineGold`, etc.) remain constant
+
+### All Changes Must Support Light Mode
+- **Never use `.white` for text** - use `.primary` instead
+- **Never use hardcoded dark backgrounds** - use adaptive `Color.plotlineBackground`
+- Test UI changes in both light and dark mode before committing
+- Shadows can remain `.black.opacity()` as they work in both modes
+
+### Other Guidelines
 - Use `AsyncImage` for all remote images with placeholder handling
 - `LazyHStack`/`LazyVStack` for scrolling content lists
 - `.searchable()` modifier for native search interface
+
+## Workflow Rules
+
+- **Before committing**: Always spawn the `code-simplifier:code-simplifier` agent to review and simplify recently modified code before creating a commit
+- **When building features**: Use the `apple-docs` MCP tools to check Apple Developer Documentation for correct API usage, best practices, and platform compatibility

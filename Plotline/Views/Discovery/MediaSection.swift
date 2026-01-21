@@ -20,7 +20,7 @@ struct MediaSection: View {
             HStack {
                 Text(title)
                     .font(.system(.title2, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
 
                 Spacer()
 
@@ -85,7 +85,7 @@ struct FeaturedSection: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.system(.title2, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -148,7 +148,7 @@ struct FeaturedCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.displayTitle)
                     .font(.system(.headline, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
 
                 HStack(spacing: 8) {
@@ -165,7 +165,7 @@ struct FeaturedCard: View {
                                 .foregroundStyle(Color.imdbYellow)
                             Text(item.formattedRating)
                                 .font(.caption)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.primary)
                         }
                     }
 

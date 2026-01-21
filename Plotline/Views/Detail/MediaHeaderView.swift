@@ -58,7 +58,7 @@ struct MediaHeaderView: View {
                     .fill(Color.plotlineCard)
                     .overlay {
                         ProgressView()
-                            .tint(.white.opacity(0.5))
+                            .tint(.primary.opacity(0.5))
                     }
 
             case .success(let image):
@@ -99,7 +99,7 @@ struct MediaHeaderView: View {
             // Icon
             Image(systemName: media.isTVSeries ? "tv" : "film")
                 .font(.system(size: 60))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(.primary.opacity(0.3))
         }
     }
 
@@ -120,7 +120,7 @@ struct MediaHeaderView: View {
             // Title
             Text(media.displayTitle)
                 .font(.system(.title, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
 
             // Metadata row
@@ -128,7 +128,7 @@ struct MediaHeaderView: View {
                 if let year = media.year {
                     Label(year, systemImage: "calendar")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(.primary.opacity(0.9))
                 }
 
                 if media.voteAverage > 0 {
@@ -140,7 +140,7 @@ struct MediaHeaderView: View {
                 if let totalSeasons = media.totalSeasons, media.isTVSeries {
                     Label("\(totalSeasons) Seasons", systemImage: "film.stack")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(.primary.opacity(0.9))
                 }
             }
             .labelStyle(.titleAndIcon)
@@ -189,7 +189,7 @@ struct ParallaxHeaderView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(media.displayTitle)
                         .font(.system(size: 28 - (progress * 8), weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
 
                     if progress < 0.5 {
                         metadataRow
@@ -218,7 +218,7 @@ struct ParallaxHeaderView: View {
                     Image(systemName: "star.fill")
                         .foregroundStyle(Color.imdbYellow)
                     Text(media.formattedRating)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
                 .font(.subheadline)
             }
