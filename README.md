@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="app-icon.png" alt="Plotline App Icon" width="128" height="128">
+  <img src="Plotline/Assets.xcassets/AppIcon.appiconset/AppIcon512x512.png" alt="Plotline App Icon" width="128" height="128">
 </p>
 
 <h1 align="center">Plotline</h1>
