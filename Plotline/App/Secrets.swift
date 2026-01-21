@@ -1,27 +1,10 @@
 import Foundation
 
-/// Helper to read API keys from Secrets.plist
+/// Helper to read API keys from environment variables.
+/// Set these in Xcode: Product → Scheme → Edit Scheme → Run → Arguments → Environment Variables
 enum Secrets {
-    private static let secrets: [String: Any] = {
-        guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
-              let data = try? Data(contentsOf: url),
-              let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any]
-        else {
-            #if DEBUG
-            print("⚠️ Warning: Could not load Secrets.plist")
-            #endif
-            return [:]
-        }
-        return plist
-    }()
+    private static let environment = ProcessInfo.processInfo.environment
 
-    /// TMDB API Key
-    static var tmdbAPIKey: String {
-        secrets["TMDB_API_KEY"] as? String ?? ""
-    }
-
-    /// OMDb API Key
-    static var omdbAPIKey: String {
-        secrets["OMDB_API_KEY"] as? String ?? ""
-    }
+    static var tmdbAPIKey: String { environment["TMDB_API_KEY"] ?? "" }
+    static var omdbAPIKey: String { environment["OMDB_API_KEY"] ?? "" }
 }
