@@ -38,11 +38,14 @@ struct DiscoveryView: View {
 
     @ViewBuilder
     private var content: some View {
-        if viewModel.isSearchActive {
-            searchResultsView
-        } else {
-            mainContentView
+        Group {
+            if viewModel.isSearchActive {
+                searchResultsView
+            } else {
+                mainContentView
+            }
         }
+        .animation(.none, value: viewModel.isSearchActive)
     }
 
     // MARK: - Main Content
@@ -141,6 +144,7 @@ struct DiscoveryView: View {
                 .foregroundStyle(.white)
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Error View

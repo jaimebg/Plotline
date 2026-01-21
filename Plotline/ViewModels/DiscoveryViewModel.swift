@@ -80,14 +80,15 @@ final class DiscoveryViewModel {
             return
         }
 
+        // Show loading state immediately to avoid showing "No Results" during debounce
+        isSearching = true
+
         // Debounce search
         searchTask = Task {
             // Wait 300ms before searching
             try? await Task.sleep(for: .milliseconds(300))
 
             guard !Task.isCancelled else { return }
-
-            isSearching = true
 
             do {
                 let results = try await tmdbService.searchMulti(query: searchText)

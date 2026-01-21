@@ -89,6 +89,67 @@ struct MediaItem: Identifiable, Codable, Hashable {
         case seasonEpisodes
         case totalSeasons
     }
+
+    // MARK: - Custom Decoder (handles missing fields from person results)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(Int.self, forKey: .id)
+        overview = try container.decodeIfPresent(String.self, forKey: .overview) ?? ""
+        posterPath = try container.decodeIfPresent(String.self, forKey: .posterPath)
+        backdropPath = try container.decodeIfPresent(String.self, forKey: .backdropPath)
+        voteAverage = try container.decodeIfPresent(Double.self, forKey: .voteAverage) ?? 0
+        voteCount = try container.decodeIfPresent(Int.self, forKey: .voteCount) ?? 0
+        genreIds = try container.decodeIfPresent([Int].self, forKey: .genreIds)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate)
+        name = try container.decodeIfPresent(String.self, forKey: .name)
+        firstAirDate = try container.decodeIfPresent(String.self, forKey: .firstAirDate)
+        mediaType = try container.decodeIfPresent(MediaType.self, forKey: .mediaType)
+        imdbId = try container.decodeIfPresent(String.self, forKey: .imdbId)
+        externalRatings = try container.decodeIfPresent([RatingSource].self, forKey: .externalRatings)
+        seasonEpisodes = try container.decodeIfPresent([EpisodeMetric].self, forKey: .seasonEpisodes)
+        totalSeasons = try container.decodeIfPresent(Int.self, forKey: .totalSeasons)
+    }
+
+    // MARK: - Memberwise Initializer
+
+    init(
+        id: Int,
+        overview: String,
+        posterPath: String?,
+        backdropPath: String?,
+        voteAverage: Double,
+        voteCount: Int,
+        genreIds: [Int]?,
+        title: String?,
+        releaseDate: String?,
+        name: String?,
+        firstAirDate: String?,
+        mediaType: MediaType?,
+        imdbId: String? = nil,
+        externalRatings: [RatingSource]? = nil,
+        seasonEpisodes: [EpisodeMetric]? = nil,
+        totalSeasons: Int? = nil
+    ) {
+        self.id = id
+        self.overview = overview
+        self.posterPath = posterPath
+        self.backdropPath = backdropPath
+        self.voteAverage = voteAverage
+        self.voteCount = voteCount
+        self.genreIds = genreIds
+        self.title = title
+        self.releaseDate = releaseDate
+        self.name = name
+        self.firstAirDate = firstAirDate
+        self.mediaType = mediaType
+        self.imdbId = imdbId
+        self.externalRatings = externalRatings
+        self.seasonEpisodes = seasonEpisodes
+        self.totalSeasons = totalSeasons
+    }
 }
 
 // MARK: - Media Type
@@ -96,11 +157,13 @@ struct MediaItem: Identifiable, Codable, Hashable {
 enum MediaType: String, Codable, Hashable {
     case movie
     case tv
+    case person  // Returned by multi-search, filtered out in app
 
     var displayName: String {
         switch self {
         case .movie: return "Movie"
         case .tv: return "TV Series"
+        case .person: return "Person"
         }
     }
 }

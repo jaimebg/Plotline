@@ -131,11 +131,11 @@ struct TMDBService {
     func searchMulti(query: String, page: Int = 1) async throws -> [MediaItem] {
         guard !query.isEmpty else { return [] }
 
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = buildURL(
-                path: "/search/multi",
-                additionalParams: ["query": encodedQuery, "page": "\(page)"]
-              ) else {
+        // Don't pre-encode query - URLQueryItem handles encoding automatically
+        guard let url = buildURL(
+            path: "/search/multi",
+            additionalParams: ["query": query, "page": "\(page)"]
+        ) else {
             throw NetworkError.invalidURL
         }
 
@@ -151,11 +151,11 @@ struct TMDBService {
     func searchMovies(query: String, page: Int = 1) async throws -> [MediaItem] {
         guard !query.isEmpty else { return [] }
 
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = buildURL(
-                path: "/search/movie",
-                additionalParams: ["query": encodedQuery, "page": "\(page)"]
-              ) else {
+        // Don't pre-encode query - URLQueryItem handles encoding automatically
+        guard let url = buildURL(
+            path: "/search/movie",
+            additionalParams: ["query": query, "page": "\(page)"]
+        ) else {
             throw NetworkError.invalidURL
         }
 
@@ -167,11 +167,11 @@ struct TMDBService {
     func searchSeries(query: String, page: Int = 1) async throws -> [MediaItem] {
         guard !query.isEmpty else { return [] }
 
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = buildURL(
-                path: "/search/tv",
-                additionalParams: ["query": encodedQuery, "page": "\(page)"]
-              ) else {
+        // Don't pre-encode query - URLQueryItem handles encoding automatically
+        guard let url = buildURL(
+            path: "/search/tv",
+            additionalParams: ["query": query, "page": "\(page)"]
+        ) else {
             throw NetworkError.invalidURL
         }
 

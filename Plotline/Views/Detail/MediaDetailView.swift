@@ -6,8 +6,8 @@ struct MediaDetailView: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var titleVisible: Bool = false
 
-    private let headerHeight: CGFloat = 300
-    private let titleCollapseThreshold: CGFloat = 200
+    private let headerHeight: CGFloat = 280
+    private let titleCollapseThreshold: CGFloat = 180
 
     init(media: MediaItem) {
         _viewModel = State(initialValue: MediaDetailViewModel(media: media))
@@ -16,7 +16,7 @@ struct MediaDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // Immersive header with title
+                // Immersive header (backdrop only)
                 headerSection
                     .background(
                         GeometryReader { geo in
@@ -29,6 +29,10 @@ struct MediaDetailView: View {
 
                 // Content
                 VStack(alignment: .leading, spacing: 24) {
+                    // Title section (now in content, above ratings)
+                    titleSection
+                        .opacity(titleVisible ? 0 : 1)
+
                     // Ratings section
                     ScorecardsView(
                         ratings: viewModel.ratings,
@@ -48,6 +52,7 @@ struct MediaDetailView: View {
                     additionalInfoSection
                 }
                 .padding()
+                .padding(.top, -20) // Overlap with gradient for seamless transition
             }
         }
         .coordinateSpace(name: "scroll")
@@ -83,7 +88,7 @@ struct MediaDetailView: View {
             let minY = geometry.frame(in: .global).minY
             let isScrolledUp = minY < 0
 
-            ZStack(alignment: .bottomLeading) {
+            ZStack(alignment: .bottom) {
                 // Backdrop image
                 backdropImage
                     .frame(
@@ -92,26 +97,63 @@ struct MediaDetailView: View {
                     )
                     .offset(y: isScrolledUp ? 0 : -minY)
 
-                // Gradient overlay
+                // Gradient overlay for smooth transition to content
                 LinearGradient(
                     colors: [
                         .clear,
                         .clear,
-                        Color.plotlineBackground.opacity(0.5),
+                        Color.plotlineBackground.opacity(0.7),
                         Color.plotlineBackground
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
-
-                // Title and metadata overlay
-                titleOverlay
-                    .padding(.horizontal)
-                    .padding(.bottom, 16)
-                    .opacity(titleVisible ? 0 : 1)
             }
         }
         .frame(height: headerHeight)
+    }
+
+    // MARK: - Title Section
+
+    private var titleSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Media type badge
+            Text(viewModel.media.isTVSeries ? "TV SERIES" : "MOVIE")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.plotlineGold)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.plotlineCard.opacity(0.8))
+                .clipShape(Capsule())
+
+            // Title
+            Text(viewModel.media.displayTitle)
+                .font(.system(.title, weight: .bold))
+                .foregroundStyle(.white)
+
+            // Metadata row
+            HStack(spacing: 12) {
+                if let year = viewModel.media.year {
+                    Label(year, systemImage: "calendar")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+
+                if viewModel.media.voteAverage > 0 {
+                    Label(viewModel.media.formattedRating, systemImage: "star.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.imdbYellow)
+                }
+
+                if let totalSeasons = viewModel.media.totalSeasons, viewModel.media.isTVSeries {
+                    Label("\(totalSeasons) Seasons", systemImage: "film.stack")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+            }
+            .labelStyle(.titleAndIcon)
+        }
     }
 
     // MARK: - Backdrop Image
@@ -165,50 +207,6 @@ struct MediaDetailView: View {
             Image(systemName: viewModel.media.isTVSeries ? "tv" : "film")
                 .font(.system(size: 60))
                 .foregroundStyle(.white.opacity(0.3))
-        }
-    }
-
-    // MARK: - Title Overlay
-
-    private var titleOverlay: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Media type badge
-            Text(viewModel.media.isTVSeries ? "TV SERIES" : "MOVIE")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color.plotlineGold)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.plotlineCard.opacity(0.8))
-                .clipShape(Capsule())
-
-            // Title
-            Text(viewModel.media.displayTitle)
-                .font(.system(.title, weight: .bold))
-                .foregroundStyle(.white)
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-
-            // Metadata row
-            HStack(spacing: 12) {
-                if let year = viewModel.media.year {
-                    Label(year, systemImage: "calendar")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
-                }
-
-                if viewModel.media.voteAverage > 0 {
-                    Label(viewModel.media.formattedRating, systemImage: "star.fill")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.imdbYellow)
-                }
-
-                if let totalSeasons = viewModel.media.totalSeasons, viewModel.media.isTVSeries {
-                    Label("\(totalSeasons) Seasons", systemImage: "film.stack")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
-                }
-            }
-            .labelStyle(.titleAndIcon)
         }
     }
 
