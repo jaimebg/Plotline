@@ -106,12 +106,7 @@ struct DiscoveryView: View {
     @ViewBuilder
     private var searchResultsView: some View {
         if viewModel.isSearching {
-            VStack {
-                Spacer()
-                ProgressView("Searching...")
-                    .tint(.white)
-                Spacer()
-            }
+            SearchResultsSkeletonView()
         } else if viewModel.searchResults.isEmpty && !viewModel.searchText.isEmpty {
             ContentUnavailableView(
                 "No Results",
@@ -137,14 +132,7 @@ struct DiscoveryView: View {
     // MARK: - Loading View
 
     private var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView("Loading...")
-                .tint(.white)
-                .foregroundStyle(.white)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        DiscoverySkeletonView()
     }
 
     // MARK: - Error View
@@ -178,7 +166,7 @@ struct SearchResultRow: View {
                 case .empty:
                     Rectangle()
                         .fill(Color.plotlineCard)
-                        .overlay { ProgressView().tint(.white.opacity(0.5)) }
+                        .shimmering()
 
                 case .success(let image):
                     image

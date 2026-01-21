@@ -165,10 +165,7 @@ struct MediaDetailView: View {
             case .empty:
                 Rectangle()
                     .fill(Color.plotlineCard)
-                    .overlay {
-                        ProgressView()
-                            .tint(.white.opacity(0.5))
-                    }
+                    .shimmering()
 
             case .success(let image):
                 image
@@ -179,7 +176,9 @@ struct MediaDetailView: View {
                 fallbackView
 
             @unknown default:
-                Rectangle().fill(Color.plotlineCard)
+                Rectangle()
+                    .fill(Color.plotlineCard)
+                    .shimmering()
             }
         }
     }

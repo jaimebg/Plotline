@@ -118,7 +118,7 @@ struct FeaturedCard: View {
                 case .empty:
                     Rectangle()
                         .fill(Color.plotlineCard)
-                        .overlay { ProgressView().tint(.white.opacity(0.5)) }
+                        .shimmering()
 
                 case .success(let image):
                     image

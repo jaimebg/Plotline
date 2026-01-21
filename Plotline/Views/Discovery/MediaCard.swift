@@ -94,10 +94,7 @@ struct MediaCard: View {
             switch phase {
             case .empty:
                 placeholder
-                    .overlay {
-                        ProgressView()
-                            .tint(.white.opacity(0.7))
-                    }
+                    .shimmering()
 
             case .success(let image):
                 image
