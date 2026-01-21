@@ -1,0 +1,337 @@
+import SwiftUI
+
+/// Main discovery screen with trending and popular content
+struct DiscoveryView: View {
+    @State private var viewModel = DiscoveryViewModel()
+    @State private var navigationPath = NavigationPath()
+
+    var body: some View {
+        NavigationStack(path: $navigationPath) {
+            content
+                .background(Color.plotlineBackground)
+                .navigationTitle("Plotline")
+                .navigationBarTitleDisplayMode(.large)
+                .searchable(
+                    text: $viewModel.searchText,
+                    prompt: "Search movies and series"
+                )
+                .onChange(of: viewModel.searchText) { _, _ in
+                    viewModel.search()
+                }
+                .navigationDestination(for: MediaItem.self) { item in
+                    MediaDetailPlaceholder(item: item)
+                }
+                .refreshable {
+                    await viewModel.refresh()
+                }
+        }
+        .preferredColorScheme(.dark)
+        .task {
+            await viewModel.loadContent()
+        }
+    }
+
+    // MARK: - Content
+
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.isSearchActive {
+            searchResultsView
+        } else {
+            mainContentView
+        }
+    }
+
+    // MARK: - Main Content
+
+    @ViewBuilder
+    private var mainContentView: some View {
+        if viewModel.isLoading && !viewModel.hasContent {
+            loadingView
+        } else if let error = viewModel.errorMessage, !viewModel.hasContent {
+            errorView(message: error)
+        } else {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 28) {
+                    // Featured/Trending section
+                    if !viewModel.trendingMovies.isEmpty {
+                        FeaturedSection(
+                            title: "Trending Now",
+                            items: Array(viewModel.trendingMovies.prefix(5))
+                        )
+                    }
+
+                    // Trending Movies
+                    MediaSection(
+                        title: "Trending Movies",
+                        items: viewModel.trendingMovies
+                    )
+
+                    // Trending Series
+                    MediaSection(
+                        title: "Trending Series",
+                        items: viewModel.trendingSeries
+                    )
+
+                    // Popular Movies
+                    if !viewModel.popularMovies.isEmpty {
+                        MediaSection(
+                            title: "Popular Movies",
+                            items: viewModel.popularMovies
+                        )
+                    }
+
+                    // Top Rated Series
+                    if !viewModel.topRatedSeries.isEmpty {
+                        MediaSection(
+                            title: "Top Rated Series",
+                            items: viewModel.topRatedSeries
+                        )
+                    }
+                }
+                .padding(.vertical)
+            }
+            .scrollIndicators(.hidden)
+        }
+    }
+
+    // MARK: - Search Results
+
+    @ViewBuilder
+    private var searchResultsView: some View {
+        if viewModel.isSearching {
+            VStack {
+                Spacer()
+                ProgressView("Searching...")
+                    .tint(.white)
+                Spacer()
+            }
+        } else if viewModel.searchResults.isEmpty && !viewModel.searchText.isEmpty {
+            ContentUnavailableView(
+                "No Results",
+                systemImage: "magnifyingglass",
+                description: Text("No movies or series found for \"\(viewModel.searchText)\"")
+            )
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(viewModel.searchResults) { item in
+                        NavigationLink(value: item) {
+                            SearchResultRow(item: item)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+
+    // MARK: - Loading View
+
+    private var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView("Loading...")
+                .tint(.white)
+                .foregroundStyle(.white)
+            Spacer()
+        }
+    }
+
+    // MARK: - Error View
+
+    private func errorView(message: String) -> some View {
+        ContentUnavailableView {
+            Label("Unable to Load", systemImage: "exclamationmark.triangle")
+        } description: {
+            Text(message)
+        } actions: {
+            Button("Try Again") {
+                Task {
+                    await viewModel.loadContent()
+                }
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+}
+
+// MARK: - Search Result Row
+
+struct SearchResultRow: View {
+    let item: MediaItem
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Poster thumbnail
+            AsyncImage(url: item.posterURL) { phase in
+                switch phase {
+                case .empty:
+                    Rectangle()
+                        .fill(Color.plotlineCard)
+                        .overlay { ProgressView().tint(.white.opacity(0.5)) }
+
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+
+                case .failure:
+                    Rectangle()
+                        .fill(Color.plotlineCard)
+                        .overlay {
+                            Image(systemName: item.isTVSeries ? "tv" : "film")
+                                .foregroundStyle(.secondary)
+                        }
+
+                @unknown default:
+                    Rectangle().fill(Color.plotlineCard)
+                }
+            }
+            .frame(width: 60, height: 90)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            // Info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.displayTitle)
+                    .font(.system(.headline, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+
+                HStack(spacing: 8) {
+                    if let year = item.year {
+                        Text(year)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(item.isTVSeries ? "TV Series" : "Movie")
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.plotlineCard)
+                        .clipShape(Capsule())
+                        .foregroundStyle(.secondary)
+                }
+
+                if item.voteAverage > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.imdbYellow)
+                        Text(item.formattedRating)
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                    }
+                }
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(Color.plotlineCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Media Detail Placeholder (Phase 2)
+
+struct MediaDetailPlaceholder: View {
+    let item: MediaItem
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Backdrop
+                if let backdropURL = item.backdropURL {
+                    AsyncImage(url: backdropURL) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(16/9, contentMode: .fill)
+                        default:
+                            Rectangle()
+                                .fill(Color.plotlineCard)
+                                .aspectRatio(16/9, contentMode: .fill)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 220)
+                    .clipped()
+                    .overlay(alignment: .bottom) {
+                        LinearGradient.fadeToBlack
+                            .frame(height: 100)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 16) {
+                    // Title
+                    Text(item.displayTitle)
+                        .font(.system(.title, weight: .bold))
+                        .foregroundStyle(.white)
+
+                    // Metadata
+                    HStack(spacing: 12) {
+                        if let year = item.year {
+                            Text(year)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        if item.voteAverage > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "star.fill")
+                                    .foregroundStyle(Color.imdbYellow)
+                                Text(item.formattedRating)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+
+                        Text(item.isTVSeries ? "TV Series" : "Movie")
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Color.plotlineCard)
+                            .clipShape(Capsule())
+                    }
+                    .font(.subheadline)
+
+                    // Overview
+                    Text(item.overview)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .lineSpacing(4)
+
+                    // Phase 2 placeholder
+                    VStack(spacing: 12) {
+                        Divider()
+                            .background(Color.plotlineCard)
+
+                        Text("Ratings and graph coming in Phase 2")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.plotlineCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .padding(.top)
+                }
+                .padding(.horizontal)
+            }
+        }
+        .background(Color.plotlineBackground)
+        .navigationBarTitleDisplayMode(.inline)
+        .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    DiscoveryView()
+}
