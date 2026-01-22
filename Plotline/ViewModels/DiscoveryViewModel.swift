@@ -16,6 +16,7 @@ final class DiscoveryViewModel {
 
     var isLoading = false
     var isSearching = false
+    var hasSearched = false
     var errorMessage: String?
 
     // MARK: - Private Properties
@@ -77,18 +78,20 @@ final class DiscoveryViewModel {
         guard !searchText.isEmpty else {
             searchResults = []
             isSearching = false
+            hasSearched = false
             return
         }
 
-        // Show loading state immediately to avoid showing "No Results" during debounce
-        isSearching = true
-
-        // Debounce search
+        // Debounce search - delay showing loading state until user stops typing
         searchTask = Task {
-            // Wait 300ms before searching
-            try? await Task.sleep(for: .milliseconds(300))
+            // Wait 1 second before searching
+            try? await Task.sleep(for: .milliseconds(1000))
 
             guard !Task.isCancelled else { return }
+
+            // Only show loading state after debounce delay
+            isSearching = true
+            hasSearched = true
 
             do {
                 let results = try await tmdbService.searchMulti(query: searchText)
@@ -112,6 +115,7 @@ final class DiscoveryViewModel {
         searchResults = []
         searchTask?.cancel()
         isSearching = false
+        hasSearched = false
     }
 
     // MARK: - Computed Properties
@@ -124,11 +128,6 @@ final class DiscoveryViewModel {
     /// Check if search is active
     var isSearchActive: Bool {
         !searchText.isEmpty
-    }
-
-    /// Check if showing search results
-    var showSearchResults: Bool {
-        isSearchActive && !searchResults.isEmpty
     }
 }
 

@@ -94,9 +94,13 @@ struct DiscoveryView: View {
 
     @ViewBuilder
     private var searchResultsView: some View {
+        // States: typing (debouncing) -> searching (loading) -> results or empty
         if viewModel.isSearching {
             SearchResultsSkeletonView()
-        } else if viewModel.searchResults.isEmpty && !viewModel.searchText.isEmpty {
+        } else if !viewModel.hasSearched {
+            // Waiting for debounce delay - show nothing while user types
+            Color.clear
+        } else if viewModel.searchResults.isEmpty {
             ContentUnavailableView(
                 "No Results",
                 systemImage: "magnifyingglass",
