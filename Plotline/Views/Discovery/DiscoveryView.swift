@@ -73,6 +73,9 @@ struct DiscoveryView: View {
         } else {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 28) {
+                    // Brand gradient accent line
+                    brandAccentLine
+
                     // Personalized daily pick
                     DailyPickView()
 
@@ -123,6 +126,16 @@ struct DiscoveryView: View {
                 .padding()
             }
         }
+    }
+
+    // MARK: - Brand Accent Line
+
+    private var brandAccentLine: some View {
+        LinearGradient.plotlineGradient
+            .frame(height: 3)
+            .clipShape(Capsule())
+            .padding(.horizontal, 20)
+            .padding(.top, -8)
     }
 
     // MARK: - Error View

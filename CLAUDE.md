@@ -11,14 +11,16 @@ Plotline is an iOS app for exploring movies and TV series with analytical qualit
 ## Build Commands
 
 ```bash
-# Build the project
-xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' build
+# Build and run in simulator (no Xcode needed)
+xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath build build && \
+xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
+xcrun simctl launch booted com.jbgsoft.Plotline
 
 # Run tests (when added)
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
 # Clean build
-xcodebuild -project Plotline.xcodeproj -scheme Plotline clean
+xcodebuild -project Plotline.xcodeproj -scheme Plotline clean && rm -rf build
 ```
 
 Open in Xcode: `open Plotline.xcodeproj`
@@ -67,11 +69,27 @@ Brand colors defined in `Extensions/Color+Plotline.swift`:
 
 ## API Keys
 
-API keys are loaded from environment variables:
-- `TMDB_API_KEY` - Required for all content
-- `OMDB_API_KEY` - Required for external ratings (to be implemented)
+API keys are loaded from `Plotline/Secrets.plist` (bundled) or environment variables (fallback).
 
-Set in Xcode scheme or export before building.
+**For command-line builds (xcodebuild/xcrun):**
+Edit `Plotline/Secrets.plist` with your keys:
+```xml
+<dict>
+    <key>TMDB_API_KEY</key>
+    <string>your_tmdb_key</string>
+    <key>OMDB_API_KEY</key>
+    <string>your_omdb_key</string>
+</dict>
+```
+
+**For Xcode builds:**
+Either use the plist above, or set environment variables in the scheme (Product → Scheme → Edit Scheme → Run → Arguments → Environment Variables).
+
+Keys:
+- `TMDB_API_KEY` - Required for all content
+- `OMDB_API_KEY` - Required for external ratings
+
+Note: `Secrets.plist` is gitignored to protect API keys.
 
 ## SeriesGraph Feature
 
@@ -111,7 +129,6 @@ The star feature uses Swift Charts to visualize episode ratings:
 ## Workflow Rules
 
 - **Never commit unless explicitly told**: Do not create commits automatically. Wait for the user to explicitly request a commit.
-- **Before committing**: When the user asks to commit, spawn the `code-simplifier:code-simplifier` agent to review and simplify recently modified code before creating the commit.
 - **Use Conventional Commits**: Follow the conventional commits specification for commit messages:
   - `feat:` for new features
   - `fix:` for bug fixes
