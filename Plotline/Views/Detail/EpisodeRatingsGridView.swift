@@ -37,6 +37,8 @@ struct EpisodeRatingsGridView: View {
     let episodesBySeason: [Int: [EpisodeMetric]]
     let totalSeasons: Int
 
+    @Environment(\.openURL) private var openURL
+
     private let cellSize: CGFloat = 58
     private let cellSpacing: CGFloat = 6
 
@@ -139,26 +141,29 @@ struct EpisodeRatingsGridView: View {
         let episodes = episodesBySeason[season]
         let episode = episodes?.first { $0.episodeNumber == episodeNumber }
 
-        switch (episodes, episode) {
-        case (nil, _):
+        if episodes == nil {
             // Season data not loaded yet
             placeholderCell(text: "?")
-
-        case (_, let episode?) where episode.hasValidRating:
-            // Episode exists with valid rating
+        } else if let episode, episode.hasValidRating {
+            // Episode exists with valid rating - tappable to open IMDb
             let category = RatingCategory.category(for: episode.rating)
-            Text(episode.formattedRating)
-                .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                .foregroundStyle(category == .good ? .black : .white)
-                .frame(width: cellSize, height: 36)
-                .background(category.color)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-
-        case (_, let episode?) where !episode.hasValidRating:
+            Button {
+                if let url = episode.imdbURL {
+                    openURL(url)
+                }
+            } label: {
+                Text(episode.formattedRating)
+                    .font(.system(.subheadline, design: .monospaced, weight: .bold))
+                    .foregroundStyle(category == .good ? .black : .white)
+                    .frame(width: cellSize, height: 36)
+                    .background(category.color)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+            .buttonStyle(.plain)
+        } else if let episode, !episode.hasValidRating {
             // Episode exists but has N/A rating
             placeholderCell(text: "N/A", font: .caption2)
-
-        default:
+        } else {
             // Episode number doesn't exist for this season (shorter season)
             emptyCell
         }

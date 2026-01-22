@@ -97,17 +97,16 @@ struct OMDbSeasonResponse: Codable {
     /// Note: Returns ALL episodes including those with N/A ratings.
     /// Views should filter for valid ratings when needed (e.g., charts).
     func toEpisodeMetrics() -> [EpisodeMetric] {
-        guard let episodes = episodes, let seasonNum = seasonNumber else {
-            return []
-        }
+        guard let episodes, let seasonNum = seasonNumber else { return [] }
 
-        return episodes.compactMap { episode -> EpisodeMetric? in
-            guard let epNum = Int(episode.episode) else { return nil }
+        return episodes.compactMap { episode in
+            guard let episodeNumber = Int(episode.episode) else { return nil }
             return EpisodeMetric(
-                episodeNumber: epNum,
+                episodeNumber: episodeNumber,
                 seasonNumber: seasonNum,
                 title: episode.title,
-                imdbRating: episode.imdbRating
+                imdbRating: episode.imdbRating,
+                imdbId: episode.imdbID
             )
         }
     }

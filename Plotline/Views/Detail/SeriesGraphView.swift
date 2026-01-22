@@ -8,6 +8,7 @@ struct SeriesGraphView: View {
     let seasonNumber: Int
     var showAverage: Bool = true
 
+    @Environment(\.openURL) private var openURL
     @State private var selectedEpisode: EpisodeMetric?
     @State private var selectedEpisodeNumber: Int?
     @State private var animateChart: Bool = false
@@ -205,15 +206,8 @@ struct SeriesGraphView: View {
 
             Spacer()
 
-            // Rating
-            HStack(spacing: 4) {
-                Image(systemName: "star.fill")
-                    .font(.caption)
-                    .foregroundStyle(Color.imdbYellow)
-                Text(episode.formattedRating)
-                    .font(.system(.title3, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.primary)
-            }
+            // Rating - tappable to open IMDb
+            ratingButton(for: episode)
         }
         .padding()
         .background(Color.plotlineCard)
@@ -225,6 +219,25 @@ struct SeriesGraphView: View {
     }
 
     // MARK: - Helpers
+
+    @ViewBuilder
+    private func ratingButton(for episode: EpisodeMetric) -> some View {
+        let ratingLabel = HStack(spacing: 4) {
+            Image(systemName: "star.fill")
+                .font(.caption)
+                .foregroundStyle(Color.imdbYellow)
+            Text(episode.formattedRating)
+                .font(.system(.title3, design: .monospaced, weight: .bold))
+                .foregroundStyle(.primary)
+        }
+
+        if let url = episode.imdbURL {
+            Button { openURL(url) } label: { ratingLabel }
+                .buttonStyle(.plain)
+        } else {
+            ratingLabel
+        }
+    }
 
     private var validEpisodes: [EpisodeMetric] {
         episodes.filter { $0.hasValidRating }.sorted { $0.episodeNumber < $1.episodeNumber }
