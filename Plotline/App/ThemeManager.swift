@@ -2,11 +2,13 @@ import SwiftUI
 
 /// App theme options
 enum AppTheme: String, CaseIterable {
+    case system = "System"
     case light = "Light"
     case dark = "Dark"
 
-    var colorScheme: ColorScheme {
+    var colorScheme: ColorScheme? {
         switch self {
+        case .system: return nil
         case .light: return .light
         case .dark: return .dark
         }
@@ -14,6 +16,7 @@ enum AppTheme: String, CaseIterable {
 
     var icon: String {
         switch self {
+        case .system: return "circle.lefthalf.filled"
         case .light: return "sun.max.fill"
         case .dark: return "moon.fill"
         }
@@ -21,38 +24,33 @@ enum AppTheme: String, CaseIterable {
 
     var iconColor: Color {
         switch self {
+        case .system: return .secondary
         case .light: return .plotlineGold
         case .dark: return .plotlinePrimary
         }
     }
 }
 
-/// Observable theme manager for app-wide theme control
 @Observable
 final class ThemeManager {
     private static let storageKey = "appTheme"
     static let shared = ThemeManager()
 
-    var currentTheme: AppTheme? {
+    var currentTheme: AppTheme {
         didSet { persistTheme() }
     }
 
-    /// Returns nil to follow system, or explicit color scheme
     var colorScheme: ColorScheme? {
-        currentTheme?.colorScheme
+        currentTheme.colorScheme
     }
 
     private init() {
         self.currentTheme = UserDefaults.standard.string(forKey: Self.storageKey)
-            .flatMap(AppTheme.init(rawValue:))
+            .flatMap(AppTheme.init(rawValue:)) ?? .system
     }
 
     private func persistTheme() {
-        if let theme = currentTheme {
-            UserDefaults.standard.set(theme.rawValue, forKey: Self.storageKey)
-        } else {
-            UserDefaults.standard.removeObject(forKey: Self.storageKey)
-        }
+        UserDefaults.standard.set(currentTheme.rawValue, forKey: Self.storageKey)
     }
 }
 

@@ -1,7 +1,6 @@
 import SwiftData
 import SwiftUI
 
-/// Main entry point for the Plotline application
 @main
 struct PlotlineApp: App {
     @State private var themeManager = ThemeManager.shared
@@ -9,16 +8,29 @@ struct PlotlineApp: App {
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([FavoriteItem.self])
-        let modelConfiguration = ModelConfiguration(
+        let cloudConfig = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
             cloudKitDatabase: .automatic
         )
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: schema, configurations: [cloudConfig])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print("CloudKit unavailable, using local storage: \(error.localizedDescription)")
+            let localConfig = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .none
+            )
+            do {
+                return try ModelContainer(for: schema, configurations: [localConfig])
+            } catch {
+                print("Schema migration failed, creating fresh store: \(error.localizedDescription)")
+                let storeURL = URL.applicationSupportDirectory.appending(path: "default.store")
+                try? FileManager.default.removeItem(at: storeURL)
+                return try! ModelContainer(for: schema, configurations: [localConfig])
+            }
         }
     }()
 

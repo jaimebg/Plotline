@@ -7,7 +7,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                // MARK: - Appearance Section
                 Section {
                     ForEach(AppTheme.allCases, id: \.self) { theme in
                         ThemeOptionRow(
@@ -25,10 +24,8 @@ struct SettingsView: View {
                     Text("Defaults to system appearance when not set.")
                 }
 
-                // MARK: - About Section
                 Section("About") {
                     InfoRow(label: "Version", value: appVersion)
-                    InfoRow(label: "Build", value: buildNumber)
                 }
             }
             .navigationTitle("Settings")
@@ -36,14 +33,8 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - App Info
-
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-    }
-
-    private var buildNumber: String {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
 }
 

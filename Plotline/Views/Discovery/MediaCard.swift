@@ -42,13 +42,11 @@ struct MediaCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Image
             imageView
                 .frame(width: style.width, height: style.height)
                 .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius))
                 .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 3)
 
-            // Title and info (only for poster style)
             if style == .poster {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.displayTitle)
@@ -91,22 +89,16 @@ struct MediaCard: View {
     private var imageView: some View {
         let imageURL = style == .backdrop ? item.backdropURL : item.posterURL
 
-        AsyncImage(url: imageURL) { phase in
-            switch phase {
-            case .empty:
-                placeholder
-                    .shimmering()
-
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: style.width, height: style.height)
-                    .clipped()
-
-            case .failure:
-                placeholder
-                    .overlay {
+        CachedAsyncImage(url: imageURL) { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: style.width, height: style.height)
+                .clipped()
+        } placeholder: {
+            placeholder
+                .overlay {
+                    if imageURL == nil {
                         VStack(spacing: 4) {
                             Image(systemName: item.isTVSeries ? "tv" : "film")
                                 .font(.title2)
@@ -116,11 +108,11 @@ struct MediaCard: View {
                                 .padding(.horizontal, 4)
                         }
                         .foregroundStyle(.secondary)
+                    } else {
+                        ProgressView()
+                            .scaleEffect(0.8)
                     }
-
-            @unknown default:
-                placeholder
-            }
+                }
         }
     }
 

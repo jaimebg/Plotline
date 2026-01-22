@@ -9,9 +9,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/iOS-17%2B-blue" alt="iOS 17+">
+  <img src="https://img.shields.io/badge/iOS-18%2B-blue" alt="iOS 18+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9">
   <img src="https://img.shields.io/badge/SwiftUI-darkblue" alt="SwiftUI">
+  <img src="https://img.shields.io/badge/iCloud-Sync-lightblue" alt="iCloud Sync">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>
 
@@ -33,7 +34,9 @@ Most apps tell you *what a series is about*. **Plotline** shows you *how its qua
 - **Trending Discovery** — Browse trending and popular movies & TV series
 - **Multi-Source Ratings** — Aggregated scores from IMDb, Rotten Tomatoes, and Metacritic
 - **Episode Quality Graphs** — Visualize TV series episode ratings with interactive Swift Charts
-- **Immersive Design** — Cinema-inspired dark mode UI with smooth animations
+- **Favorites with iCloud Sync** — Save favorites and sync seamlessly across all your devices
+- **Personalized Daily Pick** — Get recommendations based on your favorite genres
+- **Immersive Design** — Cinema-inspired UI with light/dark mode and smooth animations
 - **Smart Search** — Find any movie or series instantly
 
 ## Screenshots
@@ -46,6 +49,8 @@ Most apps tell you *what a series is about*. **Plotline** shows you *how its qua
 |------------|---------|
 | **SwiftUI** | Declarative UI framework |
 | **Swift Charts** | Episode rating visualization |
+| **SwiftData** | Local persistence for favorites |
+| **CloudKit** | Automatic iCloud sync |
 | **@Observable** | iOS 17+ state management |
 | **async/await** | Modern concurrency |
 | **TMDB API** | Visual data & metadata |
@@ -64,10 +69,11 @@ User Action → TMDB Fetch → Extract imdb_id → OMDb Fetch → Merge & Render
 
 ## Requirements
 
-- iOS 17.0+
-- Xcode 15+
+- iOS 18.0+
+- Xcode 16+
 - TMDB API Key ([Get one here](https://www.themoviedb.org/settings/api))
 - OMDb API Key ([Get one here](https://www.omdbapi.com/apikey.aspx))
+- iCloud account (optional, for cross-device sync)
 
 ## Getting Started
 
@@ -108,15 +114,17 @@ User Action → TMDB Fetch → Extract imdb_id → OMDb Fetch → Merge & Render
 
 ```
 Plotline/
-├── App/                    # App entry point
+├── App/                    # App entry point & configuration
 ├── Models/                 # Data models & API responses
 ├── ViewModels/             # @Observable view models
 ├── Views/
 │   ├── Discovery/          # Home screen & media cards
 │   ├── Detail/             # Media detail & scorecards
 │   ├── Graph/              # Series episode charts
+│   ├── Favorites/          # Favorites list with filtering
+│   ├── Settings/           # App settings & theme
 │   └── Components/         # Reusable UI components
-├── Services/               # Network layer & API services
+├── Services/               # Network layer, API services & FavoritesManager
 ├── Extensions/             # Swift & SwiftUI extensions
 └── Resources/              # Assets & configuration
 ```

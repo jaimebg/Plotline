@@ -8,7 +8,6 @@ struct DailyPickView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Section header
             HStack {
                 Text("Today's Pick for You")
                     .font(.system(.title2, weight: .bold))
@@ -27,14 +26,13 @@ struct DailyPickView: View {
                     } label: {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(.secondary)
                             .symbolEffect(.rotate, isActive: viewModel.isLoading)
                     }
+                    .tint(.secondary)
                 }
             }
             .padding(.horizontal)
 
-            // Content
             if favoritesManager.favorites.isEmpty {
                 emptyFavoritesView
             } else if viewModel.isLoading {
@@ -165,32 +163,19 @@ struct DailyPickCard: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            // Backdrop image
-            AsyncImage(url: recommendation.backdropURL) { phase in
-                switch phase {
-                case .empty:
-                    Rectangle()
-                        .fill(Color.plotlineCard)
-                        .shimmering()
-                        .onAppear { imageLoaded = false }
-
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .onAppear { imageLoaded = true }
-
-                case .failure:
-                    fallbackImage
-                        .onAppear { imageLoaded = true }
-
-                @unknown default:
-                    Rectangle().fill(Color.plotlineCard)
-                }
+            CachedAsyncImage(url: recommendation.backdropURL) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .onAppear { imageLoaded = true }
+            } placeholder: {
+                Rectangle()
+                    .fill(Color.plotlineCard)
+                    .shimmering()
+                    .onAppear { imageLoaded = false }
             }
 
             if imageLoaded {
-                // Gradient overlay
                 LinearGradient(
                     colors: [
                         .clear,
@@ -201,9 +186,7 @@ struct DailyPickCard: View {
                     endPoint: .bottom
                 )
 
-                // Content overlay
                 VStack(alignment: .leading, spacing: 8) {
-                    // "Because you liked" badge
                     HStack(spacing: 4) {
                         Image(systemName: "heart.fill")
                             .font(.caption2)
@@ -218,7 +201,6 @@ struct DailyPickCard: View {
 
                     Spacer()
 
-                    // Title and metadata
                     VStack(alignment: .leading, spacing: 6) {
                         Text(recommendation.displayTitle)
                             .font(.system(.title3, weight: .bold))
@@ -259,30 +241,6 @@ struct DailyPickCard: View {
         .frame(height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: .black.opacity(0.3), radius: 12, x: 0, y: 6)
-    }
-
-    private var fallbackImage: some View {
-        ZStack {
-            if let posterURL = recommendation.posterURL {
-                AsyncImage(url: posterURL) { phase in
-                    if case .success(let image) = phase {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .blur(radius: 20)
-                            .overlay(Color.black.opacity(0.3))
-                    } else {
-                        Color.plotlineCard
-                    }
-                }
-            } else {
-                Color.plotlineCard
-            }
-
-            Image(systemName: recommendation.isTVSeries ? "tv" : "film")
-                .font(.system(size: 40))
-                .foregroundStyle(.white.opacity(0.3))
-        }
     }
 }
 

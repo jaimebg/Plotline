@@ -5,47 +5,40 @@ import SwiftUI
 struct FavoriteRow: View {
     let favorite: FavoriteItem
 
+    private var posterURL: URL? {
+        guard let path = favorite.posterPath, !path.isEmpty else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w342\(path)")
+    }
+
     var body: some View {
         HStack(spacing: 12) {
-            // Poster thumbnail
-            AsyncImage(url: favorite.posterURL) { phase in
-                switch phase {
-                case .empty:
-                    Rectangle()
-                        .fill(Color.plotlineCard)
-                        .shimmering()
-
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 60, height: 90)
-                        .clipped()
-
-                case .failure:
-                    Rectangle()
-                        .fill(Color.plotlineCard)
-                        .overlay {
+            CachedAsyncImage(url: posterURL) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .fill(Color.plotlineCard)
+                    .overlay {
+                        if posterURL == nil {
                             Image(systemName: favorite.isTVSeries ? "tv" : "film")
                                 .foregroundStyle(.secondary)
+                        } else {
+                            ProgressView()
+                                .scaleEffect(0.7)
                         }
-
-                @unknown default:
-                    Rectangle()
-                        .fill(Color.plotlineCard)
-                }
+                    }
             }
             .frame(width: 60, height: 90)
+            .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            // Content
             VStack(alignment: .leading, spacing: 4) {
                 Text(favorite.title)
                     .font(.system(.headline, weight: .semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
 
-                // Type badge
                 Text(favorite.isTVSeries ? "TV Series" : "Movie")
                     .font(.caption)
                     .padding(.horizontal, 8)
@@ -54,7 +47,6 @@ struct FavoriteRow: View {
                     .clipShape(Capsule())
                     .foregroundStyle(.secondary)
 
-                // TMDB rating
                 if favorite.voteAverage > 0 {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
@@ -69,7 +61,6 @@ struct FavoriteRow: View {
 
             Spacer()
 
-            // Chevron indicator
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.secondary)

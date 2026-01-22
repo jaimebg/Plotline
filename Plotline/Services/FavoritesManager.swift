@@ -6,34 +6,24 @@ import SwiftUI
 @Observable
 final class FavoritesManager {
     private var modelContext: ModelContext?
-
-    /// All favorite items, sorted by date added (newest first)
     private(set) var favorites: [FavoriteItem] = []
-
-    /// Set of favorite TMDB IDs for quick lookup
     private(set) var favoriteIds: Set<Int> = []
 
     init() {}
 
-    /// Configure the manager with a model context
     func configure(with context: ModelContext) {
         self.modelContext = context
         fetchFavorites()
     }
 
-    // MARK: - Public Methods
-
-    /// Check if a media item is favorited
     func isFavorite(_ media: MediaItem) -> Bool {
         favoriteIds.contains(media.id)
     }
 
-    /// Check if a TMDB ID is favorited
     func isFavorite(tmdbId: Int) -> Bool {
         favoriteIds.contains(tmdbId)
     }
 
-    /// Add a media item to favorites
     func addFavorite(_ media: MediaItem) {
         guard let context = modelContext else { return }
         guard !isFavorite(media) else { return }
@@ -43,19 +33,16 @@ final class FavoritesManager {
 
         do {
             try context.save()
-            favorites.insert(favorite, at: 0)
-            favoriteIds.insert(media.id)
+            fetchFavorites()
         } catch {
             print("Failed to save favorite: \(error)")
         }
     }
 
-    /// Remove a media item from favorites
     func removeFavorite(_ media: MediaItem) {
         removeFavorite(tmdbId: media.id)
     }
 
-    /// Remove a favorite by TMDB ID
     func removeFavorite(tmdbId: Int) {
         guard let context = modelContext else { return }
 
@@ -69,14 +56,12 @@ final class FavoritesManager {
                 context.delete(item)
             }
             try context.save()
-            favorites.removeAll { $0.tmdbId == tmdbId }
-            favoriteIds.remove(tmdbId)
+            fetchFavorites()
         } catch {
             print("Failed to remove favorite: \(error)")
         }
     }
 
-    /// Toggle favorite status for a media item
     func toggleFavorite(_ media: MediaItem) {
         if isFavorite(media) {
             removeFavorite(media)
@@ -85,17 +70,13 @@ final class FavoritesManager {
         }
     }
 
-    /// Get a random favorite (for recommendations)
     func randomFavorite() -> FavoriteItem? {
         favorites.randomElement()
     }
 
-    /// Get favorites filtered by media type
     func favorites(ofType mediaType: String) -> [FavoriteItem] {
         favorites.filter { $0.mediaType == mediaType }
     }
-
-    // MARK: - Private Methods
 
     private func fetchFavorites() {
         guard let context = modelContext else { return }

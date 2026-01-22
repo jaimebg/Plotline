@@ -30,16 +30,16 @@ struct FavoritesView: View {
                         .navigationTransition(.zoom(sourceID: item.id, in: namespace))
                 }
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        sortMenu
+                    if !favoritesManager.favorites.isEmpty {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            sortMenu
+                        }
                     }
                 }
         }
         .environment(\.navigationNamespace, namespace)
         .preferredColorScheme(themeManager.colorScheme)
     }
-
-    // MARK: - Content
 
     @ViewBuilder
     private var content: some View {
@@ -60,8 +60,6 @@ struct FavoritesView: View {
         }
     }
 
-    // MARK: - Filter Picker
-
     private var filterPicker: some View {
         Picker("Filter", selection: Binding(
             get: { viewModel.filter },
@@ -77,8 +75,6 @@ struct FavoritesView: View {
         }
         .pickerStyle(.segmented)
     }
-
-    // MARK: - Sort Menu
 
     private var sortMenu: some View {
         Menu {
@@ -97,8 +93,6 @@ struct FavoritesView: View {
                 .foregroundStyle(Color.plotlinePrimary)
         }
     }
-
-    // MARK: - Favorites List
 
     private var favoritesList: some View {
         ScrollView {
@@ -120,8 +114,6 @@ struct FavoritesView: View {
         }
         .scrollIndicators(.hidden)
     }
-
-    // MARK: - Empty State View
 
     private var emptyStateView: some View {
         VStack {
@@ -162,8 +154,6 @@ struct FavoritesView: View {
             Spacer()
         }
     }
-
-    // MARK: - Filtered Empty State View
 
     private var filteredEmptyStateView: some View {
         ContentUnavailableView(
