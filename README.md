@@ -74,19 +74,35 @@ User Action → TMDB Fetch → Extract imdb_id → OMDb Fetch → Merge & Render
 1. Clone the repository
    ```bash
    git clone https://github.com/yourusername/Plotline.git
+   cd Plotline
    ```
 
-2. Open the project in Xcode
+2. Add your API keys to `Plotline/Secrets.plist`:
+   ```xml
+   <dict>
+       <key>TMDB_API_KEY</key>
+       <string>your_tmdb_key</string>
+       <key>OMDB_API_KEY</key>
+       <string>your_omdb_key</string>
+   </dict>
+   ```
+
+3. Build and run:
+
+   **With Xcode:**
    ```bash
-   cd Plotline
    open Plotline.xcodeproj
    ```
+   Then press ⌘R to run.
 
-3. Add your API keys to the Xcode scheme environment variables:
-   - `TMDB_API_KEY`
-   - `OMDB_API_KEY`
-
-4. Build and run on a simulator or device
+   **With command line:**
+   ```bash
+   xcodebuild -project Plotline.xcodeproj -scheme Plotline \
+     -destination 'platform=iOS Simulator,name=iPhone 17' \
+     -derivedDataPath build build && \
+   xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
+   xcrun simctl launch booted com.jbgsoft.Plotline
+   ```
 
 ## Project Structure
 
