@@ -23,7 +23,7 @@ struct PlotlineApp: App {
 
     var body: some Scene {
         WindowGroup {
-            DiscoveryView()
+            MainTabView()
                 .environment(\.themeManager, themeManager)
                 .environment(\.favoritesManager, favoritesManager)
                 .onAppear {

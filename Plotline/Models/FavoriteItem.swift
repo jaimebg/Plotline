@@ -71,4 +71,22 @@ final class FavoriteItem {
         guard let path = backdropPath else { return nil }
         return URL(string: "https://image.tmdb.org/t/p/original\(path)")
     }
+
+    /// Convert to MediaItem for navigation to detail view
+    func toMediaItem() -> MediaItem {
+        MediaItem(
+            id: tmdbId,
+            overview: "",
+            posterPath: posterPath,
+            backdropPath: backdropPath,
+            voteAverage: voteAverage,
+            voteCount: 0,
+            genreIds: nil,
+            title: isTVSeries ? nil : title,
+            releaseDate: nil,
+            name: isTVSeries ? title : nil,
+            firstAirDate: nil,
+            mediaType: isTVSeries ? .tv : .movie
+        )
+    }
 }
