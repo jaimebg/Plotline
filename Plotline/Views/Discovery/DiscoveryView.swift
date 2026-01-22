@@ -73,6 +73,9 @@ struct DiscoveryView: View {
         } else {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 28) {
+                    // Personalized daily pick
+                    DailyPickView()
+
                     MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
                     MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
 

@@ -3,9 +3,11 @@ import SwiftUI
 /// Detail view for movies and TV series
 struct MediaDetailView: View {
     @Environment(\.themeManager) private var themeManager
+    @Environment(\.favoritesManager) private var favoritesManager
     @State private var viewModel: MediaDetailViewModel
     @State private var scrollOffset: CGFloat = 0
     @State private var titleVisible: Bool = false
+    @State private var favoriteAnimationTrigger = false
 
     private let headerHeight: CGFloat = 280
     private let titleCollapseThreshold: CGFloat = 180
@@ -89,6 +91,20 @@ struct MediaDetailView: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .opacity(titleVisible ? 1 : 0)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        favoritesManager.toggleFavorite(viewModel.media)
+                        favoriteAnimationTrigger.toggle()
+                    }
+                } label: {
+                    Image(systemName: favoritesManager.isFavorite(viewModel.media) ? "heart.fill" : "heart")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(favoritesManager.isFavorite(viewModel.media) ? .red : .primary)
+                        .symbolEffect(.bounce, value: favoriteAnimationTrigger)
+                }
             }
         }
         .preferredColorScheme(themeManager.colorScheme)
@@ -178,10 +194,13 @@ struct MediaDetailView: View {
                     .aspectRatio(contentMode: .fill)
             case .failure:
                 fallbackView
-            case .empty, _:
+            case .empty:
                 Rectangle()
                     .fill(Color.plotlineCard)
                     .shimmering()
+            @unknown default:
+                Rectangle()
+                    .fill(Color.plotlineCard)
             }
         }
     }

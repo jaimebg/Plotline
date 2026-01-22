@@ -223,6 +223,52 @@ struct TMDBService {
         return try await networkManager.fetch(TMDBPersonCreditsResponse.self, from: url)
     }
 
+    // MARK: - Recommendations
+
+    /// Fetch movie recommendations based on a specific movie
+    func fetchMovieRecommendations(id: Int, page: Int = 1) async throws -> [MediaItem] {
+        guard let url = buildURL(
+            path: "/movie/\(id)/recommendations",
+            additionalParams: ["page": "\(page)"]
+        ) else {
+            throw NetworkError.invalidURL
+        }
+
+        let response: TMDBResponse = try await networkManager.fetch(TMDBResponse.self, from: url)
+        return response.results.filter { $0.posterPath != nil }
+    }
+
+    /// Fetch TV series recommendations based on a specific series
+    func fetchSeriesRecommendations(id: Int, page: Int = 1) async throws -> [MediaItem] {
+        guard let url = buildURL(
+            path: "/tv/\(id)/recommendations",
+            additionalParams: ["page": "\(page)"]
+        ) else {
+            throw NetworkError.invalidURL
+        }
+
+        let response: TMDBResponse = try await networkManager.fetch(TMDBResponse.self, from: url)
+        return response.results.filter { $0.posterPath != nil }
+    }
+
+    /// Fetch recommendations for any media type
+    func fetchRecommendations(for item: MediaItem, page: Int = 1) async throws -> [MediaItem] {
+        if item.isTVSeries {
+            return try await fetchSeriesRecommendations(id: item.id, page: page)
+        } else {
+            return try await fetchMovieRecommendations(id: item.id, page: page)
+        }
+    }
+
+    /// Fetch recommendations based on a FavoriteItem
+    func fetchRecommendations(forFavorite favorite: FavoriteItem, page: Int = 1) async throws -> [MediaItem] {
+        if favorite.isTVSeries {
+            return try await fetchSeriesRecommendations(id: favorite.tmdbId, page: page)
+        } else {
+            return try await fetchMovieRecommendations(id: favorite.tmdbId, page: page)
+        }
+    }
+
     // MARK: - Private Helpers
 
     private func buildURL(path: String, additionalParams: [String: String] = [:]) -> URL? {
