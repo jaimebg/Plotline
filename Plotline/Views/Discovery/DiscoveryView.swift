@@ -5,7 +5,6 @@ struct DiscoveryView: View {
     @Environment(\.themeManager) private var themeManager
     @State private var viewModel = DiscoveryViewModel()
     @State private var navigationPath = NavigationPath()
-    @State private var showSettings = false
     @Namespace private var namespace
 
     var body: some View {
@@ -32,19 +31,6 @@ struct DiscoveryView: View {
                     ToolbarItem(placement: .largeTitle) {
                         AnimatedGradientText(text: "Plotline")
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            showSettings = true
-                        } label: {
-                            Image(systemName: "gear")
-                                .font(.system(size: 17))
-                                .foregroundStyle(Color.plotlinePrimary)
-                        }
-                    }
-                }
-                .sheet(isPresented: $showSettings) {
-                    SettingsView()
-                        .preferredColorScheme(themeManager.colorScheme)
                 }
         }
         .environment(\.navigationNamespace, namespace)

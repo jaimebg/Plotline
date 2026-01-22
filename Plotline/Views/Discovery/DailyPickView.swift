@@ -28,6 +28,7 @@ struct DailyPickView: View {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(.secondary)
+                            .symbolEffect(.rotate, isActive: viewModel.isLoading)
                     }
                 }
             }
@@ -93,6 +94,7 @@ struct DailyPickView: View {
                 Image(systemName: "heart.circle")
                     .font(.system(size: 44))
                     .foregroundStyle(Color.plotlinePrimary)
+                    .symbolEffect(.pulse.wholeSymbol, options: .repeating)
 
                 Text("Add Your Favorites")
                     .font(.headline)

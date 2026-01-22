@@ -11,7 +11,8 @@ struct PlotlineApp: App {
         let schema = Schema([FavoriteItem.self])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: false
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .automatic
         )
 
         do {

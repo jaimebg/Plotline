@@ -143,6 +143,7 @@ struct FavoritesView: View {
                     Image(systemName: "heart.circle")
                         .font(.system(size: 44))
                         .foregroundStyle(Color.plotlinePrimary)
+                        .symbolEffect(.pulse.wholeSymbol, options: .repeating)
 
                     Text("No Favorites Yet")
                         .font(.headline)

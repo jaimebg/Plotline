@@ -3,7 +3,6 @@ import SwiftUI
 /// Settings screen with theme options and app information
 struct SettingsView: View {
     @Environment(\.themeManager) private var themeManager
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -33,16 +32,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color.plotlinePrimary)
-                }
-            }
+            .navigationBarTitleDisplayMode(.large)
         }
     }
 
@@ -93,11 +83,11 @@ private struct ThemeOptionRow: View {
 
                 Spacer()
 
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.plotlinePrimary)
-                }
+                Image(systemName: "checkmark")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.plotlinePrimary)
+                    .opacity(isSelected ? 1 : 0)
+                    .symbolEffect(.bounce, value: isSelected)
             }
             .contentShape(Rectangle())
         }

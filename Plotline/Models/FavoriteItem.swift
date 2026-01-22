@@ -2,10 +2,11 @@ import Foundation
 import SwiftData
 
 /// SwiftData model for storing favorite movies and TV series
+/// Note: Unique constraint removed for CloudKit compatibility - duplicates prevented in FavoritesManager
 @Model
 final class FavoriteItem {
-    /// TMDB ID of the media item
-    @Attribute(.unique) var tmdbId: Int
+    /// TMDB ID of the media item (uniqueness enforced in FavoritesManager)
+    var tmdbId: Int
 
     /// Media type: "movie" or "tv"
     var mediaType: String

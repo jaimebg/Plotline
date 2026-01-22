@@ -6,7 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Plotline is an iOS app for exploring movies and TV series with analytical quality visualization. It aggregates ratings from multiple sources (IMDb, Rotten Tomatoes, Metacritic) and provides episode-by-episode rating graphs for TV series using Swift Charts.
 
-**Target:** iOS 17+, iPhone, SwiftUI
+**Target:** iOS 18+, iPhone, SwiftUI
+
+### iOS 18+ Features Used
+- **Tab struct** - Modern tab navigation with `Tab("Title", systemImage:value:)` syntax
+- **Symbol effects** - `.symbolEffect(.pulse)`, `.symbolEffect(.bounce)`, `.symbolEffect(.rotate)`
+- **Type-safe tab selection** - `AppTab` enum with `TabView(selection:)`
 
 ## Build Commands
 

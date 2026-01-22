@@ -105,8 +105,32 @@ final class FavoritesManager {
         )
 
         do {
-            favorites = try context.fetch(descriptor)
-            favoriteIds = Set(favorites.map(\.tmdbId))
+            let allFavorites = try context.fetch(descriptor)
+
+            // Deduplicate by tmdbId (keep earliest added, remove later duplicates from CloudKit sync)
+            var seenIds = Set<Int>()
+            var uniqueFavorites: [FavoriteItem] = []
+            var duplicatesToDelete: [FavoriteItem] = []
+
+            for favorite in allFavorites {
+                if seenIds.contains(favorite.tmdbId) {
+                    duplicatesToDelete.append(favorite)
+                } else {
+                    seenIds.insert(favorite.tmdbId)
+                    uniqueFavorites.append(favorite)
+                }
+            }
+
+            // Clean up any duplicates that arrived via CloudKit
+            for duplicate in duplicatesToDelete {
+                context.delete(duplicate)
+            }
+            if !duplicatesToDelete.isEmpty {
+                try context.save()
+            }
+
+            favorites = uniqueFavorites
+            favoriteIds = seenIds
         } catch {
             print("Failed to fetch favorites: \(error)")
             favorites = []
