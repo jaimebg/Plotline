@@ -41,7 +41,11 @@ Most apps tell you *what a series is about*. **Plotline** shows you *how its qua
 
 ## Screenshots
 
-*Coming soon*
+<p align="center">
+  <img src="screenshots/discover.png" alt="Discover" width="250">
+  <img src="screenshots/favorites.png" alt="Favorites" width="250">
+  <img src="screenshots/detail.png" alt="Detail" width="250">
+</p>
 
 ## Tech Stack
 
