@@ -100,7 +100,7 @@ final class MediaDetailViewModel {
         do {
             ratings = try await omdbService.fetchRatings(imdbId: imdbId)
         } catch {
-            ratingsError = error.localizedDescription
+            ratingsError = (error as? NetworkError)?.errorDescription ?? "Couldn't load ratings. Pull to refresh."
             debugPrint("Failed to fetch ratings: \(error)")
         }
 
@@ -125,7 +125,7 @@ final class MediaDetailViewModel {
                 season: selectedSeason
             )
         } catch {
-            episodesError = error.localizedDescription
+            episodesError = (error as? NetworkError)?.errorDescription ?? "Couldn't load episodes. Pull to refresh."
             debugPrint("Failed to fetch episodes: \(error)")
         }
 

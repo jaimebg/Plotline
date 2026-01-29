@@ -21,8 +21,8 @@ struct OMDbService {
 
     /// Fetch ratings for a movie or TV series by IMDb ID
     func fetchRatings(imdbId: String) async throws -> [RatingSource] {
-        // Check cache first
-        if let cached = await cache.getRatings(for: imdbId) {
+        let cacheKey = "\(cacheVersion)_ratings_\(imdbId)"
+        if let cached: [RatingSource] = await cache.get(for: cacheKey) {
             return cached
         }
 
@@ -42,14 +42,18 @@ struct OMDbService {
 
         let ratings = response.ratings ?? []
 
-        // Cache the result
-        await cache.setRatings(ratings, for: imdbId)
+        await cache.set(ratings, for: cacheKey)
 
         return ratings
     }
 
     /// Fetch full OMDb details (includes ratings, plot, etc.)
     func fetchDetails(imdbId: String) async throws -> OMDbResponse {
+        let cacheKey = "\(cacheVersion)_details_\(imdbId)"
+        if let cached: OMDbResponse = await cache.get(for: cacheKey) {
+            return cached
+        }
+
         guard let url = buildURL(params: ["i": imdbId, "plot": "full"]) else {
             throw NetworkError.invalidURL
         }
@@ -64,6 +68,8 @@ struct OMDbService {
             throw OMDbError.apiError(response.error ?? "Unknown error")
         }
 
+        await cache.set(response, for: cacheKey)
+
         return response
     }
 
@@ -71,7 +77,7 @@ struct OMDbService {
     func fetchSeasonEpisodes(imdbId: String, season: Int) async throws -> [EpisodeMetric] {
         // Check cache first (versioned key invalidates old data)
         let cacheKey = "\(cacheVersion)_\(imdbId)_S\(season)"
-        if let cached = await cache.getEpisodes(for: cacheKey) {
+        if let cached: [EpisodeMetric] = await cache.get(for: cacheKey) {
             return cached
         }
 
@@ -104,27 +110,18 @@ struct OMDbService {
         print("✅ OMDb S\(season): \(episodes.count) total, \(episodes.filter { $0.hasValidRating }.count) valid")
         #endif
 
-        // Cache the result
-        await cache.setEpisodes(episodes, for: cacheKey)
+        await cache.set(episodes, for: cacheKey)
 
         return episodes
     }
 
-    /// Fetch all seasons' episodes for a series
-    func fetchAllSeasons(imdbId: String, totalSeasons: Int) async throws -> [[EpisodeMetric]] {
+    /// Fetch all seasons' episodes for a series, returning an empty array for any season that fails
+    func fetchAllSeasons(imdbId: String, totalSeasons: Int) async -> [[EpisodeMetric]] {
         var allEpisodes: [[EpisodeMetric]] = []
 
         for season in 1...totalSeasons {
-            do {
-                let episodes = try await fetchSeasonEpisodes(imdbId: imdbId, season: season)
-                allEpisodes.append(episodes)
-            } catch {
-                // If a season fails, add empty array but continue
-                #if DEBUG
-                print("Failed to fetch season \(season): \(error)")
-                #endif
-                allEpisodes.append([])
-            }
+            let episodes = (try? await fetchSeasonEpisodes(imdbId: imdbId, season: season)) ?? []
+            allEpisodes.append(episodes)
         }
 
         return allEpisodes
@@ -133,26 +130,14 @@ struct OMDbService {
     // MARK: - Private Helpers
 
     private func buildURL(params: [String: String]) -> URL? {
-        guard var components = URLComponents(string: baseURL) else {
-            return nil
-        }
-
-        var queryItems = [URLQueryItem(name: "apikey", value: apiKey)]
-
-        for (key, value) in params {
-            queryItems.append(URLQueryItem(name: key, value: value))
-        }
-
-        components.queryItems = queryItems
-        return components.url
+        var components = URLComponents(string: baseURL)
+        components?.queryItems = [URLQueryItem(name: "apikey", value: apiKey)]
+            + params.map { URLQueryItem(name: $0.key, value: $0.value) }
+        return components?.url
     }
 
-    /// Custom decoder for OMDb (uses PascalCase keys)
-    private var omdbDecoder: JSONDecoder {
-        let decoder = JSONDecoder()
-        // OMDb uses PascalCase, handled in CodingKeys
-        return decoder
-    }
+    /// OMDb uses PascalCase keys, handled via explicit CodingKeys in models
+    private let omdbDecoder = JSONDecoder()
 }
 
 // MARK: - OMDb Errors
@@ -174,53 +159,76 @@ enum OMDbError: Error, LocalizedError {
     }
 }
 
-// MARK: - OMDb Cache
+// MARK: - OMDb Disk Cache
 
-/// Actor-based cache for OMDb responses
+/// Actor-based persistent cache for OMDb responses using FileManager
+/// Stores JSON files in Caches/omdb/ with 7-day expiration
 actor OMDbCache {
     static let shared = OMDbCache()
 
-    private var ratingsCache: [String: [RatingSource]] = [:]
-    private var episodesCache: [String: [EpisodeMetric]] = [:]
-    private var detailsCache: [String: OMDbResponse] = [:]
+    private let cacheDir: URL
+    private let maxAge: TimeInterval = 7 * 24 * 3600 // 7 days
+    private var memoryCache: [String: Data] = [:]
 
-    private init() {}
-
-    // MARK: - Ratings
-
-    func getRatings(for imdbId: String) -> [RatingSource]? {
-        ratingsCache[imdbId]
+    private init() {
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        cacheDir = caches.appendingPathComponent("omdb", isDirectory: true)
+        try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
     }
 
-    func setRatings(_ ratings: [RatingSource], for imdbId: String) {
-        ratingsCache[imdbId] = ratings
+    func get<T: Decodable>(for key: String) -> T? {
+        let safeKey = sanitizedKey(key)
+
+        if let data = memoryCache[safeKey] {
+            return try? JSONDecoder().decode(T.self, from: data)
+        }
+
+        let fileURL = fileURL(for: safeKey)
+        guard let wrapper = try? Data(contentsOf: fileURL),
+              let entry = try? JSONDecoder().decode(CacheEntry.self, from: wrapper) else {
+            return nil
+        }
+
+        guard Date().timeIntervalSince(entry.timestamp) < maxAge else {
+            try? FileManager.default.removeItem(at: fileURL)
+            return nil
+        }
+
+        memoryCache[safeKey] = entry.data
+        return try? JSONDecoder().decode(T.self, from: entry.data)
     }
 
-    // MARK: - Episodes
+    func set<T: Encodable>(_ value: T, for key: String) {
+        let safeKey = sanitizedKey(key)
+        guard let data = try? JSONEncoder().encode(value) else { return }
 
-    func getEpisodes(for key: String) -> [EpisodeMetric]? {
-        episodesCache[key]
+        memoryCache[safeKey] = data
+
+        let entry = CacheEntry(data: data, timestamp: Date())
+        guard let wrapper = try? JSONEncoder().encode(entry) else { return }
+        try? wrapper.write(to: fileURL(for: safeKey))
     }
-
-    func setEpisodes(_ episodes: [EpisodeMetric], for key: String) {
-        episodesCache[key] = episodes
-    }
-
-    // MARK: - Details
-
-    func getDetails(for imdbId: String) -> OMDbResponse? {
-        detailsCache[imdbId]
-    }
-
-    func setDetails(_ details: OMDbResponse, for imdbId: String) {
-        detailsCache[imdbId] = details
-    }
-
-    // MARK: - Clear
 
     func clearAll() {
-        ratingsCache.removeAll()
-        episodesCache.removeAll()
-        detailsCache.removeAll()
+        memoryCache.removeAll()
+        let files = (try? FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)) ?? []
+        for file in files {
+            try? FileManager.default.removeItem(at: file)
+        }
     }
+
+    // MARK: - Private Helpers
+
+    private func sanitizedKey(_ key: String) -> String {
+        key.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? key
+    }
+
+    private func fileURL(for safeKey: String) -> URL {
+        cacheDir.appendingPathComponent(safeKey)
+    }
+}
+
+private struct CacheEntry: Codable {
+    let data: Data
+    let timestamp: Date
 }

@@ -20,8 +20,6 @@ struct SettingsView: View {
                     }
                 } header: {
                     Text("Appearance")
-                } footer: {
-                    Text("Defaults to system appearance when not set.")
                 }
 
                 Section("About") {
@@ -65,7 +63,7 @@ private struct ThemeOptionRow: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: theme.icon)
-                    .font(.system(size: 20))
+                    .font(.title3)
                     .foregroundStyle(theme.iconColor)
                     .frame(width: 32)
 
@@ -75,7 +73,7 @@ private struct ThemeOptionRow: View {
                 Spacer()
 
                 Image(systemName: "checkmark")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.plotlinePrimary)
                     .opacity(isSelected ? 1 : 0)
                     .symbolEffect(.bounce, value: isSelected)

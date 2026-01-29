@@ -25,7 +25,7 @@ struct DailyPickView: View {
                         }
                     } label: {
                         Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.subheadline.weight(.medium))
                             .symbolEffect(.rotate, isActive: viewModel.isLoading)
                     }
                     .tint(.secondary)
@@ -90,7 +90,8 @@ struct DailyPickView: View {
 
             VStack(spacing: 12) {
                 Image(systemName: "heart.circle")
-                    .font(.system(size: 44))
+                    .font(.system(.largeTitle, weight: .regular))
+                    .imageScale(.large)
                     .foregroundStyle(Color.plotlinePrimary)
                     .symbolEffect(.pulse.wholeSymbol, options: .repeating)
 
@@ -129,7 +130,7 @@ struct DailyPickView: View {
 
             VStack(spacing: 8) {
                 Image(systemName: "film.stack")
-                    .font(.system(size: 32))
+                    .font(.largeTitle)
                     .foregroundStyle(.secondary)
 
                 Text("No recommendations available")

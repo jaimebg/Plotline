@@ -53,7 +53,7 @@ final class DiscoveryViewModel {
             self.topRatedSeries = try await topSeries
 
         } catch {
-            self.errorMessage = error.localizedDescription
+            self.errorMessage = (error as? NetworkError)?.errorDescription ?? "Couldn't load content. Pull to refresh."
             #if DEBUG
             print("Error loading content: \(error)")
             #endif

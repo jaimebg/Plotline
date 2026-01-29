@@ -153,7 +153,7 @@ struct FranchiseMovieCard: View {
 
                 HStack(spacing: 2) {
                     Image(systemName: "star.fill")
-                        .font(.system(size: 8))
+                        .font(.caption2)
                         .foregroundStyle(Color.imdbYellow)
 
                     Text(movie.formattedRating)

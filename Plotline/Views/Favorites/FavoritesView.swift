@@ -89,7 +89,7 @@ struct FavoritesView: View {
             }
         } label: {
             Image(systemName: "arrow.up.arrow.down")
-                .font(.system(size: 17))
+                .font(.body)
                 .foregroundStyle(Color.plotlinePrimary)
         }
     }
@@ -133,7 +133,8 @@ struct FavoritesView: View {
 
                 VStack(spacing: 12) {
                     Image(systemName: "heart.circle")
-                        .font(.system(size: 44))
+                        .font(.system(.largeTitle, weight: .regular))
+                        .imageScale(.large)
                         .foregroundStyle(Color.plotlinePrimary)
                         .symbolEffect(.pulse.wholeSymbol, options: .repeating)
 

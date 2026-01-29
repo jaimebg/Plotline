@@ -139,7 +139,7 @@ struct AwardBadge: View {
                     .frame(width: 48, height: 48)
 
                 Image(systemName: icon)
-                    .font(.system(size: 20))
+                    .font(.title3)
                     .foregroundStyle(color)
             }
             .overlay(

@@ -98,7 +98,8 @@ struct MediaHeaderView: View {
 
             // Icon
             Image(systemName: media.isTVSeries ? "tv" : "film")
-                .font(.system(size: 60))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(.primary.opacity(0.3))
         }
     }

@@ -13,19 +13,19 @@ enum NetworkError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid URL"
+            return "Something went wrong. Please try again."
         case .invalidResponse:
-            return "Invalid response from server"
-        case .decodingError(let error):
-            return "Decoding error: \(error.localizedDescription)"
-        case .serverError(let code):
-            return "Server error: \(code)"
+            return "Couldn't connect to the server. Please try again."
+        case .decodingError:
+            return "Something went wrong loading this content."
+        case .serverError:
+            return "The server is temporarily unavailable. Please try again later."
         case .noData:
-            return "No data received"
+            return "No content found."
         case .networkUnavailable:
-            return "Network unavailable"
+            return "No internet connection. Check your network and try again."
         case .rateLimited:
-            return "Rate limited. Please try again later."
+            return "Too many requests. Please wait a moment and try again."
         }
     }
 }

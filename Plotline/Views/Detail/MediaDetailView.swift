@@ -101,7 +101,7 @@ struct MediaDetailView: View {
                     }
                 } label: {
                     Image(systemName: favoritesManager.isFavorite(viewModel.media) ? "heart.fill" : "heart")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(favoritesManager.isFavorite(viewModel.media) ? .red : .primary)
                         .symbolEffect(.bounce, value: favoriteAnimationTrigger)
                 }
@@ -226,7 +226,8 @@ struct MediaDetailView: View {
             }
 
             Image(systemName: viewModel.media.isTVSeries ? "tv" : "film")
-                .font(.system(size: 60))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(.primary.opacity(0.3))
         }
     }
