@@ -54,7 +54,6 @@ struct MediaCard: View {
                         .foregroundStyle(.primary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
-                        .frame(height: 40, alignment: .top) // Fixed height for consistent card sizes
 
                     HStack(spacing: 4) {
                         if let year = item.year {
@@ -74,8 +73,10 @@ struct MediaCard: View {
                             }
                         }
                     }
+
+                    Spacer(minLength: 0)
                 }
-                .frame(width: style.width, alignment: .leading)
+                .frame(width: style.width, height: 58, alignment: .topLeading)
             }
         }
         .accessibilityElement(children: .combine)
