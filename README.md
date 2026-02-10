@@ -16,13 +16,6 @@
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>
 
----
-
-> **🚧 Under Construction**
-> Plotline is in active development. Core features work, but expect rough edges. Contributions welcome!
-
----
-
 ## About
 
 **Plotline** goes beyond a simple movie catalog. It provides analytical visualization of quality for both movies and TV series, consolidating critical data from multiple sources (IMDb, Rotten Tomatoes, Metacritic) into a unified, elegant interface.

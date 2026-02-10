@@ -101,7 +101,9 @@ final class MediaDetailViewModel {
             ratings = try await omdbService.fetchRatings(imdbId: imdbId)
         } catch {
             ratingsError = (error as? NetworkError)?.errorDescription ?? "Couldn't load ratings. Pull to refresh."
+            #if DEBUG
             debugPrint("Failed to fetch ratings: \(error)")
+            #endif
         }
 
         isLoadingRatings = false
@@ -126,7 +128,9 @@ final class MediaDetailViewModel {
             )
         } catch {
             episodesError = (error as? NetworkError)?.errorDescription ?? "Couldn't load episodes. Pull to refresh."
+            #if DEBUG
             debugPrint("Failed to fetch episodes: \(error)")
+            #endif
         }
 
         isLoadingEpisodes = false
@@ -181,7 +185,9 @@ final class MediaDetailViewModel {
                         )
                         return (season, episodes)
                     } catch {
+                        #if DEBUG
                         debugPrint("Failed to fetch season \(season): \(error)")
+                        #endif
                         return (season, nil)
                     }
                 }
@@ -231,7 +237,9 @@ final class MediaDetailViewModel {
                 totalSeasons = seasons
             }
         } catch {
+            #if DEBUG
             debugPrint("Failed to fetch TMDB details: \(error)")
+            #endif
         }
     }
 
@@ -268,7 +276,9 @@ final class MediaDetailViewModel {
                 .filter { $0.releaseDate?.isEmpty == false }
                 .sorted { ($0.yearInt ?? 0) < ($1.yearInt ?? 0) }
         } catch {
+            #if DEBUG
             debugPrint("Failed to fetch collection: \(error)")
+            #endif
         }
     }
 
@@ -288,7 +298,9 @@ final class MediaDetailViewModel {
             async let actorTask: () = fetchActorFilmography()
             _ = await (directorTask, actorTask)
         } catch {
+            #if DEBUG
             debugPrint("Failed to fetch credits: \(error)")
+            #endif
         }
     }
 
@@ -306,7 +318,9 @@ final class MediaDetailViewModel {
                     .prefix(15)
             )
         } catch {
+            #if DEBUG
             debugPrint("Failed to fetch director filmography: \(error)")
+            #endif
         }
     }
 
@@ -324,7 +338,9 @@ final class MediaDetailViewModel {
                     .prefix(15)
             )
         } catch {
+            #if DEBUG
             debugPrint("Failed to fetch actor filmography: \(error)")
+            #endif
         }
     }
 
@@ -338,7 +354,9 @@ final class MediaDetailViewModel {
             awardsData = AwardsData.parse(from: omdbDetails.awards)
             media.awards = omdbDetails.awards
         } catch {
+            #if DEBUG
             debugPrint("Failed to fetch OMDb details: \(error)")
+            #endif
         }
     }
 

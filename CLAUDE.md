@@ -50,7 +50,7 @@ Flow: User action → TMDB fetch → Extract `imdb_id` → OMDb fetch → Merge 
 **Services Layer** (`Services/`)
 - `NetworkManager` - Swift Actor for thread-safe async networking with `URLSession`
 - `TMDBService` - TMDB API wrapper (trending, popular, search, details, credits)
-- OMDbService (to be implemented) - Episode ratings and external scores
+- `OMDbService` - Episode ratings, external scores, and awards data
 
 **Models** (`Models/`)
 - `MediaItem` - Unified model for movies and TV series with computed properties for URLs and display values

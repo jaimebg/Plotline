@@ -17,7 +17,9 @@ struct PlotlineApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [cloudConfig])
         } catch {
+            #if DEBUG
             print("CloudKit unavailable, using local storage: \(error.localizedDescription)")
+            #endif
             let localConfig = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
@@ -26,7 +28,9 @@ struct PlotlineApp: App {
             do {
                 return try ModelContainer(for: schema, configurations: [localConfig])
             } catch {
+                #if DEBUG
                 print("Schema migration failed, creating fresh store: \(error.localizedDescription)")
+                #endif
                 let storeURL = URL.applicationSupportDirectory.appending(path: "default.store")
                 try? FileManager.default.removeItem(at: storeURL)
                 return try! ModelContainer(for: schema, configurations: [localConfig])

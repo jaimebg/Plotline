@@ -35,7 +35,9 @@ final class FavoritesManager {
             try context.save()
             fetchFavorites()
         } catch {
+            #if DEBUG
             print("Failed to save favorite: \(error)")
+            #endif
         }
     }
 
@@ -58,7 +60,9 @@ final class FavoritesManager {
             try context.save()
             fetchFavorites()
         } catch {
+            #if DEBUG
             print("Failed to remove favorite: \(error)")
+            #endif
         }
     }
 
@@ -113,7 +117,9 @@ final class FavoritesManager {
             favorites = uniqueFavorites
             favoriteIds = seenIds
         } catch {
+            #if DEBUG
             print("Failed to fetch favorites: \(error)")
+            #endif
             favorites = []
             favoriteIds = []
         }
