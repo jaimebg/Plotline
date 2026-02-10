@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftData
 import SwiftUI
 
@@ -5,6 +6,7 @@ import SwiftUI
 struct FavoritesView: View {
     @Environment(\.themeManager) private var themeManager
     @Environment(\.favoritesManager) private var favoritesManager
+    @Environment(\.requestReview) private var requestReview
     @State private var viewModel = FavoritesViewModel()
     @State private var navigationPath = NavigationPath()
     @Namespace private var namespace
@@ -28,6 +30,7 @@ struct FavoritesView: View {
                 .navigationDestination(for: MediaItem.self) { item in
                     MediaDetailView(media: item)
                         .navigationTransition(.zoom(sourceID: item.id, in: namespace))
+                        .onAppear { handleFavoriteDetailOpened() }
                 }
                 .toolbar {
                     if !favoritesManager.favorites.isEmpty {
@@ -153,6 +156,16 @@ struct FavoritesView: View {
             .frame(height: 200)
             .padding(.horizontal)
             Spacer()
+        }
+    }
+
+    private func handleFavoriteDetailOpened() {
+        ReviewManager.recordFavoriteDetailOpened()
+        if ReviewManager.shouldRequestReview() {
+            ReviewManager.markReviewRequested()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                requestReview()
+            }
         }
     }
 
