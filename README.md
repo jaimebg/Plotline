@@ -50,13 +50,13 @@ Most apps tell you *what a series is about*. **Plotline** shows you *how its qua
 
 <p align="center">
   <img src="screenshots/discover.png" alt="Discover" width="200">
-  <img src="screenshots/genres.png" alt="Browse by Genre" width="200">
-  <img src="screenshots/favorites.png" alt="Favorites" width="200">
-</p>
-<p align="center">
-  <img src="screenshots/watchlist.png" alt="Watchlist" width="200">
   <img src="screenshots/detail.png" alt="Detail" width="200">
   <img src="screenshots/detail-scroll.png" alt="Detail Scrolled" width="200">
+</p>
+<p align="center">
+  <img src="screenshots/favorites.png" alt="Favorites" width="200">
+  <img src="screenshots/watchlist.png" alt="Watchlist" width="200">
+  <img src="screenshots/genres.png" alt="Browse by Genre" width="200">
 </p>
 
 ## Tech Stack
