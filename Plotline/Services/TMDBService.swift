@@ -269,6 +269,62 @@ struct TMDBService {
         }
     }
 
+    // MARK: - Genres
+
+    /// Fetch movie genre list
+    func fetchMovieGenres() async throws -> [Genre] {
+        guard let url = buildURL(path: "/genre/movie/list") else {
+            throw NetworkError.invalidURL
+        }
+
+        let response: TMDBGenreListResponse = try await networkManager.fetch(TMDBGenreListResponse.self, from: url)
+        return response.genres
+    }
+
+    /// Fetch TV genre list
+    func fetchTVGenres() async throws -> [Genre] {
+        guard let url = buildURL(path: "/genre/tv/list") else {
+            throw NetworkError.invalidURL
+        }
+
+        let response: TMDBGenreListResponse = try await networkManager.fetch(TMDBGenreListResponse.self, from: url)
+        return response.genres
+    }
+
+    // MARK: - Discover
+
+    /// Discover movies by genre with sorting and pagination
+    func discoverMovies(genreId: Int, sortBy: String = "popularity.desc", page: Int = 1) async throws -> TMDBResponse {
+        guard let url = buildURL(
+            path: "/discover/movie",
+            additionalParams: [
+                "with_genres": "\(genreId)",
+                "sort_by": sortBy,
+                "page": "\(page)"
+            ]
+        ) else {
+            throw NetworkError.invalidURL
+        }
+
+        return try await networkManager.fetch(TMDBResponse.self, from: url)
+    }
+
+    /// Discover TV series by genre with sorting and pagination
+    func discoverSeries(genreId: Int, sortBy: String = "popularity.desc", page: Int = 1) async throws -> TMDBResponse {
+        guard let url = buildURL(
+            path: "/discover/tv",
+            additionalParams: [
+                "with_genres": "\(genreId)",
+                "sort_by": sortBy,
+                "page": "\(page)"
+            ]
+        ) else {
+            throw NetworkError.invalidURL
+        }
+
+        return try await networkManager.fetch(TMDBResponse.self, from: url)
+    }
+
     // MARK: - Private Helpers
 
     private func buildURL(path: String, additionalParams: [String: String] = [:]) -> URL? {

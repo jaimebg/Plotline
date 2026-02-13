@@ -1,5 +1,10 @@
 import SwiftUI
 
+/// Navigation routes for discovery (non-media destinations)
+enum DiscoveryRoute: Hashable {
+    case genreBrowse
+}
+
 /// Main discovery screen with trending and popular content
 struct DiscoveryView: View {
     @Environment(\.themeManager) private var themeManager
@@ -23,6 +28,15 @@ struct DiscoveryView: View {
                 .navigationDestination(for: MediaItem.self) { item in
                     MediaDetailView(media: item)
                         .navigationTransition(.zoom(sourceID: item.id, in: namespace))
+                }
+                .navigationDestination(for: Genre.self) { genre in
+                    GenreResultsView(genre: genre)
+                }
+                .navigationDestination(for: DiscoveryRoute.self) { route in
+                    switch route {
+                    case .genreBrowse:
+                        GenreBrowseView(genres: viewModel.genres)
+                    }
                 }
                 .refreshable {
                     await viewModel.refresh()
@@ -64,6 +78,13 @@ struct DiscoveryView: View {
                 LazyVStack(alignment: .leading, spacing: 28) {
                     // Personalized daily pick
                     DailyPickView()
+
+                    // Browse by Genre
+                    NavigationLink(value: DiscoveryRoute.genreBrowse) {
+                        GenreBrowseCard()
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
 
                     MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
                     MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
@@ -212,6 +233,50 @@ struct SearchResultRow: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Genre Browse Card
+
+/// Prominent card linking to genre browsing
+struct GenreBrowseCard: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.plotlinePrimary, Color.plotlineSecondaryAccent],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 48, height: 48)
+
+                Image(systemName: "square.grid.2x2")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.white)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Browse by Genre")
+                    .font(.system(.headline, weight: .bold))
+                    .foregroundStyle(.primary)
+
+                Text("Discover movies and series by category")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(Color.plotlineCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
 
