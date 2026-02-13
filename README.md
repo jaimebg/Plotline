@@ -24,20 +24,39 @@ Most apps tell you *what a series is about*. **Plotline** shows you *how its qua
 
 ## Features
 
-- **Trending Discovery** — Browse trending and popular movies & TV series
+### Discovery
+- **Trending & Popular** — Browse trending and top-rated movies & TV series
+- **Genre Browsing** — Explore content by genre with filtered results, media type toggle, and sort options
+- **Smart Search** — Find any movie or series instantly with real-time results
+- **Personalized Daily Pick** — Get daily recommendations based on your favorite genres
+
+### Detail & Analysis
 - **Multi-Source Ratings** — Aggregated scores from IMDb, Rotten Tomatoes, and Metacritic
 - **Episode Quality Graphs** — Visualize TV series episode ratings with interactive Swift Charts
-- **Favorites with iCloud Sync** — Save favorites and sync seamlessly across all your devices
-- **Personalized Daily Pick** — Get recommendations based on your favorite genres
-- **Immersive Design** — Cinema-inspired UI with light/dark mode and smooth animations
-- **Smart Search** — Find any movie or series instantly
+- **Content Recommendations** — "You Might Also Like" suggestions for every title
+- **Share** — Share movies and series with friends via any app
+
+### Collections
+- **Favorites** — Save your favorite titles with swipe-to-delete, filtering (All/Movies/Series), and sorting
+- **Watchlist** — Track what you want to watch and what you've seen, with status toggling and swipe actions
+- **iCloud Sync** — Both favorites and watchlist sync seamlessly across all your devices
+
+### Design
+- **Immersive UI** — Cinema-inspired interface with smooth animations and zoom transitions
+- **Light & Dark Mode** — Full support for both appearances
+- **Dynamic Type** — Adapts to your preferred text size
 
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/discover.png" alt="Discover" width="250">
-  <img src="screenshots/favorites.png" alt="Favorites" width="250">
-  <img src="screenshots/detail.png" alt="Detail" width="250">
+  <img src="screenshots/discover.png" alt="Discover" width="200">
+  <img src="screenshots/genres.png" alt="Browse by Genre" width="200">
+  <img src="screenshots/favorites.png" alt="Favorites" width="200">
+</p>
+<p align="center">
+  <img src="screenshots/watchlist.png" alt="Watchlist" width="200">
+  <img src="screenshots/detail.png" alt="Detail" width="200">
+  <img src="screenshots/detail-scroll.png" alt="Detail Scrolled" width="200">
 </p>
 
 ## Tech Stack
@@ -118,10 +137,10 @@ Plotline/
 │   ├── Discovery/          # Home screen & media cards
 │   ├── Detail/             # Media detail & scorecards
 │   ├── Graph/              # Series episode charts
-│   ├── Favorites/          # Favorites list with filtering
+│   ├── Favorites/          # Favorites & Watchlist
 │   ├── Settings/           # App settings & theme
 │   └── Components/         # Reusable UI components
-├── Services/               # Network layer, API services & FavoritesManager
+├── Services/               # Network layer, API services & data managers
 ├── Extensions/             # Swift & SwiftUI extensions
 └── Resources/              # Assets & configuration
 ```
