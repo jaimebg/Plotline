@@ -4,6 +4,7 @@ import SwiftUI
 struct MediaDetailView: View {
     @Environment(\.themeManager) private var themeManager
     @Environment(\.favoritesManager) private var favoritesManager
+    @Environment(\.watchlistManager) private var watchlistManager
     @State private var viewModel: MediaDetailViewModel
     @State private var scrollOffset: CGFloat = 0
     @State private var titleVisible: Bool = false
@@ -51,6 +52,11 @@ struct MediaDetailView: View {
                     // Overview
                     overviewSection
 
+                    // Recommendations
+                    if !viewModel.recommendations.isEmpty {
+                        MediaSection(title: "You Might Also Like", items: viewModel.recommendations)
+                    }
+
                     // Movie-specific content
                     if !viewModel.isTVSeries {
                         movieFeaturesSection
@@ -94,22 +100,81 @@ struct MediaDetailView: View {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        favoritesManager.toggleFavorite(viewModel.media)
-                        favoriteAnimationTrigger.toggle()
+                HStack(spacing: 16) {
+                    if let url = viewModel.media.shareURL {
+                        ShareLink(item: url, subject: Text(viewModel.media.displayTitle),
+                                  message: Text(viewModel.media.shareText)) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(.primary)
+                        }
                     }
-                } label: {
-                    Image(systemName: favoritesManager.isFavorite(viewModel.media) ? "heart.fill" : "heart")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(favoritesManager.isFavorite(viewModel.media) ? .red : .primary)
-                        .symbolEffect(.bounce, value: favoriteAnimationTrigger)
+
+                    watchlistMenuButton
+
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            favoritesManager.toggleFavorite(viewModel.media)
+                            favoriteAnimationTrigger.toggle()
+                        }
+                    } label: {
+                        Image(systemName: favoritesManager.isFavorite(viewModel.media) ? "heart.fill" : "heart")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(favoritesManager.isFavorite(viewModel.media) ? .red : .primary)
+                            .symbolEffect(.bounce, value: favoriteAnimationTrigger)
+                    }
                 }
             }
         }
         .preferredColorScheme(themeManager.colorScheme)
         .task {
             await viewModel.loadDetails()
+        }
+    }
+
+    // MARK: - Watchlist Menu
+
+    private var watchlistMenuButton: some View {
+        Menu {
+            if watchlistManager.isOnWatchlist(viewModel.media) {
+                let currentStatus = watchlistManager.watchlistStatus(for: viewModel.media)
+
+                Button {
+                    watchlistManager.updateStatus(tmdbId: viewModel.media.id, status: "want_to_watch")
+                } label: {
+                    Label("Want to Watch", systemImage: currentStatus == "want_to_watch" ? "checkmark" : "eye")
+                }
+
+                Button {
+                    watchlistManager.updateStatus(tmdbId: viewModel.media.id, status: "watched")
+                } label: {
+                    Label("Watched", systemImage: currentStatus == "watched" ? "checkmark" : "checkmark.circle")
+                }
+
+                Divider()
+
+                Button(role: .destructive) {
+                    watchlistManager.removeFromWatchlist(viewModel.media)
+                } label: {
+                    Label("Remove from Watchlist", systemImage: "trash")
+                }
+            } else {
+                Button {
+                    watchlistManager.addToWatchlist(viewModel.media, status: "want_to_watch")
+                } label: {
+                    Label("Want to Watch", systemImage: "eye")
+                }
+
+                Button {
+                    watchlistManager.addToWatchlist(viewModel.media, status: "watched")
+                } label: {
+                    Label("Watched", systemImage: "checkmark.circle")
+                }
+            }
+        } label: {
+            Image(systemName: watchlistManager.isOnWatchlist(viewModel.media) ? "eye.fill" : "eye")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(watchlistManager.isOnWatchlist(viewModel.media) ? Color.plotlinePrimary : .primary)
         }
     }
 

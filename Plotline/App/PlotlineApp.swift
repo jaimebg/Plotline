@@ -5,9 +5,10 @@ import SwiftUI
 struct PlotlineApp: App {
     @State private var themeManager = ThemeManager.shared
     @State private var favoritesManager = FavoritesManager()
+    @State private var watchlistManager = WatchlistManager()
 
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([FavoriteItem.self])
+        let schema = Schema([FavoriteItem.self, WatchlistItem.self])
         let cloudConfig = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -43,8 +44,10 @@ struct PlotlineApp: App {
             MainTabView()
                 .environment(\.themeManager, themeManager)
                 .environment(\.favoritesManager, favoritesManager)
+                .environment(\.watchlistManager, watchlistManager)
                 .onAppear {
                     favoritesManager.configure(with: sharedModelContainer.mainContext)
+                    watchlistManager.configure(with: sharedModelContainer.mainContext)
                 }
         }
         .modelContainer(sharedModelContainer)
