@@ -7,12 +7,14 @@ enum WatchlistFilter: String, CaseIterable {
     case watched = "Watched"
 }
 
-/// Embedded view for displaying the user's watchlist
+/// Standalone view for displaying the user's watchlist
 struct WatchlistView: View {
+    @Environment(\.themeManager) private var themeManager
     @Environment(\.watchlistManager) private var watchlistManager
-    @Environment(\.navigationNamespace) private var namespace
     @State private var filter: WatchlistFilter = .all
-    @Binding var sort: FavoriteSort
+    @State private var sort: FavoriteSort = .dateAdded
+    @State private var navigationPath = NavigationPath()
+    @Namespace private var namespace
 
     private var filteredItems: [WatchlistItem] {
         var result = watchlistManager.watchlistItems
@@ -44,19 +46,37 @@ struct WatchlistView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            filterPicker
-                .padding(.horizontal)
-                .padding(.top, 8)
+        NavigationStack(path: $navigationPath) {
+            VStack(spacing: 0) {
+                filterPicker
+                    .padding(.horizontal)
+                    .padding(.top, 8)
 
-            if watchlistManager.watchlistItems.isEmpty {
-                emptyStateView
-            } else if filteredItems.isEmpty {
-                filteredEmptyStateView
-            } else {
-                watchlistList
+                if watchlistManager.watchlistItems.isEmpty {
+                    emptyStateView
+                } else if filteredItems.isEmpty {
+                    filteredEmptyStateView
+                } else {
+                    watchlistList
+                }
+            }
+            .background(Color.plotlineBackground)
+            .navigationTitle("Watchlist")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationDestination(for: MediaItem.self) { item in
+                MediaDetailView(media: item)
+                    .navigationTransition(.zoom(sourceID: item.id, in: namespace))
+            }
+            .toolbar {
+                if !watchlistManager.watchlistItems.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        sortMenu
+                    }
+                }
             }
         }
+        .environment(\.navigationNamespace, namespace)
+        .preferredColorScheme(themeManager.colorScheme)
     }
 
     private var filterPicker: some View {
@@ -78,49 +98,62 @@ struct WatchlistView: View {
     @Namespace private var listAnimation
 
     private var watchlistList: some View {
-        ScrollView {
-            LazyVStack(spacing: 12) {
-                ForEach(filteredItems, id: \.tmdbId) { item in
-                    NavigationLink(value: item.toMediaItem()) {
-                        WatchlistRow(item: item)
-                            .matchedGeometryEffect(id: item.tmdbId, in: listAnimation)
-                            .if(namespace != nil) { view in
-                                view.matchedTransitionSource(id: item.tmdbId, in: namespace!)
-                            }
-                    }
-                    .buttonStyle(.plain)
-                    .swipeActions(edge: .leading) {
-                        Button {
-                            withAnimation(reorderAnimation) {
-                                let newStatus = item.watchStatus == "watched" ? "want_to_watch" : "watched"
-                                watchlistManager.updateStatus(tmdbId: item.tmdbId, status: newStatus)
-                            }
-                        } label: {
-                            Label(
-                                item.watchStatus == "watched" ? "Want to Watch" : "Watched",
-                                systemImage: item.watchStatus == "watched" ? "eye" : "checkmark.circle"
-                            )
+        List {
+            ForEach(filteredItems, id: \.tmdbId) { item in
+                NavigationLink(value: item.toMediaItem()) {
+                    WatchlistRow(item: item)
+                        .matchedGeometryEffect(id: item.tmdbId, in: listAnimation)
+                        .matchedTransitionSource(id: item.tmdbId, in: namespace)
+                }
+                .buttonStyle(.plain)
+                .swipeActions(edge: .leading) {
+                    Button {
+                        withAnimation(reorderAnimation) {
+                            let newStatus = item.watchStatus == "watched" ? "want_to_watch" : "watched"
+                            watchlistManager.updateStatus(tmdbId: item.tmdbId, status: newStatus)
                         }
-                        .tint(Color.plotlinePrimary)
+                    } label: {
+                        Label(
+                            item.watchStatus == "watched" ? "Want to Watch" : "Watched",
+                            systemImage: item.watchStatus == "watched" ? "eye" : "checkmark.circle"
+                        )
                     }
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) {
-                            withAnimation(reorderAnimation) {
-                                watchlistManager.removeFromWatchlist(tmdbId: item.tmdbId)
-                            }
-                        } label: {
-                            Label("Remove", systemImage: "trash")
+                    .tint(Color.plotlinePrimary)
+                }
+                .swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        withAnimation(reorderAnimation) {
+                            watchlistManager.removeFromWatchlist(tmdbId: item.tmdbId)
                         }
+                    } label: {
+                        Label("Remove", systemImage: "trash")
                     }
-                    .transition(.asymmetric(
-                        insertion: .scale(scale: 0.9).combined(with: .opacity),
-                        removal: .scale(scale: 0.9).combined(with: .opacity)
-                    ))
+                }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+            }
+        }
+        .listStyle(.plain)
+        .scrollIndicators(.hidden)
+    }
+
+    private var sortMenu: some View {
+        Menu {
+            ForEach(FavoriteSort.allCases, id: \.self) { sortOption in
+                Button {
+                    withAnimation(reorderAnimation) {
+                        sort = sortOption
+                    }
+                } label: {
+                    Label(sortOption.rawValue, systemImage: sortOption.icon)
                 }
             }
-            .padding()
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(.body)
+                .foregroundStyle(Color.plotlinePrimary)
         }
-        .scrollIndicators(.hidden)
     }
 
     private var emptyStateView: some View {
@@ -238,10 +271,6 @@ struct WatchlistRow: View {
             }
 
             Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
         .padding()
         .background(Color.plotlineCard)

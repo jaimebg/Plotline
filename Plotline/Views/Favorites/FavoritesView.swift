@@ -2,21 +2,12 @@ import StoreKit
 import SwiftData
 import SwiftUI
 
-/// Active list selection for the tab
-enum ActiveList: String, CaseIterable {
-    case favorites = "Favorites"
-    case watchlist = "Watchlist"
-}
-
 /// Main view for displaying and managing favorited movies and series
 struct FavoritesView: View {
     @Environment(\.themeManager) private var themeManager
     @Environment(\.favoritesManager) private var favoritesManager
-    @Environment(\.watchlistManager) private var watchlistManager
     @Environment(\.requestReview) private var requestReview
     @State private var viewModel = FavoritesViewModel()
-    @State private var activeList: ActiveList = .favorites
-    @State private var watchlistSort: FavoriteSort = .dateAdded
     @State private var navigationPath = NavigationPath()
     @Namespace private var namespace
     @Namespace private var listAnimation
@@ -32,50 +23,25 @@ struct FavoritesView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            VStack(spacing: 0) {
-                // Top-level list switcher
-                listSwitcher
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-
-                if activeList == .favorites {
-                    favoritesContent
-                } else {
-                    WatchlistView(sort: $watchlistSort)
+            favoritesContent
+                .background(Color.plotlineBackground)
+                .navigationTitle("Favorites")
+                .navigationBarTitleDisplayMode(.large)
+                .navigationDestination(for: MediaItem.self) { item in
+                    MediaDetailView(media: item)
+                        .navigationTransition(.zoom(sourceID: item.id, in: namespace))
+                        .onAppear { handleFavoriteDetailOpened() }
                 }
-            }
-            .background(Color.plotlineBackground)
-            .navigationTitle(activeList.rawValue)
-            .navigationBarTitleDisplayMode(.large)
-            .navigationDestination(for: MediaItem.self) { item in
-                MediaDetailView(media: item)
-                    .navigationTransition(.zoom(sourceID: item.id, in: namespace))
-                    .onAppear { handleFavoriteDetailOpened() }
-            }
-            .toolbar {
-                if activeList == .favorites && !favoritesManager.favorites.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        sortMenu
+                .toolbar {
+                    if !favoritesManager.favorites.isEmpty {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            sortMenu
+                        }
                     }
                 }
-                if activeList == .watchlist && !watchlistManager.watchlistItems.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        watchlistSortMenu
-                    }
-                }
-            }
         }
         .environment(\.navigationNamespace, namespace)
         .preferredColorScheme(themeManager.colorScheme)
-    }
-
-    private var listSwitcher: some View {
-        Picker("List", selection: $activeList) {
-            ForEach(ActiveList.allCases, id: \.self) { list in
-                Text(list.rawValue).tag(list)
-            }
-        }
-        .pickerStyle(.segmented)
     }
 
     @ViewBuilder
@@ -131,42 +97,30 @@ struct FavoritesView: View {
         }
     }
 
-    private var watchlistSortMenu: some View {
-        Menu {
-            ForEach(FavoriteSort.allCases, id: \.self) { sort in
-                Button {
-                    withAnimation(reorderAnimation) {
-                        watchlistSort = sort
-                    }
-                } label: {
-                    Label(sort.rawValue, systemImage: sort.icon)
-                }
-            }
-        } label: {
-            Image(systemName: "arrow.up.arrow.down")
-                .font(.body)
-                .foregroundStyle(Color.plotlinePrimary)
-        }
-    }
-
     private var favoritesList: some View {
-        ScrollView {
-            LazyVStack(spacing: 12) {
-                ForEach(filteredFavorites, id: \.tmdbId) { favorite in
-                    NavigationLink(value: favorite.toMediaItem()) {
-                        FavoriteRow(favorite: favorite)
-                            .matchedGeometryEffect(id: favorite.tmdbId, in: listAnimation)
-                            .matchedTransitionSource(id: favorite.tmdbId, in: namespace)
-                    }
-                    .buttonStyle(.plain)
-                    .transition(.asymmetric(
-                        insertion: .scale(scale: 0.9).combined(with: .opacity),
-                        removal: .scale(scale: 0.9).combined(with: .opacity)
-                    ))
+        List {
+            ForEach(filteredFavorites, id: \.tmdbId) { favorite in
+                NavigationLink(value: favorite.toMediaItem()) {
+                    FavoriteRow(favorite: favorite)
+                        .matchedGeometryEffect(id: favorite.tmdbId, in: listAnimation)
+                        .matchedTransitionSource(id: favorite.tmdbId, in: namespace)
                 }
+                .buttonStyle(.plain)
+                .swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        withAnimation(reorderAnimation) {
+                            favoritesManager.removeFavorite(tmdbId: favorite.tmdbId)
+                        }
+                    } label: {
+                        Label("Remove", systemImage: "trash")
+                    }
+                }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
             }
-            .padding()
         }
+        .listStyle(.plain)
         .scrollIndicators(.hidden)
     }
 

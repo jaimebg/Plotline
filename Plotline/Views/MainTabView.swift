@@ -4,6 +4,7 @@ import SwiftUI
 enum AppTab: Hashable {
     case discover
     case favorites
+    case watchlist
     case settings
 }
 
@@ -20,6 +21,10 @@ struct MainTabView: View {
 
             Tab("Favorites", systemImage: "heart.fill", value: .favorites) {
                 FavoritesView()
+            }
+
+            Tab("Watchlist", systemImage: "eye.fill", value: .watchlist) {
+                WatchlistView()
             }
 
             Tab("Settings", systemImage: "gear", value: .settings) {

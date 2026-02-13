@@ -60,10 +60,6 @@ struct FavoriteRow: View {
             }
 
             Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
         .padding()
         .background(Color.plotlineCard)
