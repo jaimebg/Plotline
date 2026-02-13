@@ -42,6 +42,10 @@ final class MediaDetailViewModel {
     // Awards
     var awardsData: AwardsData?
 
+    // Recommendations
+    var recommendations: [MediaItem] = []
+    var isLoadingRecommendations = false
+
     // Credits (for filmography linking)
     var credits: TMDBCreditsResponse?
 
@@ -73,16 +77,18 @@ final class MediaDetailViewModel {
 
         // Then fetch data in parallel based on media type
         if media.isTVSeries {
-            // TV Series: fetch ratings and episodes
+            // TV Series: fetch ratings, episodes, and recommendations
             async let ratingsTask: () = fetchRatings()
             async let episodesTask: () = fetchEpisodesIfSeries()
             async let allSeasonsTask: () = fetchAllSeasons()
-            _ = await (ratingsTask, episodesTask, allSeasonsTask)
+            async let recsTask: () = fetchRecommendations()
+            _ = await (ratingsTask, episodesTask, allSeasonsTask, recsTask)
         } else {
-            // Movies: fetch ratings, awards, and movie-specific features
+            // Movies: fetch ratings, movie-specific features, and recommendations
             async let ratingsTask: () = fetchRatings()
             async let movieFeaturesTask: () = fetchMovieFeatures()
-            _ = await (ratingsTask, movieFeaturesTask)
+            async let recsTask: () = fetchRecommendations()
+            _ = await (ratingsTask, movieFeaturesTask, recsTask)
         }
     }
 
@@ -356,6 +362,20 @@ final class MediaDetailViewModel {
         } catch {
             #if DEBUG
             debugPrint("Failed to fetch OMDb details: \(error)")
+            #endif
+        }
+    }
+
+    /// Fetch recommendations for this media item
+    @MainActor
+    private func fetchRecommendations() async {
+        isLoadingRecommendations = true
+        defer { isLoadingRecommendations = false }
+        do {
+            recommendations = Array(try await tmdbService.fetchRecommendations(for: media).prefix(10))
+        } catch {
+            #if DEBUG
+            debugPrint("Failed to fetch recommendations: \(error)")
             #endif
         }
     }

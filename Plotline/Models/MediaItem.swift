@@ -76,6 +76,23 @@ struct MediaItem: Identifiable, Codable, Hashable {
         mediaType == .tv || name != nil
     }
 
+    /// Shareable URL (IMDb preferred, TMDB fallback)
+    var shareURL: URL? {
+        if let imdbId = imdbId {
+            return URL(string: "https://www.imdb.com/title/\(imdbId)")
+        }
+        let path = isTVSeries ? "/tv/\(id)" : "/movie/\(id)"
+        return URL(string: "https://www.themoviedb.org\(path)")
+    }
+
+    /// Text for sharing
+    var shareText: String {
+        if let year = year {
+            return "Check out \(displayTitle) (\(year))"
+        }
+        return "Check out \(displayTitle)"
+    }
+
     /// Box office data computed from budget and revenue
     var boxOffice: BoxOfficeData? {
         guard let budget = budget, let revenue = revenue else { return nil }
