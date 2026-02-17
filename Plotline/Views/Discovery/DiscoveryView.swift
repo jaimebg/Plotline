@@ -8,6 +8,7 @@ enum DiscoveryRoute: Hashable {
 /// Main discovery screen with trending and popular content
 struct DiscoveryView: View {
     @Environment(\.themeManager) private var themeManager
+    @Environment(\.deepLinkManager) private var deepLinkManager
     @State private var viewModel = DiscoveryViewModel()
     @State private var navigationPath = NavigationPath()
     @Namespace private var namespace
@@ -51,6 +52,19 @@ struct DiscoveryView: View {
         .preferredColorScheme(themeManager.colorScheme)
         .task {
             await viewModel.loadContent()
+        }
+        .onChange(of: deepLinkManager.pendingMediaItem) { _, newItem in
+            if let item = newItem {
+                navigationPath.append(item)
+                deepLinkManager.pendingMediaItem = nil
+            }
+        }
+        .onChange(of: deepLinkManager.pendingSearchQuery) { _, newQuery in
+            if let query = newQuery {
+                viewModel.searchText = query
+                viewModel.search()
+                deepLinkManager.pendingSearchQuery = nil
+            }
         }
     }
 
