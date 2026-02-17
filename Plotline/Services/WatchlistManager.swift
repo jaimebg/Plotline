@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 /// Manager for handling watchlist items with SwiftData persistence
 @Observable
@@ -133,6 +134,7 @@ final class WatchlistManager {
 
             watchlistItems = uniqueItems
             watchlistIds = seenIds
+            updateWidgetStats()
         } catch {
             #if DEBUG
             print("Failed to fetch watchlist: \(error)")
@@ -140,6 +142,18 @@ final class WatchlistManager {
             watchlistItems = []
             watchlistIds = []
         }
+    }
+    private func updateWidgetStats() {
+        let watched = watchlistItems.filter { $0.watchStatus == "watched" }.count
+        let wantToWatch = watchlistItems.filter { $0.watchStatus == "want_to_watch" }.count
+
+        let stats = WidgetWatchlistStats(
+            totalCount: watchlistItems.count,
+            watchedCount: watched,
+            wantToWatchCount: wantToWatch
+        )
+        WidgetDataManager.updateWatchlistStats(stats)
+        WidgetCenter.shared.reloadTimelines(ofKind: "WatchlistProgressWidget")
     }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 /// View model for the Daily Pick feature
 @Observable
@@ -76,6 +77,7 @@ final class DailyPickViewModel {
                     recommendation = pick
                     basedOnFavorite = favorite
                     saveCachedPick(recommendation: pick, basedOnId: favorite.tmdbId)
+                    updateWidgetDailyPick(pick: pick, basedOnTitle: favorite.title)
                     isLoading = false
                     return
                 }
@@ -105,6 +107,24 @@ final class DailyPickViewModel {
         }
 
         isLoading = false
+    }
+
+    private func updateWidgetDailyPick(pick: MediaItem, basedOnTitle: String) {
+        let widgetPick = WidgetDailyPick(
+            tmdbId: pick.id,
+            title: pick.displayTitle,
+            posterPath: pick.posterPath,
+            voteAverage: pick.voteAverage,
+            mediaType: pick.isTVSeries ? "tv" : "movie",
+            basedOnTitle: basedOnTitle
+        )
+        WidgetDataManager.updateDailyPick(widgetPick)
+
+        // Pre-download poster image for widget
+        Task.detached(priority: .utility) {
+            await WidgetDataManager.cacheImages(posterPaths: [pick.posterPath])
+            WidgetCenter.shared.reloadTimelines(ofKind: "DailyPickWidget")
+        }
     }
 
     private struct CachedPick: Codable {
