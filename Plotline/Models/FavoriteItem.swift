@@ -23,8 +23,16 @@ final class FavoriteItem {
     /// TMDB vote average at time of favoriting
     var voteAverage: Double
 
+    /// Comma-separated TMDB genre IDs (CloudKit-safe string storage)
+    var genreIds: String = ""
+
     /// Date when the item was favorited
     var addedAt: Date
+
+    /// Parsed genre IDs from the comma-separated string
+    var genreIdArray: [Int] {
+        genreIds.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+    }
 
     init(
         tmdbId: Int,
@@ -33,6 +41,7 @@ final class FavoriteItem {
         posterPath: String? = nil,
         backdropPath: String? = nil,
         voteAverage: Double = 0,
+        genreIds: String = "",
         addedAt: Date = .now
     ) {
         self.tmdbId = tmdbId
@@ -41,6 +50,7 @@ final class FavoriteItem {
         self.posterPath = posterPath
         self.backdropPath = backdropPath
         self.voteAverage = voteAverage
+        self.genreIds = genreIds
         self.addedAt = addedAt
     }
 
@@ -52,7 +62,8 @@ final class FavoriteItem {
             title: media.displayTitle,
             posterPath: media.posterPath,
             backdropPath: media.backdropPath,
-            voteAverage: media.voteAverage
+            voteAverage: media.voteAverage,
+            genreIds: media.genreIds?.map(String.init).joined(separator: ",") ?? ""
         )
     }
 
