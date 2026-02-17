@@ -23,11 +23,19 @@ final class WatchlistItem {
     /// TMDB vote average at time of adding
     var voteAverage: Double
 
+    /// Comma-separated TMDB genre IDs (CloudKit-safe string storage)
+    var genreIds: String = ""
+
     /// Watch status: "want_to_watch" or "watched"
     var watchStatus: String
 
     /// Date when the item was added to watchlist
     var addedAt: Date
+
+    /// Parsed genre IDs from the comma-separated string
+    var genreIdArray: [Int] {
+        genreIds.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+    }
 
     init(
         tmdbId: Int,
@@ -36,6 +44,7 @@ final class WatchlistItem {
         posterPath: String? = nil,
         backdropPath: String? = nil,
         voteAverage: Double = 0,
+        genreIds: String = "",
         watchStatus: String = "want_to_watch",
         addedAt: Date = .now
     ) {
@@ -45,6 +54,7 @@ final class WatchlistItem {
         self.posterPath = posterPath
         self.backdropPath = backdropPath
         self.voteAverage = voteAverage
+        self.genreIds = genreIds
         self.watchStatus = watchStatus
         self.addedAt = addedAt
     }
@@ -58,6 +68,7 @@ final class WatchlistItem {
             posterPath: media.posterPath,
             backdropPath: media.backdropPath,
             voteAverage: media.voteAverage,
+            genreIds: media.genreIds?.map(String.init).joined(separator: ",") ?? "",
             watchStatus: status
         )
     }
