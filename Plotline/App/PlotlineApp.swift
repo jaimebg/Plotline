@@ -1,3 +1,4 @@
+import AppIntents
 import SwiftData
 import SwiftUI
 
@@ -6,6 +7,8 @@ struct PlotlineApp: App {
     @State private var themeManager = ThemeManager.shared
     @State private var favoritesManager = FavoritesManager()
     @State private var watchlistManager = WatchlistManager()
+    @State private var deepLinkManager = DeepLinkManager()
+    @Environment(\.scenePhase) private var scenePhase
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([FavoriteItem.self, WatchlistItem.self])
@@ -45,11 +48,30 @@ struct PlotlineApp: App {
                 .environment(\.themeManager, themeManager)
                 .environment(\.favoritesManager, favoritesManager)
                 .environment(\.watchlistManager, watchlistManager)
+                .environment(\.deepLinkManager, deepLinkManager)
                 .onAppear {
                     favoritesManager.configure(with: sharedModelContainer.mainContext)
                     watchlistManager.configure(with: sharedModelContainer.mainContext)
+                    AppDependencyManager.shared.add(dependency: sharedModelContainer)
+                }
+                .onOpenURL { url in
+                    deepLinkManager.handleURL(url)
+                }
+                .onChange(of: scenePhase) { _, newPhase in
+                    if newPhase == .active {
+                        handleSiriSearchQuery()
+                    }
                 }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    private func handleSiriSearchQuery() {
+        let sharedDefaults = UserDefaults(suiteName: "group.com.jbgsoft.Plotline")
+        if let query = sharedDefaults?.string(forKey: "siri_search_query"), !query.isEmpty {
+            sharedDefaults?.removeObject(forKey: "siri_search_query")
+            deepLinkManager.pendingSearchQuery = query
+            deepLinkManager.pendingTab = .discover
+        }
     }
 }
