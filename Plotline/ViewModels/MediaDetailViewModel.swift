@@ -219,24 +219,35 @@ final class MediaDetailViewModel {
     @MainActor
     private func fetchTMDBDetails() async {
         do {
-            let details = try await tmdbService.fetchDetails(for: media)
+            var details = try await tmdbService.fetchDetails(for: media)
 
-            // Update media with details using nil-coalescing to preserve existing values
-            media.imdbId = details.imdbId ?? media.imdbId
-            media.budget = details.budget ?? media.budget
-            media.revenue = details.revenue ?? media.revenue
-            media.collectionId = details.collectionId ?? media.collectionId
-            media.collectionName = details.collectionName ?? media.collectionName
+            // Deep link stubs have "Loading..." as title — replace media entirely
+            let isStub = media.displayTitle == "Loading..." || (media.voteAverage == 0 && media.overview.isEmpty)
+            if isStub {
+                // Preserve any enriched fields already set on the stub
+                details.imdbId = details.imdbId ?? media.imdbId
+                details.budget = details.budget ?? media.budget
+                details.revenue = details.revenue ?? media.revenue
+                details.collectionId = details.collectionId ?? media.collectionId
+                details.collectionName = details.collectionName ?? media.collectionName
+                media = details
+            } else {
+                // Normal flow: only update enriched fields missing from the original
+                media.imdbId = details.imdbId ?? media.imdbId
+                media.budget = details.budget ?? media.budget
+                media.revenue = details.revenue ?? media.revenue
+                media.collectionId = details.collectionId ?? media.collectionId
+                media.collectionName = details.collectionName ?? media.collectionName
 
-            // Update visual/content fields if missing (e.g., when navigating from filmography)
-            if media.overview.isEmpty && !details.overview.isEmpty {
-                media.overview = details.overview
-            }
-            if media.posterPath == nil {
-                media.posterPath = details.posterPath
-            }
-            if media.backdropPath == nil {
-                media.backdropPath = details.backdropPath
+                if media.overview.isEmpty && !details.overview.isEmpty {
+                    media.overview = details.overview
+                }
+                if media.posterPath == nil {
+                    media.posterPath = details.posterPath
+                }
+                if media.backdropPath == nil {
+                    media.backdropPath = details.backdropPath
+                }
             }
 
             if let seasons = details.totalSeasons {
