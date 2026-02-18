@@ -10,7 +10,6 @@ struct FavoritesView: View {
     @State private var viewModel = FavoritesViewModel()
     @State private var navigationPath = NavigationPath()
     @Namespace private var namespace
-    @Namespace private var listAnimation
 
     private var filteredFavorites: [FavoriteItem] {
         viewModel.filteredAndSorted(favoritesManager.favorites)
@@ -102,9 +101,8 @@ struct FavoritesView: View {
             ForEach(filteredFavorites, id: \.tmdbId) { favorite in
                 NavigationLink(value: favorite.toMediaItem()) {
                     FavoriteRow(favorite: favorite)
-                        .matchedGeometryEffect(id: favorite.tmdbId, in: listAnimation)
-                        .matchedTransitionSource(id: favorite.tmdbId, in: namespace)
                 }
+                .matchedTransitionSource(id: favorite.tmdbId, in: namespace)
                 .buttonStyle(.plain)
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
