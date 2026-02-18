@@ -40,9 +40,9 @@ struct MediaSection: View {
                         ForEach(items) { item in
                             NavigationLink(value: item) {
                                 MediaCard(item: item, style: style)
-                                    .if(namespace != nil) { view in
-                                        view.matchedTransitionSource(id: item.id, in: namespace!)
-                                    }
+                            }
+                            .if(namespace != nil) { view in
+                                view.matchedTransitionSource(id: item.id, in: namespace!)
                             }
                             .buttonStyle(.plain)
                         }
@@ -93,9 +93,9 @@ struct FeaturedSection: View {
                     ForEach(items) { item in
                         NavigationLink(value: item) {
                             FeaturedCard(item: item)
-                                .if(namespace != nil) { view in
-                                    view.matchedTransitionSource(id: item.id, in: namespace!)
-                                }
+                        }
+                        .if(namespace != nil) { view in
+                            view.matchedTransitionSource(id: item.id, in: namespace!)
                         }
                         .buttonStyle(.plain)
                     }

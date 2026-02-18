@@ -44,9 +44,9 @@ struct DailyPickView: View {
                         recommendation: recommendation,
                         basedOnTitle: basedOn.title
                     )
-                    .if(namespace != nil) { view in
-                        view.matchedTransitionSource(id: recommendation.id, in: namespace!)
-                    }
+                }
+                .if(namespace != nil) { view in
+                    view.matchedTransitionSource(id: recommendation.id, in: namespace!)
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)

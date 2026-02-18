@@ -54,9 +54,9 @@ struct GenreResultsView: View {
                         ForEach(viewModel.results) { item in
                             NavigationLink(value: item) {
                                 MediaCard(item: item, style: .poster)
-                                    .if(namespace != nil) { view in
-                                        view.matchedTransitionSource(id: item.id, in: namespace!)
-                                    }
+                            }
+                            .if(namespace != nil) { view in
+                                view.matchedTransitionSource(id: item.id, in: namespace!)
                             }
                             .buttonStyle(.plain)
                             .onAppear {

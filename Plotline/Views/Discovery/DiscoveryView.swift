@@ -139,8 +139,8 @@ struct DiscoveryView: View {
                     ForEach(viewModel.searchResults) { item in
                         NavigationLink(value: item) {
                             SearchResultRow(item: item)
-                                .matchedTransitionSource(id: item.id, in: namespace)
                         }
+                        .matchedTransitionSource(id: item.id, in: namespace)
                         .buttonStyle(.plain)
                     }
                 }

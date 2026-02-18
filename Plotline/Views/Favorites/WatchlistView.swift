@@ -95,16 +95,13 @@ struct WatchlistView: View {
         .pickerStyle(.segmented)
     }
 
-    @Namespace private var listAnimation
-
     private var watchlistList: some View {
         List {
             ForEach(filteredItems, id: \.tmdbId) { item in
                 NavigationLink(value: item.toMediaItem()) {
                     WatchlistRow(item: item)
-                        .matchedGeometryEffect(id: item.tmdbId, in: listAnimation)
-                        .matchedTransitionSource(id: item.tmdbId, in: namespace)
                 }
+                .matchedTransitionSource(id: item.tmdbId, in: namespace)
                 .buttonStyle(.plain)
                 .swipeActions(edge: .leading) {
                     Button {
