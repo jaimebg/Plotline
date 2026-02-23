@@ -111,7 +111,7 @@ struct StatsView: View {
                     if viewModel.moviesCount > 0 {
                         Text("\(viewModel.moviesCount)")
                             .font(.caption.bold())
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.white)
                     }
                 }
 
@@ -127,7 +127,7 @@ struct StatsView: View {
                     if viewModel.seriesCount > 0 {
                         Text("\(viewModel.seriesCount)")
                             .font(.caption.bold())
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black)
                     }
                 }
             }
@@ -331,15 +331,19 @@ struct StatsView: View {
         VStack(spacing: 4) {
             Text(String(format: "%.1f", value))
                 .font(.title3.bold())
-                .foregroundStyle(value > 0 ? color : .secondary)
+                .foregroundStyle(value > 0 ? .primary : .secondary)
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(color.opacity(0.1))
+        .background(color.opacity(0.15))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(color.opacity(0.3), lineWidth: 1)
+        )
     }
 
     private func barColor(for label: String) -> Color {
