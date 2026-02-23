@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Grid view for browsing all genres
+/// Grid view for browsing all curated genres
 struct GenreBrowseView: View {
-    let genres: [Genre]
+    let genres: [CuratedGenre]
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -35,41 +35,25 @@ struct GenreBrowseView: View {
 
     var body: some View {
         ScrollView {
-            if genres.isEmpty {
-                genreLoadingGrid
-            } else {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(Array(genres.enumerated()), id: \.element.id) { index, genre in
-                        NavigationLink(value: genre) {
-                            GenreCard(genre: genre, color: Self.genreColors[index % Self.genreColors.count])
-                        }
-                        .buttonStyle(.plain)
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(Array(genres.enumerated()), id: \.element.id) { index, genre in
+                    NavigationLink(value: genre) {
+                        GenreCard(name: genre.name, color: Self.genreColors[index % Self.genreColors.count])
                     }
+                    .buttonStyle(.plain)
                 }
-                .padding()
             }
+            .padding()
         }
         .background(Color.plotlineBackground)
         .navigationTitle("Browse by Genre")
         .navigationBarTitleDisplayMode(.large)
     }
-
-    private var genreLoadingGrid: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
-            ForEach(0..<12, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.plotlineCard)
-                    .frame(height: 80)
-                    .shimmering()
-            }
-        }
-        .padding()
-    }
 }
 
 /// Card representing a single genre
 struct GenreCard: View {
-    let genre: Genre
+    let name: String
     let color: Color
 
     var body: some View {
@@ -83,7 +67,7 @@ struct GenreCard: View {
                     )
                 )
 
-            Text(genre.name)
+            Text(name)
                 .font(.system(.headline, weight: .bold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
@@ -98,11 +82,6 @@ struct GenreCard: View {
 
 #Preview {
     NavigationStack {
-        GenreBrowseView(genres: [
-            Genre(id: 28, name: "Action"),
-            Genre(id: 12, name: "Adventure"),
-            Genre(id: 16, name: "Animation"),
-            Genre(id: 35, name: "Comedy"),
-        ])
+        GenreBrowseView(genres: Array(CuratedGenre.all.prefix(4)))
     }
 }

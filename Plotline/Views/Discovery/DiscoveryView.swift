@@ -30,7 +30,7 @@ struct DiscoveryView: View {
                     MediaDetailView(media: item)
                         .navigationTransition(.zoom(sourceID: item.id, in: namespace))
                 }
-                .navigationDestination(for: Genre.self) { genre in
+                .navigationDestination(for: CuratedGenre.self) { genre in
                     GenreResultsView(genre: genre)
                 }
                 .navigationDestination(for: DiscoveryRoute.self) { route in

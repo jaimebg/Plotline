@@ -69,12 +69,14 @@ final class GenreResultsViewModel {
     // MARK: - Results
 
     @MainActor
-    func loadResults(genreId: Int) async {
+    func loadResults(genre: CuratedGenre) async {
         currentPage = 1
         totalPages = 1
         isLoadingResults = true
         results = []
         errorMessage = nil
+
+        let genreId = genre.genreId(for: selectedMediaType)
 
         do {
             let sortKey = selectedMediaType == .movies ? selectedSort.movieSortKey : selectedSort.tvSortKey
@@ -98,11 +100,12 @@ final class GenreResultsViewModel {
     }
 
     @MainActor
-    func loadMore(genreId: Int) async {
+    func loadMore(genre: CuratedGenre) async {
         guard !isLoadingMore && currentPage < totalPages else { return }
 
         isLoadingMore = true
         let nextPage = currentPage + 1
+        let genreId = genre.genreId(for: selectedMediaType)
 
         do {
             let sortKey = selectedMediaType == .movies ? selectedSort.movieSortKey : selectedSort.tvSortKey

@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Filtered results view for a specific genre
+/// Filtered results view for a specific curated genre
 struct GenreResultsView: View {
-    let genre: Genre
+    let genre: CuratedGenre
 
     @Environment(\.navigationNamespace) private var namespace
     @State private var viewModel = GenreResultsViewModel()
@@ -20,7 +20,7 @@ struct GenreResultsView: View {
                     get: { viewModel.selectedMediaType },
                     set: { newType in
                         viewModel.selectedMediaType = newType
-                        Task { await viewModel.loadResults(genreId: genre.id) }
+                        Task { await viewModel.loadResults(genre: genre) }
                     }
                 )) {
                     ForEach(GenreMediaType.allCases, id: \.self) { type in
@@ -39,7 +39,7 @@ struct GenreResultsView: View {
                         Text(viewModel.errorMessage ?? "")
                     } actions: {
                         Button("Try Again") {
-                            Task { await viewModel.loadResults(genreId: genre.id) }
+                            Task { await viewModel.loadResults(genre: genre) }
                         }
                         .buttonStyle(.bordered)
                     }
@@ -61,7 +61,7 @@ struct GenreResultsView: View {
                             .buttonStyle(.plain)
                             .onAppear {
                                 if item.id == viewModel.results.last?.id && viewModel.canLoadMore {
-                                    Task { await viewModel.loadMore(genreId: genre.id) }
+                                    Task { await viewModel.loadMore(genre: genre) }
                                 }
                             }
                         }
@@ -87,7 +87,7 @@ struct GenreResultsView: View {
         }
         .task {
             if viewModel.results.isEmpty {
-                await viewModel.loadResults(genreId: genre.id)
+                await viewModel.loadResults(genre: genre)
             }
         }
     }
@@ -97,7 +97,7 @@ struct GenreResultsView: View {
             ForEach(GenreSort.allCases, id: \.self) { sort in
                 Button {
                     viewModel.selectedSort = sort
-                    Task { await viewModel.loadResults(genreId: genre.id) }
+                    Task { await viewModel.loadResults(genre: genre) }
                 } label: {
                     Label(sort.rawValue, systemImage: sort.icon)
                 }
@@ -138,6 +138,6 @@ struct GenreResultsView: View {
 
 #Preview {
     NavigationStack {
-        GenreResultsView(genre: Genre(id: 28, name: "Action"))
+        GenreResultsView(genre: CuratedGenre.all[0])
     }
 }
