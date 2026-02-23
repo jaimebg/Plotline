@@ -15,7 +15,7 @@ final class DiscoveryViewModel {
     var searchResults: [MediaItem] = []
     var searchText: String = ""
 
-    var genres: [Genre] = []
+    let genres: [CuratedGenre] = CuratedGenre.all
 
     var isLoading = false
     var isSearching = false
@@ -64,37 +64,6 @@ final class DiscoveryViewModel {
         }
 
         isLoading = false
-
-        // Load genres after main content (non-blocking)
-        if genres.isEmpty {
-            await loadGenres()
-        }
-    }
-
-    /// Load genre lists from TMDB
-    @MainActor
-    func loadGenres() async {
-        do {
-            async let movieGenres = tmdbService.fetchMovieGenres()
-            async let tvGenres = tmdbService.fetchTVGenres()
-
-            let allMovie = try await movieGenres
-            let allTV = try await tvGenres
-
-            var seen = Set<Int>()
-            var combined: [Genre] = []
-            for genre in allMovie + allTV {
-                if !seen.contains(genre.id) {
-                    seen.insert(genre.id)
-                    combined.append(genre)
-                }
-            }
-            genres = combined.sorted { $0.name < $1.name }
-        } catch {
-            #if DEBUG
-            print("Error loading genres: \(error)")
-            #endif
-        }
     }
 
     /// Refresh all content
