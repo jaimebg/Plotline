@@ -171,7 +171,7 @@ struct StatsView: View {
                     if bucket.count > 0 {
                         Text("\(bucket.count)")
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color(.secondaryLabel))
                     }
                 }
             }
@@ -179,15 +179,15 @@ struct StatsView: View {
             .chartYAxis {
                 AxisMarks(position: .leading) { value in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                        .foregroundStyle(Color.primary.opacity(0.1))
+                        .foregroundStyle(Color(.separator))
                     AxisValueLabel()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color(.secondaryLabel))
                 }
             }
             .chartXAxis {
                 AxisMarks { _ in
                     AxisValueLabel()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color(.secondaryLabel))
                 }
             }
         }
@@ -235,15 +235,15 @@ struct StatsView: View {
             .chartYAxis {
                 AxisMarks(position: .leading) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                        .foregroundStyle(Color.primary.opacity(0.1))
+                        .foregroundStyle(Color(.separator))
                     AxisValueLabel()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color(.secondaryLabel))
                 }
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .weekOfYear, count: 2)) { _ in
                     AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color(.secondaryLabel))
                 }
             }
         }
@@ -265,7 +265,7 @@ struct StatsView: View {
                 )
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.plotlinePrimary, .plotlineSecondaryAccent],
+                        colors: [.plotlineSecondaryAccent, .plotlineGold],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -274,7 +274,7 @@ struct StatsView: View {
                 .annotation(position: .trailing) {
                     Text("\(genre.count)")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color(.secondaryLabel))
                 }
             }
             .frame(height: CGFloat(viewModel.topGenres.count) * 32)
@@ -282,7 +282,7 @@ struct StatsView: View {
             .chartYAxis {
                 AxisMarks { _ in
                     AxisValueLabel()
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color(.label))
                 }
             }
         }
@@ -338,18 +338,18 @@ struct StatsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(color.opacity(0.15))
+        .background(color.opacity(0.2))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(color.opacity(0.3), lineWidth: 1)
+                .strokeBorder(color.opacity(0.5), lineWidth: 1)
         )
     }
 
     private func barColor(for label: String) -> Color {
         switch label {
-        case "0-2": return .chartLow
-        case "3-4": return .plotlinePrimary
+        case "0-2": return .ratingBad
+        case "3-4": return .plotlineSecondaryAccent
         case "5-6": return .chartMedium
         case "7-8": return .plotlineGold
         case "9-10": return .chartHigh
