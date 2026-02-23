@@ -50,46 +50,51 @@ struct TrendingWidgetSmallView: View {
     var body: some View {
         if let item = entry.item {
             ZStack(alignment: .bottomLeading) {
-                if let uiImage = WidgetDataManager.loadCachedImage(posterPath: item.posterPath) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    LinearGradient(
-                        colors: [Color.plotlinePrimary, Color.plotlineSecondaryAccent],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    Image(systemName: item.mediaType == "tv" ? "tv.fill" : "film.fill")
-                        .font(.largeTitle)
-                        .foregroundStyle(.white.opacity(0.3))
-                }
+                // Full-bleed poster image
+                posterImage(for: item)
 
-                // Bottom overlay with title and rating
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 2) {
+                // Gradient overlay - 3 stops for better readability
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0.3),
+                        .init(color: .black.opacity(0.6), location: 0.65),
+                        .init(color: .black.opacity(0.85), location: 1.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                // Content overlay
+                VStack(alignment: .leading, spacing: 3) {
+                    Spacer()
+
+                    // Media type pill
+                    Text(item.mediaType == "tv" ? "TV" : "MOVIE")
+                        .font(.system(size: 9, weight: .bold))
+                        .tracking(0.5)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.ultraThinMaterial.opacity(0.8))
+                        .clipShape(Capsule())
+
+                    // Title
+                    Text(item.title)
+                        .font(.system(.subheadline, design: .default, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .shadow(color: .black.opacity(0.5), radius: 4, y: 2)
+
+                    // Rating
+                    HStack(spacing: 3) {
                         Image(systemName: "star.fill")
-                            .font(.caption2)
+                            .font(.system(size: 10))
                         Text(String(format: "%.1f", item.voteAverage))
                             .font(.caption.bold())
                     }
                     .foregroundStyle(Color.plotlineGold)
-
-                    Text(item.title)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(.white)
-                        .lineLimit(2)
-                        .shadow(radius: 2)
                 }
                 .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.7)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
             }
             .widgetURL(URL(string: "plotline://detail/\(item.mediaType)/\(item.tmdbId)"))
         } else {
@@ -97,8 +102,31 @@ struct TrendingWidgetSmallView: View {
         }
     }
 
+    @ViewBuilder
+    private func posterImage(for item: WidgetTrendingItem) -> some View {
+        if let uiImage = WidgetDataManager.loadCachedImage(posterPath: item.posterPath) {
+            Color.clear.overlay(
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            )
+            .clipped()
+        } else {
+            ZStack {
+                LinearGradient(
+                    colors: [Color.plotlinePrimary, Color.plotlineSecondaryAccent],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                Image(systemName: item.mediaType == "tv" ? "tv.fill" : "film.fill")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.white.opacity(0.2))
+            }
+        }
+    }
+
     private var emptyView: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             Image(systemName: "sparkles")
                 .font(.title2)
                 .foregroundStyle(Color.plotlineGold)
@@ -115,67 +143,92 @@ struct TrendingWidgetMediumView: View {
 
     var body: some View {
         if let item = entry.item {
-            HStack(spacing: 12) {
-                if let uiImage = WidgetDataManager.loadCachedImage(posterPath: item.posterPath) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    ZStack {
-                        LinearGradient(
-                            colors: [Color.plotlinePrimary, Color.plotlineSecondaryAccent],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        Image(systemName: item.mediaType == "tv" ? "tv.fill" : "film.fill")
-                            .font(.largeTitle)
-                            .foregroundStyle(.white.opacity(0.3))
-                    }
-                    .frame(width: 80)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
+            ZStack(alignment: .bottomLeading) {
+                // Full-bleed poster image
+                posterImage(for: item)
 
+                // Double gradient overlay for cinematic look
+                // Bottom gradient for text readability
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0.15),
+                        .init(color: .black.opacity(0.5), location: 0.5),
+                        .init(color: .black.opacity(0.85), location: 1.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                // Left gradient for extra depth
+                LinearGradient(
+                    stops: [
+                        .init(color: .black.opacity(0.6), location: 0.0),
+                        .init(color: .clear, location: 0.6)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+
+                // Content overlay
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("TRENDING")
-                        .font(.caption2.bold())
+                    Spacer()
+
+                    // Trending badge
+                    HStack(spacing: 4) {
+                        Image(systemName: "flame.fill")
+                            .font(.system(size: 9))
+                        Text("TRENDING")
+                            .font(.system(size: 10, weight: .heavy))
+                            .tracking(0.8)
+                    }
+                    .foregroundStyle(Color.plotlineGold)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.plotlineGold.opacity(0.15))
+                    .clipShape(Capsule())
+
+                    // Title
+                    Text(item.title)
+                        .font(.system(.title3, design: .default, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .shadow(color: .black.opacity(0.6), radius: 6, y: 2)
+
+                    // Metadata row
+                    HStack(spacing: 8) {
+                        // Rating
+                        HStack(spacing: 3) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 11))
+                            Text(String(format: "%.1f", item.voteAverage))
+                                .font(.subheadline.bold())
+                        }
                         .foregroundStyle(Color.plotlineGold)
 
-                    Text(item.title)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                        .lineLimit(2)
+                        // Separator
+                        Circle()
+                            .fill(.white.opacity(0.5))
+                            .frame(width: 3, height: 3)
 
-                    HStack(spacing: 4) {
+                        // Year
                         if let year = item.year {
                             Text(year)
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.white.opacity(0.8))
                         }
 
+                        // Media type
                         Text(item.mediaType == "tv" ? "TV Series" : "Movie")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white.opacity(0.8))
                     }
-
-                    Spacer()
-
-                    HStack(spacing: 3) {
-                        Image(systemName: "star.fill")
-                            .font(.caption)
-                        Text(String(format: "%.1f", item.voteAverage))
-                            .font(.subheadline.bold())
-                    }
-                    .foregroundStyle(Color.plotlineGold)
                 }
-
-                Spacer()
+                .padding(14)
             }
-            .padding()
             .widgetURL(URL(string: "plotline://detail/\(item.mediaType)/\(item.tmdbId)"))
         } else {
-            HStack {
+            // Empty state
+            HStack(spacing: 10) {
                 Image(systemName: "sparkles")
                     .font(.title2)
                     .foregroundStyle(Color.plotlineGold)
@@ -184,6 +237,29 @@ struct TrendingWidgetMediumView: View {
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private func posterImage(for item: WidgetTrendingItem) -> some View {
+        if let uiImage = WidgetDataManager.loadCachedImage(posterPath: item.posterPath) {
+            Color.clear.overlay(
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            )
+            .clipped()
+        } else {
+            ZStack {
+                LinearGradient(
+                    colors: [Color.plotlinePrimary, Color.plotlineSecondaryAccent],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                Image(systemName: item.mediaType == "tv" ? "tv.fill" : "film.fill")
+                    .font(.system(size: 44))
+                    .foregroundStyle(.white.opacity(0.2))
+            }
         }
     }
 }
@@ -196,11 +272,15 @@ struct TrendingWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: TrendingProvider()) { entry in
             TrendingWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(for: .widget) {
+                    Color.black
+                }
         }
         .configurationDisplayName("Trending")
         .description("See what's trending in movies and TV.")
         .supportedFamilies([.systemSmall, .systemMedium])
+        .containerBackgroundRemovable(false)
+        .contentMarginsDisabled()
     }
 }
 

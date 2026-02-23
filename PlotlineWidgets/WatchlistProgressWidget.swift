@@ -37,34 +37,51 @@ struct WatchlistProgressSmallView: View {
         if let stats, stats.totalCount > 0 {
             let progress = Double(stats.watchedCount) / Double(stats.totalCount)
 
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 ZStack {
+                    // Background track
                     Circle()
-                        .stroke(Color.secondary.opacity(0.2), lineWidth: 8)
+                        .stroke(Color.secondary.opacity(0.15), lineWidth: 10)
+
+                    // Progress arc with gradient
                     Circle()
                         .trim(from: 0, to: progress)
-                        .stroke(Color.plotlineSecondaryAccent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .stroke(
+                            AngularGradient(
+                                colors: [Color.plotlinePrimary, Color.plotlineSecondaryAccent, Color.plotlineGold],
+                                center: .center,
+                                startAngle: .degrees(-90),
+                                endAngle: .degrees(270)
+                            ),
+                            style: StrokeStyle(lineWidth: 10, lineCap: .round)
+                        )
                         .rotationEffect(.degrees(-90))
 
+                    // Center content
                     VStack(spacing: 0) {
-                        Text("\(Int(progress * 100))%")
-                            .font(.title3.bold())
+                        Text("\(Int(progress * 100))")
+                            .font(.system(.title2, design: .rounded, weight: .bold))
                             .foregroundStyle(.primary)
-                        Text("watched")
-                            .font(.caption2)
+                        Text("%")
+                            .font(.system(.caption2, design: .rounded, weight: .semibold))
                             .foregroundStyle(.secondary)
                     }
                 }
-                .frame(width: 80, height: 80)
+                .frame(width: 88, height: 88)
 
-                Text("\(stats.watchedCount) of \(stats.totalCount)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                VStack(spacing: 1) {
+                    Text("\(stats.watchedCount) of \(stats.totalCount)")
+                        .font(.system(.caption, design: .rounded, weight: .semibold))
+                        .foregroundStyle(.primary)
+                    Text("watched")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .widgetURL(URL(string: "plotline://stats"))
         } else {
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 Image(systemName: "eye.fill")
                     .font(.title2)
                     .foregroundStyle(Color.plotlineSecondaryAccent)

@@ -12,6 +12,9 @@ struct StatCard: View {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundStyle(color)
+                .padding(10)
+                .background(color.opacity(0.15))
+                .clipShape(Circle())
 
             Text(value)
                 .font(.title)

@@ -82,7 +82,7 @@ enum WidgetDataManager {
 
     /// Download and cache a poster image to the shared app group container.
     static func cacheImage(posterPath: String) async {
-        let url = URL(string: "https://image.tmdb.org/t/p/w185\(posterPath)")!
+        let url = URL(string: "https://image.tmdb.org/t/p/w342\(posterPath)")!
         guard let cacheDir = imagesCacheDirectory else { return }
         let fileURL = cacheDir.appendingPathComponent(posterPath.replacingOccurrences(of: "/", with: "_"))
 
