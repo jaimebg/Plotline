@@ -40,6 +40,7 @@ struct WhatToWatchView: View {
                             .font(.title3)
                             .symbolRenderingMode(.hierarchical)
                             .foregroundStyle(.secondary)
+                            .accessibilityLabel("Close")
                     }
                 }
             }
@@ -61,6 +62,8 @@ struct WhatToWatchView: View {
             }
         }
         .padding(.horizontal, 40)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Step \(viewModel.currentStep) of 3")
     }
 
     // MARK: - Step 1: Mood
@@ -104,6 +107,7 @@ struct WhatToWatchView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .disabled(!viewModel.canProceedFromStep1)
+                .accessibilityHint(viewModel.canProceedFromStep1 ? "Double tap to continue" : "Select at least one mood to continue")
                 .padding(.horizontal)
                 .padding(.top, 8)
             }
@@ -160,6 +164,7 @@ struct WhatToWatchView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .disabled(!viewModel.canProceedFromStep2)
+                .accessibilityHint(viewModel.canProceedFromStep2 ? "Double tap to get recommendations" : "Select a format to continue")
                 .padding(.horizontal)
                 .padding(.top, 8)
             }
@@ -211,6 +216,8 @@ struct WhatToWatchView: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
+        .accessibilityLabel("\(choice.rawValue), \(choice == .movie ? "about 2 hours" : "multiple episodes")")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     // MARK: - Step 3: Results
@@ -246,6 +253,8 @@ struct WhatToWatchView: View {
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Finding recommendations, please wait")
     }
 
     private var emptyState: some View {
@@ -276,6 +285,8 @@ struct WhatToWatchView: View {
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No matches found. Try different moods or format")
     }
 
     private var resultsContent: some View {

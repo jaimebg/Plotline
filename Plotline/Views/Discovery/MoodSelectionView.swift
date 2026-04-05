@@ -57,6 +57,8 @@ private struct MoodChip: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityLabel("\(mood.label) mood")
     }
 }
 

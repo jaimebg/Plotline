@@ -75,10 +75,21 @@ struct RecommendationCard: View {
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
         .padding(14)
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(recommendationAccessibilityLabel)
+    }
+
+    private var recommendationAccessibilityLabel: String {
+        var label = item.displayTitle
+        if let year = item.year { label += ", \(year)" }
+        if item.voteAverage > 0 { label += ", rated \(item.formattedRating) out of 10" }
+        if let whyLine { label += ". \(whyLine)" }
+        return label
     }
 }
 

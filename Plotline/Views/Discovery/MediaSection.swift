@@ -181,6 +181,17 @@ struct FeaturedCard: View {
         .frame(width: 320, height: 180)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(featuredAccessibilityLabel)
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private var featuredAccessibilityLabel: String {
+        var label = item.displayTitle
+        if let year = item.year { label += ", \(year)" }
+        if item.voteAverage > 0 { label += ", rated \(item.formattedRating)" }
+        label += ", \(item.isTVSeries ? "Series" : "Movie")"
+        return label
     }
 }
 

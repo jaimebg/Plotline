@@ -24,6 +24,7 @@ struct TasteProfileCard: View {
                     Image(systemName: "chevron.right")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
                 }
 
                 // Taste tag capsules (up to 3)
@@ -42,6 +43,9 @@ struct TasteProfileCard: View {
             .padding()
             .background(Color.plotlineCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Your Taste Profile. \(tasteTags.prefix(3).map(\.label).joined(separator: ", "))")
+            .accessibilityHint("Double tap to view full profile")
         }
     }
 }
