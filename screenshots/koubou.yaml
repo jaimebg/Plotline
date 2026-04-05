@@ -1,0 +1,213 @@
+defaults:
+  background:
+    colors:
+    - '#0A0A0A'
+    - '#1A1A2E'
+    direction: 180
+    type: linear
+project:
+  device: iPhone 16 Pro - Black Titanium - Portrait
+  name: Plotline
+  output_dir: framed
+  output_size: iPhone6_9
+screenshots:
+  01_discover:
+    content:
+    - color: '#FFFFFF'
+      content: Discover Trending
+      position:
+      - 50%
+      - 6%
+      size: 46
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: Movies & Series
+      position:
+      - 50%
+      - 10%
+      size: 46
+      type: text
+      weight: bold
+    - asset: raw/01_discover_home.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image
+  02_search:
+    content:
+    - color: '#FFFFFF'
+      content: Find Anything
+      position:
+      - 50%
+      - 6%
+      size: 46
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: Instantly
+      position:
+      - 50%
+      - 10%
+      size: 46
+      type: text
+      weight: bold
+    - asset: raw/02_search_results.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image
+  03_series:
+    content:
+    - color: '#FFFFFF'
+      content: Multi-Source
+      position:
+      - 50%
+      - 6%
+      size: 46
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: Ratings at a Glance
+      position:
+      - 50%
+      - 10%
+      size: 46
+      type: text
+      weight: bold
+    - asset: raw/03_series_detail.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image
+  04_movie:
+    content:
+    - color: '#FFFFFF'
+      content: IMDb, Rotten Tomatoes
+      position:
+      - 50%
+      - 6%
+      size: 40
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: "+ Metacritic Scores"
+      position:
+      - 50%
+      - 10%
+      size: 40
+      type: text
+      weight: bold
+    - asset: raw/04_movie_detail.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image
+  05_genres:
+    content:
+    - color: '#FFFFFF'
+      content: Browse by
+      position:
+      - 50%
+      - 6%
+      size: 46
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: Genre
+      position:
+      - 50%
+      - 10%
+      size: 46
+      type: text
+      weight: bold
+    - asset: raw/05_genre_browse.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image
+  06_favorites:
+    content:
+    - color: '#FFFFFF'
+      content: Save Your
+      position:
+      - 50%
+      - 6%
+      size: 46
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: Favorites
+      position:
+      - 50%
+      - 10%
+      size: 46
+      type: text
+      weight: bold
+    - asset: raw/06_favorites.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image
+  07_watchlist:
+    content:
+    - color: '#FFFFFF'
+      content: Track Your
+      position:
+      - 50%
+      - 6%
+      size: 46
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: Watchlist
+      position:
+      - 50%
+      - 10%
+      size: 46
+      type: text
+      weight: bold
+    - asset: raw/07_watchlist.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image
+  08_stats:
+    content:
+    - color: '#FFFFFF'
+      content: Personal
+      position:
+      - 50%
+      - 6%
+      size: 46
+      type: text
+      weight: bold
+    - color: '#FF6B00'
+      content: Viewing Analytics
+      position:
+      - 50%
+      - 10%
+      size: 46
+      type: text
+      weight: bold
+    - asset: raw/08_stats.png
+      frame: true
+      position:
+      - 50%
+      - 58%
+      scale: 0.62
+      type: image

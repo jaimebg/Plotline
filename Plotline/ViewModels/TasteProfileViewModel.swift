@@ -7,9 +7,9 @@ final class TasteProfileViewModel {
     // MARK: - Published Properties
 
     var topGenres: [(genre: String, percentage: Double)] = []
-    var favoriteDirector: String?
-    var favoriteActor: String?
-    var ratingSweetSpot: (low: Double, high: Double)?
+    var favoriteDirector: (name: String, count: Int)?
+    var favoriteActor: (name: String, count: Int)?
+    var ratingSweetSpot: (low: Double, high: Double) = (0, 10)
     var preferredEra: String?
     var tasteTags: [TasteTag] = []
     var moviesCount = 0
@@ -45,7 +45,9 @@ final class TasteProfileViewModel {
         topGenres = genreDistribution
 
         // Rating sweet spot (IQR)
-        ratingSweetSpot = computeRatingSweetSpot(favorites: favorites)
+        if let sweetSpot = computeRatingSweetSpot(favorites: favorites) {
+            ratingSweetSpot = sweetSpot
+        }
 
         // Preferred era — requires fetching details for release dates
         let details = await fetchDetails(for: favorites)
@@ -54,9 +56,13 @@ final class TasteProfileViewModel {
         // Credits analysis — favorite director and actor
         let allCredits = await fetchAllCredits(for: favorites)
         let (director, directorCount) = findTopCrewMember(job: "Director", credits: allCredits)
-        let (actor, _) = findTopCastMember(credits: allCredits)
-        favoriteDirector = director
-        favoriteActor = actor
+        let (actor, actorCount) = findTopCastMember(credits: allCredits)
+        if let director, directorCount >= 2 {
+            favoriteDirector = (name: director, count: directorCount)
+        }
+        if let actor, actorCount >= 2 {
+            favoriteActor = (name: actor, count: actorCount)
+        }
 
         // Popularity stats from details
         let popularities = details.map(\.voteCount).map(Double.init)

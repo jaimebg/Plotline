@@ -276,6 +276,6 @@ struct TasteProfileView: View {
 
 #Preview {
     NavigationStack {
-        TasteProfileView(viewModel: .preview)
+        TasteProfileView(viewModel: TasteProfileViewModel())
     }
 }
