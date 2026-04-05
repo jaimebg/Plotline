@@ -64,6 +64,17 @@ struct FavoriteRow: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        var label = favorite.title
+        label += ", \(favorite.isTVSeries ? "TV Series" : "Movie")"
+        if favorite.voteAverage > 0 {
+            label += ", rated \(String(format: "%.1f", favorite.voteAverage)) out of 10"
+        }
+        return label
     }
 }
 

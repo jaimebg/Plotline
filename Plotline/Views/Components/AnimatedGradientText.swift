@@ -3,7 +3,7 @@ import SwiftUI
 /// A text view with an animated gradient that flows through the text
 struct AnimatedGradientText: View {
     let text: String
-    var font: Font = .system(size: 34, weight: .bold, design: .default)
+    var font: Font = .system(.largeTitle, design: .default, weight: .bold)
 
     // Gradient colors - gold (brightest) in center, surrounded by darker colors
     private let gradientColors: [Color] = [
