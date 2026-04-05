@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import WidgetKit
 
 /// ViewModel for the Discovery screen
 @Observable
@@ -54,8 +53,6 @@ final class DiscoveryViewModel {
             self.trendingSeries = try await series
             self.topRatedMovies = try await topMovies
             self.topRatedSeries = try await topSeries
-
-            updateWidgetTrending()
         } catch {
             self.errorMessage = (error as? NetworkError)?.errorDescription ?? "Couldn't load content. Pull to refresh."
             #if DEBUG
@@ -120,32 +117,6 @@ final class DiscoveryViewModel {
         searchTask?.cancel()
         isSearching = false
         hasSearched = false
-    }
-
-    // MARK: - Widget Data
-
-    private func updateWidgetTrending() {
-        let combined = (trendingMovies + trendingSeries)
-            .sorted { $0.voteAverage > $1.voteAverage }
-            .prefix(10)
-            .map { item in
-                WidgetTrendingItem(
-                    tmdbId: item.id,
-                    title: item.displayTitle,
-                    posterPath: item.posterPath,
-                    voteAverage: item.voteAverage,
-                    mediaType: item.isTVSeries ? "tv" : "movie",
-                    year: item.year
-                )
-            }
-        let items = Array(combined)
-        WidgetDataManager.updateTrending(items)
-
-        // Pre-download poster images for widgets
-        Task.detached(priority: .utility) {
-            await WidgetDataManager.cacheImages(posterPaths: items.map(\.posterPath))
-            WidgetCenter.shared.reloadTimelines(ofKind: "TrendingWidget")
-        }
     }
 
     // MARK: - Computed Properties
