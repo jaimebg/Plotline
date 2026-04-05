@@ -187,29 +187,6 @@ struct CollectionMovie: Codable, Identifiable, Hashable {
     }
 }
 
-// MARK: - Collection Search Models
-
-/// Response wrapper for TMDB collection search endpoint
-struct TMDBCollectionSearchResponse: Codable {
-    let page: Int
-    let results: [TMDBCollectionSearchResult]
-    let totalPages: Int
-    let totalResults: Int
-}
-
-/// A single collection search result from TMDB
-struct TMDBCollectionSearchResult: Codable, Identifiable, Hashable {
-    let id: Int
-    let name: String
-    let posterPath: String?
-    let backdropPath: String?
-
-    var posterURL: URL? {
-        guard let path = posterPath else { return nil }
-        return URL(string: "https://image.tmdb.org/t/p/w342\(path)")
-    }
-}
-
 // MARK: - Person Credits Models
 
 /// Response for TMDB /person/{id}/movie_credits
@@ -319,10 +296,10 @@ struct PersonCrewCredit: Codable, Identifiable, Hashable {
     }
 }
 
-// MARK: - Person Models
+// MARK: - Person Detail Models
 
 /// Response for TMDB /person/{id}
-struct TMDBPersonResponse: Codable {
+struct TMDBPersonResponse: Codable, Identifiable {
     let id: Int
     let name: String
     let biography: String?
@@ -336,20 +313,24 @@ struct TMDBPersonResponse: Codable {
         TMDBService.profileURL(path: profilePath, size: .large)
     }
 
+    /// Extract birth year from birthday string
     var birthYear: Int? {
         guard let birthday, birthday.count >= 4 else { return nil }
         return Int(String(birthday.prefix(4)))
     }
 
+    /// Calculate current age (or age at death)
     var age: Int? {
         guard let birthYear else { return nil }
-        let currentYear = Calendar.current.component(.year, from: Date())
+        let calendar = Calendar.current
         if let deathday, deathday.count >= 4, let deathYear = Int(String(deathday.prefix(4))) {
             return deathYear - birthYear
         }
-        return currentYear - birthYear
+        return calendar.component(.year, from: Date()) - birthYear
     }
 }
+
+// MARK: - Person Combined Credits Models
 
 /// Response for TMDB /person/{id}/combined_credits
 struct TMDBPersonCombinedCreditsResponse: Codable {
@@ -361,76 +342,124 @@ struct TMDBPersonCombinedCreditsResponse: Codable {
 /// Cast credit from combined credits (movies + TV)
 struct PersonCombinedCastCredit: Codable, Identifiable, Hashable {
     let id: Int
-    let mediaType: MediaType
+    let mediaType: MediaType?
     let title: String?
     let name: String?
     let character: String?
-    let releaseDate: String?
-    let firstAirDate: String?
     let voteAverage: Double
     let voteCount: Int
     let posterPath: String?
-    let popularity: Double
     let genreIds: [Int]?
+    let releaseDate: String?
+    let firstAirDate: String?
 
-    var displayTitle: String { title ?? name ?? "Unknown" }
-    var displayDate: String? { releaseDate ?? firstAirDate }
+    var displayTitle: String {
+        title ?? name ?? "Unknown"
+    }
+
     var year: String? {
-        guard let date = displayDate, date.count >= 4 else { return nil }
+        guard let date = releaseDate ?? firstAirDate, date.count >= 4 else { return nil }
         return String(date.prefix(4))
     }
-    var yearInt: Int? { year.flatMap { Int($0) } }
-    var posterURL: URL? { TMDBService.posterURL(path: posterPath, size: .medium) }
-    var formattedRating: String { String(format: "%.1f", voteAverage) }
+
+    var yearInt: Int? {
+        year.flatMap { Int($0) }
+    }
+
+    var posterURL: URL? {
+        TMDBService.posterURL(path: posterPath, size: .medium)
+    }
 
     func toMediaItem() -> MediaItem {
-        MediaItem(id: id, overview: "", posterPath: posterPath, backdropPath: nil, voteAverage: voteAverage, voteCount: voteCount, genreIds: genreIds, title: title, releaseDate: releaseDate, name: name, firstAirDate: firstAirDate, mediaType: mediaType)
+        MediaItem(
+            id: id,
+            overview: "",
+            posterPath: posterPath,
+            backdropPath: nil,
+            voteAverage: voteAverage,
+            voteCount: voteCount,
+            genreIds: genreIds,
+            title: title,
+            releaseDate: releaseDate,
+            name: name,
+            firstAirDate: firstAirDate,
+            mediaType: mediaType
+        )
     }
 }
 
 /// Crew credit from combined credits (movies + TV)
 struct PersonCombinedCrewCredit: Codable, Identifiable, Hashable {
     let id: Int
-    let mediaType: MediaType
+    let mediaType: MediaType?
     let title: String?
     let name: String?
     let job: String?
     let department: String?
-    let releaseDate: String?
-    let firstAirDate: String?
     let voteAverage: Double
     let voteCount: Int
     let posterPath: String?
-    let popularity: Double
     let genreIds: [Int]?
+    let releaseDate: String?
+    let firstAirDate: String?
 
-    var displayTitle: String { title ?? name ?? "Unknown" }
-    var displayDate: String? { releaseDate ?? firstAirDate }
+    var displayTitle: String {
+        title ?? name ?? "Unknown"
+    }
+
     var year: String? {
-        guard let date = displayDate, date.count >= 4 else { return nil }
+        guard let date = releaseDate ?? firstAirDate, date.count >= 4 else { return nil }
         return String(date.prefix(4))
     }
-    var yearInt: Int? { year.flatMap { Int($0) } }
-    var isDirector: Bool { job?.lowercased() == "director" }
-    var posterURL: URL? { TMDBService.posterURL(path: posterPath, size: .medium) }
-    var formattedRating: String { String(format: "%.1f", voteAverage) }
+
+    var yearInt: Int? {
+        year.flatMap { Int($0) }
+    }
+
+    var posterURL: URL? {
+        TMDBService.posterURL(path: posterPath, size: .medium)
+    }
+
+    var isDirector: Bool {
+        job?.lowercased() == "director"
+    }
 
     func toMediaItem() -> MediaItem {
-        MediaItem(id: id, overview: "", posterPath: posterPath, backdropPath: nil, voteAverage: voteAverage, voteCount: voteCount, genreIds: genreIds, title: title, releaseDate: releaseDate, name: name, firstAirDate: firstAirDate, mediaType: mediaType)
+        MediaItem(
+            id: id,
+            overview: "",
+            posterPath: posterPath,
+            backdropPath: nil,
+            voteAverage: voteAverage,
+            voteCount: voteCount,
+            genreIds: genreIds,
+            title: title,
+            releaseDate: releaseDate,
+            name: name,
+            firstAirDate: firstAirDate,
+            mediaType: mediaType
+        )
     }
 }
 
-// MARK: - Person Search
+// MARK: - Person Search Models
 
+/// Response for TMDB /search/person
 struct TMDBPersonSearchResponse: Codable {
     let page: Int
     let results: [TMDBPersonSearchResult]
+    let totalPages: Int
+    let totalResults: Int
 }
 
+/// Individual person search result
 struct TMDBPersonSearchResult: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let profilePath: String?
     let knownForDepartment: String?
-    var profileURL: URL? { TMDBService.profileURL(path: profilePath) }
+
+    var profileURL: URL? {
+        TMDBService.profileURL(path: profilePath, size: .medium)
+    }
 }
