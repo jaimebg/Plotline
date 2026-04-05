@@ -9,7 +9,12 @@ enum DiscoveryRoute: Hashable {
 struct DiscoveryView: View {
     @Environment(\.themeManager) private var themeManager
     @Environment(\.deepLinkManager) private var deepLinkManager
+    @Environment(\.favoritesManager) private var favoritesManager
+    @Environment(\.watchlistManager) private var watchlistManager
     @State private var viewModel = DiscoveryViewModel()
+    @State private var tasteProfileVM = TasteProfileViewModel()
+    @State private var smartListsVM = SmartListsViewModel()
+    @State private var showWhatToWatch = false
     @State private var navigationPath = NavigationPath()
     @Namespace private var namespace
 
@@ -52,6 +57,27 @@ struct DiscoveryView: View {
         .preferredColorScheme(themeManager.colorScheme)
         .task {
             await viewModel.loadContent()
+        }
+        .task {
+            await tasteProfileVM.computeProfile(
+                favorites: favoritesManager.favorites,
+                watchlistItems: watchlistManager.watchlistItems
+            )
+        }
+        .task(id: tasteProfileVM.hasEnoughData) {
+            guard tasteProfileVM.hasEnoughData else { return }
+            let genreIds = tasteProfileVM.topGenres.compactMap { genre -> Int? in
+                GenreLookup.genres.first(where: { $0.value == genre.genre })?.key
+            }
+            await smartListsVM.loadLists(
+                favorites: favoritesManager.favorites,
+                favoriteIds: favoritesManager.favoriteIds,
+                watchlistIds: watchlistManager.watchlistIds,
+                topGenreIds: genreIds
+            )
+        }
+        .sheet(isPresented: $showWhatToWatch) {
+            WhatToWatchView()
         }
         .onChange(of: deepLinkManager.pendingMediaItem) { _, newItem in
             if let item = newItem {
@@ -96,6 +122,47 @@ struct DiscoveryView: View {
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal)
+
+                    // Taste Profile Card
+                    if tasteProfileVM.hasEnoughData {
+                        NavigationLink {
+                            TasteProfileView(viewModel: tasteProfileVM)
+                        } label: {
+                            TasteProfileCard(
+                                topGenres: tasteProfileVM.topGenres,
+                                tasteTags: tasteProfileVM.tasteTags,
+                                hasEnoughData: tasteProfileVM.hasEnoughData
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal)
+                    }
+
+                    // What Should I Watch? button
+                    if tasteProfileVM.hasEnoughData {
+                        Button {
+                            showWhatToWatch = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "sparkle.magnifyingglass")
+                                    .font(.title3)
+                                Text("What Should I Watch?")
+                                    .font(.headline)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                            }
+                            .padding()
+                            .background(Color.plotlineCard)
+                            .foregroundStyle(Color.plotlineGold)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal)
+                    }
+
+                    // Smart Lists
+                    SmartListsView(viewModel: smartListsVM)
 
                     MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
                     MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
