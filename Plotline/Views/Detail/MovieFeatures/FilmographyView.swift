@@ -4,13 +4,19 @@ import SwiftUI
 struct FilmographyView: View {
     @Binding var selectedType: FilmographyType
     let directorName: String?
+    let directorId: Int?
     let actorName: String?
+    let actorId: Int?
     let directorFilmography: [PersonCrewCredit]
     let actorFilmography: [PersonCastCredit]
     let isLoading: Bool
 
     private var currentPersonName: String? {
         selectedType == .director ? directorName : actorName
+    }
+
+    private var currentPersonId: Int? {
+        selectedType == .director ? directorId : actorId
     }
 
     private var hasData: Bool {
@@ -37,11 +43,27 @@ struct FilmographyView: View {
                 .frame(width: 180)
             }
 
-            // Person name subtitle
+            // Person name subtitle (tappable to career profile)
             if let name = currentPersonName {
-                Text(name)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                if let personId = currentPersonId {
+                    NavigationLink {
+                        CareerProfileView(personId: personId, personName: name)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(name)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Text(name)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             // Content
@@ -208,7 +230,9 @@ struct FilmographyCard: View {
         FilmographyView(
             selectedType: .constant(.director),
             directorName: "Christopher Nolan",
+            directorId: 525,
             actorName: "Leonardo DiCaprio",
+            actorId: 6193,
             directorFilmography: [],
             actorFilmography: [],
             isLoading: false
@@ -222,7 +246,9 @@ struct FilmographyCard: View {
     FilmographyView(
         selectedType: .constant(.director),
         directorName: nil,
+        directorId: nil,
         actorName: nil,
+        actorId: nil,
         directorFilmography: [],
         actorFilmography: [],
         isLoading: true
