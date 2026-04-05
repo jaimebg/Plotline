@@ -75,6 +75,8 @@ struct ScorecardsView: View {
                     .shimmering()
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Loading ratings")
     }
 
     // MARK: - Error View
@@ -92,6 +94,8 @@ struct ScorecardsView: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Error: Could not load ratings")
     }
 
     // MARK: - Empty View
@@ -109,6 +113,8 @@ struct ScorecardsView: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No ratings available")
     }
 }
 
@@ -131,6 +137,8 @@ struct CompactScorecardsView: View {
                 RatingCard(rating: rating, style: .minimal, imdbId: imdbId, title: title)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Ratings")
     }
 }
 
@@ -160,6 +168,23 @@ struct SingleRatingView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(singleRatingAccessibilityLabel)
+    }
+
+    private var singleRatingAccessibilityLabel: String {
+        var label = "\(rating.shortName): \(rating.displayValue)"
+        if rating.ratingType == .rottenTomatoes {
+            let isFresh = (rating.normalizedValue ?? 0) >= 0.60
+            label += ", \(isFresh ? "Fresh" : "Rotten")"
+        } else if rating.ratingType == .metacritic {
+            if let normalized = rating.normalizedValue {
+                if normalized >= 0.61 { label += ", Generally Favorable" }
+                else if normalized >= 0.40 { label += ", Mixed" }
+                else { label += ", Generally Unfavorable" }
+            }
+        }
+        return label
     }
 
     @ViewBuilder
@@ -169,7 +194,7 @@ struct SingleRatingView: View {
             Image(systemName: "star.fill")
                 .foregroundStyle(Color.imdbYellow)
         case .rottenTomatoes:
-            Image(systemName: "leaf.fill")
+            Image(systemName: rating.normalizedValue ?? 0 >= 0.60 ? "hand.thumbsup.fill" : "hand.thumbsdown.fill")
                 .foregroundStyle(rating.normalizedValue ?? 0 >= 0.60 ? Color.rottenGreen : Color.rottenRed)
         case .metacritic:
             Text("M")

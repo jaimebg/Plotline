@@ -144,10 +144,10 @@ struct RatingCard: View {
         let isFresh = (rating.normalizedValue ?? 0) >= 0.60
 
         if isFresh {
-            Image(systemName: "leaf.fill")
+            Image(systemName: "hand.thumbsup.fill")
                 .foregroundStyle(Color.rottenGreen)
         } else {
-            Image(systemName: "leaf")
+            Image(systemName: "hand.thumbsdown.fill")
                 .foregroundStyle(Color.rottenRed)
         }
     }
