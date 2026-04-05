@@ -22,6 +22,15 @@ struct ComparisonSlotView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint(item != nil ? "Double tap to change selection" : "Double tap to search and add")
+    }
+
+    private var accessibilityLabel: String {
+        if isLoading { return "Loading comparison item" }
+        if let item { return "\(item.displayTitle), \(item.year ?? ""), \(item.isTVSeries ? "TV series" : "movie")" }
+        return "Empty comparison slot"
     }
 
     // MARK: - States
@@ -89,6 +98,7 @@ struct ComparisonSlotView: View {
                         .foregroundStyle(.white, .black.opacity(0.6))
                         .shadow(radius: 2)
                 }
+                .accessibilityLabel("Remove \(item.displayTitle)")
                 .padding(4)
             }
         }

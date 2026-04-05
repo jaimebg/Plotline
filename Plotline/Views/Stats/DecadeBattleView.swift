@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 
@@ -70,6 +71,8 @@ struct DecadeBattleView: View {
                         .foregroundStyle(Color(.secondaryLabel))
                 }
             }
+            .accessibilityChartDescriptor(DecadeAvgRatingAccessibility(decades: viewModel.decades))
+            .accessibilityLabel("Average rating by decade chart")
         }
         .padding()
         .background(Color.plotlineCard)
@@ -112,6 +115,8 @@ struct DecadeBattleView: View {
                         .foregroundStyle(Color(.secondaryLabel))
                 }
             }
+            .accessibilityChartDescriptor(DecadeHighRatedAccessibility(decades: viewModel.decades))
+            .accessibilityLabel("High rated films count by decade chart")
         }
         .padding()
         .background(Color.plotlineCard)
@@ -147,6 +152,65 @@ struct DecadeBattleView: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+struct DecadeAvgRatingAccessibility: AXChartDescriptorRepresentable {
+    let decades: [DecadeData]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXCategoricalDataAxisDescriptor(
+            title: "Decade",
+            categoryOrder: decades.map(\.decade)
+        )
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Average Rating",
+            range: 5...9,
+            gridlinePositions: [5, 6, 7, 8, 9]
+        ) { String(format: "%.1f", $0) }
+
+        let dataPoints = decades.map { d in
+            AXDataPoint(x: d.decade, y: d.avgRating, label: "\(d.decade): \(String(format: "%.1f", d.avgRating)) average")
+        }
+
+        return AXChartDescriptor(
+            title: "Average Rating by Decade",
+            summary: decades.max { $0.avgRating < $1.avgRating }.map { "Best decade: \($0.decade) with \(String(format: "%.1f", $0.avgRating))" } ?? "",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Average Rating", isContinuous: false, dataPoints: dataPoints)]
+        )
+    }
+}
+
+struct DecadeHighRatedAccessibility: AXChartDescriptorRepresentable {
+    let decades: [DecadeData]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXCategoricalDataAxisDescriptor(
+            title: "Decade",
+            categoryOrder: decades.map(\.decade)
+        )
+        let maxCount = decades.map(\.highRatedCount).max() ?? 10
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Films Rated 8.0+",
+            range: 0...Double(maxCount),
+            gridlinePositions: []
+        ) { "\(Int($0)) films" }
+
+        let dataPoints = decades.map { d in
+            AXDataPoint(x: d.decade, y: Double(d.highRatedCount), label: "\(d.decade): \(d.highRatedCount) films rated 8.0+")
+        }
+
+        return AXChartDescriptor(
+            title: "High Rated Films by Decade",
+            summary: decades.max { $0.highRatedCount < $1.highRatedCount }.map { "Most high-rated films: \($0.decade) with \($0.highRatedCount)" } ?? "",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Films 8.0+", isContinuous: false, dataPoints: dataPoints)]
+        )
     }
 }
 

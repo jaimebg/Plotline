@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 
@@ -121,11 +122,45 @@ struct BestYearsView: View {
                             .foregroundStyle(Color(.secondaryLabel))
                     }
                 }
+                .accessibilityChartDescriptor(BestYearsAccessibility(yearRatings: viewModel.yearRatings, bestYear: viewModel.bestYear))
+                .accessibilityLabel("Best years for film chart")
             }
         }
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+struct BestYearsAccessibility: AXChartDescriptorRepresentable {
+    let yearRatings: [YearRating]
+    let bestYear: Int?
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXCategoricalDataAxisDescriptor(
+            title: "Year",
+            categoryOrder: yearRatings.map { String($0.year) }
+        )
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Average Rating",
+            range: 5...9,
+            gridlinePositions: [5, 6, 7, 8, 9]
+        ) { String(format: "%.1f", $0) }
+
+        let dataPoints = yearRatings.map { yr in
+            AXDataPoint(x: String(yr.year), y: yr.avgRating, label: "\(yr.year): \(String(format: "%.1f", yr.avgRating))")
+        }
+
+        let summary = bestYear.map { "Best year: \($0)" } ?? "Rating data across years"
+
+        return AXChartDescriptor(
+            title: "Best Years for Film",
+            summary: summary,
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Average Rating", isContinuous: false, dataPoints: dataPoints)]
+        )
     }
 }
 

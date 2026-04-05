@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 
@@ -39,6 +40,8 @@ struct GenreDNAChart: View {
                     .foregroundStyle(colorFor(index: index))
                 }
                 .frame(width: 160, height: 160)
+                .accessibilityChartDescriptor(GenreDNAAccessibility(genres: topGenres))
+                .accessibilityLabel("Genre distribution chart")
 
                 // Legend
                 VStack(alignment: .leading, spacing: 6) {
@@ -70,6 +73,48 @@ struct GenreDNAChart: View {
 
     private func colorFor(index: Int) -> Color {
         genreColors[index % genreColors.count]
+    }
+}
+
+struct GenreDNAAccessibility: AXChartDescriptorRepresentable {
+    let genres: [CareerGenreStat]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let total = genres.reduce(0) { $0 + $1.count }
+
+        let xAxis = AXCategoricalDataAxisDescriptor(
+            title: "Genre",
+            categoryOrder: genres.map(\.genre)
+        )
+
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Count",
+            range: 0...Double(genres.first?.count ?? 1),
+            gridlinePositions: []
+        ) { "\(Int($0)) titles" }
+
+        let dataPoints = genres.map { genre in
+            AXDataPoint(
+                x: genre.genre,
+                y: Double(genre.count),
+                label: "\(genre.genre): \(genre.count) titles (\(total > 0 ? "\(genre.count * 100 / total)%" : "0%"))"
+            )
+        }
+
+        let series = AXDataSeriesDescriptor(
+            name: "Genre Distribution",
+            isContinuous: false,
+            dataPoints: dataPoints
+        )
+
+        return AXChartDescriptor(
+            title: "Genre DNA",
+            summary: "Top genres: \(genres.prefix(3).map(\.genre).joined(separator: ", ")). \(total) total titles.",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [series]
+        )
     }
 }
 

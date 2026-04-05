@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 
@@ -184,7 +185,7 @@ struct StatsView: View {
                     if viewModel.moviesCount > 0 {
                         Text("\(viewModel.moviesCount)")
                             .font(.caption.bold())
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.black)
                     }
                 }
 
@@ -215,6 +216,8 @@ struct StatsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .accessibilityChartDescriptor(MediaTypeSplitAccessibility(moviesCount: viewModel.moviesCount, seriesCount: viewModel.seriesCount))
+            .accessibilityLabel("Movies versus series distribution chart")
 
             HStack(spacing: 16) {
                 legendItem(color: .plotlineSecondaryAccent, label: "Movies")
@@ -263,6 +266,8 @@ struct StatsView: View {
                         .foregroundStyle(Color(.secondaryLabel))
                 }
             }
+            .accessibilityChartDescriptor(RatingDistributionAccessibility(buckets: viewModel.ratingBuckets))
+            .accessibilityLabel("Rating distribution chart")
         }
         .padding()
         .background(Color.plotlineCard)
@@ -319,6 +324,8 @@ struct StatsView: View {
                         .foregroundStyle(Color(.secondaryLabel))
                 }
             }
+            .accessibilityChartDescriptor(ActivityTimelineAccessibility(points: viewModel.activityPoints))
+            .accessibilityLabel("Recent activity timeline chart")
         }
         .padding()
         .background(Color.plotlineCard)
@@ -358,6 +365,8 @@ struct StatsView: View {
                         .foregroundStyle(Color(.label))
                 }
             }
+            .accessibilityChartDescriptor(GenreBreakdownAccessibility(genres: viewModel.topGenres))
+            .accessibilityLabel("Top genres chart")
         }
         .padding()
         .background(Color.plotlineCard)
@@ -428,6 +437,82 @@ struct StatsView: View {
         case "9-10": return .chartHigh
         default: return .secondary
         }
+    }
+}
+
+// MARK: - Chart Accessibility
+
+struct MediaTypeSplitAccessibility: AXChartDescriptorRepresentable {
+    let moviesCount: Int
+    let seriesCount: Int
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let total = moviesCount + seriesCount
+        let xAxis = AXCategoricalDataAxisDescriptor(title: "Type", categoryOrder: ["Movies", "Series"])
+        let yAxis = AXNumericDataAxisDescriptor(title: "Count", range: 0...Double(max(moviesCount, seriesCount)), gridlinePositions: []) { "\(Int($0))" }
+        let dataPoints = [
+            AXDataPoint(x: "Movies", y: Double(moviesCount), label: "Movies: \(moviesCount) (\(total > 0 ? "\(moviesCount * 100 / total)%" : "0%"))"),
+            AXDataPoint(x: "Series", y: Double(seriesCount), label: "Series: \(seriesCount) (\(total > 0 ? "\(seriesCount * 100 / total)%" : "0%"))"),
+        ]
+        return AXChartDescriptor(
+            title: "Movies vs Series",
+            summary: "\(total) total: \(moviesCount) movies, \(seriesCount) series",
+            xAxis: xAxis, yAxis: yAxis, additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Media Type", isContinuous: false, dataPoints: dataPoints)]
+        )
+    }
+}
+
+struct RatingDistributionAccessibility: AXChartDescriptorRepresentable {
+    let buckets: [RatingBucket]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXCategoricalDataAxisDescriptor(title: "Rating Range", categoryOrder: buckets.map(\.label))
+        let maxCount = buckets.map(\.count).max() ?? 1
+        let yAxis = AXNumericDataAxisDescriptor(title: "Count", range: 0...Double(maxCount), gridlinePositions: []) { "\(Int($0))" }
+        let dataPoints = buckets.map { b in AXDataPoint(x: b.label, y: Double(b.count), label: "\(b.label): \(b.count) titles") }
+        let mostCommon = buckets.max { $0.count < $1.count }
+        return AXChartDescriptor(
+            title: "Rating Distribution",
+            summary: mostCommon.map { "Most common range: \($0.label) with \($0.count) titles" } ?? "",
+            xAxis: xAxis, yAxis: yAxis, additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Ratings", isContinuous: false, dataPoints: dataPoints)]
+        )
+    }
+}
+
+struct ActivityTimelineAccessibility: AXChartDescriptorRepresentable {
+    let points: [ActivityPoint]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXCategoricalDataAxisDescriptor(title: "Week", categoryOrder: points.map { DateFormatter.localizedString(from: $0.week, dateStyle: .short, timeStyle: .none) })
+        let maxCount = points.map(\.count).max() ?? 1
+        let yAxis = AXNumericDataAxisDescriptor(title: "Items Added", range: 0...Double(maxCount), gridlinePositions: []) { "\(Int($0))" }
+        let dataPoints = points.map { p in AXDataPoint(x: DateFormatter.localizedString(from: p.week, dateStyle: .short, timeStyle: .none), y: Double(p.count), label: "\(DateFormatter.localizedString(from: p.week, dateStyle: .medium, timeStyle: .none)): \(p.count) items") }
+        let total = points.reduce(0) { $0 + $1.count }
+        return AXChartDescriptor(
+            title: "Recent Activity",
+            summary: "\(total) items added over \(points.count) weeks",
+            xAxis: xAxis, yAxis: yAxis, additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Activity", isContinuous: false, dataPoints: dataPoints)]
+        )
+    }
+}
+
+struct GenreBreakdownAccessibility: AXChartDescriptorRepresentable {
+    let genres: [GenreStat]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXCategoricalDataAxisDescriptor(title: "Genre", categoryOrder: genres.map(\.name))
+        let maxCount = genres.first?.count ?? 1
+        let yAxis = AXNumericDataAxisDescriptor(title: "Count", range: 0...Double(maxCount), gridlinePositions: []) { "\(Int($0))" }
+        let dataPoints = genres.map { g in AXDataPoint(x: g.name, y: Double(g.count), label: "\(g.name): \(g.count) titles") }
+        return AXChartDescriptor(
+            title: "Top Genres",
+            summary: "Top genre: \(genres.first?.name ?? "none") with \(genres.first?.count ?? 0) titles",
+            xAxis: xAxis, yAxis: yAxis, additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Genres", isContinuous: false, dataPoints: dataPoints)]
+        )
     }
 }
 
