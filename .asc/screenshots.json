@@ -1,0 +1,87 @@
+{
+  // Plotline — App Store Screenshot Automation Plan
+  // Coordinate system: 402x874 pts (iPhone 17 @3x = 1206x2622 px)
+  // Tab bar center y=832
+  // Tabs: Discover(40), Favorites(120), Watchlist(201), Stats(281), Settings(361)
+  "version": 1,
+  "app": {
+    "bundle_id": "com.jbgsoft.Plotline",
+    "udid": "CB5E7E47-96C2-4AAB-8285-FB2CC51FF0F0",
+    "output_dir": "./screenshots/raw"
+  },
+  "defaults": {
+    "post_action_delay_ms": 600
+  },
+  "steps": [
+    // ─── RESET: Ensure app is in foreground on Discover root ───
+    { "action": "launch" },
+    { "action": "wait", "duration_ms": 2000 },
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 500 },
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 1500 },
+
+    // ─── 1. DISCOVER HOME ───
+    { "action": "screenshot", "name": "01_discover_home" },
+
+    // ─── 2. SEARCH RESULTS ───
+    { "action": "tap", "x": 201, "y": 180 },
+    { "action": "wait", "duration_ms": 1000 },
+    { "action": "type", "text": "Breaking Bad" },
+    { "action": "wait", "duration_ms": 3000 },
+    { "action": "screenshot", "name": "02_search_results" },
+
+    // ─── 3. SERIES DETAIL (Breaking Bad) ───
+    // Tap first result: Breaking Bad, 2008, TV Series
+    { "action": "tap", "x": 201, "y": 199 },
+    { "action": "wait", "duration_ms": 4000 },
+    { "action": "screenshot", "name": "03_series_detail" },
+
+    // ─── 4. Reset back to Discover via tab ───
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 500 },
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 500 },
+    // Close search if still active
+    { "action": "tap", "label": "Close" },
+    { "action": "wait", "duration_ms": 1500 },
+
+    // ─── 5. MOVIE DETAIL (tap first trending movie) ───
+    // First trending movie poster is at roughly x=60, y=730
+    { "action": "tap", "x": 60, "y": 730 },
+    { "action": "wait", "duration_ms": 4000 },
+    { "action": "screenshot", "name": "04_movie_detail" },
+
+    // ─── 6. Reset to Discover via tab ───
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 500 },
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 1500 },
+
+    // ─── 7. GENRE BROWSE ───
+    { "action": "tap", "x": 201, "y": 545 },
+    { "action": "wait", "duration_ms": 2000 },
+    { "action": "screenshot", "name": "05_genre_browse" },
+
+    // ─── 8. Reset to Discover via tab ───
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 500 },
+    { "action": "tap", "x": 40, "y": 832 },
+    { "action": "wait", "duration_ms": 1000 },
+
+    // ─── 9. FAVORITES TAB ───
+    { "action": "tap", "x": 120, "y": 832 },
+    { "action": "wait", "duration_ms": 2000 },
+    { "action": "screenshot", "name": "06_favorites" },
+
+    // ─── 10. WATCHLIST TAB ───
+    { "action": "tap", "x": 201, "y": 832 },
+    { "action": "wait", "duration_ms": 2000 },
+    { "action": "screenshot", "name": "07_watchlist" },
+
+    // ─── 11. STATS TAB ───
+    { "action": "tap", "x": 281, "y": 832 },
+    { "action": "wait", "duration_ms": 2000 },
+    { "action": "screenshot", "name": "08_stats" }
+  ]
+}
