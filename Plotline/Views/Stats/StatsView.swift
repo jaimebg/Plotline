@@ -17,6 +17,9 @@ struct StatsView: View {
                 }
             }
             .navigationTitle("Stats")
+            .navigationDestination(for: MediaItem.self) { item in
+                MediaDetailView(media: item)
+            }
         }
         .onAppear { updateStats() }
         .onChange(of: favoritesManager.favorites.count) { updateStats() }
@@ -55,6 +58,76 @@ struct StatsView: View {
                     genreBreakdown
                 }
                 averageRatings
+
+                // MARK: - Compare
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Compare")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    NavigationLink {
+                        CompareView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "square.split.2x1.fill")
+                                .font(.title3)
+                                .foregroundStyle(Color.plotlineSecondaryAccent)
+                            VStack(alignment: .leading) {
+                                Text("Compare Movies & Series")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.primary)
+                                Text("Side-by-side ratings, box office, and more")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding()
+                        .background(Color.plotlineCard)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                // MARK: - Career Profiles
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Career Profiles")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    NavigationLink {
+                        CareerSearchView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundStyle(.secondary)
+                            Text("Search actors and directors...")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.plotlineCard)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                // MARK: - Trends
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Trends")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    TrendsView()
+                }
             }
             .padding()
         }

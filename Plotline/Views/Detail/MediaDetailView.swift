@@ -344,7 +344,9 @@ struct MediaDetailView: View {
                     set: { viewModel.selectedFilmographyType = $0 }
                 ),
                 directorName: viewModel.director?.name,
+                directorId: viewModel.director?.id,
                 actorName: viewModel.leadActor?.name,
+                actorId: viewModel.leadActor?.id,
                 directorFilmography: viewModel.directorFilmography,
                 actorFilmography: viewModel.actorFilmography,
                 isLoading: viewModel.isLoadingFilmography
