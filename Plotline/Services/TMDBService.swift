@@ -325,6 +325,44 @@ struct TMDBService {
         return try await networkManager.fetch(TMDBResponse.self, from: url)
     }
 
+    // MARK: - Flexible Discover
+
+    /// Discover movies with arbitrary parameters
+    func discoverMovies(params: [String: String], page: Int = 1) async throws -> TMDBResponse {
+        var allParams = params
+        allParams["page"] = "\(page)"
+        guard let url = buildURL(path: "/discover/movie", additionalParams: allParams) else {
+            throw NetworkError.invalidURL
+        }
+        return try await networkManager.fetch(TMDBResponse.self, from: url)
+    }
+
+    /// Discover TV series with arbitrary parameters
+    func discoverSeries(params: [String: String], page: Int = 1) async throws -> TMDBResponse {
+        var allParams = params
+        allParams["page"] = "\(page)"
+        guard let url = buildURL(path: "/discover/tv", additionalParams: allParams) else {
+            throw NetworkError.invalidURL
+        }
+        return try await networkManager.fetch(TMDBResponse.self, from: url)
+    }
+
+    // MARK: - Collection Search
+
+    /// Search for movie collections/franchises
+    func searchCollections(query: String, page: Int = 1) async throws -> TMDBCollectionSearchResponse {
+        guard !query.isEmpty else {
+            return TMDBCollectionSearchResponse(page: 1, results: [], totalPages: 0, totalResults: 0)
+        }
+        guard let url = buildURL(
+            path: "/search/collection",
+            additionalParams: ["query": query, "page": "\(page)"]
+        ) else {
+            throw NetworkError.invalidURL
+        }
+        return try await networkManager.fetch(TMDBCollectionSearchResponse.self, from: url)
+    }
+
     // MARK: - Person Details
 
     /// Fetch person details (biography, birthday, etc.)
