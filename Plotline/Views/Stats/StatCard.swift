@@ -29,6 +29,8 @@ struct StatCard: View {
         .padding(.vertical, 16)
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 

@@ -53,6 +53,8 @@ struct RatingComparisonBar: View {
                             .frame(width: 44, alignment: .leading)
                     }
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(item.displayTitle): \(displayValue(sourceName, item) ?? "no rating") on \(displaySourceName)")
             }
         }
     }

@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 
@@ -47,6 +48,8 @@ struct CareerTimelineChart: View {
                         .foregroundStyle(Color(.secondaryLabel))
                 }
             }
+            .accessibilityChartDescriptor(CareerTimelineAccessibility(points: points))
+            .accessibilityLabel("Career timeline chart")
 
             // Selected year overlay
             if let year = selectedYear,
@@ -75,6 +78,56 @@ struct CareerTimelineChart: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+struct CareerTimelineAccessibility: AXChartDescriptorRepresentable {
+    let points: [CareerTimelinePoint]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Year",
+            range: Double(points.first?.year ?? 2000)...Double(points.last?.year ?? 2024),
+            gridlinePositions: points.map { Double($0.year) }
+        ) { value in "Year \(Int(value))" }
+
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Average Rating",
+            range: 0...10,
+            gridlinePositions: [0, 2, 4, 6, 8, 10]
+        ) { value in String(format: "%.1f", value) }
+
+        let dataPoints = points.map { point in
+            AXDataPoint(
+                x: Double(point.year),
+                y: point.avgRating,
+                label: "\(point.year): \(String(format: "%.1f", point.avgRating)) – \(point.titles.joined(separator: ", "))"
+            )
+        }
+
+        let series = AXDataSeriesDescriptor(
+            name: "Career Ratings",
+            isContinuous: true,
+            dataPoints: dataPoints
+        )
+
+        return AXChartDescriptor(
+            title: "Career Timeline",
+            summary: makeSummary(),
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [series]
+        )
+    }
+
+    private func makeSummary() -> String {
+        guard !points.isEmpty else { return "No career data available" }
+        let avg = points.map(\.avgRating).reduce(0, +) / Double(points.count)
+        let best = points.max { $0.avgRating < $1.avgRating }
+        var summary = "\(points.count) years of data. Average rating \(String(format: "%.1f", avg))."
+        if let best { summary += " Best year: \(best.year) with \(String(format: "%.1f", best.avgRating))." }
+        return summary
     }
 }
 

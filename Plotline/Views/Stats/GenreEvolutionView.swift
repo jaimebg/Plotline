@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 
@@ -98,11 +99,49 @@ struct GenreEvolutionView: View {
                             .foregroundStyle(Color(.secondaryLabel))
                     }
                 }
+                .accessibilityChartDescriptor(GenreEvolutionAccessibility(points: viewModel.points))
+                .accessibilityLabel("Genre rating evolution chart")
             }
         }
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+struct GenreEvolutionAccessibility: AXChartDescriptorRepresentable {
+    let points: [GenreYearPoint]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Year",
+            range: Double(points.first?.year ?? 1970)...Double(points.last?.year ?? 2024),
+            gridlinePositions: stride(from: Double(points.first?.year ?? 1970), through: Double(points.last?.year ?? 2024), by: 10).map { $0 }
+        ) { "Year \(Int($0))" }
+
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Average Rating",
+            range: 4...9,
+            gridlinePositions: [4, 5, 6, 7, 8, 9]
+        ) { String(format: "%.1f", $0) }
+
+        let dataPoints = points.map { p in
+            AXDataPoint(x: Double(p.year), y: p.avgRating, label: "\(p.year): \(String(format: "%.1f", p.avgRating))")
+        }
+
+        return AXChartDescriptor(
+            title: "Genre Rating Evolution",
+            summary: {
+                guard !points.isEmpty else { return "No data" }
+                let first = points.first!, last = points.last!
+                let trend = last.avgRating > first.avgRating ? "trending up" : "trending down"
+                return "From \(first.year) to \(last.year), \(trend). Current average: \(String(format: "%.1f", last.avgRating))"
+            }(),
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [AXDataSeriesDescriptor(name: "Rating Evolution", isContinuous: true, dataPoints: dataPoints)]
+        )
     }
 }
 

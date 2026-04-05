@@ -153,7 +153,7 @@ struct CareerProfileView: View {
         HStack(spacing: 16) {
             VStack(spacing: 4) {
                 Text(String(format: "%.1f", viewModel.careerScore))
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
                     .foregroundStyle(Color.plotlineGold)
                 Text("Career Score")
                     .font(.caption)
@@ -166,7 +166,7 @@ struct CareerProfileView: View {
 
             VStack(spacing: 4) {
                 Text("\(viewModel.totalTitles)")
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
                     .foregroundStyle(.primary)
                 Text("Total Titles")
                     .font(.caption)
@@ -177,6 +177,8 @@ struct CareerProfileView: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Career score \(String(format: "%.1f", viewModel.careerScore)) out of 10. \(viewModel.totalTitles) total titles")
     }
 
     // MARK: - Top 10

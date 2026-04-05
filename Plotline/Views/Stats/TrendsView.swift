@@ -82,6 +82,9 @@ struct TrendsView: View {
             .padding(.horizontal, 8)
             .background(Color.plotlineCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(title). \(subtitle)")
+            .accessibilityAddTraits(.isButton)
         }
     }
 }
