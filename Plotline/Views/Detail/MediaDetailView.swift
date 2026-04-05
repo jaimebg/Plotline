@@ -123,6 +123,7 @@ struct MediaDetailView: View {
                             .foregroundStyle(favoritesManager.isFavorite(viewModel.media) ? .red : .primary)
                             .symbolEffect(.bounce, value: favoriteAnimationTrigger)
                     }
+                    .accessibilityLabel(favoritesManager.isFavorite(viewModel.media) ? "Remove from favorites" : "Add to favorites")
                 }
             }
         }
@@ -175,6 +176,7 @@ struct MediaDetailView: View {
             Image(systemName: watchlistManager.isOnWatchlist(viewModel.media) ? "eye.fill" : "eye")
                 .font(.body.weight(.semibold))
                 .foregroundStyle(watchlistManager.isOnWatchlist(viewModel.media) ? Color.plotlinePrimary : .primary)
+                .accessibilityLabel(watchlistManager.isOnWatchlist(viewModel.media) ? "Watchlist options, currently on watchlist" : "Add to watchlist")
         }
     }
 
@@ -208,6 +210,7 @@ struct MediaDetailView: View {
             }
         }
         .frame(height: headerHeight)
+        .accessibilityHidden(true)
     }
 
     // MARK: - Title Section

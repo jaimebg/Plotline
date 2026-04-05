@@ -80,6 +80,8 @@ struct EpisodeRatingsGridView: View {
                 .padding(.horizontal, 4)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Episode ratings grid, \(totalSeasons) seasons, \(maxEpisodes) episodes per season maximum")
     }
 
     // MARK: - Legend
@@ -97,6 +99,8 @@ struct EpisodeRatingsGridView: View {
                 }
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Rating legend: " + RatingCategory.allCases.map { "\($0.rawValue)" }.joined(separator: ", "))
     }
 
     // MARK: - Header Row
@@ -144,6 +148,7 @@ struct EpisodeRatingsGridView: View {
         if episodes == nil {
             // Season data not loaded yet
             placeholderCell(text: "?")
+                .accessibilityLabel("Season \(season), Episode \(episodeNumber), rating not yet loaded")
         } else if let episode, episode.hasValidRating {
             // Episode exists with valid rating - tappable to open IMDb
             let category = RatingCategory.category(for: episode.rating)
@@ -160,9 +165,12 @@ struct EpisodeRatingsGridView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 6))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Season \(season), Episode \(episodeNumber), rating \(episode.formattedRating), \(category.rawValue)")
+            .accessibilityHint("Double tap to open on IMDb")
         } else if let episode, !episode.hasValidRating {
             // Episode exists but has N/A rating
             placeholderCell(text: "N/A", font: .caption2)
+                .accessibilityLabel("Season \(season), Episode \(episodeNumber), no rating available")
         } else {
             // Episode number doesn't exist for this season (shorter season)
             emptyCell
@@ -224,6 +232,8 @@ struct EpisodeRatingsGridView: View {
                 .frame(height: 4)
             }
             .frame(width: cellSize)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Season \(season) average: \(String(format: "%.1f", avg)), \(category.rawValue)")
         }
     }
 

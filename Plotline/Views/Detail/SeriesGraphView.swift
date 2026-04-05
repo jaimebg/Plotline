@@ -313,6 +313,8 @@ struct CompactSeriesGraphView: View {
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
         .chartYScale(domain: ratingYDomain)
+        .accessibilityLabel("Episode rating trend, \(validEpisodes.count) episodes")
+        .accessibilityHidden(validEpisodes.isEmpty)
     }
 
     private var validEpisodes: [EpisodeMetric] {
@@ -368,6 +370,8 @@ struct AllSeasonsGraphView: View {
                 }
             }
             .frame(height: 150)
+            .accessibilityChartDescriptor(AllSeasonsAccessibility(seasonData: seasonData))
+            .accessibilityLabel("All seasons overview chart")
 
             // Season legend
             seasonLegend
@@ -490,6 +494,54 @@ struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
         }
 
         return summary
+    }
+}
+
+// MARK: - All Seasons Audio Graph Accessibility
+
+struct AllSeasonsAccessibility: AXChartDescriptorRepresentable {
+    let seasonData: [(season: Int, episodes: [EpisodeMetric])]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let allEpisodes = seasonData.flatMap { $0.episodes.filter(\.hasValidRating) }
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Episode",
+            range: 1...Double(allEpisodes.count),
+            gridlinePositions: []
+        ) { "Episode \(Int($0))" }
+
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Rating",
+            range: 0...10,
+            gridlinePositions: [0, 5, 10]
+        ) { String(format: "%.1f", $0) }
+
+        var allSeries: [AXDataSeriesDescriptor] = []
+        var globalIndex = 1
+        for data in seasonData {
+            let valid = data.episodes.filter(\.hasValidRating)
+            let points = valid.enumerated().map { i, ep in
+                AXDataPoint(x: Double(globalIndex + i), y: ep.rating, label: "S\(data.season)E\(ep.episodeNumber): \(ep.formattedRating)")
+            }
+            globalIndex += valid.count
+            allSeries.append(AXDataSeriesDescriptor(name: "Season \(data.season)", isContinuous: true, dataPoints: points))
+        }
+
+        let avgRatings = seasonData.compactMap { data -> (Int, Double)? in
+            let valid = data.episodes.filter(\.hasValidRating)
+            guard !valid.isEmpty else { return nil }
+            return (data.season, valid.map(\.rating).reduce(0, +) / Double(valid.count))
+        }
+        let summary = avgRatings.map { "Season \($0.0): avg \(String(format: "%.1f", $0.1))" }.joined(separator: ". ")
+
+        return AXChartDescriptor(
+            title: "All Seasons Overview",
+            summary: "\(seasonData.count) seasons. \(summary)",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: allSeries
+        )
     }
 }
 
