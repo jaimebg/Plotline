@@ -24,6 +24,11 @@ final class WhatToWatchViewModel {
         self.tmdbService = tmdbService
     }
 
+    // MARK: - Computed
+
+    var canProceedFromStep1: Bool { !selectedMoods.isEmpty }
+    var canProceedFromStep2: Bool { selectedTime != nil }
+
     // MARK: - Mood Selection
 
     /// Add or remove a mood (max 2 selected)
