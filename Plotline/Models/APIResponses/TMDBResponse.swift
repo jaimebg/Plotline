@@ -420,23 +420,6 @@ struct PersonCombinedCrewCredit: Codable, Identifiable, Hashable {
     }
 }
 
-// MARK: - Collection Search
-
-struct TMDBCollectionSearchResponse: Codable {
-    let page: Int
-    let results: [TMDBCollectionSearchResult]
-    let totalPages: Int
-    let totalResults: Int
-}
-
-struct TMDBCollectionSearchResult: Codable, Identifiable, Hashable {
-    let id: Int
-    let name: String
-    let posterPath: String?
-    let backdropPath: String?
-    var posterURL: URL? { TMDBService.posterURL(path: posterPath, size: .medium) }
-}
-
 // MARK: - Person Search
 
 struct TMDBPersonSearchResponse: Codable {
