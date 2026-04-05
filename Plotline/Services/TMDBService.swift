@@ -325,47 +325,39 @@ struct TMDBService {
         return try await networkManager.fetch(TMDBResponse.self, from: url)
     }
 
-    // MARK: - Person
+    // MARK: - Person Details
 
+    /// Fetch person details (biography, birthday, etc.)
     func fetchPersonDetails(id: Int) async throws -> TMDBPersonResponse {
-        guard let url = buildURL(path: "/person/\(id)") else { throw NetworkError.invalidURL }
+        guard let url = buildURL(path: "/person/\(id)") else {
+            throw NetworkError.invalidURL
+        }
+
         return try await networkManager.fetch(TMDBPersonResponse.self, from: url)
     }
 
+    /// Fetch combined movie + TV credits for a person
     func fetchPersonCombinedCredits(personId: Int) async throws -> TMDBPersonCombinedCreditsResponse {
-        guard let url = buildURL(path: "/person/\(personId)/combined_credits") else { throw NetworkError.invalidURL }
+        guard let url = buildURL(path: "/person/\(personId)/combined_credits") else {
+            throw NetworkError.invalidURL
+        }
+
         return try await networkManager.fetch(TMDBPersonCombinedCreditsResponse.self, from: url)
     }
 
+    /// Search for people by name
     func searchPeople(query: String, page: Int = 1) async throws -> [TMDBPersonSearchResult] {
         guard !query.isEmpty else { return [] }
-        guard let url = buildURL(path: "/search/person", additionalParams: ["query": query, "page": "\(page)"]) else { throw NetworkError.invalidURL }
+
+        guard let url = buildURL(
+            path: "/search/person",
+            additionalParams: ["query": query, "page": "\(page)"]
+        ) else {
+            throw NetworkError.invalidURL
+        }
+
         let response: TMDBPersonSearchResponse = try await networkManager.fetch(TMDBPersonSearchResponse.self, from: url)
         return response.results
-    }
-
-    // MARK: - Collection Search
-
-    func searchCollections(query: String, page: Int = 1) async throws -> TMDBCollectionSearchResponse {
-        guard !query.isEmpty else { return TMDBCollectionSearchResponse(page: 1, results: [], totalPages: 0, totalResults: 0) }
-        guard let url = buildURL(path: "/search/collection", additionalParams: ["query": query, "page": "\(page)"]) else { throw NetworkError.invalidURL }
-        return try await networkManager.fetch(TMDBCollectionSearchResponse.self, from: url)
-    }
-
-    // MARK: - Flexible Discover
-
-    func discoverMovies(params: [String: String], page: Int = 1) async throws -> TMDBResponse {
-        var allParams = params
-        allParams["page"] = "\(page)"
-        guard let url = buildURL(path: "/discover/movie", additionalParams: allParams) else { throw NetworkError.invalidURL }
-        return try await networkManager.fetch(TMDBResponse.self, from: url)
-    }
-
-    func discoverSeries(params: [String: String], page: Int = 1) async throws -> TMDBResponse {
-        var allParams = params
-        allParams["page"] = "\(page)"
-        guard let url = buildURL(path: "/discover/tv", additionalParams: allParams) else { throw NetworkError.invalidURL }
-        return try await networkManager.fetch(TMDBResponse.self, from: url)
     }
 
     // MARK: - Private Helpers
