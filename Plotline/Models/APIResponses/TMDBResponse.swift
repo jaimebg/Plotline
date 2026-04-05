@@ -187,6 +187,29 @@ struct CollectionMovie: Codable, Identifiable, Hashable {
     }
 }
 
+// MARK: - Collection Search Models
+
+/// Response wrapper for TMDB collection search endpoint
+struct TMDBCollectionSearchResponse: Codable {
+    let page: Int
+    let results: [TMDBCollectionSearchResult]
+    let totalPages: Int
+    let totalResults: Int
+}
+
+/// A single collection search result from TMDB
+struct TMDBCollectionSearchResult: Codable, Identifiable, Hashable {
+    let id: Int
+    let name: String
+    let posterPath: String?
+    let backdropPath: String?
+
+    var posterURL: URL? {
+        guard let path = posterPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w342\(path)")
+    }
+}
+
 // MARK: - Person Credits Models
 
 /// Response for TMDB /person/{id}/movie_credits
