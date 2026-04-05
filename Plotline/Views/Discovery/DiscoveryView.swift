@@ -307,10 +307,21 @@ struct SearchResultRow: View {
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(searchResultAccessibilityLabel)
+    }
+
+    private var searchResultAccessibilityLabel: String {
+        var label = item.displayTitle
+        if let year = item.year { label += ", \(year)" }
+        label += ", \(item.isTVSeries ? "TV Series" : "Movie")"
+        if item.voteAverage > 0 { label += ", rated \(item.formattedRating) out of 10" }
+        return label
     }
 }
 
@@ -351,10 +362,14 @@ struct GenreBrowseCard: View {
             Image(systemName: "chevron.right")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Browse by Genre. Discover movies and series by category")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
