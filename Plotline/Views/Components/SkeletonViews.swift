@@ -93,6 +93,9 @@ struct SkeletonSection: View {
             }
             .disabled(true)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Loading section")
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -126,6 +129,9 @@ struct SkeletonFeaturedSection: View {
             }
             .disabled(true)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Loading featured section")
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -152,6 +158,9 @@ struct DiscoverySkeletonView: View {
         }
         .scrollIndicators(.hidden)
         .disabled(true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Loading discovery content")
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -223,6 +232,9 @@ struct SearchResultsSkeletonView: View {
             .padding()
         }
         .disabled(true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Loading search results")
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -230,7 +242,13 @@ struct SearchResultsSkeletonView: View {
 
 extension Color {
     /// Secondary card color for nested skeleton elements
-    static let plotlineCardSecondary = Color(white: 0.15)
+    static let plotlineCardSecondary = Color(
+        UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor(white: 0.15, alpha: 1)
+                : UIColor(white: 0.85, alpha: 1)
+        }
+    )
 }
 
 // MARK: - Previews

@@ -150,6 +150,7 @@ struct WatchlistView: View {
             Image(systemName: "arrow.up.arrow.down")
                 .font(.body)
                 .foregroundStyle(Color.plotlinePrimary)
+                .accessibilityLabel("Sort watchlist")
         }
     }
 
@@ -272,5 +273,17 @@ struct WatchlistRow: View {
         .padding()
         .background(Color.plotlineCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        var label = item.title
+        label += ", \(item.isTVSeries ? "TV Series" : "Movie")"
+        label += ", \(item.statusLabel)"
+        if item.voteAverage > 0 {
+            label += ", rated \(String(format: "%.1f", item.voteAverage)) out of 10"
+        }
+        return label
     }
 }

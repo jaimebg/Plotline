@@ -93,6 +93,7 @@ struct FavoritesView: View {
             Image(systemName: "arrow.up.arrow.down")
                 .font(.body)
                 .foregroundStyle(Color.plotlinePrimary)
+                .accessibilityLabel("Sort favorites")
         }
     }
 
