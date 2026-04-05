@@ -1,7 +1,6 @@
 import Foundation
 import SwiftData
 import SwiftUI
-import WidgetKit
 
 /// Manager for handling favorite media items with SwiftData persistence
 @Observable
@@ -117,7 +116,6 @@ final class FavoritesManager {
 
             favorites = uniqueFavorites
             favoriteIds = seenIds
-            updateWidgetSnapshot()
         } catch {
             #if DEBUG
             print("Failed to fetch favorites: \(error)")
@@ -125,22 +123,6 @@ final class FavoritesManager {
             favorites = []
             favoriteIds = []
         }
-    }
-    private func updateWidgetSnapshot() {
-        let movies = favorites.filter { $0.mediaType == "movie" }.count
-        let series = favorites.filter { $0.mediaType == "tv" }.count
-        let avgRating = favorites.isEmpty ? 0.0 : favorites.map(\.voteAverage).reduce(0, +) / Double(favorites.count)
-
-        let snapshot = WidgetStatsSnapshot(
-            totalFavorites: favorites.count,
-            totalWatchlist: 0,
-            watchedCount: 0,
-            moviesCount: movies,
-            seriesCount: series,
-            averageRating: avgRating
-        )
-        WidgetDataManager.updateStatsSnapshot(snapshot)
-        WidgetCenter.shared.reloadTimelines(ofKind: "WatchlistProgressWidget")
     }
 }
 

@@ -90,9 +90,6 @@ struct DiscoveryView: View {
         } else {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 28) {
-                    // Personalized daily pick
-                    DailyPickView()
-
                     // Browse by Genre
                     NavigationLink(value: DiscoveryRoute.genreBrowse) {
                         GenreBrowseCard()
