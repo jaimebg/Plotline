@@ -125,6 +125,82 @@ struct TMDBService {
         }
     }
 
+    // MARK: - Seasons
+
+    /// Cache version for episode payloads. Bump to invalidate stored data.
+    private static let episodeCacheVersion = "v1"
+
+    /// Fetch episode metrics for a single season.
+    /// Results are cached on disk because a long-running series burns a lot of
+    /// requests against TMDB's ~40 requests / 10 seconds budget.
+    func fetchSeasonEpisodes(seriesId: Int, season: Int) async throws -> [EpisodeMetric] {
+        let cacheKey = "\(Self.episodeCacheVersion)_tmdb_\(seriesId)_S\(season)"
+        if let cached: [EpisodeMetric] = await DiskCache.shared.get(for: cacheKey) {
+            return cached
+        }
+
+        guard let url = buildURL(path: "/tv/\(seriesId)/season/\(season)") else {
+            throw NetworkError.invalidURL
+        }
+
+        let response: TMDBSeasonResponse = try await networkManager.fetch(
+            TMDBSeasonResponse.self,
+            from: url
+        )
+        let episodes = response.toEpisodeMetrics()
+
+        await DiskCache.shared.set(episodes, for: cacheKey)
+
+        return episodes
+    }
+
+    /// Fetch every season of a series, keyed by season number.
+    ///
+    /// Season 0 (TMDB specials) is deliberately excluded: specials are not part
+    /// of the main run and would distort the analysis engine.
+    /// Concurrency is capped so a 20-season show cannot exhaust the rate limit
+    /// in one burst. Seasons that fail are simply absent from the result.
+    func fetchAllSeasons(
+        seriesId: Int,
+        totalSeasons: Int,
+        maxConcurrent: Int = 5
+    ) async -> [Int: [EpisodeMetric]] {
+        guard totalSeasons > 0 else { return [:] }
+
+        var result: [Int: [EpisodeMetric]] = [:]
+
+        await withTaskGroup(of: (Int, [EpisodeMetric]).self) { group in
+            var nextSeason = 1
+
+            func addTask(for season: Int) {
+                group.addTask {
+                    let episodes = (try? await self.fetchSeasonEpisodes(
+                        seriesId: seriesId,
+                        season: season
+                    )) ?? []
+                    return (season, episodes)
+                }
+            }
+
+            for _ in 0..<min(maxConcurrent, totalSeasons) {
+                addTask(for: nextSeason)
+                nextSeason += 1
+            }
+
+            while let (season, episodes) = await group.next() {
+                if !episodes.isEmpty {
+                    result[season] = episodes
+                }
+                if nextSeason <= totalSeasons {
+                    addTask(for: nextSeason)
+                    nextSeason += 1
+                }
+            }
+        }
+
+        return result
+    }
+
     // MARK: - Search
 
     /// Search for movies, TV shows, and people
