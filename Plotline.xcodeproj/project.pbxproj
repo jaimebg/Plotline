@@ -11,10 +11,21 @@
 		3F65C3EB2F20F0F400A13300 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 3F65C3EA2F20F0F400A13300 /* CLAUDE.md */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3F6D6CC9301E924D004A0656 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3F65C3A22F20EBFD00A13300 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3F65C3A92F20EBFD00A13300;
+			remoteInfo = Plotline;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		3F0AA3F72F215B9F00DE0C25 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		3F65C3AA2F20EBFD00A13300 /* Plotline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Plotline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F65C3EA2F20F0F400A13300 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
+		3F6D6CC5301E924D004A0656 /* PlotlineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlotlineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,10 +47,22 @@
 			path = Plotline;
 			sourceTree = "<group>";
 		};
+		3F6D6CC6301E924D004A0656 /* PlotlineTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PlotlineTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		3F65C3A72F20EBFD00A13300 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3F6D6CC2301E924D004A0656 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -55,6 +78,7 @@
 				3F0AA3F72F215B9F00DE0C25 /* README.md */,
 				3F65C3EA2F20F0F400A13300 /* CLAUDE.md */,
 				3F65C3AC2F20EBFD00A13300 /* Plotline */,
+				3F6D6CC6301E924D004A0656 /* PlotlineTests */,
 				3F65C3AB2F20EBFD00A13300 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				3F65C3AA2F20EBFD00A13300 /* Plotline.app */,
+				3F6D6CC5301E924D004A0656 /* PlotlineTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,6 +117,29 @@
 			productReference = 3F65C3AA2F20EBFD00A13300 /* Plotline.app */;
 			productType = "com.apple.product-type.application";
 		};
+		3F6D6CC4301E924D004A0656 /* PlotlineTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3F6D6CCD301E924D004A0656 /* Build configuration list for PBXNativeTarget "PlotlineTests" */;
+			buildPhases = (
+				3F6D6CC1301E924D004A0656 /* Sources */,
+				3F6D6CC2301E924D004A0656 /* Frameworks */,
+				3F6D6CC3301E924D004A0656 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3F6D6CCA301E924D004A0656 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3F6D6CC6301E924D004A0656 /* PlotlineTests */,
+			);
+			name = PlotlineTests;
+			packageProductDependencies = (
+			);
+			productName = PlotlineTests;
+			productReference = 3F6D6CC5301E924D004A0656 /* PlotlineTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -99,11 +147,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					3F65C3A92F20EBFD00A13300 = {
 						CreatedOnToolsVersion = 26.2;
+					};
+					3F6D6CC4301E924D004A0656 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 3F65C3A92F20EBFD00A13300;
 					};
 				};
 			};
@@ -122,6 +174,7 @@
 			projectRoot = "";
 			targets = (
 				3F65C3A92F20EBFD00A13300 /* Plotline */,
+				3F6D6CC4301E924D004A0656 /* PlotlineTests */,
 			);
 		};
 /* End PBXProject section */
@@ -136,6 +189,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3F6D6CC3301E924D004A0656 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -146,7 +206,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3F6D6CC1301E924D004A0656 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3F6D6CCA301E924D004A0656 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3F65C3A92F20EBFD00A13300 /* Plotline */;
+			targetProxy = 3F6D6CC9301E924D004A0656 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3F65C3B32F20EBFE00A13300 /* Debug */ = {
@@ -363,6 +438,53 @@
 			};
 			name = Release;
 		};
+		3F6D6CCB301E924D004A0656 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8BXWAL9PV5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbgsoft.PlotlineTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Plotline.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Plotline";
+			};
+			name = Debug;
+		};
+		3F6D6CCC301E924D004A0656 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8BXWAL9PV5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbgsoft.PlotlineTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Plotline.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Plotline";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -380,6 +502,15 @@
 			buildConfigurations = (
 				3F65C3B62F20EBFE00A13300 /* Debug */,
 				3F65C3B72F20EBFE00A13300 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3F6D6CCD301E924D004A0656 /* Build configuration list for PBXNativeTarget "PlotlineTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F6D6CCB301E924D004A0656 /* Debug */,
+				3F6D6CCC301E924D004A0656 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
