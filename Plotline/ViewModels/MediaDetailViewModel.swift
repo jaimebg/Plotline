@@ -13,16 +13,13 @@ final class MediaDetailViewModel {
     // MARK: - State
 
     var media: MediaItem
-    var ratings: [RatingSource] = []
     var episodes: [EpisodeMetric] = []
     var episodesBySeason: [Int: [EpisodeMetric]] = [:]
     var selectedSeason: Int = 1
     var totalSeasons: Int = 1
 
-    var isLoadingRatings = false
     var isLoadingEpisodes = false
     var isLoadingAllSeasons = false
-    var ratingsError: String?
     var episodesError: String?
 
     // MARK: - Movie Features State
@@ -39,9 +36,6 @@ final class MediaDetailViewModel {
     var selectedFilmographyType: FilmographyType = .director
     var isLoadingFilmography = false
 
-    // Awards
-    var awardsData: AwardsData?
-
     // Recommendations
     var recommendations: [MediaItem] = []
     var isLoadingRecommendations = false
@@ -52,84 +46,49 @@ final class MediaDetailViewModel {
     // MARK: - Services
 
     private let tmdbService: TMDBService
-    private let omdbService: OMDbService
 
     // MARK: - Initialization
 
     init(
         media: MediaItem,
-        tmdbService: TMDBService = .shared,
-        omdbService: OMDbService = .shared
+        tmdbService: TMDBService = .shared
     ) {
         self.media = media
         self.tmdbService = tmdbService
-        self.omdbService = omdbService
         self.totalSeasons = media.totalSeasons ?? 1
     }
 
     // MARK: - Public Methods
 
-    /// Load all detail data (TMDB details + OMDb ratings + movie features)
+    /// Load all detail data (TMDB details + movie features)
     @MainActor
     func loadDetails() async {
-        // First, get TMDB details to get IMDb ID and movie-specific data
+        // First, get TMDB details for season count and movie-specific data
         await fetchTMDBDetails()
 
-        // Then fetch data in parallel based on media type
         if media.isTVSeries {
-            // TV Series: fetch ratings, episodes, and recommendations
-            async let ratingsTask: () = fetchRatings()
             async let episodesTask: () = fetchEpisodesIfSeries()
             async let allSeasonsTask: () = fetchAllSeasons()
             async let recsTask: () = fetchRecommendations()
-            _ = await (ratingsTask, episodesTask, allSeasonsTask, recsTask)
+            _ = await (episodesTask, allSeasonsTask, recsTask)
         } else {
-            // Movies: fetch ratings, movie-specific features, and recommendations
-            async let ratingsTask: () = fetchRatings()
             async let movieFeaturesTask: () = fetchMovieFeatures()
             async let recsTask: () = fetchRecommendations()
-            _ = await (ratingsTask, movieFeaturesTask, recsTask)
+            _ = await (movieFeaturesTask, recsTask)
         }
-    }
-
-    /// Fetch ratings from OMDb
-    @MainActor
-    func fetchRatings() async {
-        guard let imdbId = media.imdbId else {
-            ratingsError = "No IMDb ID available"
-            return
-        }
-
-        isLoadingRatings = true
-        ratingsError = nil
-
-        do {
-            ratings = try await omdbService.fetchRatings(imdbId: imdbId)
-        } catch {
-            ratingsError = (error as? NetworkError)?.errorDescription ?? "Couldn't load ratings. Pull to refresh."
-            #if DEBUG
-            debugPrint("Failed to fetch ratings: \(error)")
-            #endif
-        }
-
-        isLoadingRatings = false
     }
 
     /// Fetch episodes for current season (TV series only)
     @MainActor
     func fetchEpisodes() async {
         guard media.isTVSeries else { return }
-        guard let imdbId = media.imdbId else {
-            episodesError = "No IMDb ID available"
-            return
-        }
 
         isLoadingEpisodes = true
         episodesError = nil
 
         do {
-            episodes = try await omdbService.fetchSeasonEpisodes(
-                imdbId: imdbId,
+            episodes = try await tmdbService.fetchSeasonEpisodes(
+                seriesId: media.id,
                 season: selectedSeason
             )
         } catch {
@@ -154,62 +113,14 @@ final class MediaDetailViewModel {
     @MainActor
     func fetchAllSeasons() async {
         guard media.isTVSeries else { return }
-        guard let imdbId = media.imdbId else {
-            episodesError = "No IMDb ID available"
-            return
-        }
 
         isLoadingAllSeasons = true
         episodesError = nil
 
-        // Get season count from OMDb (more reliable than TMDB for episode data)
-        let omdbSeasonCount: Int
-        do {
-            let omdbDetails = try await omdbService.fetchDetails(imdbId: imdbId)
-            omdbSeasonCount = omdbDetails.totalSeasonsInt ?? totalSeasons
-            #if DEBUG
-            if omdbSeasonCount != totalSeasons {
-                print("📺 Season count differs: TMDB=\(totalSeasons), OMDb=\(omdbSeasonCount)")
-            }
-            #endif
-        } catch {
-            // Fall back to TMDB count if OMDb fails
-            omdbSeasonCount = totalSeasons
-            #if DEBUG
-            print("⚠️ Failed to get OMDb season count, using TMDB: \(totalSeasons)")
-            #endif
-        }
-
-        // Fetch all seasons concurrently using OMDb's count
-        await withTaskGroup(of: (Int, [EpisodeMetric]?).self) { group in
-            for season in 1...omdbSeasonCount {
-                group.addTask {
-                    do {
-                        let episodes = try await self.omdbService.fetchSeasonEpisodes(
-                            imdbId: imdbId,
-                            season: season
-                        )
-                        return (season, episodes)
-                    } catch {
-                        #if DEBUG
-                        debugPrint("Failed to fetch season \(season): \(error)")
-                        #endif
-                        return (season, nil)
-                    }
-                }
-            }
-
-            for await (season, episodes) in group {
-                if let episodes = episodes {
-                    episodesBySeason[season] = episodes
-                }
-            }
-        }
-
-        // Update totalSeasons to match OMDb for consistent UI
-        if omdbSeasonCount != totalSeasons {
-            totalSeasons = omdbSeasonCount
-        }
+        episodesBySeason = await tmdbService.fetchAllSeasons(
+            seriesId: media.id,
+            totalSeasons: totalSeasons
+        )
 
         isLoadingAllSeasons = false
     }
@@ -271,12 +182,10 @@ final class MediaDetailViewModel {
     private func fetchMovieFeatures() async {
         guard !media.isTVSeries else { return }
 
-        // Fetch collection, credits, and OMDb details concurrently
         async let collectionTask: () = fetchCollectionIfAvailable()
         async let creditsTask: () = fetchCreditsAndFilmography()
-        async let omdbTask: () = fetchOMDbDetailsForFeatures()
 
-        _ = await (collectionTask, creditsTask, omdbTask)
+        _ = await (collectionTask, creditsTask)
     }
 
     /// Fetch collection/franchise movies if available
@@ -361,22 +270,6 @@ final class MediaDetailViewModel {
         }
     }
 
-    /// Fetch OMDb details for awards and score comparison
-    @MainActor
-    private func fetchOMDbDetailsForFeatures() async {
-        guard let imdbId = media.imdbId else { return }
-
-        do {
-            let omdbDetails = try await omdbService.fetchDetails(imdbId: imdbId)
-            awardsData = AwardsData.parse(from: omdbDetails.awards)
-            media.awards = omdbDetails.awards
-        } catch {
-            #if DEBUG
-            debugPrint("Failed to fetch OMDb details: \(error)")
-            #endif
-        }
-    }
-
     /// Fetch recommendations for this media item
     @MainActor
     private func fetchRecommendations() async {
@@ -393,38 +286,14 @@ final class MediaDetailViewModel {
 
     // MARK: - Computed Properties
 
-    /// Check if any ratings are available
-    var hasRatings: Bool {
-        !ratings.isEmpty
-    }
-
     /// Check if episodes are available
     var hasEpisodes: Bool {
         !episodes.isEmpty
     }
 
     /// Check if episode grid should be shown
-    /// Hidden for shows with 100+ episodes per season (OMDb API limit causes incomplete data)
     var shouldShowEpisodeGrid: Bool {
-        guard !episodesBySeason.isEmpty else { return false }
-        // Hide grid if any season hit the 100 episode API limit
-        let maxEpisodesInAnySeason = episodesBySeason.values.map { $0.count }.max() ?? 0
-        return maxEpisodesInAnySeason < 100
-    }
-
-    /// IMDb rating (if available)
-    var imdbRating: RatingSource? {
-        ratings.first { $0.ratingType == .imdb }
-    }
-
-    /// Rotten Tomatoes rating (if available)
-    var rottenTomatoesRating: RatingSource? {
-        ratings.first { $0.ratingType == .rottenTomatoes }
-    }
-
-    /// Metacritic rating (if available)
-    var metacriticRating: RatingSource? {
-        ratings.first { $0.ratingType == .metacritic }
+        !episodesBySeason.isEmpty
     }
 
     /// Check if this is a TV series
@@ -493,10 +362,8 @@ final class MediaDetailViewModel {
         media.boxOffice
     }
 
-    /// Check if awards data is available
-    var hasAwards: Bool {
-        awardsData?.hasAwards == true
-    }
+    /// Awards return in Phase 3, sourced from the bundled dataset.
+    var hasAwards: Bool { false }
 
     /// Current filmography based on selected type
     var currentFilmography: [(id: Int, title: String, year: String?, rating: String, posterURL: URL?)] {
@@ -523,7 +390,6 @@ final class MediaDetailViewModel {
 extension MediaDetailViewModel {
     static var preview: MediaDetailViewModel {
         let vm = MediaDetailViewModel(media: .preview)
-        vm.ratings = RatingSource.previewRatings
         vm.episodes = EpisodeMetric.breakingBadS5
         vm.episodesBySeason = [
             1: EpisodeMetric.breakingBadS1,
@@ -534,10 +400,7 @@ extension MediaDetailViewModel {
     }
 
     static var moviePreview: MediaDetailViewModel {
-        let vm = MediaDetailViewModel(media: .moviePreview)
-        vm.ratings = RatingSource.previewRatings
-        vm.awardsData = .oscarWinnerPreview
-        return vm
+        MediaDetailViewModel(media: .moviePreview)
     }
 
     static var movieWithAllFeaturesPreview: MediaDetailViewModel {
@@ -548,8 +411,6 @@ extension MediaDetailViewModel {
         media.collectionName = "Test Collection"
 
         let vm = MediaDetailViewModel(media: media)
-        vm.ratings = RatingSource.previewRatings
-        vm.awardsData = .oscarWinnerPreview
         vm.collectionMovies = [
             CollectionMovie(
                 id: 550,

@@ -2,100 +2,32 @@ import SwiftUI
 
 /// Horizontal row of rating scorecards
 struct ScorecardsView: View {
-    let ratings: [RatingSource]
     let tmdbScore: Double?
     let mediaId: Int
     let isTVSeries: Bool
-    let isLoading: Bool
-    let error: String?
-    let imdbId: String?
-    let title: String?
 
-    init(ratings: [RatingSource], tmdbScore: Double? = nil, mediaId: Int = 0, isTVSeries: Bool = false, isLoading: Bool = false, error: String? = nil, imdbId: String? = nil, title: String? = nil) {
-        self.ratings = ratings
+    init(tmdbScore: Double? = nil, mediaId: Int = 0, isTVSeries: Bool = false) {
         self.tmdbScore = tmdbScore
         self.mediaId = mediaId
         self.isTVSeries = isTVSeries
-        self.isLoading = isLoading
-        self.error = error
-        self.imdbId = imdbId
-        self.title = title
     }
 
     private var hasAnyRating: Bool {
-        !ratings.isEmpty || (tmdbScore ?? 0) > 0
+        (tmdbScore ?? 0) > 0
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Section header
             Text("Ratings")
                 .font(.system(.headline, weight: .semibold))
                 .foregroundStyle(.primary)
 
-            // Content
-            if isLoading {
-                loadingView
-            } else if let error = error, !hasAnyRating {
-                errorView(message: error)
-            } else if !hasAnyRating {
-                emptyView
+            if hasAnyRating, let score = tmdbScore {
+                TMDBRatingCard(score: score, mediaId: mediaId, isTVSeries: isTVSeries)
             } else {
-                ratingsRow
+                emptyView
             }
         }
-    }
-
-    // MARK: - Ratings Row
-
-    private var ratingsRow: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
-                // TMDB score first
-                if let score = tmdbScore, score > 0 {
-                    TMDBRatingCard(score: score, mediaId: mediaId, isTVSeries: isTVSeries)
-                }
-
-                // External ratings
-                ForEach(ratings) { rating in
-                    RatingCard(rating: rating, style: .standard, imdbId: imdbId, title: title)
-                }
-            }
-        }
-    }
-
-    // MARK: - Loading View
-
-    private var loadingView: some View {
-        HStack(spacing: 12) {
-            ForEach(0..<3, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.plotlineCard)
-                    .frame(width: 100, height: 100)
-                    .shimmering()
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Loading ratings")
-    }
-
-    // MARK: - Error View
-
-    private func errorView(message: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: "exclamationmark.triangle")
-                .foregroundStyle(.secondary)
-
-            Text("Could not load ratings")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color.plotlineCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Error: Could not load ratings")
     }
 
     // MARK: - Empty View
@@ -118,127 +50,14 @@ struct ScorecardsView: View {
     }
 }
 
-// MARK: - Compact Scorecards (for inline use)
-
-struct CompactScorecardsView: View {
-    let ratings: [RatingSource]
-    let imdbId: String?
-    let title: String?
-
-    init(ratings: [RatingSource], imdbId: String? = nil, title: String? = nil) {
-        self.ratings = ratings
-        self.imdbId = imdbId
-        self.title = title
-    }
-
-    var body: some View {
-        HStack(spacing: 16) {
-            ForEach(ratings) { rating in
-                RatingCard(rating: rating, style: .minimal, imdbId: imdbId, title: title)
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("Ratings")
-    }
-}
-
-// MARK: - Single Rating Display
-
-struct SingleRatingView: View {
-    let rating: RatingSource
-    let showLabel: Bool
-
-    init(rating: RatingSource, showLabel: Bool = true) {
-        self.rating = rating
-        self.showLabel = showLabel
-    }
-
-    var body: some View {
-        HStack(spacing: 6) {
-            icon
-                .font(.caption)
-
-            Text(rating.displayValue)
-                .font(.system(.subheadline, design: .monospaced, weight: .semibold))
-                .foregroundStyle(.primary)
-
-            if showLabel {
-                Text(rating.shortName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(singleRatingAccessibilityLabel)
-    }
-
-    private var singleRatingAccessibilityLabel: String {
-        var label = "\(rating.shortName): \(rating.displayValue)"
-        if rating.ratingType == .rottenTomatoes {
-            let isFresh = (rating.normalizedValue ?? 0) >= 0.60
-            label += ", \(isFresh ? "Fresh" : "Rotten")"
-        } else if rating.ratingType == .metacritic {
-            if let normalized = rating.normalizedValue {
-                if normalized >= 0.61 { label += ", Generally Favorable" }
-                else if normalized >= 0.40 { label += ", Mixed" }
-                else { label += ", Generally Unfavorable" }
-            }
-        }
-        return label
-    }
-
-    @ViewBuilder
-    private var icon: some View {
-        switch rating.ratingType {
-        case .imdb:
-            Image(systemName: "star.fill")
-                .foregroundStyle(Color.imdbYellow)
-        case .rottenTomatoes:
-            Image(systemName: rating.normalizedValue ?? 0 >= 0.60 ? "hand.thumbsup.fill" : "hand.thumbsdown.fill")
-                .foregroundStyle(rating.normalizedValue ?? 0 >= 0.60 ? Color.rottenGreen : Color.rottenRed)
-        case .metacritic:
-            Text("M")
-                .font(.system(.caption2, design: .rounded, weight: .bold))
-                .foregroundStyle(.primary)
-                .frame(width: 16, height: 16)
-                .background(metacriticColor)
-                .clipShape(RoundedRectangle(cornerRadius: 3))
-        case .unknown:
-            Image(systemName: "number")
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private var metacriticColor: Color {
-        let value = rating.normalizedValue ?? 0
-        if value >= 0.61 {
-            return .metacriticGreen
-        } else if value >= 0.40 {
-            return .metacriticYellow
-        } else {
-            return .metacriticRed
-        }
-    }
-}
-
 // MARK: - Preview
 
 #Preview("Scorecards View") {
     VStack(spacing: 24) {
-        ScorecardsView(ratings: RatingSource.previewRatings)
+        ScorecardsView(tmdbScore: 8.4, mediaId: 1, isTVSeries: false)
 
-        ScorecardsView(ratings: [], isLoading: true)
-
-        ScorecardsView(ratings: [], error: "Network error")
-
-        ScorecardsView(ratings: [])
+        ScorecardsView()
     }
     .padding()
     .background(Color.plotlineBackground)
-}
-
-#Preview("Compact Scorecards") {
-    CompactScorecardsView(ratings: RatingSource.previewRatings)
-        .padding()
-        .background(Color.plotlineBackground)
 }

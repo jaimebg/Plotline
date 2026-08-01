@@ -39,14 +39,9 @@ struct MediaDetailView: View {
 
                     // Ratings section
                     ScorecardsView(
-                        ratings: viewModel.ratings,
                         tmdbScore: viewModel.media.voteAverage,
                         mediaId: viewModel.media.id,
-                        isTVSeries: viewModel.media.isTVSeries,
-                        isLoading: viewModel.isLoadingRatings,
-                        error: viewModel.ratingsError,
-                        imdbId: viewModel.media.imdbId,
-                        title: viewModel.media.displayTitle
+                        isTVSeries: viewModel.media.isTVSeries
                     )
 
                     // Overview
@@ -64,7 +59,7 @@ struct MediaDetailView: View {
 
                     // Series-specific content
                     if viewModel.isTVSeries {
-                        // Episode ratings grid (hidden for shows with 100+ eps/season due to API limits)
+                        // Episode ratings grid (shown once season data has loaded)
                         if viewModel.shouldShowEpisodeGrid {
                             EpisodeRatingsGridView(
                                 episodesBySeason: viewModel.episodesBySeason,
@@ -319,10 +314,8 @@ struct MediaDetailView: View {
 
     @ViewBuilder
     private var movieFeaturesSection: some View {
-        // Awards
-        if viewModel.hasAwards, let awards = viewModel.awardsData {
-            AwardsView(awards: awards)
-        }
+        // Awards return in Phase 3, sourced from the bundled dataset.
+        // AwardsView stays in the codebase, dormant until then.
 
         // Box Office
         if viewModel.hasBoxOffice, let boxOffice = viewModel.boxOffice {
@@ -361,7 +354,7 @@ struct MediaDetailView: View {
 
     private var episodeGridLoadingView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("IMDb Scores")
+            Text("Episode Scores")
                 .font(.system(.headline, weight: .semibold))
                 .foregroundStyle(.primary)
 
