@@ -105,8 +105,10 @@ struct OMDbSeasonResponse: Codable {
                 episodeNumber: episodeNumber,
                 seasonNumber: seasonNum,
                 title: episode.title,
-                imdbRating: episode.imdbRating,
-                imdbId: episode.imdbID
+                rating: Double(episode.imdbRating.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0,
+                voteCount: 0,
+                airDate: nil,
+                stillPath: nil
             )
         }
     }
