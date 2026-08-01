@@ -1,11 +1,10 @@
 import SwiftUI
 
-/// Horizontal bars comparing a single rating source across 2-3 titles
+/// Horizontal bars comparing the TMDB rating across 2-3 titles
 struct RatingComparisonBar: View {
-    let sourceName: String
     let items: [(index: Int, item: MediaItem)]
-    let normalizedValue: (String, MediaItem) -> Double?
-    let displayValue: (String, MediaItem) -> String?
+    let normalizedValue: (MediaItem) -> Double?
+    let displayValue: (MediaItem) -> String?
 
     /// Colors assigned per slot index for visual distinction
     private let slotColors: [Color] = [.plotlineGold, .plotlineSecondaryAccent, .plotlinePrimary]
@@ -13,7 +12,7 @@ struct RatingComparisonBar: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Source header
-            Text(displaySourceName)
+            Text("TMDB")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.primary)
@@ -29,7 +28,7 @@ struct RatingComparisonBar: View {
 
                     // Colored bar
                     GeometryReader { geometry in
-                        let value = normalizedValue(sourceName, item) ?? 0
+                        let value = normalizedValue(item) ?? 0
                         let barWidth = max(0, geometry.size.width * (value / 100))
 
                         RoundedRectangle(cornerRadius: 4)
@@ -40,7 +39,7 @@ struct RatingComparisonBar: View {
                     .frame(height: 20)
 
                     // Score text
-                    if let display = displayValue(sourceName, item) {
+                    if let display = displayValue(item) {
                         Text(display)
                             .font(.caption)
                             .fontWeight(.medium)
@@ -54,18 +53,8 @@ struct RatingComparisonBar: View {
                     }
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("\(item.displayTitle): \(displayValue(sourceName, item) ?? "no rating") on \(displaySourceName)")
+                .accessibilityLabel("\(item.displayTitle): \(displayValue(item) ?? "no rating") on TMDB")
             }
-        }
-    }
-
-    private var displaySourceName: String {
-        switch sourceName {
-        case "Internet Movie Database": return "IMDb"
-        case "Rotten Tomatoes": return "Rotten Tomatoes"
-        case "Metacritic": return "Metacritic"
-        case "TMDB": return "TMDB"
-        default: return sourceName
         }
     }
 }
@@ -74,15 +63,14 @@ struct RatingComparisonBar: View {
 
 #Preview {
     RatingComparisonBar(
-        sourceName: "TMDB",
         items: [
             (0, .moviePreview),
             (1, .preview)
         ],
-        normalizedValue: { _, item in
+        normalizedValue: { item in
             item.voteAverage * 10
         },
-        displayValue: { _, item in
+        displayValue: { item in
             item.formattedRating
         }
     )
