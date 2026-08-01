@@ -52,7 +52,7 @@ struct EpisodeRatingsGridView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Section header
-            Text("IMDb Scores")
+            Text("Episode Scores")
                 .font(.system(.headline, weight: .semibold))
                 .foregroundStyle(.primary)
 
