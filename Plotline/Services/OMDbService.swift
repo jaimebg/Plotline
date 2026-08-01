@@ -10,7 +10,7 @@ struct OMDbService {
     private let networkManager = NetworkManager.shared
 
     // Cache for OMDb responses to avoid repeated API calls
-    private let cache = OMDbCache.shared
+    private let cache = DiskCache.shared
 
     // Cache version - increment when data format changes to invalidate old cache
     private let cacheVersion = "v2"
@@ -157,78 +157,4 @@ enum OMDbError: Error, LocalizedError {
             return "Invalid IMDb ID"
         }
     }
-}
-
-// MARK: - OMDb Disk Cache
-
-/// Actor-based persistent cache for OMDb responses using FileManager
-/// Stores JSON files in Caches/omdb/ with 7-day expiration
-actor OMDbCache {
-    static let shared = OMDbCache()
-
-    private let cacheDir: URL
-    private let maxAge: TimeInterval = 7 * 24 * 3600 // 7 days
-    private var memoryCache: [String: Data] = [:]
-
-    private init() {
-        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-        cacheDir = caches.appendingPathComponent("omdb", isDirectory: true)
-        try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
-    }
-
-    func get<T: Decodable>(for key: String) -> T? {
-        let safeKey = sanitizedKey(key)
-
-        if let data = memoryCache[safeKey] {
-            return try? JSONDecoder().decode(T.self, from: data)
-        }
-
-        let fileURL = fileURL(for: safeKey)
-        guard let wrapper = try? Data(contentsOf: fileURL),
-              let entry = try? JSONDecoder().decode(CacheEntry.self, from: wrapper) else {
-            return nil
-        }
-
-        guard Date().timeIntervalSince(entry.timestamp) < maxAge else {
-            try? FileManager.default.removeItem(at: fileURL)
-            return nil
-        }
-
-        memoryCache[safeKey] = entry.data
-        return try? JSONDecoder().decode(T.self, from: entry.data)
-    }
-
-    func set<T: Encodable>(_ value: T, for key: String) {
-        let safeKey = sanitizedKey(key)
-        guard let data = try? JSONEncoder().encode(value) else { return }
-
-        memoryCache[safeKey] = data
-
-        let entry = CacheEntry(data: data, timestamp: Date())
-        guard let wrapper = try? JSONEncoder().encode(entry) else { return }
-        try? wrapper.write(to: fileURL(for: safeKey))
-    }
-
-    func clearAll() {
-        memoryCache.removeAll()
-        let files = (try? FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)) ?? []
-        for file in files {
-            try? FileManager.default.removeItem(at: file)
-        }
-    }
-
-    // MARK: - Private Helpers
-
-    private func sanitizedKey(_ key: String) -> String {
-        key.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? key
-    }
-
-    private func fileURL(for safeKey: String) -> URL {
-        cacheDir.appendingPathComponent(safeKey)
-    }
-}
-
-private struct CacheEntry: Codable {
-    let data: Data
-    let timestamp: Date
 }
