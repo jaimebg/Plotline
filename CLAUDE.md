@@ -133,7 +133,6 @@ The star feature uses Swift Charts to visualize episode ratings:
 
 ## Workflow Rules
 
-- **Never commit unless explicitly told**: Do not create commits automatically. Wait for the user to explicitly request a commit.
 - **Use Conventional Commits**: Follow the conventional commits specification for commit messages:
   - `feat:` for new features
   - `fix:` for bug fixes
