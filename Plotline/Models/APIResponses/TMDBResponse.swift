@@ -47,7 +47,6 @@ struct TMDBDetailResponse: Codable {
             name: name,
             firstAirDate: firstAirDate,
             mediaType: mediaType,
-            seasonEpisodes: nil,
             totalSeasons: numberOfSeasons,
             budget: budget,
             revenue: revenue,
