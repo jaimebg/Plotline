@@ -5,6 +5,7 @@ import Testing
 @Suite("EpisodeMetric")
 struct EpisodeMetricTests {
     private func make(
+        id: Int? = 62089,
         rating: Double = 8.5,
         voteCount: Int = 100,
         airDate: String? = "2008-01-20",
@@ -12,6 +13,7 @@ struct EpisodeMetricTests {
         seasonNumber: Int = 1
     ) -> EpisodeMetric {
         EpisodeMetric(
+            id: id,
             episodeNumber: episodeNumber,
             seasonNumber: seasonNumber,
             title: "Gray Matter",
@@ -66,11 +68,13 @@ struct EpisodeMetricTests {
         #expect(make().stillURL?.absoluteString == "https://image.tmdb.org/t/p/w300/still.jpg")
     }
 
-    @Test("round-trips through Codable")
+    @Test("round-trips through Codable keeping the same id")
     func encodesAndDecodes() throws {
-        let original = make()
+        let original = make(id: 62089)
         let data = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(EpisodeMetric.self, from: data)
         #expect(decoded == original)
+        // La identidad debe sobrevivir al ciclo de caché, no regenerarse.
+        #expect(decoded.id == 62089)
     }
 }
