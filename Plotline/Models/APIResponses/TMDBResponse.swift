@@ -32,9 +32,6 @@ struct TMDBDetailResponse: Codable {
     let numberOfSeasons: Int?
     let numberOfEpisodes: Int?
 
-    // External IDs (from append_to_response)
-    let externalIds: ExternalIds?
-
     /// Converts to MediaItem for unified handling
     func toMediaItem(mediaType: MediaType) -> MediaItem {
         MediaItem(
@@ -50,8 +47,6 @@ struct TMDBDetailResponse: Codable {
             name: name,
             firstAirDate: firstAirDate,
             mediaType: mediaType,
-            imdbId: externalIds?.imdbId,
-            externalRatings: nil,
             seasonEpisodes: nil,
             totalSeasons: numberOfSeasons,
             budget: budget,
@@ -66,14 +61,6 @@ struct TMDBDetailResponse: Codable {
 struct Genre: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
-}
-
-/// External IDs from TMDB (IMDb, etc.)
-struct ExternalIds: Codable {
-    let imdbId: String?
-    let facebookId: String?
-    let instagramId: String?
-    let twitterId: String?
 }
 
 /// Response for TMDB credits endpoint
