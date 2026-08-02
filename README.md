@@ -84,7 +84,7 @@ User Action → TMDB Fetch → Render
 ## Requirements
 
 - iOS 26.0+
-- Xcode 16+
+- Xcode 26+
 - TMDB API Key ([Get one here](https://www.themoviedb.org/settings/api))
 - iCloud account (optional, for cross-device sync)
 
