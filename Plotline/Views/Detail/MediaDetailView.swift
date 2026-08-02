@@ -67,6 +67,8 @@ struct MediaDetailView: View {
                             )
                         } else if viewModel.isLoadingAllSeasons {
                             episodeGridLoadingView
+                        } else if let message = viewModel.episodesError {
+                            episodeGridUnavailableView(message: message)
                         }
                     }
                 }
@@ -374,6 +376,28 @@ struct MediaDetailView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Episode Grid Unavailable
+
+    /// Shown when no season data could be loaded, so the series section never
+    /// renders as a silent blank space.
+    private func episodeGridUnavailableView(message: String) -> some View {
+        ContentUnavailableView {
+            Label("Episode Scores Unavailable", systemImage: "chart.bar.xaxis")
+        } description: {
+            Text(message)
+        } actions: {
+            Button("Try Again") {
+                Task { await viewModel.fetchAllSeasons() }
+            }
+            .buttonStyle(.bordered)
+        }
+        .frame(maxWidth: .infinity)
+        // `.contain` keeps the description and the Try Again button individually
+        // reachable, so the message is not repeated by the container label.
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Episode scores unavailable")
     }
 }
 

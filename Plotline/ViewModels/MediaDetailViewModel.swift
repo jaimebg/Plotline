@@ -18,7 +18,6 @@ final class MediaDetailViewModel {
     var selectedSeason: Int = 1
     var totalSeasons: Int = 1
 
-    var isLoadingEpisodes = false
     var isLoadingAllSeasons = false
     var episodesError: String?
 
@@ -67,10 +66,12 @@ final class MediaDetailViewModel {
         await fetchTMDBDetails()
 
         if media.isTVSeries {
-            async let episodesTask: () = fetchEpisodesIfSeries()
+            // `fetchAllSeasons()` already covers season 1, and `episodes` is derived
+            // from its result — fetching the selected season separately would issue a
+            // duplicate request for the same payload on every series open.
             async let allSeasonsTask: () = fetchAllSeasons()
             async let recsTask: () = fetchRecommendations()
-            _ = await (episodesTask, allSeasonsTask, recsTask)
+            _ = await (allSeasonsTask, recsTask)
         } else {
             async let movieFeaturesTask: () = fetchMovieFeatures()
             async let recsTask: () = fetchRecommendations()
@@ -78,35 +79,21 @@ final class MediaDetailViewModel {
         }
     }
 
-    /// Fetch episodes for current season (TV series only)
+    /// Re-derive `episodes` for the selected season from the already-fetched
+    /// season dictionary. Deliberately does no networking: `fetchAllSeasons()`
+    /// is the single source of episode data.
     @MainActor
-    func fetchEpisodes() async {
+    func syncEpisodesForSelectedSeason() {
         guard media.isTVSeries else { return }
-
-        isLoadingEpisodes = true
-        episodesError = nil
-
-        do {
-            episodes = try await tmdbService.fetchSeasonEpisodes(
-                seriesId: media.id,
-                season: selectedSeason
-            )
-        } catch {
-            episodesError = (error as? NetworkError)?.errorDescription ?? "Couldn't load episodes. Pull to refresh."
-            #if DEBUG
-            debugPrint("Failed to fetch episodes: \(error)")
-            #endif
-        }
-
-        isLoadingEpisodes = false
+        episodes = episodesBySeason[selectedSeason] ?? []
     }
 
-    /// Change selected season and fetch new episodes
+    /// Change selected season and re-derive its episodes (no network request)
     @MainActor
     func selectSeason(_ season: Int) async {
         guard season != selectedSeason else { return }
         selectedSeason = season
-        await fetchEpisodes()
+        syncEpisodesForSelectedSeason()
     }
 
     /// Fetch all seasons' episodes for the grid view
@@ -121,6 +108,15 @@ final class MediaDetailViewModel {
             seriesId: media.id,
             totalSeasons: totalSeasons
         )
+
+        // `TMDBService.fetchAllSeasons` swallows per-season failures, so an empty
+        // dictionary is the only signal available for "nothing to show": no network,
+        // no API key, or a series TMDB has no episode data for.
+        if episodesBySeason.isEmpty {
+            episodesError = "We couldn't load episode scores for this series. It may not have episode data yet."
+        }
+
+        syncEpisodesForSelectedSeason()
 
         isLoadingAllSeasons = false
     }
@@ -167,12 +163,6 @@ final class MediaDetailViewModel {
             debugPrint("Failed to fetch TMDB details: \(error)")
             #endif
         }
-    }
-
-    @MainActor
-    private func fetchEpisodesIfSeries() async {
-        guard media.isTVSeries else { return }
-        await fetchEpisodes()
     }
 
     /// Fetch all movie-specific features
