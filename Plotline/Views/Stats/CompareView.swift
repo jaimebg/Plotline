@@ -61,18 +61,15 @@ struct CompareView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
 
-            ForEach(viewModel.allRatingSources, id: \.self) { sourceName in
-                RatingComparisonBar(
-                    sourceName: sourceName,
-                    items: viewModel.filledSlots,
-                    normalizedValue: { source, item in
-                        viewModel.normalizedRating(for: source, item: item)
-                    },
-                    displayValue: { source, item in
-                        viewModel.displayRating(for: source, item: item)
-                    }
-                )
-            }
+            RatingComparisonBar(
+                items: viewModel.filledSlots,
+                normalizedValue: { item in
+                    viewModel.normalizedRating(for: item)
+                },
+                displayValue: { item in
+                    viewModel.displayRating(for: item)
+                }
+            )
         }
         .padding()
         .background(Color.plotlineCard)

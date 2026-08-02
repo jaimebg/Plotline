@@ -1,12 +1,16 @@
 import Foundation
 
 /// ViewModel for the Visual Comparator — manages up to 3 media items for side-by-side comparison
+///
+/// `@MainActor` because every stored property here is observed by SwiftUI on the
+/// main actor; `selectItem(_:for:)` and the debounced search task would otherwise
+/// mutate them from whatever executor resumed the awaited call.
 @Observable
+@MainActor
 final class CompareViewModel {
     // MARK: - Slot State
 
     var slots: [MediaItem?] = [nil, nil, nil]
-    var ratingsData: [Int: [RatingSource]] = [:]
     var episodesData: [Int: [Int: [EpisodeMetric]]] = [:] // mediaId -> seasonNum -> episodes
     var isLoadingSlot: [Int: Bool] = [:]
 
@@ -43,24 +47,6 @@ final class CompareViewModel {
         filledSlots.contains { $0.item.isTVSeries }
     }
 
-    /// All rating source names present across all filled slots
-    var allRatingSources: [String] {
-        var sources: [String] = []
-        // TMDB is always available
-        sources.append("TMDB")
-        // Collect external rating sources
-        let externalSources = ["Internet Movie Database", "Rotten Tomatoes", "Metacritic"]
-        for sourceName in externalSources {
-            let anyHasIt = filledSlots.contains { _, item in
-                ratingsData[item.id]?.contains { $0.source == sourceName } == true
-            }
-            if anyHasIt {
-                sources.append(sourceName)
-            }
-        }
-        return sources
-    }
-
     /// Shared genre IDs across all filled slots
     var sharedGenreIds: Set<Int> {
         let genreSets = filledSlots.compactMap { $0.item.genreIds }.map { Set($0) }
@@ -85,31 +71,17 @@ final class CompareViewModel {
 
         do {
             // Fetch full TMDB details
-            var detailed = try await TMDBService.shared.fetchDetails(for: item)
+            let detailed = try await TMDBService.shared.fetchDetails(for: item)
 
             // Store in slot
             slots[slotIndex] = detailed
 
-            // Fetch OMDb ratings if we have an IMDb ID
-            if let imdbId = detailed.imdbId {
-                if let ratings = try? await OMDbService.shared.fetchRatings(imdbId: imdbId) {
-                    ratingsData[detailed.id] = ratings
-                    detailed.externalRatings = ratings
-                    slots[slotIndex] = detailed
-                }
-
-                // Fetch season episodes for TV series
-                if detailed.isTVSeries, let totalSeasons = detailed.totalSeasons, totalSeasons > 0 {
-                    var seasonMap: [Int: [EpisodeMetric]] = [:]
-                    for season in 1...totalSeasons {
-                        if let episodes = try? await OMDbService.shared.fetchSeasonEpisodes(
-                            imdbId: imdbId, season: season
-                        ) {
-                            seasonMap[season] = episodes
-                        }
-                    }
-                    episodesData[detailed.id] = seasonMap
-                }
+            // Episode metrics come from TMDB, keyed by the series' TMDB id.
+            if detailed.isTVSeries, let totalSeasons = detailed.totalSeasons, totalSeasons > 0 {
+                episodesData[detailed.id] = await TMDBService.shared.fetchAllSeasons(
+                    seriesId: detailed.id,
+                    totalSeasons: totalSeasons
+                )
             }
         } catch {
             // On failure, still set the basic item so the slot is not empty
@@ -121,7 +93,6 @@ final class CompareViewModel {
     func removeSlot(_ index: Int) {
         guard index >= 0, index < slots.count else { return }
         if let item = slots[index] {
-            ratingsData.removeValue(forKey: item.id)
             episodesData.removeValue(forKey: item.id)
         }
         slots[index] = nil
@@ -133,24 +104,14 @@ final class CompareViewModel {
         return seasonMap.keys.sorted().flatMap { seasonMap[$0] ?? [] }
     }
 
-    /// Normalized rating value (0-100) for a given source and item
-    func normalizedRating(for sourceName: String, item: MediaItem) -> Double? {
-        if sourceName == "TMDB" {
-            return item.voteAverage * 10 // voteAverage is 0-10
-        }
-        guard let ratings = ratingsData[item.id] else { return nil }
-        guard let rating = ratings.first(where: { $0.source == sourceName }) else { return nil }
-        guard let normalized = rating.normalizedValue else { return nil }
-        return normalized * 100 // normalizedValue is 0-1, we want 0-100
+    /// Normalized rating value (0-100) for an item
+    func normalizedRating(for item: MediaItem) -> Double? {
+        item.voteAverage > 0 ? item.voteAverage * 10 : nil
     }
 
-    /// Display value for a given source and item
-    func displayRating(for sourceName: String, item: MediaItem) -> String? {
-        if sourceName == "TMDB" {
-            return item.formattedRating
-        }
-        guard let ratings = ratingsData[item.id] else { return nil }
-        return ratings.first(where: { $0.source == sourceName })?.displayValue
+    /// Display value for an item's rating
+    func displayRating(for item: MediaItem) -> String? {
+        item.voteAverage > 0 ? item.formattedRating : nil
     }
 
     // MARK: - Search

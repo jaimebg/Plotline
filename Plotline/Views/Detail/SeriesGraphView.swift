@@ -8,7 +8,6 @@ struct SeriesGraphView: View {
     let seasonNumber: Int
     var showAverage: Bool = true
 
-    @Environment(\.openURL) private var openURL
     @State private var selectedEpisode: EpisodeMetric?
     @State private var selectedEpisodeNumber: Int?
     @State private var animateChart: Bool = false
@@ -160,12 +159,12 @@ struct SeriesGraphView: View {
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading, values: [0, 2.5, 5, 7.5, 10]) { value in
+            AxisMarks(position: .leading, values: yAxisValues) { value in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                     .foregroundStyle(Color.primary.opacity(0.1))
                 AxisValueLabel {
                     if let rating = value.as(Double.self) {
-                        Text(String(format: "%.0f", rating))
+                        Text(String(format: "%.1f", rating))
                             .font(.caption2)
                             .foregroundStyle(Color.plotlineSecondary)
                     }
@@ -206,8 +205,8 @@ struct SeriesGraphView: View {
 
             Spacer()
 
-            // Rating - tappable to open IMDb
-            ratingButton(for: episode)
+            // Rating
+            ratingLabel(for: episode)
         }
         .padding()
         .background(Color.plotlineCard)
@@ -220,22 +219,14 @@ struct SeriesGraphView: View {
 
     // MARK: - Helpers
 
-    @ViewBuilder
-    private func ratingButton(for episode: EpisodeMetric) -> some View {
-        let ratingLabel = HStack(spacing: 4) {
+    private func ratingLabel(for episode: EpisodeMetric) -> some View {
+        HStack(spacing: 4) {
             Image(systemName: "star.fill")
                 .font(.caption)
                 .foregroundStyle(Color.imdbYellow)
             Text(episode.formattedRating)
                 .font(.system(.title3, design: .monospaced, weight: .bold))
                 .foregroundStyle(.primary)
-        }
-
-        if let url = episode.imdbURL {
-            Button { openURL(url) } label: { ratingLabel }
-                .buttonStyle(.plain)
-        } else {
-            ratingLabel
         }
     }
 
@@ -262,6 +253,22 @@ struct SeriesGraphView: View {
         let minRating = (ratings.min() ?? 5) - 0.5
         let maxRating = min((ratings.max() ?? 10) + 0.5, 10)
         return max(0, minRating)...maxRating
+    }
+
+    /// Y axis marks derived from the visible domain.
+    ///
+    /// These used to be hardcoded to `[0, 2.5, 5, 7.5, 10]`. Because the domain
+    /// is scaled to the season's actual range (often ~8...9.5), most of those
+    /// values fell outside it and Swift Charts rendered their labels beyond the
+    /// plot area, bleeding over whatever view sat above or below the chart.
+    private var yAxisValues: [Double] {
+        let lower = ratingYDomain.lowerBound
+        let upper = ratingYDomain.upperBound
+        guard upper > lower else { return [lower] }
+
+        let steps = 3
+        let increment = (upper - lower) / Double(steps)
+        return (0...steps).map { lower + increment * Double($0) }
     }
 
     private var xAxisValues: [Int] {
@@ -440,7 +447,7 @@ struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
         let maxRating = min((ratings.max() ?? 10) + 0.5, 10)
 
         let yAxis = AXNumericDataAxisDescriptor(
-            title: "IMDb Rating",
+            title: "Episode Rating",
             range: minRating...maxRating,
             gridlinePositions: [0, 2.5, 5, 7.5, 10].filter { $0 >= minRating && $0 <= maxRating }
         ) { value in

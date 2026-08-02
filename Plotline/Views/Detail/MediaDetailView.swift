@@ -39,14 +39,9 @@ struct MediaDetailView: View {
 
                     // Ratings section
                     ScorecardsView(
-                        ratings: viewModel.ratings,
                         tmdbScore: viewModel.media.voteAverage,
                         mediaId: viewModel.media.id,
-                        isTVSeries: viewModel.media.isTVSeries,
-                        isLoading: viewModel.isLoadingRatings,
-                        error: viewModel.ratingsError,
-                        imdbId: viewModel.media.imdbId,
-                        title: viewModel.media.displayTitle
+                        isTVSeries: viewModel.media.isTVSeries
                     )
 
                     // Overview
@@ -64,14 +59,17 @@ struct MediaDetailView: View {
 
                     // Series-specific content
                     if viewModel.isTVSeries {
-                        // Episode ratings grid (hidden for shows with 100+ eps/season due to API limits)
+                        // Interactive quality curve, then the full-season grid
                         if viewModel.shouldShowEpisodeGrid {
+                            seriesGraphSection
                             EpisodeRatingsGridView(
                                 episodesBySeason: viewModel.episodesBySeason,
                                 totalSeasons: viewModel.totalSeasons
                             )
                         } else if viewModel.isLoadingAllSeasons {
                             episodeGridLoadingView
+                        } else if let message = viewModel.episodesError {
+                            episodeGridUnavailableView(message: message)
                         }
                     }
                 }
@@ -319,10 +317,8 @@ struct MediaDetailView: View {
 
     @ViewBuilder
     private var movieFeaturesSection: some View {
-        // Awards
-        if viewModel.hasAwards, let awards = viewModel.awardsData {
-            AwardsView(awards: awards)
-        }
+        // Awards return in Phase 3, sourced from the bundled dataset.
+        // AwardsView stays in the codebase, dormant until then.
 
         // Box Office
         if viewModel.hasBoxOffice, let boxOffice = viewModel.boxOffice {
@@ -357,11 +353,46 @@ struct MediaDetailView: View {
         }
     }
 
+    // MARK: - Series Quality Graph
+
+    private var seasonBinding: Binding<Int> {
+        Binding(
+            get: { viewModel.selectedSeason },
+            set: { viewModel.selectSeason($0) }
+        )
+    }
+
+    /// Interactive per-season quality curve. Hidden when the selected season
+    /// came back without episodes, so the chart never renders an empty axis.
+    @ViewBuilder
+    private var seriesGraphSection: some View {
+        if !viewModel.episodes.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                if viewModel.availableSeasons.count > 1 {
+                    Picker("Season", selection: seasonBinding) {
+                        ForEach(viewModel.availableSeasons, id: \.self) { season in
+                            Text("Season \(season)").tag(season)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(Color.plotlineGold)
+                    .accessibilityLabel("Season")
+                    .accessibilityHint("Choose which season to chart")
+                }
+
+                SeriesGraphView(
+                    episodes: viewModel.episodes,
+                    seasonNumber: viewModel.selectedSeason
+                )
+            }
+        }
+    }
+
     // MARK: - Episode Grid Loading
 
     private var episodeGridLoadingView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("IMDb Scores")
+            Text("Episode Scores")
                 .font(.system(.headline, weight: .semibold))
                 .foregroundStyle(.primary)
 
@@ -381,6 +412,28 @@ struct MediaDetailView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Episode Grid Unavailable
+
+    /// Shown when no season data could be loaded, so the series section never
+    /// renders as a silent blank space.
+    private func episodeGridUnavailableView(message: String) -> some View {
+        ContentUnavailableView {
+            Label("Episode Scores Unavailable", systemImage: "chart.bar.xaxis")
+        } description: {
+            Text(message)
+        } actions: {
+            Button("Try Again") {
+                Task { await viewModel.fetchAllSeasons() }
+            }
+            .buttonStyle(.bordered)
+        }
+        .frame(maxWidth: .infinity)
+        // `.contain` keeps the description and the Try Again button individually
+        // reachable, so the message is not repeated by the container label.
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Episode scores unavailable")
     }
 }
 

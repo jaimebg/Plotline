@@ -21,3 +21,6 @@ Pods/
 
 # IDE
 *.xcworkspace/xcuserdata/
+
+# SDD scratch workspace (subagent-driven-development)
+.superpowers/
