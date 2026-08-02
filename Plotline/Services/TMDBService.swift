@@ -143,7 +143,12 @@ struct TMDBService {
         )
         let episodes = response.toEpisodeMetrics()
 
-        await DiskCache.shared.set(episodes, for: cacheKey)
+        // Never pin an empty season for the full cache lifetime: TMDB announces
+        // seasons before populating them, and caching `[]` would hide the episodes
+        // for a week once they land.
+        if !episodes.isEmpty {
+            await DiskCache.shared.set(episodes, for: cacheKey)
+        }
 
         return episodes
     }

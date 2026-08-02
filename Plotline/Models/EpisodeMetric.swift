@@ -5,7 +5,9 @@ import Foundation
 /// Ratings come from TMDB's season endpoint. `voteCount` is kept because the
 /// analysis engine weights episodes by how many votes back them up.
 struct EpisodeMetric: Identifiable, Codable, Hashable {
-    let id: UUID
+    /// TMDB's stable episode id. Kept verbatim so an episode keeps the same
+    /// `Identifiable` id whether it came from the network or from `DiskCache`.
+    let id: Int
     let episodeNumber: Int
     let seasonNumber: Int
     let title: String
@@ -52,8 +54,11 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
 
     // MARK: - Initializers
 
+    /// - Parameter id: TMDB's episode id. When omitted (preview and test data) a
+    ///   deterministic id is derived from the season/episode pair, so identity is
+    ///   still stable across encode/decode round trips.
     init(
-        id: UUID = UUID(),
+        id: Int? = nil,
         episodeNumber: Int,
         seasonNumber: Int,
         title: String,
@@ -62,7 +67,7 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
         airDate: String? = nil,
         stillPath: String? = nil
     ) {
-        self.id = id
+        self.id = id ?? (seasonNumber * 1_000 + episodeNumber)
         self.episodeNumber = episodeNumber
         self.seasonNumber = seasonNumber
         self.title = title

@@ -13,6 +13,7 @@ struct TMDBSeasonResponse: Codable {
     func toEpisodeMetrics() -> [EpisodeMetric] {
         episodes.map { episode in
             EpisodeMetric(
+                id: episode.id,
                 episodeNumber: episode.episodeNumber,
                 seasonNumber: episode.seasonNumber,
                 title: episode.displayTitle,

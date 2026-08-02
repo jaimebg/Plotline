@@ -68,6 +68,9 @@ struct TMDBSeasonResponseTests {
     @Test("maps rating and vote count onto EpisodeMetric")
     func mapsRatingAndVotes() throws {
         let metrics = try decode().toEpisodeMetrics()
+        // El id de TMDB se conserva: la identidad no puede cambiar entre un fallo
+        // de caché y un acierto.
+        #expect(metrics[0].id == 62085)
         #expect(metrics[0].rating == 8.9)
         #expect(metrics[0].voteCount == 412)
         #expect(metrics[0].title == "Pilot")
@@ -87,9 +90,10 @@ struct TMDBSeasonResponseTests {
         #expect(metrics[2].title == "Episode 3")
     }
 
-    @Test("carries the season number from each episode")
+    @Test("carries the season number and TMDB id from each episode")
     func carriesSeasonNumber() throws {
         let metrics = try decode().toEpisodeMetrics()
         #expect(metrics.allSatisfy { $0.seasonNumber == 1 })
+        #expect(metrics.map(\.id) == [62085, 62086, 62087])
     }
 }

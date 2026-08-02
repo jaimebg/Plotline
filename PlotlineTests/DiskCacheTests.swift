@@ -45,6 +45,20 @@ struct DiskCacheTests {
         #expect(b == nil)
     }
 
+    @Test("a second instance reads the value back from disk")
+    func readsFromDiskWithAFreshInstance() async {
+        // Mismo directorio, instancia distinta: la memoryCache está vacía, así que
+        // el get sólo puede resolverse leyendo el fichero. Es lo que hace que los
+        // episodios sobrevivan a un arranque de la app.
+        let name = "tests-\(UUID().uuidString)"
+        let writer = DiskCache(name: name)
+        await writer.set([1, 2, 3], for: "numbers")
+
+        let reader = DiskCache(name: name)
+        let result: [Int]? = await reader.get(for: "numbers")
+        #expect(result == [1, 2, 3])
+    }
+
     @Test("keys with unsafe filesystem characters are handled")
     func sanitizesKeys() async {
         let cache = makeCache()
