@@ -90,12 +90,9 @@ struct TMDBService {
 
     // MARK: - Details
 
-    /// Fetch movie details with external IDs (for IMDb linking)
+    /// Fetch movie details
     func fetchMovieDetails(id: Int) async throws -> MediaItem {
-        guard let url = buildURL(
-            path: "/movie/\(id)",
-            additionalParams: ["append_to_response": "external_ids"]
-        ) else {
+        guard let url = buildURL(path: "/movie/\(id)") else {
             throw NetworkError.invalidURL
         }
 
@@ -103,12 +100,9 @@ struct TMDBService {
         return response.toMediaItem(mediaType: .movie)
     }
 
-    /// Fetch TV series details with external IDs
+    /// Fetch TV series details
     func fetchSeriesDetails(id: Int) async throws -> MediaItem {
-        guard let url = buildURL(
-            path: "/tv/\(id)",
-            additionalParams: ["append_to_response": "external_ids"]
-        ) else {
+        guard let url = buildURL(path: "/tv/\(id)") else {
             throw NetworkError.invalidURL
         }
 

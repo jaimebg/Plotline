@@ -136,7 +136,6 @@ final class MediaDetailViewModel {
             let isStub = media.displayTitle == "Loading..." || (media.voteAverage == 0 && media.overview.isEmpty)
             if isStub {
                 // Preserve any enriched fields already set on the stub
-                details.imdbId = details.imdbId ?? media.imdbId
                 details.budget = details.budget ?? media.budget
                 details.revenue = details.revenue ?? media.revenue
                 details.collectionId = details.collectionId ?? media.collectionId
@@ -144,7 +143,6 @@ final class MediaDetailViewModel {
                 media = details
             } else {
                 // Normal flow: only update enriched fields missing from the original
-                media.imdbId = details.imdbId ?? media.imdbId
                 media.budget = details.budget ?? media.budget
                 media.revenue = details.revenue ?? media.revenue
                 media.collectionId = details.collectionId ?? media.collectionId

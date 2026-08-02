@@ -431,7 +431,7 @@ struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
         let maxRating = min((ratings.max() ?? 10) + 0.5, 10)
 
         let yAxis = AXNumericDataAxisDescriptor(
-            title: "IMDb Rating",
+            title: "Episode Rating",
             range: minRating...maxRating,
             gridlinePositions: [0, 2.5, 5, 7.5, 10].filter { $0 >= minRating && $0 <= maxRating }
         ) { value in
