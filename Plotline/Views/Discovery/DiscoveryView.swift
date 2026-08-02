@@ -79,12 +79,6 @@ struct DiscoveryView: View {
         .sheet(isPresented: $showWhatToWatch) {
             WhatToWatchView()
         }
-        .onChange(of: deepLinkManager.pendingMediaItem) { _, newItem in
-            if let item = newItem {
-                navigationPath.append(item)
-                deepLinkManager.pendingMediaItem = nil
-            }
-        }
         .onChange(of: deepLinkManager.pendingSearchQuery) { _, newQuery in
             if let query = newQuery {
                 viewModel.searchText = query

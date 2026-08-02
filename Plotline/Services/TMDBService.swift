@@ -90,12 +90,9 @@ struct TMDBService {
 
     // MARK: - Details
 
-    /// Fetch movie details with external IDs (for IMDb linking)
+    /// Fetch movie details
     func fetchMovieDetails(id: Int) async throws -> MediaItem {
-        guard let url = buildURL(
-            path: "/movie/\(id)",
-            additionalParams: ["append_to_response": "external_ids"]
-        ) else {
+        guard let url = buildURL(path: "/movie/\(id)") else {
             throw NetworkError.invalidURL
         }
 
@@ -103,12 +100,9 @@ struct TMDBService {
         return response.toMediaItem(mediaType: .movie)
     }
 
-    /// Fetch TV series details with external IDs
+    /// Fetch TV series details
     func fetchSeriesDetails(id: Int) async throws -> MediaItem {
-        guard let url = buildURL(
-            path: "/tv/\(id)",
-            additionalParams: ["append_to_response": "external_ids"]
-        ) else {
+        guard let url = buildURL(path: "/tv/\(id)") else {
             throw NetworkError.invalidURL
         }
 
@@ -123,6 +117,87 @@ struct TMDBService {
         } else {
             return try await fetchMovieDetails(id: item.id)
         }
+    }
+
+    // MARK: - Seasons
+
+    /// Cache version for episode payloads. Bump to invalidate stored data.
+    private static let episodeCacheVersion = "v1"
+
+    /// Fetch episode metrics for a single season.
+    /// Results are cached on disk because a long-running series burns a lot of
+    /// requests against TMDB's ~40 requests / 10 seconds budget.
+    func fetchSeasonEpisodes(seriesId: Int, season: Int) async throws -> [EpisodeMetric] {
+        let cacheKey = "\(Self.episodeCacheVersion)_tmdb_\(seriesId)_S\(season)"
+        if let cached: [EpisodeMetric] = await DiskCache.shared.get(for: cacheKey) {
+            return cached
+        }
+
+        guard let url = buildURL(path: "/tv/\(seriesId)/season/\(season)") else {
+            throw NetworkError.invalidURL
+        }
+
+        let response: TMDBSeasonResponse = try await networkManager.fetch(
+            TMDBSeasonResponse.self,
+            from: url
+        )
+        let episodes = response.toEpisodeMetrics()
+
+        // Never pin an empty season for the full cache lifetime: TMDB announces
+        // seasons before populating them, and caching `[]` would hide the episodes
+        // for a week once they land.
+        if !episodes.isEmpty {
+            await DiskCache.shared.set(episodes, for: cacheKey)
+        }
+
+        return episodes
+    }
+
+    /// Fetch every season of a series, keyed by season number.
+    ///
+    /// Season 0 (TMDB specials) is deliberately excluded: specials are not part
+    /// of the main run and would distort the analysis engine.
+    /// Concurrency is capped so a 20-season show cannot exhaust the rate limit
+    /// in one burst. Seasons that fail are simply absent from the result.
+    func fetchAllSeasons(
+        seriesId: Int,
+        totalSeasons: Int,
+        maxConcurrent: Int = 5
+    ) async -> [Int: [EpisodeMetric]] {
+        guard totalSeasons > 0 else { return [:] }
+
+        var result: [Int: [EpisodeMetric]] = [:]
+
+        await withTaskGroup(of: (Int, [EpisodeMetric]).self) { group in
+            var nextSeason = 1
+
+            func addTask(for season: Int) {
+                group.addTask {
+                    let episodes = (try? await self.fetchSeasonEpisodes(
+                        seriesId: seriesId,
+                        season: season
+                    )) ?? []
+                    return (season, episodes)
+                }
+            }
+
+            for _ in 0..<min(maxConcurrent, totalSeasons) {
+                addTask(for: nextSeason)
+                nextSeason += 1
+            }
+
+            while let (season, episodes) = await group.next() {
+                if !episodes.isEmpty {
+                    result[season] = episodes
+                }
+                if nextSeason <= totalSeasons {
+                    addTask(for: nextSeason)
+                    nextSeason += 1
+                }
+            }
+        }
+
+        return result
     }
 
     // MARK: - Search

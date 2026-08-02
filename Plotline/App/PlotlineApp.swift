@@ -54,9 +54,6 @@ struct PlotlineApp: App {
                     watchlistManager.configure(with: sharedModelContainer.mainContext)
                     AppDependencyManager.shared.add(dependency: sharedModelContainer)
                 }
-                .onOpenURL { url in
-                    deepLinkManager.handleURL(url)
-                }
                 .onChange(of: scenePhase) { _, newPhase in
                     if newPhase == .active {
                         handleSiriSearchQuery()

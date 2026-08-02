@@ -21,12 +21,7 @@ struct MediaItem: Identifiable, Codable, Hashable {
     // Media type (from multi search or manually set)
     let mediaType: MediaType?
 
-    // External IDs (populated from detail endpoint)
-    var imdbId: String?
-
-    // Enriched data from OMDb (injected asynchronously)
-    var externalRatings: [RatingSource]?
-    var seasonEpisodes: [EpisodeMetric]?
+    // Enriched data (populated asynchronously from TMDB detail requests)
     var totalSeasons: Int?
 
     // Movie-specific enriched data
@@ -34,7 +29,6 @@ struct MediaItem: Identifiable, Codable, Hashable {
     var revenue: Int?
     var collectionId: Int?
     var collectionName: String?
-    var awards: String?
 
     // MARK: - Computed Properties
 
@@ -76,11 +70,8 @@ struct MediaItem: Identifiable, Codable, Hashable {
         mediaType == .tv || name != nil
     }
 
-    /// Shareable URL (IMDb preferred, TMDB fallback)
+    /// Shareable URL (TMDB)
     var shareURL: URL? {
-        if let imdbId = imdbId {
-            return URL(string: "https://www.imdb.com/title/\(imdbId)")
-        }
         let path = isTVSeries ? "/tv/\(id)" : "/movie/\(id)"
         return URL(string: "https://www.themoviedb.org\(path)")
     }
@@ -115,15 +106,11 @@ struct MediaItem: Identifiable, Codable, Hashable {
         case name
         case firstAirDate
         case mediaType
-        case imdbId
-        case externalRatings
-        case seasonEpisodes
         case totalSeasons
         case budget
         case revenue
         case collectionId
         case collectionName
-        case awards
     }
 
     // MARK: - Custom Decoder (handles missing fields from person results)
@@ -143,15 +130,11 @@ struct MediaItem: Identifiable, Codable, Hashable {
         name = try container.decodeIfPresent(String.self, forKey: .name)
         firstAirDate = try container.decodeIfPresent(String.self, forKey: .firstAirDate)
         mediaType = try container.decodeIfPresent(MediaType.self, forKey: .mediaType)
-        imdbId = try container.decodeIfPresent(String.self, forKey: .imdbId)
-        externalRatings = try container.decodeIfPresent([RatingSource].self, forKey: .externalRatings)
-        seasonEpisodes = try container.decodeIfPresent([EpisodeMetric].self, forKey: .seasonEpisodes)
         totalSeasons = try container.decodeIfPresent(Int.self, forKey: .totalSeasons)
         budget = try container.decodeIfPresent(Int.self, forKey: .budget)
         revenue = try container.decodeIfPresent(Int.self, forKey: .revenue)
         collectionId = try container.decodeIfPresent(Int.self, forKey: .collectionId)
         collectionName = try container.decodeIfPresent(String.self, forKey: .collectionName)
-        awards = try container.decodeIfPresent(String.self, forKey: .awards)
     }
 
     // MARK: - Memberwise Initializer
@@ -169,15 +152,11 @@ struct MediaItem: Identifiable, Codable, Hashable {
         name: String?,
         firstAirDate: String?,
         mediaType: MediaType?,
-        imdbId: String? = nil,
-        externalRatings: [RatingSource]? = nil,
-        seasonEpisodes: [EpisodeMetric]? = nil,
         totalSeasons: Int? = nil,
         budget: Int? = nil,
         revenue: Int? = nil,
         collectionId: Int? = nil,
-        collectionName: String? = nil,
-        awards: String? = nil
+        collectionName: String? = nil
     ) {
         self.id = id
         self.overview = overview
@@ -191,15 +170,11 @@ struct MediaItem: Identifiable, Codable, Hashable {
         self.name = name
         self.firstAirDate = firstAirDate
         self.mediaType = mediaType
-        self.imdbId = imdbId
-        self.externalRatings = externalRatings
-        self.seasonEpisodes = seasonEpisodes
         self.totalSeasons = totalSeasons
         self.budget = budget
         self.revenue = revenue
         self.collectionId = collectionId
         self.collectionName = collectionName
-        self.awards = awards
     }
 }
 
@@ -235,9 +210,6 @@ extension MediaItem {
         name: "Breaking Bad",
         firstAirDate: "2008-01-20",
         mediaType: .tv,
-        imdbId: "tt0903747",
-        externalRatings: nil,
-        seasonEpisodes: nil,
         totalSeasons: 5
     )
 
@@ -254,9 +226,6 @@ extension MediaItem {
         name: nil,
         firstAirDate: nil,
         mediaType: .movie,
-        imdbId: "tt0137523",
-        externalRatings: nil,
-        seasonEpisodes: nil,
         totalSeasons: nil
     )
 }

@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/iOS-18%2B-blue" alt="iOS 18+">
+  <img src="https://img.shields.io/badge/iOS-26%2B-blue" alt="iOS 26+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9">
   <img src="https://img.shields.io/badge/SwiftUI-darkblue" alt="SwiftUI">
   <img src="https://img.shields.io/badge/iCloud-Sync-lightblue" alt="iCloud Sync">
@@ -18,7 +18,7 @@
 
 ## About
 
-**Plotline** goes beyond a simple movie catalog. It provides analytical visualization of quality for both movies and TV series, consolidating critical data from multiple sources (IMDb, Rotten Tomatoes, Metacritic) into a unified, elegant interface.
+**Plotline** goes beyond a simple movie catalog. It provides analytical visualization of quality for both movies and TV series, sourcing ratings and metadata from TMDB into a unified, elegant interface.
 
 Most apps tell you *what a series is about*. **Plotline** shows you *how its quality evolves* visually.
 
@@ -31,7 +31,7 @@ Most apps tell you *what a series is about*. **Plotline** shows you *how its qua
 - **Personalized Daily Pick** — Get daily recommendations based on your favorite genres
 
 ### Detail & Analysis
-- **Multi-Source Ratings** — Aggregated scores from IMDb, Rotten Tomatoes, and Metacritic
+- **TMDB Ratings** — Vote averages and metadata sourced directly from TMDB
 - **Episode Quality Graphs** — Visualize TV series episode ratings with interactive Swift Charts
 - **Content Recommendations** — "You Might Also Like" suggestions for every title
 - **Share** — Share movies and series with friends via any app
@@ -69,26 +69,23 @@ Most apps tell you *what a series is about*. **Plotline** shows you *how its qua
 | **CloudKit** | Automatic iCloud sync |
 | **@Observable** | iOS 17+ state management |
 | **async/await** | Modern concurrency |
-| **TMDB API** | Visual data & metadata |
-| **OMDb API** | Ratings & episode metrics |
+| **TMDB API** | Visual data, metadata & ratings |
 
 ## Architecture
 
-Plotline uses a **dual API strategy** (chained fetching):
+Plotline sources all data from a **single API**:
 
-1. **TMDB** provides visual assets, trending content, and the `imdb_id` bridge
-2. **OMDb** enriches with external ratings and episode-by-episode metrics
+**TMDB** provides visual assets, trending content, metadata, vote averages, and episode-by-episode ratings (via the season endpoint).
 
 ```
-User Action → TMDB Fetch → Extract imdb_id → OMDb Fetch → Merge & Render
+User Action → TMDB Fetch → Render
 ```
 
 ## Requirements
 
-- iOS 18.0+
-- Xcode 16+
+- iOS 26.0+
+- Xcode 26+
 - TMDB API Key ([Get one here](https://www.themoviedb.org/settings/api))
-- OMDb API Key ([Get one here](https://www.omdbapi.com/apikey.aspx))
 - iCloud account (optional, for cross-device sync)
 
 ## Getting Started
@@ -104,8 +101,6 @@ User Action → TMDB Fetch → Extract imdb_id → OMDb Fetch → Merge & Render
    <dict>
        <key>TMDB_API_KEY</key>
        <string>your_tmdb_key</string>
-       <key>OMDB_API_KEY</key>
-       <string>your_omdb_key</string>
    </dict>
    ```
 

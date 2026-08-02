@@ -37,8 +37,6 @@ struct EpisodeRatingsGridView: View {
     let episodesBySeason: [Int: [EpisodeMetric]]
     let totalSeasons: Int
 
-    @Environment(\.openURL) private var openURL
-
     private let cellSize: CGFloat = 58
     private let cellSpacing: CGFloat = 6
 
@@ -54,7 +52,7 @@ struct EpisodeRatingsGridView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Section header
-            Text("IMDb Scores")
+            Text("Episode Scores")
                 .font(.system(.headline, weight: .semibold))
                 .foregroundStyle(.primary)
 
@@ -150,23 +148,15 @@ struct EpisodeRatingsGridView: View {
             placeholderCell(text: "?")
                 .accessibilityLabel("Season \(season), Episode \(episodeNumber), rating not yet loaded")
         } else if let episode, episode.hasValidRating {
-            // Episode exists with valid rating - tappable to open IMDb
+            // Episode exists with valid rating
             let category = RatingCategory.category(for: episode.rating)
-            Button {
-                if let url = episode.imdbURL {
-                    openURL(url)
-                }
-            } label: {
-                Text(episode.formattedRating)
-                    .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                    .foregroundStyle(category == .good ? .black : .white)
-                    .frame(width: cellSize, height: 36)
-                    .background(category.color)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Season \(season), Episode \(episodeNumber), rating \(episode.formattedRating), \(category.rawValue)")
-            .accessibilityHint("Double tap to open on IMDb")
+            Text(episode.formattedRating)
+                .font(.system(.subheadline, design: .monospaced, weight: .bold))
+                .foregroundStyle(category == .good ? .black : .white)
+                .frame(width: cellSize, height: 36)
+                .background(category.color)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .accessibilityLabel("Season \(season), Episode \(episodeNumber), rating \(episode.formattedRating), \(category.rawValue)")
         } else if let episode, !episode.hasValidRating {
             // Episode exists but has N/A rating
             placeholderCell(text: "N/A", font: .caption2)

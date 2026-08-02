@@ -1,6 +1,6 @@
 import Foundation
 
-/// Parsed awards data from OMDb awards string
+/// Parsed awards data for a title (Oscar wins/nominations and totals)
 struct AwardsData: Codable, Hashable {
     let oscarWins: Int
     let oscarNominations: Int
@@ -54,75 +54,6 @@ struct AwardsData: Codable, Hashable {
         }
 
         return parts.isEmpty ? "No awards data" : parts.joined(separator: " · ")
-    }
-
-    // MARK: - Parsing
-
-    /// Parse OMDb awards string (e.g., "Won 2 Oscars. 85 wins & 95 nominations")
-    static func parse(from awardsString: String?) -> AwardsData? {
-        guard let awardsString = awardsString,
-              !awardsString.isEmpty,
-              awardsString.lowercased() != "n/a" else {
-            return nil
-        }
-
-        let lowercased = awardsString.lowercased()
-
-        // Parse Oscar wins: "Won X Oscar(s)" or "Won X Academy Award(s)"
-        let oscarWins = extractFirstMatch(
-            from: lowercased,
-            patterns: [#"won\s+(\d+)\s+oscar"#, #"won\s+(\d+)\s+academy"#]
-        )
-
-        // Parse Oscar nominations: "Nominated for X Oscar(s)" or "X Oscar nominations"
-        let oscarNominations = extractFirstMatch(
-            from: lowercased,
-            patterns: [
-                #"nominated\s+for\s+(\d+)\s+oscar"#,
-                #"(\d+)\s+oscar\s+nomination"#,
-                #"nominated\s+for\s+(\d+)\s+academy"#
-            ]
-        )
-
-        // Parse total wins and nominations (ensure Oscar counts are included)
-        let parsedWins = extractFirstMatch(from: lowercased, patterns: [#"(\d+)\s+wins?"#])
-        let totalWins = parsedWins > 0 ? parsedWins : oscarWins
-
-        let parsedNominations = extractFirstMatch(from: lowercased, patterns: [#"(\d+)\s+nominations?"#])
-        let totalNominations = parsedNominations > 0 ? parsedNominations : oscarNominations
-
-        // Only return if we parsed something meaningful
-        guard oscarWins > 0 || oscarNominations > 0 || totalWins > 0 || totalNominations > 0 else {
-            return nil
-        }
-
-        return AwardsData(
-            oscarWins: oscarWins,
-            oscarNominations: oscarNominations,
-            totalWins: totalWins,
-            totalNominations: totalNominations,
-            rawString: awardsString
-        )
-    }
-
-    /// Extract first number matching any of the given patterns
-    private static func extractFirstMatch(from string: String, patterns: [String]) -> Int {
-        for pattern in patterns {
-            if let match = string.range(of: pattern, options: .regularExpression) {
-                let substring = string[match]
-                if let number = extractNumber(from: String(substring)) {
-                    return number
-                }
-            }
-        }
-        return 0
-    }
-
-    /// Extract first number from a string
-    private static func extractNumber(from string: String) -> Int? {
-        string.components(separatedBy: CharacterSet.decimalDigits.inverted)
-            .compactMap { Int($0) }
-            .first
     }
 }
 

@@ -21,8 +21,4 @@ enum Secrets {
     static var tmdbAPIKey: String {
         plistSecrets["TMDB_API_KEY"] ?? environment["TMDB_API_KEY"] ?? ""
     }
-
-    static var omdbAPIKey: String {
-        plistSecrets["OMDB_API_KEY"] ?? environment["OMDB_API_KEY"] ?? ""
-    }
 }

@@ -6,7 +6,9 @@
 
 **Architecture:** `EpisodeMetric` deja de guardar el rating como `String` de IMDb y pasa a guardar `Double` + `voteCount` + `airDate`, que es lo que la Fase 2 necesita para ponderar por fiabilidad. `TMDBService` gana los métodos de temporada usando `/tv/{id}/season/{n}`, con caché en disco y concurrencia acotada. La caché genérica que hoy vive dentro de `OMDbService.swift` se extrae a `DiskCache` antes de borrar nada.
 
-**Tech Stack:** Swift 6, SwiftUI, Swift Testing, iOS 26, TMDB API v3.
+**Tech Stack:** SwiftUI, Swift Testing, iOS 26, TMDB API v3.
+
+> **Corrección (2026-08-01, durante la ejecución):** este plan decía "Swift 6". Es falso: el proyecto compila en `SWIFT_VERSION = 5.0` / `EFFECTIVE_SWIFT_VERSION = 5`, sin `SWIFT_STRICT_CONCURRENCY`. Que el compilador no proteste sobre concurrencia **no prueba** que el código sea seguro bajo Swift 6. De hecho `DiskCache.swift` ya emite dos avisos que serían errores en modo Swift 6 (conformidad de `CacheEntry` a `Codable` aislada al main actor). Migrar a Swift 6 no es parte de la Fase 1.
 
 **Spec:** `docs/superpowers/specs/2026-08-01-app-store-4.2-design.md` (§3 y §4)
 
