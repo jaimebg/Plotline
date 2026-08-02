@@ -17,9 +17,13 @@ Durante la Fase 1 aparecieron **dos casos más del mismo patrón**. No es un fal
 
 ---
 
-## Hallazgo 1 — `SeriesGraphView` es código muerto
+## Hallazgo 1 — `SeriesGraphView` es código muerto *(resuelto)*
 
-**Severidad: alta.** Es el argumento más fuerte contra el 4.2 y no está en la app.
+**Severidad: alta. Reconectado en el commit `af8d82e`.**
+
+Reconectarlo destapó un bug latente en la propia vista: los marks del eje Y estaban fijados a `[0, 2.5, 5, 7.5, 10]` mientras la escala usa un dominio ajustado al rango real de la temporada (~7,4–9,4 en Breaking Bad T1). Los valores fuera de dominio se dibujaban fuera del área del plot y se desbordaban sobre las vistas contiguas. Ahora los valores se derivan del dominio. Es justo el tipo de defecto que solo aparece al usar la vista de verdad — llevaba escrito y sin ver desde `16f6c77`.
+
+El diagnóstico original, que se mantiene como registro:
 
 `Plotline/Views/Detail/SeriesGraphView.swift` solo se instancia desde sus propios `#Preview` (líneas 543 y 553). No lo referencia ninguna vista viva.
 
@@ -41,9 +45,13 @@ Reconectarlo son pocas líneas en `MediaDetailView`: la vista ya acepta `episode
 
 ---
 
-## Hallazgo 2 — Los deep links nunca funcionan
+## Hallazgo 2 — Los deep links nunca funcionan *(resuelto)*
 
-**Severidad: media.**
+**Severidad: media. Vía muerta eliminada en el commit `af8d82e`.**
+
+Se borró `DeepLinkManager.handleURL(_:)`, el `.onOpenURL` de `PlotlineApp` y `pendingMediaItem`, que se quedaba sin productor. **`DeepLinkManager` sobrevive**: no era solo para deep links, es el bus de navegación que usan los App Intents de Siri (`SearchPlotlineIntent` escribe en el App Group `group.com.jbgsoft.Plotline` y `PlotlineApp.handleSiriSearchQuery` lo recoge al activarse). Borrarlo entero habría roto Siri, que sí funciona.
+
+El diagnóstico original:
 
 `Plotline/Info.plist` no declara `CFBundleURLTypes`, así que el esquema `plotline://` no está registrado. iOS nunca entregará esas URLs a la app.
 
@@ -74,4 +82,6 @@ Corregido en el commit `94141b9`: la clave se eliminó por completo.
 
 El spec de la Fase 4 asume que hay que *añadir* contenido para que la app no se vea vacía. Estos hallazgos dicen que una parte del trabajo no es añadir sino **reconectar lo que ya existe**. Antes de construir nada nuevo conviene auditar qué más está escrito pero inalcanzable — el patrón ya se ha repetido tres veces.
 
-Auditoría sugerida al empezar la Fase 2: por cada vista de `Plotline/Views/`, comprobar que tiene al menos un consumidor fuera de sus propios `#Preview`.
+Los tres están resueltos, pero la auditoría sigue pendiente y es el primer punto de la Fase 2: por cada vista de `Plotline/Views/`, comprobar que tiene al menos un consumidor fuera de sus propios `#Preview`. Candidatos que ya se han visto de pasada y no se han comprobado: `CompactSeriesGraphView` y `AllSeasonsGraphView`, ambos en `SeriesGraphView.swift`.
+
+Lección transversal: un defecto de layout como el del eje Y **no lo detecta ni el compilador, ni los tests, ni una revisión de código**. Solo aparece ejecutando la vista. Conviene que cada fase termine con una comprobación visual real, no solo con la suite en verde.
