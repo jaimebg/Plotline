@@ -90,7 +90,7 @@ final class MediaDetailViewModel {
 
     /// Change selected season and re-derive its episodes (no network request)
     @MainActor
-    func selectSeason(_ season: Int) async {
+    func selectSeason(_ season: Int) {
         guard season != selectedSeason else { return }
         selectedSeason = season
         syncEpisodesForSelectedSeason()
@@ -114,6 +114,12 @@ final class MediaDetailViewModel {
         // no API key, or a series TMDB has no episode data for.
         if episodesBySeason.isEmpty {
             episodesError = "We couldn't load episode scores for this series. It may not have episode data yet."
+        }
+
+        // Seasons that failed are absent from the dictionary, so the default
+        // selection may point at a season with nothing to show.
+        if episodesBySeason[selectedSeason] == nil, let firstAvailable = availableSeasons.first {
+            selectedSeason = firstAvailable
         }
 
         syncEpisodesForSelectedSeason()
@@ -292,6 +298,12 @@ final class MediaDetailViewModel {
     /// Array of season numbers for picker
     var seasonNumbers: [Int] {
         Array(1...totalSeasons)
+    }
+
+    /// Seasons that actually came back with episodes. Seasons TMDB failed to
+    /// return are absent, so the picker must not offer them.
+    var availableSeasons: [Int] {
+        episodesBySeason.keys.sorted()
     }
 
     /// Average episode rating for current season
