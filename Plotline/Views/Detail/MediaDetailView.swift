@@ -59,8 +59,9 @@ struct MediaDetailView: View {
 
                     // Series-specific content
                     if viewModel.isTVSeries {
-                        // Episode ratings grid (shown once season data has loaded)
+                        // Interactive quality curve, then the full-season grid
                         if viewModel.shouldShowEpisodeGrid {
+                            seriesGraphSection
                             EpisodeRatingsGridView(
                                 episodesBySeason: viewModel.episodesBySeason,
                                 totalSeasons: viewModel.totalSeasons
@@ -349,6 +350,41 @@ struct MediaDetailView: View {
                 actorFilmography: viewModel.actorFilmography,
                 isLoading: viewModel.isLoadingFilmography
             )
+        }
+    }
+
+    // MARK: - Series Quality Graph
+
+    private var seasonBinding: Binding<Int> {
+        Binding(
+            get: { viewModel.selectedSeason },
+            set: { viewModel.selectSeason($0) }
+        )
+    }
+
+    /// Interactive per-season quality curve. Hidden when the selected season
+    /// came back without episodes, so the chart never renders an empty axis.
+    @ViewBuilder
+    private var seriesGraphSection: some View {
+        if !viewModel.episodes.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                if viewModel.availableSeasons.count > 1 {
+                    Picker("Season", selection: seasonBinding) {
+                        ForEach(viewModel.availableSeasons, id: \.self) { season in
+                            Text("Season \(season)").tag(season)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(Color.plotlineGold)
+                    .accessibilityLabel("Season")
+                    .accessibilityHint("Choose which season to chart")
+                }
+
+                SeriesGraphView(
+                    episodes: viewModel.episodes,
+                    seasonNumber: viewModel.selectedSeason
+                )
+            }
         }
     }
 

@@ -159,12 +159,12 @@ struct SeriesGraphView: View {
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading, values: [0, 2.5, 5, 7.5, 10]) { value in
+            AxisMarks(position: .leading, values: yAxisValues) { value in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                     .foregroundStyle(Color.primary.opacity(0.1))
                 AxisValueLabel {
                     if let rating = value.as(Double.self) {
-                        Text(String(format: "%.0f", rating))
+                        Text(String(format: "%.1f", rating))
                             .font(.caption2)
                             .foregroundStyle(Color.plotlineSecondary)
                     }
@@ -253,6 +253,22 @@ struct SeriesGraphView: View {
         let minRating = (ratings.min() ?? 5) - 0.5
         let maxRating = min((ratings.max() ?? 10) + 0.5, 10)
         return max(0, minRating)...maxRating
+    }
+
+    /// Y axis marks derived from the visible domain.
+    ///
+    /// These used to be hardcoded to `[0, 2.5, 5, 7.5, 10]`. Because the domain
+    /// is scaled to the season's actual range (often ~8...9.5), most of those
+    /// values fell outside it and Swift Charts rendered their labels beyond the
+    /// plot area, bleeding over whatever view sat above or below the chart.
+    private var yAxisValues: [Double] {
+        let lower = ratingYDomain.lowerBound
+        let upper = ratingYDomain.upperBound
+        guard upper > lower else { return [lower] }
+
+        let steps = 3
+        let increment = (upper - lower) / Double(steps)
+        return (0...steps).map { lower + increment * Double($0) }
     }
 
     private var xAxisValues: [Int] {
