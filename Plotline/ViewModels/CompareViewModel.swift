@@ -1,7 +1,12 @@
 import Foundation
 
 /// ViewModel for the Visual Comparator — manages up to 3 media items for side-by-side comparison
+///
+/// `@MainActor` because every stored property here is observed by SwiftUI on the
+/// main actor; `selectItem(_:for:)` and the debounced search task would otherwise
+/// mutate them from whatever executor resumed the awaited call.
 @Observable
+@MainActor
 final class CompareViewModel {
     // MARK: - Slot State
 
