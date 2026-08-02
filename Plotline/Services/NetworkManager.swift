@@ -83,32 +83,6 @@ actor NetworkManager {
         }
     }
 
-    /// Fetch with custom decoder (for APIs with different key strategies)
-    func fetch<T: Decodable>(_ type: T.Type, from url: URL, decoder customDecoder: JSONDecoder) async throws -> T {
-        let (data, response) = try await session.data(from: url)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw NetworkError.invalidResponse
-        }
-
-        if httpResponse.statusCode == 429 {
-            throw NetworkError.rateLimited
-        }
-
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw NetworkError.serverError(httpResponse.statusCode)
-        }
-
-        do {
-            return try customDecoder.decode(T.self, from: data)
-        } catch {
-            #if DEBUG
-            print("Decoding error for \(T.self): \(error)")
-            #endif
-            throw NetworkError.decodingError(error)
-        }
-    }
-
     /// Fetch raw data (useful for debugging)
     func fetchData(from url: URL) async throws -> Data {
         let (data, response) = try await session.data(from: url)

@@ -22,7 +22,6 @@ struct MediaItem: Identifiable, Codable, Hashable {
     let mediaType: MediaType?
 
     // Enriched data (populated asynchronously from TMDB detail requests)
-    var seasonEpisodes: [EpisodeMetric]?
     var totalSeasons: Int?
 
     // Movie-specific enriched data
@@ -107,7 +106,6 @@ struct MediaItem: Identifiable, Codable, Hashable {
         case name
         case firstAirDate
         case mediaType
-        case seasonEpisodes
         case totalSeasons
         case budget
         case revenue
@@ -132,7 +130,6 @@ struct MediaItem: Identifiable, Codable, Hashable {
         name = try container.decodeIfPresent(String.self, forKey: .name)
         firstAirDate = try container.decodeIfPresent(String.self, forKey: .firstAirDate)
         mediaType = try container.decodeIfPresent(MediaType.self, forKey: .mediaType)
-        seasonEpisodes = try container.decodeIfPresent([EpisodeMetric].self, forKey: .seasonEpisodes)
         totalSeasons = try container.decodeIfPresent(Int.self, forKey: .totalSeasons)
         budget = try container.decodeIfPresent(Int.self, forKey: .budget)
         revenue = try container.decodeIfPresent(Int.self, forKey: .revenue)
@@ -155,7 +152,6 @@ struct MediaItem: Identifiable, Codable, Hashable {
         name: String?,
         firstAirDate: String?,
         mediaType: MediaType?,
-        seasonEpisodes: [EpisodeMetric]? = nil,
         totalSeasons: Int? = nil,
         budget: Int? = nil,
         revenue: Int? = nil,
@@ -174,7 +170,6 @@ struct MediaItem: Identifiable, Codable, Hashable {
         self.name = name
         self.firstAirDate = firstAirDate
         self.mediaType = mediaType
-        self.seasonEpisodes = seasonEpisodes
         self.totalSeasons = totalSeasons
         self.budget = budget
         self.revenue = revenue
@@ -215,7 +210,6 @@ extension MediaItem {
         name: "Breaking Bad",
         firstAirDate: "2008-01-20",
         mediaType: .tv,
-        seasonEpisodes: nil,
         totalSeasons: 5
     )
 
@@ -232,7 +226,6 @@ extension MediaItem {
         name: nil,
         firstAirDate: nil,
         mediaType: .movie,
-        seasonEpisodes: nil,
         totalSeasons: nil
     )
 }
