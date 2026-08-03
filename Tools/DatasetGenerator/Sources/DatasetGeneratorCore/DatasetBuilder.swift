@@ -36,6 +36,17 @@ enum DatasetBuilder {
                 // have one, no decline, an ending that does not fade, steady
                 // episode-to-episode quality, and a worst season that is not
                 // the one it went out on.
+                //
+                // `worstSeason != nil` is load-bearing, not belt-and-braces.
+                // It is nil exactly when no season reaches
+                // `minimumEpisodesForSeasonVerdict` — and `endingVerdict`
+                // needs *two* such seasons, so it is nil then too. Without
+                // this clause both of the guards above go void at once
+                // (`!= .fadesOut` passes on nil, and nil never equals a real
+                // season number), and a title reaches the shelf on episode
+                // spread alone, from an engine that just declined to name a
+                // single judgeable season. Three seasons of two reliable
+                // episodes clears every earlier gate and lands exactly there.
                 "never-decline",
                 { entry in
                     let analysis = entry.analysis
@@ -43,6 +54,7 @@ enum DatasetBuilder {
                         && analysis.declinePoint == nil
                         && analysis.endingVerdict?.kind != .fadesOut
                         && (analysis.consistency.rating == .verySteady || analysis.consistency.rating == .steady)
+                        && analysis.worstSeason != nil
                         && analysis.worstSeason != analysis.seasons.last?.seasonNumber
                 }
             ),
