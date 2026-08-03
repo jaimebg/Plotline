@@ -10,17 +10,11 @@ struct StatsView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isEmpty {
-                    emptyState
-                } else {
-                    statsContent
+            statsContent
+                .navigationTitle("Stats")
+                .navigationDestination(for: MediaItem.self) { item in
+                    MediaDetailView(media: item)
                 }
-            }
-            .navigationTitle("Stats")
-            .navigationDestination(for: MediaItem.self) { item in
-                MediaDetailView(media: item)
-            }
         }
         .onAppear { updateStats() }
         .onChange(of: favoritesManager.favorites.count) { updateStats() }
@@ -34,14 +28,39 @@ struct StatsView: View {
         )
     }
 
-    // MARK: - Empty State
+    // MARK: - My Stats Invitation
 
-    private var emptyState: some View {
-        ContentUnavailableView(
-            "No Stats Yet",
-            systemImage: "chart.bar.fill",
-            description: Text("Add favorites and watchlist items to see your personal analytics.")
-        )
+    /// Shown in place of the personal charts until the user has saved anything.
+    ///
+    /// It is one section, not the whole tab. Everything below it — Compare,
+    /// Career Profiles, Trends — analyses TMDB rather than the user's library
+    /// and works from the very first launch. Hiding all of it behind an empty
+    /// state is what made an App Store reviewer conclude the app had nothing in
+    /// it.
+    private var myStatsInvitation: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Your Stats")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            HStack(spacing: 12) {
+                Image(systemName: "chart.bar.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.plotlineSecondaryAccent)
+
+                Text("Save a few favorites and this fills up with your own viewing patterns. Everything below works right now.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color.plotlineCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .padding(.horizontal)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Your stats are empty. Save favorites to fill this section. The rest of the tab works now.")
     }
 
     // MARK: - Stats Content
@@ -49,9 +68,13 @@ struct StatsView: View {
     private var statsContent: some View {
         ScrollView {
             VStack(spacing: 20) {
-                overviewCards
-                mediaTypeSplit
-                ratingDistribution
+                if viewModel.isEmpty {
+                    myStatsInvitation
+                } else {
+                    overviewCards
+                    mediaTypeSplit
+                    ratingDistribution
+                }
                 if !viewModel.activityPoints.isEmpty {
                     activityTimeline
                 }
