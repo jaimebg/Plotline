@@ -292,4 +292,24 @@ struct SeriesAnalysisEngineDeclineTests {
         #expect(consistency?.highestRated?.title == "Peak")
         #expect(consistency?.lowestRated?.title == "Trough")
     }
+
+    @Test("a decline is still detected when a season in between has no reliable data")
+    func detectsDeclineAcrossAGapInReliableSeasons() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.8, 8.8, 8.8, 8.8])
+        episodes += EpisodeFixtures.season(2, ratings: [8.9, 8.9, 8.9, 8.9])
+        // Season 3 is entirely unreliable (below the vote floor), so it drops
+        // out of `reliable` even though the aggregate share (16/20 = 80%)
+        // still clears `minimumReliableShare`. The next season with reliable
+        // data after boundary 2 is season 4, not season 3.
+        episodes += EpisodeFixtures.season(3, ratings: [8.0, 8.0, 8.0, 8.0], votes: 3)
+        episodes += EpisodeFixtures.season(4, ratings: [7.2, 7.2, 7.2, 7.2])
+        episodes += EpisodeFixtures.season(5, ratings: [7.0, 7.0, 7.0, 7.0])
+
+        guard let result = analysis(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(result.declinePoint?.afterSeason == 2)
+        #expect(result.declinePoint?.seasonsAfter == [4, 5])
+    }
 }
