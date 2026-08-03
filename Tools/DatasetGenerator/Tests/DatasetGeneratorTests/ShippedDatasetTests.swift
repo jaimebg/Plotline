@@ -44,7 +44,13 @@ struct ShippedDatasetTests {
     @Test("no series on the never-decline list fades out")
     func neverDeclineNeverFadesOut() throws {
         let dataset = try shippedDataset()
-        guard let list = dataset.lists.first(where: { $0.id == "never-decline" }) else { return }
+        // Required, not optional: if this shelf ever stops shipping, the one
+        // invariant the whole fix wave restored would go unguarded while the
+        // suite stayed green. Its absence has to be red.
+        let list = try #require(
+            dataset.lists.first { $0.id == "never-decline" },
+            "the never-decline list is not in the shipped dataset"
+        )
 
         let byId = Dictionary(uniqueKeysWithValues: dataset.entries.map { ($0.tmdbId, $0) })
         for id in list.tmdbIds {
@@ -59,6 +65,10 @@ struct ShippedDatasetTests {
     @Test("every shipped list agrees with the analysis of every member")
     func listsAgreeWithTheirMembers() throws {
         let dataset = try shippedDataset()
+        // A dataset with no lists at all would pass every loop below without
+        // checking anything, so make the empty case red rather than vacuous.
+        try #require(!dataset.lists.isEmpty, "the shipped dataset carries no lists")
+
         let byId = Dictionary(uniqueKeysWithValues: dataset.entries.map { ($0.tmdbId, $0) })
 
         for list in dataset.lists {
@@ -75,6 +85,8 @@ struct ShippedDatasetTests {
     @Test("every list member is an entry in the same file")
     func listsOnlyReferenceKnownEntries() throws {
         let dataset = try shippedDataset()
+        try #require(!dataset.lists.isEmpty, "the shipped dataset carries no lists")
+
         let known = Set(dataset.entries.map(\.tmdbId))
 
         for list in dataset.lists {

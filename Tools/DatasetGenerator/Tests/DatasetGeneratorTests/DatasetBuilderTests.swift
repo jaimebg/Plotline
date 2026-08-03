@@ -109,6 +109,31 @@ struct DatasetBuilderTests {
         #expect(dataset.lists.first { $0.id == "never-decline" } == nil)
     }
 
+    @Test("a series with no judgeable season never reaches the never-decline list")
+    func neverDeclineRequiresAJudgeableSeason() throws {
+        // Three seasons of two reliable episodes each: every episode aired and
+        // is reliable, so this clears the share gate and the absolute-count
+        // gate, yet no season reaches `minimumEpisodesForSeasonVerdict`. An
+        // ordinary low-vote niche show — one seed away as the list scales.
+        let thin = try entries(ids: [1, 2, 3], ratings: [[8.5, 8.6], [8.5, 8.6], [8.6, 8.5]])
+
+        for candidate in thin {
+            let analysis = candidate.analysis
+            #expect(analysis.seasons.count >= 3)
+            #expect(analysis.declinePoint == nil)
+            // Both nil at once, which is the trap: each of them satisfies a
+            // `!=` comparison in the predicate without evidence behind it.
+            #expect(analysis.worstSeason == nil)
+            #expect(analysis.endingVerdict == nil)
+            #expect(
+                analysis.consistency.rating == .verySteady || analysis.consistency.rating == .steady
+            )
+        }
+
+        let dataset = DatasetBuilder.build(entries: thin)
+        #expect(dataset.lists.first { $0.id == "never-decline" } == nil)
+    }
+
     @Test("no list ever contradicts the analysis behind its own members")
     func listsAgreeWithTheirEntries() throws {
         let mixed = try entries(ids: [1, 2, 3], ratings: Self.steadyRatings)
@@ -126,6 +151,7 @@ struct DatasetBuilderTests {
                     #expect(analysis.declinePoint == nil)
                     #expect(analysis.endingVerdict?.kind != .fadesOut)
                     #expect(analysis.seasons.count >= 3)
+                    #expect(analysis.worstSeason != nil)
                     #expect(analysis.worstSeason != analysis.seasons.last?.seasonNumber)
                 case "falls-off":
                     #expect(analysis.declinePoint != nil)
