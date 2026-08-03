@@ -44,7 +44,7 @@ struct SuggestionsEmptyState: View {
                 .accessibilityLabel("\(title). \(message)")
 
                 if !suggestions.isEmpty {
-                    MediaSection(title: "Highest Rated by Plotline", items: suggestions)
+                    MediaSection(title: "Analysed by Plotline", items: suggestions)
                 }
             }
             .padding(.vertical)
