@@ -67,11 +67,6 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
         return aired > date
     }
 
-    /// URL for the episode still image.
-    var stillURL: URL? {
-        TMDBService.backdropURL(path: stillPath, size: .small)
-    }
-
     // MARK: - Initializers
 
     /// - Parameter id: TMDB's episode id. When omitted (preview and test data) a
