@@ -8522,5 +8522,17 @@
       ]
     }
   ],
+  "skipped" : [
+    {
+      "name" : "NCIS",
+      "reason" : "tooFewReliableEpisodes",
+      "tmdbId" : 4614
+    },
+    {
+      "name" : "Pretty Little Liars",
+      "reason" : "tooFewReliableEpisodes",
+      "tmdbId" : 31917
+    }
+  ],
   "version" : 1
 }

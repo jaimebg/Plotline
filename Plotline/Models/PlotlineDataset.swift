@@ -13,8 +13,23 @@ struct PlotlineDataset: Codable, Hashable {
     let version: Int
     let entries: [DatasetEntry]
     let lists: [CuratedList]
+    /// Every seed id that did not become an entry, with why. `entries` and
+    /// `skipped` together account for every id the generator was asked to
+    /// fetch, so an absence can always be told apart as a data problem
+    /// (`insufficientData`, and its reason) or a fetch failure, rather than
+    /// leaving the reason to live only in console output.
+    let skipped: [SkippedSeries]
 
     static let currentVersion = 1
+}
+
+/// A seed id that did not make it into `entries`, and why.
+struct SkippedSeries: Codable, Hashable {
+    let tmdbId: Int
+    /// Absent when the series failed before its name was known, i.e. the
+    /// details fetch itself failed.
+    let name: String?
+    let reason: String
 }
 
 struct DatasetEntry: Codable, Hashable, Identifiable {
