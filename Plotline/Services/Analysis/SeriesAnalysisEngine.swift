@@ -13,7 +13,7 @@ enum SeriesAnalysisEngine {
     // is not negotiable: the engine never emits a verdict it cannot support.
 
     /// An episode needs at least this many votes before it counts.
-    static let minimumVotesPerEpisode = 10
+    static let minimumVotesPerEpisode = 5
 
     /// At least this share of the aired episodes must be reliable.
     static let minimumReliableShare = 0.6
@@ -192,7 +192,19 @@ enum SeriesAnalysisEngine {
     /// Deliberately simple: the result has to be explainable to a user in one
     /// sentence ("it falls off after season 5"), which rules out fitting curves.
     private static func declinePoint(from reliable: [EpisodeMetric]) -> DeclinePoint? {
-        let seasons = Set(reliable.map(\.seasonNumber)).sorted()
+        // Only seasons we actually know something about may take part. Without
+        // this, a season represented by a single surviving episode can serve as
+        // the boundary, the baseline, or — worst — the final season the
+        // "still down" test measures against, and one unrepresentative episode
+        // decides whether the whole series is called a decline.
+        let judgeable = Set(
+            Dictionary(grouping: reliable, by: \.seasonNumber)
+                .filter { $0.value.count >= minimumEpisodesForSeasonVerdict }
+                .keys
+        )
+        let reliable = reliable.filter { judgeable.contains($0.seasonNumber) }
+
+        let seasons = judgeable.sorted()
         guard seasons.count > minimumSeasonsAfterDecline else { return nil }
 
         var best: DeclinePoint?
