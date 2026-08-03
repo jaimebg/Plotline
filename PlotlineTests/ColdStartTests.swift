@@ -20,6 +20,14 @@ struct ColdStartTests {
         #expect(!store.lists.isEmpty)
     }
 
+    @Test("all five shelves ship")
+    func allShelvesShip() {
+        // The generator drops a list entirely when it falls below its minimum
+        // size, and the other assertions here only iterate the lists that are
+        // present — so a vanished shelf is invisible to every one of them.
+        #expect(DatasetStore.shared.lists.count == 5)
+    }
+
     @Test("every shelf that ships is renderable")
     func everyShelfIsRenderable() {
         let store = DatasetStore.shared
