@@ -103,75 +103,115 @@ struct DiscoveryView: View {
 
     @ViewBuilder
     private var mainContentView: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 28) {
+                // Needs no network, no API key and no saved data, so it must
+                // never sit behind a fetch that can fail. An empty screen
+                // behind an error is what got this app rejected.
+                NavigationLink(value: DiscoveryRoute.genreBrowse) {
+                    GenreBrowseCard()
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+
+                curatedShelves
+
+                networkSections
+            }
+            .padding(.vertical)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    /// Everything that depends on TMDB, with its own loading and failure
+    /// states. When these fail the curated shelves above are still on screen.
+    @ViewBuilder
+    private var networkSections: some View {
         if viewModel.isLoading && !viewModel.hasContent {
             DiscoverySkeletonView()
         } else if let error = viewModel.errorMessage, !viewModel.hasContent {
             errorView(message: error)
         } else {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 28) {
-                    // Browse by Genre
-                    NavigationLink(value: DiscoveryRoute.genreBrowse) {
-                        GenreBrowseCard()
+            // Taste Profile Card
+            if tasteProfileVM.hasEnoughData {
+                NavigationLink {
+                    TasteProfileView(viewModel: tasteProfileVM)
+                } label: {
+                    TasteProfileCard(
+                        topGenres: tasteProfileVM.topGenres,
+                        tasteTags: tasteProfileVM.tasteTags,
+                        hasEnoughData: tasteProfileVM.hasEnoughData
+                    )
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+            }
+
+            // What Should I Watch? button
+            if tasteProfileVM.hasEnoughData {
+                Button {
+                    showWhatToWatch = true
+                } label: {
+                    HStack {
+                        Image(systemName: "sparkle.magnifyingglass")
+                            .font(.title3)
+                        Text("What Should I Watch?")
+                            .font(.headline)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
                     }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal)
+                    .padding()
+                    .background(Color.plotlineCard)
+                    .foregroundStyle(Color.plotlineGold)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+            }
 
-                    // Taste Profile Card
-                    if tasteProfileVM.hasEnoughData {
-                        NavigationLink {
-                            TasteProfileView(viewModel: tasteProfileVM)
-                        } label: {
-                            TasteProfileCard(
-                                topGenres: tasteProfileVM.topGenres,
-                                tasteTags: tasteProfileVM.tasteTags,
-                                hasEnoughData: tasteProfileVM.hasEnoughData
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
-                    }
+            // Smart Lists
+            SmartListsView(viewModel: smartListsVM)
 
-                    // What Should I Watch? button
-                    if tasteProfileVM.hasEnoughData {
-                        Button {
-                            showWhatToWatch = true
-                        } label: {
-                            HStack {
-                                Image(systemName: "sparkle.magnifyingglass")
-                                    .font(.title3)
-                                Text("What Should I Watch?")
-                                    .font(.headline)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                            }
-                            .padding()
-                            .background(Color.plotlineCard)
-                            .foregroundStyle(Color.plotlineGold)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
-                    }
+            MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
+            MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
 
-                    // Smart Lists
-                    SmartListsView(viewModel: smartListsVM)
+            if !viewModel.topRatedMovies.isEmpty {
+                MediaSection(title: "Top Rated Movies", items: viewModel.topRatedMovies)
+            }
 
-                    MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
-                    MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
+            if !viewModel.topRatedSeries.isEmpty {
+                MediaSection(title: "Top Rated Series", items: viewModel.topRatedSeries)
+            }
+        }
+    }
 
-                    if !viewModel.topRatedMovies.isEmpty {
-                        MediaSection(title: "Top Rated Movies", items: viewModel.topRatedMovies)
-                    }
+    // MARK: - Curated Shelves
 
-                    if !viewModel.topRatedSeries.isEmpty {
-                        MediaSection(title: "Top Rated Series", items: viewModel.topRatedSeries)
+    /// Plotline's own analysis, shipped in the bundle. These render instantly,
+    /// with no network and no user data, which is what keeps the first launch
+    /// from being an empty screen.
+    @ViewBuilder
+    private var curatedShelves: some View {
+        ForEach(DatasetStore.shared.lists) { list in
+            if let title = CuratedListCopy.title(for: list.id) {
+                VStack(alignment: .leading, spacing: 4) {
+                    MediaSection(
+                        title: title,
+                        items: DatasetStore.shared.entries(for: list).map(\.asMediaItem)
+                    )
+
+                    if let subtitle = CuratedListCopy.subtitle(for: list.id) {
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal)
                     }
                 }
-                .padding(.vertical)
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(title)
+                .accessibilityHint(CuratedListCopy.subtitle(for: list.id) ?? "")
             }
-            .scrollIndicators(.hidden)
         }
     }
 
