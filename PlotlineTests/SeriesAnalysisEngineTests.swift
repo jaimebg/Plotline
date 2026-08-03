@@ -394,3 +394,146 @@ struct SeriesAnalysisEngineStandoutTests {
         #expect(analysis(episodes)?.essentialEpisodes.map(\.title) == ["S1 peak", "S2 peak"])
     }
 }
+
+@Suite("SeriesAnalysisEngine — verdicts and score")
+struct SeriesAnalysisEngineVerdictTests {
+    private func analysis(_ episodes: [EpisodeMetric]) -> SeriesAnalysis? {
+        guard case .analyzed(let value) = SeriesAnalysisEngine.analyze(episodes: episodes, asOf: EpisodeFixtures.now) else {
+            return nil
+        }
+        return value
+    }
+
+    @Test("a series that starts strong and settles down hooks early")
+    func detectsStrongOpening() {
+        var episodes = EpisodeFixtures.season(1, ratings: [9.2, 9.3, 9.1, 9.2, 9.3, 9.1])
+        episodes += EpisodeFixtures.season(2, ratings: [8.0, 8.1, 7.9, 8.0, 8.1, 8.0])
+
+        #expect(analysis(episodes)?.openingVerdict?.kind == .hooksEarly)
+    }
+
+    @Test("a series that starts weak and improves reports a slow start")
+    func detectsSlowStart() {
+        var episodes = EpisodeFixtures.season(1, ratings: [7.0, 7.1, 6.9, 7.0, 7.1, 7.0])
+        episodes += EpisodeFixtures.season(2, ratings: [8.8, 8.9, 8.7, 8.8, 8.9, 8.8])
+        episodes += EpisodeFixtures.season(3, ratings: [8.9, 9.0, 8.8, 8.9, 9.0, 8.9])
+
+        let verdict = analysis(episodes)?.openingVerdict
+        #expect(verdict?.kind == .slowStart)
+        #expect(verdict?.improvesAtSeason == 2)
+    }
+
+    @Test("a level series reports an even opening")
+    func detectsEvenOpening() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.4, 8.5, 8.4, 8.5, 8.4, 8.5])
+        episodes += EpisodeFixtures.season(2, ratings: [8.5, 8.4, 8.5, 8.4, 8.5, 8.4])
+
+        #expect(analysis(episodes)?.openingVerdict?.kind == .even)
+    }
+
+    @Test("the opening verdict names the episodes it looked at")
+    func openingCitesEvidence() {
+        var episodes = EpisodeFixtures.season(1, ratings: [9.2, 9.3, 9.1, 9.2, 9.3, 9.1])
+        episodes += EpisodeFixtures.season(2, ratings: [8.0, 8.1, 7.9, 8.0, 8.1, 8.0])
+
+        #expect(analysis(episodes)?.openingVerdict?.episodesConsidered.count == 6)
+    }
+
+    @Test("a series peaking in its final season ends strong")
+    func detectsStrongEnding() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.1, 7.9, 8.0])
+        episodes += EpisodeFixtures.season(2, ratings: [8.4, 8.5, 8.3, 8.4])
+        episodes += EpisodeFixtures.season(3, ratings: [9.2, 9.3, 9.1, 9.2])
+
+        let verdict = analysis(episodes)?.endingVerdict
+        #expect(verdict?.kind == .endsStrong)
+        #expect(verdict?.finalSeason == 3)
+    }
+
+    @Test("a series collapsing in its final season fades out")
+    func detectsFadeOut() {
+        var episodes = EpisodeFixtures.season(1, ratings: [9.0, 9.1, 8.9, 9.0])
+        episodes += EpisodeFixtures.season(2, ratings: [9.1, 9.2, 9.0, 9.1])
+        episodes += EpisodeFixtures.season(3, ratings: [6.5, 6.4, 6.6, 6.5])
+
+        let verdict = analysis(episodes)?.endingVerdict
+        #expect(verdict?.kind == .fadesOut)
+        #expect(verdict?.peakSeason == 2)
+    }
+
+    @Test("an ongoing series gets no ending verdict")
+    func suppressesEndingWhileOngoing() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.1, 7.9, 8.0])
+        episodes += EpisodeFixtures.season(2, ratings: [8.4, 8.5, 8.3, 8.4])
+        episodes.append(
+            EpisodeFixtures.episode(season: 3, number: 1, rating: 0, votes: 0, airDate: EpisodeFixtures.futureAirDate)
+        )
+
+        #expect(analysis(episodes)?.endingVerdict == nil)
+    }
+
+    @Test("a single-season series gets no ending verdict")
+    func suppressesEndingForSingleSeason() {
+        let episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.1, 7.9, 8.0, 8.2, 8.1])
+        #expect(analysis(episodes)?.endingVerdict == nil)
+    }
+
+    @Test("a great, steady, rising series scores higher than a mediocre erratic one")
+    func scoresRelatively() {
+        var great = EpisodeFixtures.season(1, ratings: [8.8, 8.9, 8.7, 8.8, 8.9, 8.8])
+        great += EpisodeFixtures.season(2, ratings: [9.2, 9.3, 9.1, 9.2, 9.3, 9.2])
+
+        var poor = EpisodeFixtures.season(1, ratings: [7.5, 5.0, 7.8, 4.9, 7.6, 5.1])
+        poor += EpisodeFixtures.season(2, ratings: [6.0, 4.5, 6.2, 4.4, 6.1, 4.6])
+
+        let greatScore = analysis(great)?.score.value ?? 0
+        let poorScore = analysis(poor)?.score.value ?? 0
+        #expect(greatScore > poorScore)
+    }
+
+    @Test("the score and its three components stay within 0...100")
+    func scoreStaysInRange() {
+        var episodes = EpisodeFixtures.season(1, ratings: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0])
+        episodes += EpisodeFixtures.season(2, ratings: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+        episodes += EpisodeFixtures.season(3, ratings: [10.0, 1.0, 10.0, 1.0, 10.0, 1.0])
+
+        guard let score = analysis(episodes)?.score else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect((0...100).contains(score.value))
+        #expect((0...100).contains(score.level))
+        #expect((0...100).contains(score.consistency))
+        #expect((0...100).contains(score.trajectory))
+    }
+
+    @Test("a series with a decline point and both verdicts round-trips through Codable")
+    func fullAnalysisRoundTrips() throws {
+        // Season 1 hooks hard (opening average 9.0), then the show settles at
+        // 8.0 for seasons 2 and 3 — a drop big enough to register as a decline
+        // point (>= 0.5) and, since the final season sits a full point below
+        // the season-1 peak, a faded ending too. That gives us a fixture where
+        // declinePoint, openingVerdict, and endingVerdict are all non-nil at
+        // once, finally exercising their Codable conformance end to end.
+        var episodes = EpisodeFixtures.season(1, ratings: [9.0, 9.0, 9.0, 9.0, 9.0, 9.0])
+        episodes += EpisodeFixtures.season(2, ratings: [8.0, 8.0, 8.0, 8.0])
+        episodes += EpisodeFixtures.season(3, ratings: [8.0, 8.0, 8.0, 8.0])
+
+        guard let original = analysis(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(original.declinePoint != nil)
+        #expect(original.openingVerdict != nil)
+        #expect(original.endingVerdict != nil)
+
+        let data = try JSONEncoder().encode(SeriesAnalysisResult.analyzed(original))
+        let decoded = try JSONDecoder().decode(SeriesAnalysisResult.self, from: data)
+
+        guard case .analyzed(let decodedAnalysis) = decoded else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(decodedAnalysis == original)
+    }
+}
