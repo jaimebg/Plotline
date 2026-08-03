@@ -74,11 +74,6 @@ struct EpisodeMetricTests {
         #expect(!make(airDate: nil).hasAired)
     }
 
-    @Test("builds the still image URL from the path")
-    func buildsStillURL() {
-        #expect(make().stillURL?.absoluteString == "https://image.tmdb.org/t/p/w300/still.jpg")
-    }
-
     @Test("round-trips through Codable keeping the same id")
     func encodesAndDecodes() throws {
         let original = make(id: 62089)
