@@ -1568,9 +1568,18 @@
         "Teen Choice Award for Choice Animated Show",
         "Writers Guild of America Award for Television: Animation"
       ],
+      "backdropPath" : "/jIArNHIekrCSVgdMbKPAXpPY03Y.jpg",
+      "firstAirDate" : "1989-12-17",
+      "genreIds" : [
+        16,
+        35
+      ],
+      "mediaType" : "tv",
       "name" : "The Simpsons",
+      "overview" : "Set in Springfield, the average American town, the show focuses on the antics and everyday adventures of the Simpson family; Homer, Marge, Bart, Lisa and Maggie, as well as a virtual cast of thousands. Since the beginning, the series has been a pop culture icon, attracting hundreds of celebrities to guest star. The show has also made name for itself in its fearless satirical take on politics, media and American life in general.",
       "posterPath" : "/uWpG7GqfKGQqX4YMAo3nv5OrglV.jpg",
-      "tmdbId" : 456
+      "tmdbId" : 456,
+      "voteAverage" : 8.02
     },
     {
       "analysis" : {
@@ -1841,9 +1850,18 @@
         "TCA Award for Program of the Year",
         "Writers Guild of America Award for Television: Dramatic Series"
       ],
+      "backdropPath" : "/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg",
+      "firstAirDate" : "2008-01-20",
+      "genreIds" : [
+        18,
+        80
+      ],
+      "mediaType" : "tv",
       "name" : "Breaking Bad",
+      "overview" : "Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime.",
       "posterPath" : "/anFx9aTOOYqgS3v7x3R84Kz67ly.jpg",
-      "tmdbId" : 1396
+      "tmdbId" : 1396,
+      "voteAverage" : 8.949
     },
     {
       "analysis" : {
@@ -2171,9 +2189,18 @@
         "TCA Heritage Award",
         "Writers Guild of America Award for Television: Dramatic Series"
       ],
+      "backdropPath" : "/lNpkvX2s8LGB0mjGODMT4o6Up7j.jpg",
+      "firstAirDate" : "1999-01-10",
+      "genreIds" : [
+        80,
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "The Sopranos",
+      "overview" : "The story of New Jersey-based Italian-American mobster Tony Soprano and the difficulties he faces as he tries to balance the conflicting requirements of his home life and the criminal organization he heads. Those difficulties are often highlighted through his ongoing professional relationship with psychiatrist Jennifer Melfi. The show features Tony's family members and Mafia associates in prominent roles and story arcs, most notably his wife Carmela and his cousin and protégé Christopher Moltisanti.",
       "posterPath" : "/rTc7ZXdroqjkKivFPvCPX0Ru7uw.jpg",
-      "tmdbId" : 1398
+      "tmdbId" : 1398,
+      "voteAverage" : 8.672
     },
     {
       "analysis" : {
@@ -2490,9 +2517,19 @@
         "TCA Award for Outstanding New Program",
         "TCA Award for Program of the Year"
       ],
+      "backdropPath" : "/2OMB0ynKlyIenMJWI2Dy9IWT4c.jpg",
+      "firstAirDate" : "2011-04-17",
+      "genreIds" : [
+        10765,
+        18,
+        10759
+      ],
+      "mediaType" : "tv",
       "name" : "Game of Thrones",
+      "overview" : "Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond.",
       "posterPath" : "/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg",
-      "tmdbId" : 1399
+      "tmdbId" : 1399,
+      "voteAverage" : 8.468
     },
     {
       "analysis" : {
@@ -2962,9 +2999,19 @@
         "Saturn Award for Best Supporting Actress on Television",
         "Saturn Award for Best Television Presentation"
       ],
+      "backdropPath" : "/rAOjnEFTuNysY7bot8zonhImGMh.jpg",
+      "firstAirDate" : "2010-10-31",
+      "genreIds" : [
+        10759,
+        18,
+        10765
+      ],
+      "mediaType" : "tv",
       "name" : "The Walking Dead",
+      "overview" : "Sheriff's deputy Rick Grimes awakens from a coma to find a post-apocalyptic world dominated by flesh-eating zombies. He sets out to find his family and encounters many other survivors along the way.",
       "posterPath" : "/aN29llVoCFtBTwDZFtqdD9d8dHb.jpg",
-      "tmdbId" : 1402
+      "tmdbId" : 1402,
+      "voteAverage" : 8.084
     },
     {
       "analysis" : {
@@ -3369,9 +3416,17 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/r0Q6eeN9L1ORL9QsV0Sg8ZV3vnv.jpg",
+      "firstAirDate" : "2004-11-16",
+      "genreIds" : [
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "House",
+      "overview" : "Dr. Gregory House, a drug-addicted, unconventional, misanthropic medical genius, leads a team of diagnosticians at the fictional Princeton–Plainsboro Teaching Hospital in New Jersey.",
       "posterPath" : "/3Cz7ySOQJmqiuTdrc6CY0r65yDI.jpg",
-      "tmdbId" : 1408
+      "tmdbId" : 1408,
+      "voteAverage" : 8.6
     },
     {
       "analysis" : {
@@ -3848,9 +3903,17 @@
         "TCA Award for Individual Achievement in Comedy",
         "TCA Award for Outstanding Achievement in Comedy"
       ],
+      "backdropPath" : "/rwYvhVv0vwbulMwxOfEsuAr1JrT.jpg",
+      "firstAirDate" : "2007-09-24",
+      "genreIds" : [
+        35
+      ],
+      "mediaType" : "tv",
       "name" : "The Big Bang Theory",
+      "overview" : "Physicists Leonard and Sheldon find their nerd-centric social circle with pals Howard and Raj expanding when aspiring actress Penny moves in next door.",
       "posterPath" : "/euKFiO5M125rpngFRBbSW83beeI.jpg",
-      "tmdbId" : 1418
+      "tmdbId" : 1418,
+      "voteAverage" : 7.924
     },
     {
       "analysis" : {
@@ -4108,9 +4171,18 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/layPSOJGckJv3PXZDIVluMq69mn.jpg",
+      "firstAirDate" : "2002-06-02",
+      "genreIds" : [
+        80,
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "The Wire",
+      "overview" : "Told from the points of view of both the Baltimore homicide and narcotics detectives and their targets, the series captures a universe in which the national war on drugs has become a permanent, self-sustaining bureaucracy, and distinctions between good and evil are routinely obliterated.",
       "posterPath" : "/4lbclFySvugI51fwsyxBTOm4DqK.jpg",
-      "tmdbId" : 1438
+      "tmdbId" : 1438,
+      "voteAverage" : 8.634
     },
     {
       "analysis" : {
@@ -4809,9 +4881,19 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/ro0tlgnsco4SwbdAgmscLkSlMSL.jpg",
+      "firstAirDate" : "2005-09-13",
+      "genreIds" : [
+        18,
+        9648,
+        10765
+      ],
+      "mediaType" : "tv",
       "name" : "Supernatural",
+      "overview" : "When they were boys, Sam and Dean Winchester lost their mother to a mysterious and demonic supernatural force. Subsequently, their father raised them to be soldiers. He taught them about the paranormal evil that lives in the dark corners and on the back roads of America ... and he taught them how to kill it. Now, the Winchester brothers crisscross the country in their '67 Chevy Impala, battling every kind of supernatural threat they encounter along the way. ",
       "posterPath" : "/8iixmfGx5EIFPdpNvB2JvI3VIqX.jpg",
-      "tmdbId" : 1622
+      "tmdbId" : 1622,
+      "voteAverage" : 8.313
     },
     {
       "analysis" : {
@@ -5310,9 +5392,17 @@
         "Screen Actors Guild Award for Outstanding Performance by an Ensemble in a Comedy Series",
         "Zilveren Televizier-Tulp"
       ],
+      "backdropPath" : "/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
+      "firstAirDate" : "1994-09-22",
+      "genreIds" : [
+        35
+      ],
+      "mediaType" : "tv",
       "name" : "Friends",
+      "overview" : "Six young people from New York City, on their own and struggling to survive in the real world, find the companionship, comfort and support they get from each other to be the perfect antidote to the pressures of life.",
       "posterPath" : "/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
-      "tmdbId" : 1668
+      "tmdbId" : 1668,
+      "voteAverage" : 8.413
     },
     {
       "analysis" : {
@@ -5766,9 +5856,17 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/mLyW3UTgi2lsMdtueYODcfAB9Ku.jpg",
+      "firstAirDate" : "2005-03-24",
+      "genreIds" : [
+        35
+      ],
+      "mediaType" : "tv",
       "name" : "The Office",
+      "overview" : "The everyday lives of office employees in the Scranton, Pennsylvania branch of the fictional Dunder Mifflin Paper Company.",
       "posterPath" : "/7DJKHzAi83BmQrWLrYYOqcoKfhR.jpg",
-      "tmdbId" : 2316
+      "tmdbId" : 2316,
+      "voteAverage" : 8.586
     },
     {
       "analysis" : {
@@ -6034,9 +6132,18 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/rfxryDIv8huejujg4JueDJx8zCz.jpg",
+      "firstAirDate" : "2015-02-08",
+      "genreIds" : [
+        80,
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "Better Call Saul",
+      "overview" : "Six years before Saul Goodman meets Walter White. We meet him when the man who will become Saul Goodman is known as Jimmy McGill, a small-time lawyer searching for his destiny, and, more immediately, hustling to make ends meet. Working alongside, and, often, against Jimmy, is “fixer” Mike Ehrmantraut. The series tracks Jimmy’s transformation into Saul Goodman, the man who puts “criminal” in “criminal lawyer\".",
       "posterPath" : "/zjg4jpK1Wp2kiRvtt5ND0kznako.jpg",
-      "tmdbId" : 60059
+      "tmdbId" : 60059,
+      "voteAverage" : 8.709
     },
     {
       "analysis" : {
@@ -6393,9 +6500,20 @@
         "American Cinema Editors",
         "Shorty Awards"
       ],
+      "backdropPath" : "/i4PpW1XyRlBuSNSIBRIIwSjEpjl.jpg",
+      "firstAirDate" : "2013-12-02",
+      "genreIds" : [
+        16,
+        35,
+        10765,
+        10759
+      ],
+      "mediaType" : "tv",
       "name" : "Rick and Morty",
+      "overview" : "Follows a sociopathic genius scientist who drags his inherently timid grandson on adventures across the universe.",
       "posterPath" : "/owhkU6KRqdXoUQpjV8uyZGPtX58.jpg",
-      "tmdbId" : 60625
+      "tmdbId" : 60625,
+      "voteAverage" : 8.68
     },
     {
       "analysis" : {
@@ -6737,9 +6855,18 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/dvDkq5Mcv27vpHRvF1ywFGroh03.jpg",
+      "firstAirDate" : "2015-08-23",
+      "genreIds" : [
+        10759,
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "Fear the Walking Dead",
+      "overview" : "What did the world look like as it was transforming into the horrifying apocalypse depicted in \"The Walking Dead\"? This spin-off set in Los Angeles, following new characters as they face the beginning of the end of the world, will answer that question.",
       "posterPath" : "/l7N9aS6VyYvjelKoCB2eZge0Qky.jpg",
-      "tmdbId" : 62286
+      "tmdbId" : 62286,
+      "voteAverage" : 7.612
     },
     {
       "analysis" : {
@@ -7046,9 +7173,18 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/mAXOCbZzvmDa6PCh5dcIPOB51Qc.jpg",
+      "firstAirDate" : "2016-01-25",
+      "genreIds" : [
+        80,
+        10765
+      ],
+      "mediaType" : "tv",
       "name" : "Lucifer",
+      "overview" : "Bored and unhappy as the Lord of Hell, Lucifer Morningstar abandoned his throne and retired to Los Angeles, where he has teamed up with LAPD detective Chloe Decker to take down criminals. But the longer he's away from the underworld, the greater the threat that the worst of humanity could escape.",
       "posterPath" : "/ekZobS8isE6mA53RAiGDG93hBxL.jpg",
-      "tmdbId" : 63174
+      "tmdbId" : 63174,
+      "voteAverage" : 8.43
     },
     {
       "analysis" : {
@@ -7276,11 +7412,21 @@
         "worstSeason" : 5
       },
       "awards" : [
-        "list of awards and nominations received by Stranger Things"
+
       ],
+      "backdropPath" : "/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+      "firstAirDate" : "2016-07-15",
+      "genreIds" : [
+        10759,
+        9648,
+        10765
+      ],
+      "mediaType" : "tv",
       "name" : "Stranger Things",
+      "overview" : "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces, and one strange little girl.",
       "posterPath" : "/uKYUR8GPkKRCksczYDJb3pwZauo.jpg",
-      "tmdbId" : 66732
+      "tmdbId" : 66732,
+      "voteAverage" : 8.556
     },
     {
       "analysis" : {
@@ -7658,9 +7804,17 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/f3cin9kOz4nOrlYEMxGFQhv4bdN.jpg",
+      "firstAirDate" : "2017-09-25",
+      "genreIds" : [
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "The Good Doctor",
+      "overview" : "Shaun Murphy, a young surgeon with autism and savant syndrome, relocates from a quiet country life to join a prestigious hospital's surgical unit. Unable to personally connect with those around him, Shaun uses his extraordinary medical gifts to save lives and challenge the skepticism of his colleagues.",
       "posterPath" : "/luhKkdD80qe62fwop6sdrXK9jUT.jpg",
-      "tmdbId" : 71712
+      "tmdbId" : 71712,
+      "voteAverage" : 8.454
     },
     {
       "analysis" : {
@@ -7908,9 +8062,18 @@
         "Satellite Awards",
         "Saturn Awards"
       ],
+      "backdropPath" : "/n6vVs6z8obNbExdD3QHTr4Utu1Z.jpg",
+      "firstAirDate" : "2019-07-25",
+      "genreIds" : [
+        10765,
+        10759
+      ],
+      "mediaType" : "tv",
       "name" : "The Boys",
+      "overview" : "A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.",
       "posterPath" : "/in1R2dDc421JxsoRWaIIAqVI2KE.jpg",
-      "tmdbId" : 76479
+      "tmdbId" : 76479,
+      "voteAverage" : 8.44
     },
     {
       "analysis" : {
@@ -8092,9 +8255,18 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/9zcbqSxdsRMZWHYtyCd1nXPr2xq.jpg",
+      "firstAirDate" : "2019-11-12",
+      "genreIds" : [
+        10765,
+        10759
+      ],
+      "mediaType" : "tv",
       "name" : "The Mandalorian",
+      "overview" : "After the fall of the Galactic Empire, lawlessness has spread throughout the galaxy. A lone gunfighter makes his way through the outer reaches, earning his keep as a bounty hunter.",
       "posterPath" : "/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg",
-      "tmdbId" : 82856
+      "tmdbId" : 82856,
+      "voteAverage" : 8.408
     },
     {
       "analysis" : {
@@ -8213,9 +8385,19 @@
       "awards" : [
 
       ],
+      "backdropPath" : "/lOr9NKxh4vMweufMOUDJjJhCRHW.jpg",
+      "firstAirDate" : "2021-01-15",
+      "genreIds" : [
+        10765,
+        9648,
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "WandaVision",
+      "overview" : "Wanda Maximoff and Vision—two super-powered beings living idealized suburban lives—begin to suspect that everything is not as it seems.",
       "posterPath" : "/ijWWwINc8h71NQ8j1LTJMFSj5wr.jpg",
-      "tmdbId" : 85271
+      "tmdbId" : 85271,
+      "voteAverage" : 8.184
     },
     {
       "analysis" : {
@@ -8290,13 +8472,20 @@
         "Primetime Emmy Award for Outstanding Sound Editing for a Limited or Anthology Series, Movie or Special",
         "Primetime Emmy Award for Outstanding Sound Mixing for a Limited Series or Movie",
         "Primetime Emmy Award for Outstanding Special Visual Effects",
-        "Q3403230",
         "Satellite Award for Best Actor – Miniseries or Television Film",
         "Satellite Award for Best Miniseries or Television Film"
       ],
+      "backdropPath" : "/3URK0z9PzpVNJrGE7XOuyy6KFzk.jpg",
+      "firstAirDate" : "2019-05-06",
+      "genreIds" : [
+        18
+      ],
+      "mediaType" : "tv",
       "name" : "Chernobyl",
+      "overview" : "The true story of one of the worst man-made catastrophes in history: the catastrophic nuclear accident at Chernobyl. A tale of the brave men and women who sacrificed to save Europe from unimaginable disaster.",
       "posterPath" : "/hlLXt2tOPT6RRnjiUmoxyG1LTFi.jpg",
-      "tmdbId" : 87108
+      "tmdbId" : 87108,
+      "voteAverage" : 8.721
     },
     {
       "analysis" : {
@@ -8450,60 +8639,37 @@
         "Golden Joystick Awards − Best Game Adaptation",
         "The Game Awards − Best Adaptation"
       ],
+      "backdropPath" : "/q8eejQcg1bAqImEV8jh8RtBD4uH.jpg",
+      "firstAirDate" : "2021-11-06",
+      "genreIds" : [
+        16,
+        10759,
+        10765
+      ],
+      "mediaType" : "tv",
       "name" : "Arcane",
+      "overview" : "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war between magic technologies and clashing convictions.",
       "posterPath" : "/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg",
-      "tmdbId" : 94605
+      "tmdbId" : 94605,
+      "voteAverage" : 8.751
     }
   ],
   "lists" : [
     {
       "id" : "never-decline",
-      "subtitle" : "Mantienen el nivel de principio a fin",
-      "title" : "Series que nunca decaen",
       "tmdbIds" : [
         1396,
         1398,
-        1402,
         1408,
-        1418,
         1438,
-        1622,
         1668,
-        2316,
         60059,
-        60625,
-        62286,
         63174,
-        66732,
-        71712,
-        82856,
-        85271,
-        87108,
-        94605
-      ]
-    },
-    {
-      "id" : "falls-off",
-      "subtitle" : "Empiezan fuerte y no aguantan",
-      "title" : "Las que se hunden",
-      "tmdbIds" : [
-        456,
-        76479
-      ]
-    },
-    {
-      "id" : "slow-burn",
-      "subtitle" : "Arrancan flojas y mejoran mucho",
-      "title" : "Remontadas",
-      "tmdbIds" : [
-        1668,
         71712
       ]
     },
     {
       "id" : "perfect-ending",
-      "subtitle" : "Terminan en su mejor momento",
-      "title" : "Cierres perfectos",
       "tmdbIds" : [
         1396,
         1398,
@@ -8512,25 +8678,17 @@
         1668,
         60059
       ]
-    },
-    {
-      "id" : "rollercoaster",
-      "subtitle" : "Episodios brillantes junto a otros olvidables",
-      "title" : "Montañas rusas",
-      "tmdbIds" : [
-        1399
-      ]
     }
   ],
   "skipped" : [
     {
+      "kind" : "tooFewReliableEpisodes",
       "name" : "NCIS",
-      "reason" : "tooFewReliableEpisodes",
       "tmdbId" : 4614
     },
     {
+      "kind" : "tooFewReliableEpisodes",
       "name" : "Pretty Little Liars",
-      "reason" : "tooFewReliableEpisodes",
       "tmdbId" : 31917
     }
   ],

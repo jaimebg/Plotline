@@ -17,7 +17,25 @@ public enum Generator {
         let output = URL(fileURLWithPath: "Plotline/Resources/PlotlineDataset.json")
 
         print("Fetching awards for \(SeedList.seriesIds.count) series…")
-        let awardsById = (try? await wikidata.awards(forSeriesIds: SeedList.seriesIds)) ?? [:]
+        let awardsById: [Int: [String]]
+        do {
+            awardsById = try await wikidata.awards(forSeriesIds: SeedList.seriesIds)
+        } catch {
+            // Swallowing this wrote a complete, plausible dataset with every
+            // award stripped, reported success and exited 0 — a Wikidata
+            // timeout silently shipping an award-free release. Failing loudly
+            // is the only honest outcome: the same rule the entry guard below
+            // already applies, now applied to this path too.
+            let message = """
+            error: the Wikidata awards fetch failed (\(FetchFailure.detail(for: error) ?? "unknown error")). \
+            Writing now would ship a dataset with every award stripped while reporting success, \
+            so nothing was written and the existing dataset at \(output.path) was left untouched. \
+            Re-run when the endpoint answers.
+
+            """
+            FileHandle.standardError.write(Data(message.utf8))
+            exit(1)
+        }
         print("  \(awardsById.count) series carry at least one award")
 
         var entries: [DatasetEntry] = []
@@ -39,7 +57,14 @@ public enum Generator {
                 guard case .analyzed(let analysis) = result else {
                     if case .insufficientData(let reason) = result {
                         print("  skipped \(fetchedDetails.name) (\(seriesId)): insufficient data (\(reason.rawValue))")
-                        skipped.append(SkippedSeries(tmdbId: seriesId, name: fetchedDetails.name, reason: reason.rawValue))
+                        skipped.append(
+                            SkippedSeries(
+                                tmdbId: seriesId,
+                                name: fetchedDetails.name,
+                                kind: reason.rawValue,
+                                detail: nil
+                            )
+                        )
                     }
                     continue
                 }
@@ -48,15 +73,35 @@ public enum Generator {
                     DatasetEntry(
                         tmdbId: seriesId,
                         name: fetchedDetails.name,
+                        mediaType: "tv",
+                        overview: fetchedDetails.overview,
                         posterPath: fetchedDetails.posterPath,
+                        backdropPath: fetchedDetails.backdropPath,
+                        voteAverage: fetchedDetails.voteAverage,
+                        genreIds: fetchedDetails.genreIds,
+                        firstAirDate: fetchedDetails.firstAirDate,
                         analysis: analysis,
                         awards: awardsById[seriesId] ?? []
                     )
                 )
                 print("  \(fetchedDetails.name): score \(analysis.score.value), \(analysis.seasons.count) seasons")
             } catch {
-                print("  failed \(seriesId): \(error)")
-                skipped.append(SkippedSeries(tmdbId: seriesId, name: details?.name, reason: "\(error)"))
+                // `\(error)` is forbidden here and in the record below. A
+                // URLSession error carries `NSErrorFailingURLKey`, the TMDB
+                // request URL carries `api_key=…`, and this string is both
+                // printed and written into a file that is committed and copied
+                // into the app bundle. Only a fixed category and, at most, a
+                // status code ever leave this scope.
+                let detail = FetchFailure.detail(for: error)
+                print("  failed \(seriesId): \(detail ?? "unknown error")")
+                skipped.append(
+                    SkippedSeries(
+                        tmdbId: seriesId,
+                        name: details?.name,
+                        kind: SkippedSeries.fetchFailedKind,
+                        detail: detail
+                    )
+                )
             }
         }
 
@@ -89,5 +134,42 @@ public enum Generator {
         try encoder.encode(dataset).write(to: output)
 
         print("\nWrote \(entries.count) entries, \(skipped.count) skipped, and \(dataset.lists.count) lists to \(output.path)")
+    }
+}
+
+/// Reduces a thrown error to something safe to publish.
+///
+/// The rule this type exists to enforce: **a raw error never reaches the
+/// dataset, the console, or a log.** `URLSession` puts the failing URL in its
+/// errors' `userInfo` under `NSErrorFailingURLKey`, and `TMDBClient` sends the
+/// API key in the query string, so `"\(error)"` can expand to a live secret —
+/// which would then be committed to git and copied into the shipped app bundle.
+/// The outage guard cannot catch that: one transient failure is enough, and the
+/// guard only trips past 50%.
+///
+/// So nothing here interpolates an error, an error's `localizedDescription`, or
+/// its `userInfo`. Every branch returns either a constant or an integer read out
+/// of a known case, and the default is `nil` rather than a best effort.
+enum FetchFailure {
+    static func detail(for error: Error) -> String? {
+        if let tmdb = error as? TMDBClientError {
+            switch tmdb {
+            case .badStatus(let code): return "HTTP \(code)"
+            case .missingAPIKey: return "missingAPIKey"
+            }
+        }
+        if let wikidata = error as? WikidataError {
+            switch wikidata {
+            case .badStatus(let code): return "HTTP \(code)"
+            }
+        }
+        // `URLError.Code` is a bare integer — no URL, no user info.
+        if let urlError = error as? URLError {
+            return "URLError \(urlError.code.rawValue)"
+        }
+        if error is DecodingError {
+            return "decodingFailed"
+        }
+        return nil
     }
 }

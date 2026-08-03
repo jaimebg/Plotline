@@ -19,7 +19,10 @@ struct TMDBClientTests {
 
     private let detailsJSON = """
     {"id": 1396, "name": "Breaking Bad", "number_of_seasons": 5,
-     "status": "Ended", "poster_path": "/p.jpg"}
+     "status": "Ended", "poster_path": "/p.jpg", "backdrop_path": "/b.jpg",
+     "overview": "A chemistry teacher turns to crime.", "vote_average": 8.9,
+     "first_air_date": "2008-01-20",
+     "genres": [{"id": 18, "name": "Drama"}, {"id": 80, "name": "Crime"}]}
     """
 
     @Test("maps a season payload onto EpisodeMetric")
@@ -79,6 +82,33 @@ struct TMDBClientTests {
     func missingSeasonCountDefaultsToZero() throws {
         let json = #"{"id": 1, "name": "X", "status": "Ended", "poster_path": null}"#
         #expect(try TMDBClient.decodeDetails(Data(json.utf8)).seasonCount == 0)
+    }
+
+    @Test("reads the fields an offline favourite needs from the same request")
+    func decodesMediaItemFields() throws {
+        let details = try TMDBClient.decodeDetails(Data(detailsJSON.utf8))
+        #expect(details.overview == "A chemistry teacher turns to crime.")
+        #expect(details.backdropPath == "/b.jpg")
+        #expect(details.voteAverage == 8.9)
+        #expect(details.genreIds == [18, 80])
+        #expect(details.firstAirDate == "2008-01-20")
+    }
+
+    @Test("absent optional fields decode to empty rather than failing the series")
+    func toleratesMissingFields() throws {
+        let json = #"{"id": 1, "name": "X", "status": "Ended", "poster_path": null}"#
+        let details = try TMDBClient.decodeDetails(Data(json.utf8))
+        #expect(details.overview.isEmpty)
+        #expect(details.backdropPath == nil)
+        #expect(details.voteAverage == 0)
+        #expect(details.genreIds.isEmpty)
+        #expect(details.firstAirDate == nil)
+    }
+
+    @Test("an empty first air date becomes nil, not an empty string")
+    func emptyFirstAirDateIsNil() throws {
+        let json = #"{"id": 1, "name": "X", "status": "Ended", "first_air_date": ""}"#
+        #expect(try TMDBClient.decodeDetails(Data(json.utf8)).firstAirDate == nil)
     }
 
     @Test("the seed list is non-empty and free of duplicates")
