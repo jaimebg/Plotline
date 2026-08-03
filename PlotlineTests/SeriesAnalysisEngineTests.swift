@@ -248,8 +248,34 @@ struct SeriesAnalysisEngineDeclineTests {
         episodes += EpisodeFixtures.season(3, ratings: [8.8, 8.9, 8.8, 8.7])
         episodes += EpisodeFixtures.season(4, ratings: [6.5, 6.4, 6.6, 6.5])
 
-        // Only one season sits after the boundary, so the rule does not fire.
+        // `dropLast` leaves only boundaries 1 and 2 to consider, and the fall
+        // starts at neither: seasons 2 and 3 are level with what came before,
+        // so both are rejected by the "the fall must start here" check. The one
+        // boundary where quality actually drops — after season 3 — is never
+        // considered, since a single season follows it.
         #expect(analysis(episodes)?.declinePoint == nil)
+    }
+
+    @Test("a dip the series recovers from is not a decline point")
+    func ignoresADipThatRecovers() {
+        // Averages 9.0, 9.0, 9.0, 7.5, 7.5, 8.0, 9.1. The fall after season 3 is
+        // real and lasts two seasons, but the series climbs back to its best in
+        // season 7 — reporting a decline "from season 4 onward" would list the
+        // best season as part of a sustained fall.
+        var episodes = EpisodeFixtures.season(1, ratings: [9.0, 9.0, 9.0, 9.0])
+        episodes += EpisodeFixtures.season(2, ratings: [9.0, 9.0, 9.0, 9.0])
+        episodes += EpisodeFixtures.season(3, ratings: [9.0, 9.0, 9.0, 9.0])
+        episodes += EpisodeFixtures.season(4, ratings: [7.5, 7.5, 7.5, 7.5])
+        episodes += EpisodeFixtures.season(5, ratings: [7.5, 7.5, 7.5, 7.5])
+        episodes += EpisodeFixtures.season(6, ratings: [8.0, 8.0, 8.0, 8.0])
+        episodes += EpisodeFixtures.season(7, ratings: [9.1, 9.1, 9.1, 9.1])
+
+        guard let result = analysis(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(result.declinePoint == nil)
+        #expect(result.bestSeason == 7)
     }
 
     @Test("a drop smaller than the threshold is not a decline point")
@@ -421,6 +447,18 @@ struct SeriesAnalysisEngineVerdictTests {
         let verdict = analysis(episodes)?.openingVerdict
         #expect(verdict?.kind == .slowStart)
         #expect(verdict?.improvesAtSeason == 2)
+    }
+
+    @Test("a single-season slow start names no season to improve at")
+    func slowStartWithinOneSeasonNamesNoSeason() {
+        // A 10-episode first season that picks up at episode 7. The opening run
+        // is 6 episodes, so the remainder is still season 1 — the very season
+        // the verdict just called weak. It must not be offered as the payoff.
+        let episodes = EpisodeFixtures.season(1, ratings: [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.2, 8.2, 8.2, 8.2])
+
+        let verdict = analysis(episodes)?.openingVerdict
+        #expect(verdict?.kind == .slowStart)
+        #expect(verdict?.improvesAtSeason == nil)
     }
 
     @Test("a level series reports an even opening")

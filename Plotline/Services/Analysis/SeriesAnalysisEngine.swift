@@ -118,7 +118,8 @@ enum SeriesAnalysisEngine {
     // MARK: - Decline
 
     /// The season boundary that costs the series the most, provided the drop is
-    /// big enough and enough seasons follow it to call the fall sustained.
+    /// big enough, enough seasons follow it, and the series is still down when
+    /// the run ends — a fall that starts here but recovers is not a decline.
     ///
     /// Deliberately simple: the result has to be explainable to a user in one
     /// sentence ("it falls off after season 5"), which rules out fitting curves.
@@ -144,6 +145,11 @@ enum SeriesAnalysisEngine {
             let nextSeasonNumber = seasons[index + 1]
             let nextSeason = reliable.filter { $0.seasonNumber == nextSeasonNumber }
             guard averageBefore - weightedMean(nextSeason) >= minimumDeclineDrop else { continue }
+
+            // ...and it must still be down at the end of the run, or a series
+            // that dips and recovers reports a decline covering its own best season.
+            let finalSeason = reliable.filter { $0.seasonNumber == seasons[seasons.count - 1] }
+            guard averageBefore - weightedMean(finalSeason) >= minimumDeclineDrop else { continue }
 
             let candidate = DeclinePoint(
                 afterSeason: boundary,
@@ -233,7 +239,9 @@ enum SeriesAnalysisEngine {
 
         let opening = Array(ordered.prefix(openingEpisodeCount))
         let remainder = Array(ordered.dropFirst(openingEpisodeCount))
-        guard !remainder.isEmpty else { return nil }
+        // The season the opening run ends in. Safe to index: `ordered` is longer
+        // than the opening run, which is what the guard above establishes.
+        let openingSeason = ordered[openingEpisodeCount - 1].seasonNumber
 
         let openingAverage = weightedMean(opening)
         let remainderAverage = weightedMean(remainder)
@@ -246,7 +254,11 @@ enum SeriesAnalysisEngine {
             kind = .hooksEarly
         } else if -delta >= openingVerdictThreshold {
             kind = .slowStart
-            improvesAtSeason = firstSeasonClearing(openingAverage, in: remainder)
+            // Only a season that starts after the opening run can be where it
+            // picks up. The opening's own season is the one just called weak,
+            // and it stays in `remainder` whenever it runs longer than the
+            // opening — the common case for a 10-episode first season.
+            improvesAtSeason = firstSeasonClearing(openingAverage, after: openingSeason, in: remainder)
         } else {
             kind = .even
         }
@@ -260,11 +272,18 @@ enum SeriesAnalysisEngine {
         )
     }
 
-    /// The first season whose average clears `baseline` by the opening threshold.
-    private static func firstSeasonClearing(_ baseline: Double, in episodes: [EpisodeMetric]) -> Int? {
+    /// The first season after `openingSeason` whose average clears `baseline` by
+    /// the opening threshold. Nil when the series never gets there — including
+    /// when it has no season after the opening at all.
+    private static func firstSeasonClearing(
+        _ baseline: Double,
+        after openingSeason: Int,
+        in episodes: [EpisodeMetric]
+    ) -> Int? {
         let bySeason = Dictionary(grouping: episodes, by: \.seasonNumber)
         return bySeason.keys.sorted().first { season in
-            weightedMean(bySeason[season] ?? []) - baseline >= openingVerdictThreshold
+            season > openingSeason
+                && weightedMean(bySeason[season] ?? []) - baseline >= openingVerdictThreshold
         }
     }
 
