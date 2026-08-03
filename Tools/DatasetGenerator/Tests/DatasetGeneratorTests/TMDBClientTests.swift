@@ -38,6 +38,28 @@ struct TMDBClientTests {
         #expect(episodes[1].title == "Episode 2")
     }
 
+    @Test("carries the air date and still path through unchanged when present")
+    func decodesAirDateAndStillPath() throws {
+        let episodes = try TMDBClient.decodeSeason(Data(seasonJSON.utf8))
+        #expect(episodes[0].airDate == "2008-01-20")
+        #expect(episodes[0].stillPath == "/a.jpg")
+    }
+
+    @Test("maps a null air date and still path to nil, not an empty string")
+    func decodesNullAirDateAndStillPathAsNil() throws {
+        let episodes = try TMDBClient.decodeSeason(Data(seasonJSON.utf8))
+        #expect(episodes[1].airDate == nil)
+        #expect(episodes[1].stillPath == nil)
+    }
+
+    @Test("the decoded air date is usable by the engine's hasAired check")
+    func decodedAirDateDrivesHasAired() throws {
+        let episodes = try TMDBClient.decodeSeason(Data(seasonJSON.utf8))
+        let reference = Date(timeIntervalSince1970: 1_577_836_800) // 2020-01-01 UTC
+        #expect(episodes[0].hasAired(asOf: reference))
+        #expect(episodes[1].hasAired(asOf: reference) == false)
+    }
+
     @Test("reads the season count and the ended flag from series details")
     func decodesDetails() throws {
         let details = try TMDBClient.decodeDetails(Data(detailsJSON.utf8))
@@ -51,6 +73,12 @@ struct TMDBClientTests {
     func detectsReturningSeries() throws {
         let json = #"{"id": 1, "name": "X", "number_of_seasons": 2, "status": "Returning Series", "poster_path": null}"#
         #expect(try TMDBClient.decodeDetails(Data(json.utf8)).hasEnded == false)
+    }
+
+    @Test("defaults the season count to zero when TMDB omits the field entirely")
+    func missingSeasonCountDefaultsToZero() throws {
+        let json = #"{"id": 1, "name": "X", "status": "Ended", "poster_path": null}"#
+        #expect(try TMDBClient.decodeDetails(Data(json.utf8)).seasonCount == 0)
     }
 
     @Test("the seed list is non-empty and free of duplicates")
