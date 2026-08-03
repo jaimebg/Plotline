@@ -103,7 +103,7 @@ enum SeriesAnalysisEngine {
 
         var best: DeclinePoint?
 
-        for boundary in seasons.dropLast(minimumSeasonsAfterDecline) {
+        for (index, boundary) in seasons.dropLast(minimumSeasonsAfterDecline).enumerated() {
             let before = reliable.filter { $0.seasonNumber <= boundary }
             let after = reliable.filter { $0.seasonNumber > boundary }
             guard !before.isEmpty, !after.isEmpty else { continue }
@@ -112,13 +112,13 @@ enum SeriesAnalysisEngine {
             let averageAfter = weightedMean(after)
             guard averageBefore - averageAfter >= minimumDeclineDrop else { continue }
 
-            // The fall has to START here. Without this, one catastrophic final
-            // season drags the "after" average down at every earlier boundary
-            // too, and the engine would report a decline three seasons before
-            // anything actually went wrong.
-            let nextSeason = reliable.filter { $0.seasonNumber == boundary + 1 }
-            guard !nextSeason.isEmpty,
-                  averageBefore - weightedMean(nextSeason) >= minimumDeclineDrop else { continue }
+            // The fall has to START here. Look up the next season that actually
+            // has reliable data rather than assuming season numbers are
+            // contiguous — a whole season can drop out of `reliable` while the
+            // aggregate reliability check still passes.
+            let nextSeasonNumber = seasons[index + 1]
+            let nextSeason = reliable.filter { $0.seasonNumber == nextSeasonNumber }
+            guard averageBefore - weightedMean(nextSeason) >= minimumDeclineDrop else { continue }
 
             let candidate = DeclinePoint(
                 afterSeason: boundary,
