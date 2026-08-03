@@ -25,6 +25,7 @@ struct SeriesAnalysisTests {
                     weightedAverage: 8.4,
                     standardDeviation: 0.3,
                     reliableEpisodeCount: 7,
+                    airedEpisodeCount: 9,
                     bestEpisode: EpisodeReference(id: 6, seasonNumber: 1, episodeNumber: 6, title: "Crazy Handful", rating: 8.9),
                     worstEpisode: EpisodeReference(id: 4, seasonNumber: 1, episodeNumber: 4, title: "Cancer Man", rating: 7.9)
                 )

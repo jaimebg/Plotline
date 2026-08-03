@@ -51,6 +51,8 @@ struct SeriesAnalysisEngineReliabilityTests {
         #expect(analysis.seasons.count == 1)
         #expect(abs(analysis.seasons[0].weightedAverage - 8.0) < 0.0001)
         #expect(analysis.seasons[0].reliableEpisodeCount == 8)
+        // ...but the season still reports what the average left out.
+        #expect(analysis.seasons[0].airedEpisodeCount == 10)
     }
 
     @Test("averages are weighted by vote count")
@@ -92,6 +94,42 @@ struct SeriesAnalysisEngineReliabilityTests {
         }
         #expect(analysis.isOngoing)
         #expect(analysis.seasons[0].reliableEpisodeCount == 5)
+        #expect(analysis.seasons[0].airedEpisodeCount == 5)
+    }
+
+    @Test("an episode with no air date is not evidence that the series continues")
+    func missingAirDateDoesNotImplyOngoing() {
+        // TMDB routinely returns null air dates. Treated as unaired-and-upcoming
+        // they would pin the series ongoing forever and suppress its ending
+        // verdict permanently, so only a real future date counts as evidence.
+        var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.2, 8.4, 8.1, 8.3])
+        episodes.append(EpisodeFixtures.episode(season: 1, number: 6, rating: 0, votes: 0, airDate: nil))
+
+        guard case .analyzed(let analysis) = analyze(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(!analysis.isOngoing)
+    }
+
+    @Test("a season with too few reliable episodes cannot be named best or worst")
+    func ignoresThinSeasonsWhenNamingBestAndWorst() {
+        // Season 3 has the highest average of the three, but only two reliable
+        // episodes back it — it is the season we know least about, not the best.
+        var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.0, 8.0])
+        episodes += EpisodeFixtures.season(2, ratings: [8.5, 8.5, 8.5, 8.5])
+        episodes += [
+            EpisodeFixtures.episode(season: 3, number: 1, rating: 9.9, votes: 100),
+            EpisodeFixtures.episode(season: 3, number: 2, rating: 9.9, votes: 100),
+            EpisodeFixtures.episode(season: 3, number: 3, rating: 9.9, votes: 3)
+        ]
+
+        guard case .analyzed(let analysis) = analyze(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(analysis.bestSeason == 2)
+        #expect(analysis.worstSeason == 1)
     }
 
     @Test("season summaries name their best and worst episode")
@@ -156,14 +194,15 @@ struct SeriesAnalysisEngineStandardDeviationTests {
         #expect(analysis.seasons[0].standardDeviation == 0)
     }
 
-    @Test("a season with a single reliable episode has zero standard deviation")
-    func singleEpisodeHasZeroStandardDeviation() {
+    @Test("a one-episode series is too thin to analyse at all")
+    func singleEpisodeIsNotAnalysed() {
+        // A single episode is 100% reliable, so the share test waves it through.
+        // Its standard deviation is 0, which would read as "very steady", and
+        // its first and last thirds are the same episode, which would read as a
+        // flat trajectory — a Plotline Score of 78 from one data point. The
+        // zero-deviation path is covered above by a flat four-episode season.
         let episodes = [EpisodeFixtures.episode(season: 1, number: 1, rating: 8.0, votes: 100)]
-        guard case .analyzed(let analysis) = analyze(episodes) else {
-            Issue.record("expected .analyzed")
-            return
-        }
-        #expect(analysis.seasons[0].standardDeviation == 0)
+        #expect(analyze(episodes) == .insufficientData(.notEnoughEpisodesToAnalyse))
     }
 
     @Test("equal vote weights produce the population standard deviation")
@@ -423,8 +462,14 @@ struct SeriesAnalysisEngineStandoutTests {
 
 @Suite("SeriesAnalysisEngine — verdicts and score")
 struct SeriesAnalysisEngineVerdictTests {
-    private func analysis(_ episodes: [EpisodeMetric]) -> SeriesAnalysis? {
-        guard case .analyzed(let value) = SeriesAnalysisEngine.analyze(episodes: episodes, asOf: EpisodeFixtures.now) else {
+    /// `hasEnded` defaults to unknown, matching the engine. Ending-verdict tests
+    /// pass `true` explicitly, since only a confirmed ending earns a verdict.
+    private func analysis(_ episodes: [EpisodeMetric], hasEnded: Bool? = nil) -> SeriesAnalysis? {
+        guard case .analyzed(let value) = SeriesAnalysisEngine.analyze(
+            episodes: episodes,
+            hasEnded: hasEnded,
+            asOf: EpisodeFixtures.now
+        ) else {
             return nil
         }
         return value
@@ -483,7 +528,7 @@ struct SeriesAnalysisEngineVerdictTests {
         episodes += EpisodeFixtures.season(2, ratings: [8.4, 8.5, 8.3, 8.4])
         episodes += EpisodeFixtures.season(3, ratings: [9.2, 9.3, 9.1, 9.2])
 
-        let verdict = analysis(episodes)?.endingVerdict
+        let verdict = analysis(episodes, hasEnded: true)?.endingVerdict
         #expect(verdict?.kind == .endsStrong)
         #expect(verdict?.finalSeason == 3)
     }
@@ -494,7 +539,7 @@ struct SeriesAnalysisEngineVerdictTests {
         episodes += EpisodeFixtures.season(2, ratings: [9.1, 9.2, 9.0, 9.1])
         episodes += EpisodeFixtures.season(3, ratings: [6.5, 6.4, 6.6, 6.5])
 
-        let verdict = analysis(episodes)?.endingVerdict
+        let verdict = analysis(episodes, hasEnded: true)?.endingVerdict
         #expect(verdict?.kind == .fadesOut)
         #expect(verdict?.peakSeason == 2)
     }
@@ -508,7 +553,7 @@ struct SeriesAnalysisEngineVerdictTests {
         episodes += EpisodeFixtures.season(2, ratings: [9.0, 9.0, 9.0, 9.0])
         episodes += EpisodeFixtures.season(3, ratings: [8.6, 8.7, 8.6, 8.7])
 
-        let verdict = analysis(episodes)?.endingVerdict
+        let verdict = analysis(episodes, hasEnded: true)?.endingVerdict
         #expect(verdict?.kind == .endsSteady)
         #expect(verdict?.finalSeason == 3)
         #expect(verdict?.peakSeason == 2)
@@ -522,13 +567,58 @@ struct SeriesAnalysisEngineVerdictTests {
             EpisodeFixtures.episode(season: 3, number: 1, rating: 0, votes: 0, airDate: EpisodeFixtures.futureAirDate)
         )
 
-        #expect(analysis(episodes)?.endingVerdict == nil)
+        #expect(analysis(episodes, hasEnded: false)?.endingVerdict == nil)
+    }
+
+    @Test("a series of unknown status gets no ending verdict, however finished it looks")
+    func suppressesEndingWhenStatusIsUnknown() {
+        // Every episode has aired, so the episode list alone cannot distinguish
+        // this from a finished series — which is exactly why it may not speak.
+        // A returning show resting between seasons looks identical here.
+        var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.1, 7.9, 8.0])
+        episodes += EpisodeFixtures.season(2, ratings: [8.4, 8.5, 8.3, 8.4])
+        episodes += EpisodeFixtures.season(3, ratings: [9.2, 9.3, 9.1, 9.2])
+
+        let result = analysis(episodes, hasEnded: nil)
+        #expect(result?.isOngoing == false)
+        #expect(result?.endingVerdict == nil)
     }
 
     @Test("a single-season series gets no ending verdict")
     func suppressesEndingForSingleSeason() {
         let episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.1, 7.9, 8.0, 8.2, 8.1])
-        #expect(analysis(episodes)?.endingVerdict == nil)
+        #expect(analysis(episodes, hasEnded: true)?.endingVerdict == nil)
+    }
+
+    @Test("an ending verdict needs a second season it can be measured against")
+    func suppressesEndingWithOneJudgeableSeason() {
+        // Season 1 keeps only two reliable episodes, so the final season is the
+        // sole season the analysis can speak for. It would be its own peak, and
+        // "ends on a high" measured against nothing is not a verdict.
+        var episodes = [
+            EpisodeFixtures.episode(season: 1, number: 1, rating: 8.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 2, rating: 8.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 3, rating: 8.0, votes: 3)
+        ]
+        episodes += EpisodeFixtures.season(2, ratings: [9.0, 9.0, 9.0, 9.0])
+
+        #expect(analysis(episodes, hasEnded: true)?.endingVerdict == nil)
+    }
+
+    @Test("an ending verdict needs enough reliable episodes in the final season")
+    func suppressesEndingWhenFinalSeasonIsThin() {
+        // The final season keeps two reliable episodes out of four. Whatever
+        // they say about how the series lands, they do not say it loudly enough.
+        var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.0, 8.0, 8.0])
+        episodes += EpisodeFixtures.season(2, ratings: [8.5, 8.5, 8.5, 8.5])
+        episodes += [
+            EpisodeFixtures.episode(season: 3, number: 1, rating: 9.5, votes: 100),
+            EpisodeFixtures.episode(season: 3, number: 2, rating: 9.5, votes: 100),
+            EpisodeFixtures.episode(season: 3, number: 3, rating: 9.5, votes: 3),
+            EpisodeFixtures.episode(season: 3, number: 4, rating: 9.5, votes: 3)
+        ]
+
+        #expect(analysis(episodes, hasEnded: true)?.endingVerdict == nil)
     }
 
     @Test("a great, steady, rising series scores higher than a mediocre erratic one")
@@ -572,7 +662,7 @@ struct SeriesAnalysisEngineVerdictTests {
         episodes += EpisodeFixtures.season(2, ratings: [8.0, 8.0, 8.0, 8.0])
         episodes += EpisodeFixtures.season(3, ratings: [8.0, 8.0, 8.0, 8.0])
 
-        guard let original = analysis(episodes) else {
+        guard let original = analysis(episodes, hasEnded: true) else {
             Issue.record("expected .analyzed")
             return
         }

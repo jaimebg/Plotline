@@ -18,6 +18,14 @@ enum SeriesAnalysisEngine {
     /// At least this share of the aired episodes must be reliable.
     static let minimumReliableShare = 0.6
 
+    /// Below this many reliable episodes there is nothing to say about
+    /// consistency or trajectory, so the engine declines to speak at all.
+    static let minimumReliableEpisodes = 3
+
+    /// A season needs this many reliable episodes before it can be named best
+    /// or worst, or carry the ending verdict.
+    static let minimumEpisodesForSeasonVerdict = 3
+
     /// A decline must cost at least this much to count as one.
     static let minimumDeclineDrop = 0.5
 
@@ -51,7 +59,21 @@ enum SeriesAnalysisEngine {
 
     // MARK: - Entry Point
 
-    static func analyze(episodes: [EpisodeMetric], asOf now: Date = Date()) -> SeriesAnalysisResult {
+    /// - Parameters:
+    ///   - episodes: every episode the series lists, specials included.
+    ///   - hasEnded: whether the series has finished, from TMDB's series-level
+    ///     `status`. `nil` means unknown, which is not the same as "still
+    ///     running": the episode list alone cannot tell a finished series from
+    ///     one waiting between seasons, so an unknown status earns no ending
+    ///     verdict. Kept as a parameter rather than fetched, so the engine stays
+    ///     a pure function of its inputs.
+    ///   - now: the reference date, explicit so the result never depends on the
+    ///     clock.
+    static func analyze(
+        episodes: [EpisodeMetric],
+        hasEnded: Bool? = nil,
+        asOf now: Date = Date()
+    ) -> SeriesAnalysisResult {
         // Season 0 is TMDB's specials bucket. Specials are not part of the main
         // run and would distort every average, so they never enter the analysis.
         let mainRun = episodes.filter { $0.seasonNumber > 0 }
@@ -71,25 +93,52 @@ enum SeriesAnalysisEngine {
             return .insufficientData(.tooFewReliableEpisodes)
         }
 
-        let isOngoing = mainRun.contains { !$0.hasAired(asOf: now) }
-        let seasons = seasonSummaries(from: reliable)
+        // The share is a ratio, and a ratio cannot see sample size: one reliable
+        // episode out of one aired is a perfect 100%. Consistency and trajectory
+        // are meaningless on a sample that small, so the engine stops here.
+        guard reliable.count >= minimumReliableEpisodes else {
+            return .insufficientData(.notEnoughEpisodesToAnalyse)
+        }
+
+        let seasons = seasonSummaries(reliable: reliable, aired: aired)
+        // Only seasons with enough reliable episodes may be named. A season
+        // carried by a single episode is not the series' best or worst; it is
+        // the season we know least about.
+        let comparable = seasons.filter { $0.reliableEpisodeCount >= minimumEpisodesForSeasonVerdict }
         let standouts = standoutEpisodes(from: reliable)
 
         return .analyzed(
             SeriesAnalysis(
                 seasons: seasons,
-                bestSeason: seasons.max(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
-                worstSeason: seasons.min(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
+                bestSeason: comparable.max(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
+                worstSeason: comparable.min(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
                 declinePoint: declinePoint(from: reliable),
                 consistency: consistency(from: reliable),
                 essentialEpisodes: standouts.essential,
                 skippableEpisodes: standouts.skippable,
                 openingVerdict: openingVerdict(from: reliable),
-                endingVerdict: endingVerdict(from: seasons, isOngoing: isOngoing),
+                endingVerdict: endingVerdict(from: seasons, hasEnded: hasEnded),
                 score: plotlineScore(from: reliable),
-                isOngoing: isOngoing
+                isOngoing: isOngoing(mainRun, hasEnded: hasEnded, asOf: now)
             )
         )
+    }
+
+    // MARK: - Run Status
+
+    /// Whether the series still has episodes to come.
+    ///
+    /// TMDB's series-level status is the authority. The episode list is only a
+    /// fallback and a weak one: TMDB lists no episodes at all for a season that
+    /// has not been announced, so a series resting between seasons looks
+    /// finished. Only an episode with a real, future air date counts as
+    /// evidence — a missing air date means TMDB does not know when (or whether)
+    /// it airs, and silence is not a schedule.
+    private static func isOngoing(_ mainRun: [EpisodeMetric], hasEnded: Bool?, asOf now: Date) -> Bool {
+        if let hasEnded {
+            return !hasEnded
+        }
+        return mainRun.contains { $0.airsAfter(now) }
     }
 
     // MARK: - Reliability
@@ -100,8 +149,14 @@ enum SeriesAnalysisEngine {
 
     // MARK: - Season Summaries
 
-    static func seasonSummaries(from reliable: [EpisodeMetric]) -> [SeasonSummary] {
-        Dictionary(grouping: reliable, by: \.seasonNumber)
+    /// - Parameters:
+    ///   - reliable: the episodes the averages are built from.
+    ///   - aired: every episode that has aired, reliable or not, so each summary
+    ///     can report the coverage its average rests on ("2 of 10 episodes").
+    static func seasonSummaries(reliable: [EpisodeMetric], aired: [EpisodeMetric]) -> [SeasonSummary] {
+        let airedCounts = Dictionary(grouping: aired, by: \.seasonNumber).mapValues(\.count)
+
+        return Dictionary(grouping: reliable, by: \.seasonNumber)
             .sorted { $0.key < $1.key }
             .map { seasonNumber, episodes in
                 SeasonSummary(
@@ -109,6 +164,7 @@ enum SeriesAnalysisEngine {
                     weightedAverage: weightedMean(episodes),
                     standardDeviation: weightedStandardDeviation(episodes),
                     reliableEpisodeCount: episodes.count,
+                    airedEpisodeCount: airedCounts[seasonNumber] ?? episodes.count,
                     bestEpisode: episodes.max(by: { $0.rating < $1.rating }).map(reference),
                     worstEpisode: episodes.min(by: { $0.rating < $1.rating }).map(reference)
                 )
@@ -289,12 +345,24 @@ enum SeriesAnalysisEngine {
 
     // MARK: - Ending
 
-    /// Only meaningful for a finished series with more than one season: an
-    /// ongoing show has not ended, and a single season has no arc to land.
-    static func endingVerdict(from seasons: [SeasonSummary], isOngoing: Bool) -> EndingVerdict? {
-        guard !isOngoing, seasons.count > 1 else { return nil }
-        guard let final = seasons.last,
-              let peak = seasons.max(by: { $0.weightedAverage < $1.weightedAverage }) else {
+    /// Only meaningful for a series known to have ended, whose final season
+    /// carries enough reliable episodes to judge and has at least one other
+    /// judgeable season to be measured against.
+    ///
+    /// `hasEnded == nil` — an unknown status — is not good enough: an ending
+    /// verdict is a claim about a completed work, and a series between seasons
+    /// is indistinguishable from a finished one by its episode list alone.
+    static func endingVerdict(from seasons: [SeasonSummary], hasEnded: Bool?) -> EndingVerdict? {
+        guard hasEnded == true else { return nil }
+
+        // A season the analysis cannot speak for cannot be the peak either, and
+        // a lone judgeable season would simply be its own peak — "ends on a
+        // high" measured against nothing.
+        let comparable = seasons.filter { $0.reliableEpisodeCount >= minimumEpisodesForSeasonVerdict }
+        guard comparable.count > 1,
+              let final = seasons.last,
+              final.reliableEpisodeCount >= minimumEpisodesForSeasonVerdict,
+              let peak = comparable.max(by: { $0.weightedAverage < $1.weightedAverage }) else {
             return nil
         }
 

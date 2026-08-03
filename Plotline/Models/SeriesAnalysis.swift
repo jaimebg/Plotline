@@ -18,6 +18,10 @@ enum InsufficientDataReason: String, Codable, Hashable {
     case noReliableEpisodes
     /// Some episodes are reliable, but too small a share of what aired.
     case tooFewReliableEpisodes
+    /// A high enough share, but too few reliable episodes in absolute terms.
+    /// A ratio cannot see sample size: one reliable episode out of one aired
+    /// clears every share test and still supports no verdict at all.
+    case notEnoughEpisodesToAnalyse
 }
 
 /// Derived analysis of a series. Every verdict carries the data that supports
@@ -33,7 +37,11 @@ struct SeriesAnalysis: Codable, Hashable {
     let openingVerdict: OpeningVerdict?
     let endingVerdict: EndingVerdict?
     let score: PlotlineScore
-    /// True when the series still has unaired episodes. Suppresses the ending verdict.
+    /// True when the series is still running: taken from TMDB's series status
+    /// when it is known, otherwise inferred from episodes with a scheduled
+    /// future air date. The ending verdict does not key off this — `false` here
+    /// can mean "unknown and nothing scheduled", which is not proof of an
+    /// ending; the verdict requires a series *known* to have finished.
     let isOngoing: Bool
 }
 
@@ -45,6 +53,10 @@ struct SeasonSummary: Codable, Hashable, Identifiable {
     let weightedAverage: Double
     let standardDeviation: Double
     let reliableEpisodeCount: Int
+    /// How many of the season's episodes have aired, reliable or not. Paired
+    /// with `reliableEpisodeCount` it states the coverage behind the average —
+    /// "from 2 of 10 episodes" — so a thin season cannot pass for a full one.
+    let airedEpisodeCount: Int
     let bestEpisode: EpisodeReference?
     let worstEpisode: EpisodeReference?
 }
