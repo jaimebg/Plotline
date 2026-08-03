@@ -158,6 +158,8 @@ struct DiscoveryView: View {
                     // Smart Lists
                     SmartListsView(viewModel: smartListsVM)
 
+                    curatedShelves
+
                     MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
                     MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
 
@@ -172,6 +174,35 @@ struct DiscoveryView: View {
                 .padding(.vertical)
             }
             .scrollIndicators(.hidden)
+        }
+    }
+
+    // MARK: - Curated Shelves
+
+    /// Plotline's own analysis, shipped in the bundle. These render instantly,
+    /// with no network and no user data, which is what keeps the first launch
+    /// from being an empty screen.
+    @ViewBuilder
+    private var curatedShelves: some View {
+        ForEach(DatasetStore.shared.lists) { list in
+            if let title = CuratedListCopy.title(for: list.id) {
+                VStack(alignment: .leading, spacing: 4) {
+                    MediaSection(
+                        title: title,
+                        items: DatasetStore.shared.entries(for: list).map(\.asMediaItem)
+                    )
+
+                    if let subtitle = CuratedListCopy.subtitle(for: list.id) {
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal)
+                    }
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(title)
+                .accessibilityHint(CuratedListCopy.subtitle(for: list.id) ?? "")
+            }
         }
     }
 
