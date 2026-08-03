@@ -204,3 +204,92 @@ struct SeriesAnalysisEngineStandardDeviationTests {
         #expect(downweightedAnalysis.seasons[0].standardDeviation < evenAnalysis.seasons[0].standardDeviation)
     }
 }
+
+@Suite("SeriesAnalysisEngine — decline and consistency")
+struct SeriesAnalysisEngineDeclineTests {
+    private func analysis(_ episodes: [EpisodeMetric]) -> SeriesAnalysis? {
+        guard case .analyzed(let value) = SeriesAnalysisEngine.analyze(episodes: episodes, asOf: EpisodeFixtures.now) else {
+            return nil
+        }
+        return value
+    }
+
+    @Test("a series that falls off after season 3 reports that boundary")
+    func detectsDecline() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.8, 8.9, 8.7, 8.8])
+        episodes += EpisodeFixtures.season(2, ratings: [8.9, 9.0, 8.8, 8.9])
+        episodes += EpisodeFixtures.season(3, ratings: [8.7, 8.8, 8.6, 8.7])
+        episodes += EpisodeFixtures.season(4, ratings: [7.4, 7.3, 7.5, 7.2])
+        episodes += EpisodeFixtures.season(5, ratings: [7.1, 7.0, 7.2, 7.1])
+
+        guard let result = analysis(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(result.declinePoint?.afterSeason == 3)
+        #expect(result.declinePoint?.seasonsAfter == [4, 5])
+        #expect((result.declinePoint?.drop ?? 0) > 0.5)
+    }
+
+    @Test("a consistently good series reports no decline")
+    func noDeclineWhenSteady() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.5, 8.6, 8.4, 8.5])
+        episodes += EpisodeFixtures.season(2, ratings: [8.6, 8.5, 8.7, 8.5])
+        episodes += EpisodeFixtures.season(3, ratings: [8.5, 8.6, 8.5, 8.6])
+        episodes += EpisodeFixtures.season(4, ratings: [8.6, 8.5, 8.6, 8.5])
+
+        #expect(analysis(episodes)?.declinePoint == nil)
+    }
+
+    @Test("a dip in the final season alone is not a decline point")
+    func requiresTwoSeasonsAfter() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.8, 8.9, 8.7, 8.8])
+        episodes += EpisodeFixtures.season(2, ratings: [8.9, 8.8, 8.9, 8.8])
+        episodes += EpisodeFixtures.season(3, ratings: [8.8, 8.9, 8.8, 8.7])
+        episodes += EpisodeFixtures.season(4, ratings: [6.5, 6.4, 6.6, 6.5])
+
+        // Only one season sits after the boundary, so the rule does not fire.
+        #expect(analysis(episodes)?.declinePoint == nil)
+    }
+
+    @Test("a drop smaller than the threshold is not a decline point")
+    func requiresMinimumDrop() {
+        var episodes = EpisodeFixtures.season(1, ratings: [8.5, 8.5, 8.5, 8.5])
+        episodes += EpisodeFixtures.season(2, ratings: [8.5, 8.5, 8.5, 8.5])
+        episodes += EpisodeFixtures.season(3, ratings: [8.3, 8.3, 8.3, 8.3])
+        episodes += EpisodeFixtures.season(4, ratings: [8.2, 8.2, 8.2, 8.2])
+
+        #expect(analysis(episodes)?.declinePoint == nil)
+    }
+
+    @Test("a single-season series has no decline point")
+    func singleSeasonHasNoDecline() {
+        let episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.5, 7.5, 8.2, 8.1])
+        #expect(analysis(episodes)?.declinePoint == nil)
+    }
+
+    @Test("a flat series is rated very steady")
+    func ratesVerySteady() {
+        let episodes = EpisodeFixtures.season(1, ratings: [8.4, 8.5, 8.4, 8.5, 8.4, 8.5])
+        #expect(analysis(episodes)?.consistency.rating == .verySteady)
+    }
+
+    @Test("a wildly swinging series is rated a rollercoaster")
+    func ratesRollercoaster() {
+        let episodes = EpisodeFixtures.season(1, ratings: [9.8, 5.5, 9.5, 5.2, 9.7, 5.0, 9.6, 5.4])
+        #expect(analysis(episodes)?.consistency.rating == .rollercoaster)
+    }
+
+    @Test("consistency names the highest and lowest rated episodes")
+    func consistencyCitesEvidence() {
+        let episodes = [
+            EpisodeFixtures.episode(season: 1, number: 1, rating: 8.0, title: "One"),
+            EpisodeFixtures.episode(season: 1, number: 2, rating: 9.9, title: "Peak"),
+            EpisodeFixtures.episode(season: 1, number: 3, rating: 5.1, title: "Trough"),
+            EpisodeFixtures.episode(season: 1, number: 4, rating: 8.2, title: "Four")
+        ]
+        let consistency = analysis(episodes)?.consistency
+        #expect(consistency?.highestRated?.title == "Peak")
+        #expect(consistency?.lowestRated?.title == "Trough")
+    }
+}
