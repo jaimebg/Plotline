@@ -18,6 +18,13 @@ enum SeriesAnalysisEngine {
     /// At least this share of the aired episodes must be reliable.
     static let minimumReliableShare = 0.6
 
+    /// A decline must cost at least this much to count as one.
+    static let minimumDeclineDrop = 0.5
+
+    /// And at least this many seasons must follow it, so a single weak final
+    /// season reads as a weak ending rather than a decline.
+    static let minimumSeasonsAfterDecline = 2
+
     // MARK: - Entry Point
 
     static func analyze(episodes: [EpisodeMetric], asOf now: Date = Date()) -> SeriesAnalysisResult {
@@ -48,8 +55,8 @@ enum SeriesAnalysisEngine {
                 seasons: seasons,
                 bestSeason: seasons.max(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
                 worstSeason: seasons.min(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
-                declinePoint: nil,
-                consistency: Consistency(rating: .steady, standardDeviation: 0, highestRated: nil, lowestRated: nil),
+                declinePoint: declinePoint(from: reliable),
+                consistency: consistency(from: reliable),
                 essentialEpisodes: [],
                 skippableEpisodes: [],
                 openingVerdict: nil,
@@ -81,6 +88,72 @@ enum SeriesAnalysisEngine {
                     worstEpisode: episodes.min(by: { $0.rating < $1.rating }).map(reference)
                 )
             }
+    }
+
+    // MARK: - Decline
+
+    /// The season boundary that costs the series the most, provided the drop is
+    /// big enough and enough seasons follow it to call the fall sustained.
+    ///
+    /// Deliberately simple: the result has to be explainable to a user in one
+    /// sentence ("it falls off after season 5"), which rules out fitting curves.
+    static func declinePoint(from reliable: [EpisodeMetric]) -> DeclinePoint? {
+        let seasons = Set(reliable.map(\.seasonNumber)).sorted()
+        guard seasons.count > minimumSeasonsAfterDecline else { return nil }
+
+        var best: DeclinePoint?
+
+        for boundary in seasons.dropLast(minimumSeasonsAfterDecline) {
+            let before = reliable.filter { $0.seasonNumber <= boundary }
+            let after = reliable.filter { $0.seasonNumber > boundary }
+            guard !before.isEmpty, !after.isEmpty else { continue }
+
+            let averageBefore = weightedMean(before)
+            let averageAfter = weightedMean(after)
+            guard averageBefore - averageAfter >= minimumDeclineDrop else { continue }
+
+            // The fall has to START here. Without this, one catastrophic final
+            // season drags the "after" average down at every earlier boundary
+            // too, and the engine would report a decline three seasons before
+            // anything actually went wrong.
+            let nextSeason = reliable.filter { $0.seasonNumber == boundary + 1 }
+            guard !nextSeason.isEmpty,
+                  averageBefore - weightedMean(nextSeason) >= minimumDeclineDrop else { continue }
+
+            let candidate = DeclinePoint(
+                afterSeason: boundary,
+                averageBefore: averageBefore,
+                averageAfter: averageAfter,
+                seasonsAfter: seasons.filter { $0 > boundary }
+            )
+
+            if candidate.drop > (best?.drop ?? 0) {
+                best = candidate
+            }
+        }
+
+        return best
+    }
+
+    // MARK: - Consistency
+
+    static func consistency(from reliable: [EpisodeMetric]) -> Consistency {
+        let deviation = weightedStandardDeviation(reliable)
+
+        let rating: ConsistencyRating
+        switch deviation {
+        case ..<0.35: rating = .verySteady
+        case ..<0.60: rating = .steady
+        case ..<0.90: rating = .uneven
+        default: rating = .rollercoaster
+        }
+
+        return Consistency(
+            rating: rating,
+            standardDeviation: deviation,
+            highestRated: reliable.max(by: { $0.rating < $1.rating }).map(reference),
+            lowestRated: reliable.min(by: { $0.rating < $1.rating }).map(reference)
+        )
     }
 
     // MARK: - Statistics
