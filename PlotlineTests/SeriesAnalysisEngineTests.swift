@@ -461,6 +461,21 @@ struct SeriesAnalysisEngineVerdictTests {
         #expect(verdict?.peakSeason == 2)
     }
 
+    @Test("a final season that sits strictly between the two thresholds ends steady")
+    func detectsSteadyEnding() {
+        // Season averages: 8.0, 9.0, 8.65. Peak is season 2 (9.0); final is
+        // season 3 (8.65); shortfall is 0.35 — inside the (0.2, 0.5) band, and
+        // far enough from both endpoints that floating-point noise can't flip it.
+        var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.0, 8.0, 8.0])
+        episodes += EpisodeFixtures.season(2, ratings: [9.0, 9.0, 9.0, 9.0])
+        episodes += EpisodeFixtures.season(3, ratings: [8.6, 8.7, 8.6, 8.7])
+
+        let verdict = analysis(episodes)?.endingVerdict
+        #expect(verdict?.kind == .endsSteady)
+        #expect(verdict?.finalSeason == 3)
+        #expect(verdict?.peakSeason == 2)
+    }
+
     @Test("an ongoing series gets no ending verdict")
     func suppressesEndingWhileOngoing() {
         var episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.1, 7.9, 8.0])
