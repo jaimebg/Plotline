@@ -45,7 +45,7 @@ Esta fase produce **la herramienta y el archivo**. La app **no lee el dataset to
 
 No son suposiciones. Se comprobaron contra los servicios reales:
 
-- **Wikidata resuelve por ID de TMDB.** `P4947` es el ID de película de TMDB y `P4983` el de serie. Consultando `?film wdt:P4947 "872585"` sale Oppenheimer; `?show wdt:P4983 "1396"` sale Breaking Bad con 12 premios (Emmy a Mejor Drama, Globo de Oro, Peabody, SAG, Critics' Choice, Satellite).
+- **Wikidata resuelve por ID de TMDB.** `P4947` es el ID de película de TMDB y `P4983` el de serie. Consultando `?film wdt:P4947 "872585"` sale Oppenheimer; `?show wdt:P4983 "1396"` sale Breaking Bad con 21 premios (Emmy a Mejor Drama, Globo de Oro, Peabody, SAG, Critics' Choice, Satellite).
 - **El endpoint no necesita API key**, pero **sí exige un `User-Agent` identificable**. Sin él devuelve 403.
 - **No hay que enumerar QIDs de premios.** El primer intento consultando por `wd:Q1364556` (adivinando el Emmy a Mejor Drama) devolvió cero filas porque el QID era incorrecto. Consultar por ID de TMDB y recoger lo que haya evita adivinar y es además lo que el generador necesita, porque ya parte de una lista semilla de IDs.
 - **`EpisodeMetric.stillURL` es el único obstáculo a la pureza del modelo**, y no lo usa ninguna vista: su único consumidor en todo el repo es una aserción de test.
@@ -631,7 +631,7 @@ git commit -m "feat: add TMDB client and seed list to the dataset generator"
 **Hechos verificados** (contra el endpoint real, antes de escribir esto):
 
 - `P4983` es el ID de serie de TMDB en Wikidata; `wdt:P4983 "1396"` resuelve a Breaking Bad.
-- `P166` es "award received". Breaking Bad devuelve 12, incluyendo Emmy a Mejor Drama, Globo de Oro y Peabody.
+- `P166` es "award received". Breaking Bad devuelve 21, incluyendo Emmy a Mejor Drama, Globo de Oro y Peabody. (Una comprobación anterior dijo 12: era el `LIMIT 12` de la consulta, no el total.)
 - El endpoint **exige un `User-Agent` identificable**. Sin él responde 403.
 - **No enumerar QIDs de premios.** Un intento previo consultando por un QID adivinado devolvió cero filas. Se consulta por ID de TMDB y se recoge lo que haya.
 
