@@ -82,4 +82,14 @@ final class DatasetStore {
         load()
         return list.tmdbIds.compactMap { index[$0] }
     }
+
+    /// The best-scoring entries, for shelves that want to lead with quality.
+    /// Shared with the views rather than reimplemented in each, so a test of
+    /// this ranking is a test of what the app actually shows.
+    func topRated(limit: Int) -> [DatasetEntry] {
+        entries
+            .sorted { $0.analysis.score.value > $1.analysis.score.value }
+            .prefix(limit)
+            .map { $0 }
+    }
 }
