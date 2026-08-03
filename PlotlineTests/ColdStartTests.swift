@@ -42,12 +42,14 @@ struct ColdStartTests {
 
     @Test("suggestions for the empty Favorites and Watchlist screens exist")
     func suggestionsExist() {
-        let ranked = DatasetStore.shared.entries
-            .sorted { $0.analysis.score.value > $1.analysis.score.value }
-            .prefix(12)
-
+        // Asserts against the same DatasetStore.topRated that
+        // SuggestionsEmptyState.suggestions calls, rather than a hand-copied
+        // reimplementation of the sort — so this is a test of what the view
+        // actually shows, not of a duplicate that can drift from it.
+        // `posterPath != nil` is not re-checked here: entriesAreComplete
+        // already asserts it across every entry in the dataset.
+        let ranked = DatasetStore.shared.topRated(limit: 12)
         #expect(ranked.count == 12)
-        #expect(ranked.allSatisfy { $0.posterPath != nil })
     }
 
     @Test("the shelves carry enough titles between them to fill a screen")

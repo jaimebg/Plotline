@@ -13,10 +13,7 @@ struct SuggestionsEmptyState: View {
     private var suggestions: [MediaItem] {
         // Highest-scoring series first: if we are going to suggest anything
         // unprompted, suggest what the analysis rates best.
-        DatasetStore.shared.entries
-            .sorted { $0.analysis.score.value > $1.analysis.score.value }
-            .prefix(12)
-            .map(\.asMediaItem)
+        DatasetStore.shared.topRated(limit: 12).map(\.asMediaItem)
     }
 
     var body: some View {
