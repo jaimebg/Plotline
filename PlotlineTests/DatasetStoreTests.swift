@@ -90,4 +90,12 @@ struct DatasetPresentationTests {
         let entry = try #require(DatasetStore.shared.entries.first { !$0.genreIds.isEmpty })
         #expect(entry.asMediaItem.genreIds == entry.genreIds)
     }
+
+    @Test("the falls-off subtitle claims only what the analysis proves")
+    func fallsOffCopyDoesNotOverclaim() {
+        // The predicate establishes a relative drop that never recovers. It
+        // says nothing about how good the show was beforehand, so the copy
+        // must not either.
+        #expect(CuratedListCopy.subtitle(for: "falls-off") == "The numbers show a real drop-off it never comes back from")
+    }
 }
