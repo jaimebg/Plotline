@@ -50,6 +50,12 @@ struct ColdStartTests {
         // already asserts it across every entry in the dataset.
         let ranked = DatasetStore.shared.topRated(limit: 12)
         #expect(ranked.count == 12)
+
+        // .prefix(12) yields twelve items whichever way the sort runs, so the
+        // count alone cannot see an inverted comparator. Assert the ordering
+        // the shelf's heading depends on.
+        let scores = ranked.map(\.analysis.score.value)
+        #expect(scores == scores.sorted(by: >))
     }
 
     @Test("the shelves carry enough titles between them to fill a screen")
