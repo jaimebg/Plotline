@@ -155,44 +155,11 @@ struct WatchlistView: View {
     }
 
     private var emptyStateView: some View {
-        VStack {
-            Spacer()
-            ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.plotlinePrimary.opacity(0.15),
-                                Color.plotlineGold.opacity(0.1)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-
-                VStack(spacing: 12) {
-                    Image(systemName: "eye.circle")
-                        .font(.system(.largeTitle, weight: .regular))
-                        .imageScale(.large)
-                        .foregroundStyle(Color.plotlinePrimary)
-                        .symbolEffect(.pulse.wholeSymbol, options: .repeating)
-
-                    Text("Your Watchlist is Empty")
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-
-                    Text("Use the eye icon on any movie or series to track what you want to watch")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
-                }
-                .padding(.vertical, 32)
-            }
-            .frame(height: 200)
-            .padding(.horizontal)
-            Spacer()
-        }
+        SuggestionsEmptyState(
+            title: "Nothing on Your List",
+            message: "Add anything you mean to get to, and track what you have finished.",
+            systemImage: "eye"
+        )
     }
 
     private var filteredEmptyStateView: some View {
