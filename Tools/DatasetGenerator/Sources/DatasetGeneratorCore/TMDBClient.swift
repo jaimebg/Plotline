@@ -8,7 +8,14 @@ struct TMDBSeriesDetails {
     /// needs. Anything other than a terminal status counts as not ended, so an
     /// ending verdict is never claimed about a show still in production.
     let hasEnded: Bool
+    let overview: String
     let posterPath: String?
+    let backdropPath: String?
+    let voteAverage: Double
+    /// Flattened from `/tv/{id}`'s `genres` objects, which is the same set the
+    /// list endpoints return as `genre_ids`.
+    let genreIds: [Int]
+    let firstAirDate: String?
 }
 
 enum TMDBClientError: Error {
@@ -73,12 +80,21 @@ struct TMDBClient {
         // ("Returning Series", "In Production", "Planned") means still going.
         let terminal: Set<String> = ["Ended", "Canceled", "Cancelled"]
 
+        // TMDB returns "" rather than null for a date it does not have, and an
+        // empty string would read as a real value downstream.
+        let firstAirDate = raw.firstAirDate.flatMap { $0.isEmpty ? nil : $0 }
+
         return TMDBSeriesDetails(
             id: raw.id,
             name: raw.name,
             seasonCount: raw.numberOfSeasons ?? 0,
             hasEnded: terminal.contains(raw.status ?? ""),
-            posterPath: raw.posterPath
+            overview: raw.overview ?? "",
+            posterPath: raw.posterPath,
+            backdropPath: raw.backdropPath,
+            voteAverage: raw.voteAverage ?? 0,
+            genreIds: raw.genres?.map(\.id) ?? [],
+            firstAirDate: firstAirDate
         )
     }
 
@@ -107,7 +123,16 @@ struct TMDBClient {
         let name: String
         let numberOfSeasons: Int?
         let status: String?
+        let overview: String?
         let posterPath: String?
+        let backdropPath: String?
+        let voteAverage: Double?
+        let genres: [RawGenre]?
+        let firstAirDate: String?
+    }
+
+    private struct RawGenre: Decodable {
+        let id: Int
     }
 
     private struct RawSeason: Decodable {
