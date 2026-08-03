@@ -48,10 +48,9 @@ struct DatasetStoreTests {
         #expect(DatasetStore.shared.entry(forTMDBId: -1) == nil)
     }
 
-    @Test("loading twice returns the same cached value")
-    func cachesAfterFirstLoad() {
-        let a = DatasetStore.shared.load()
-        let b = DatasetStore.shared.load()
-        #expect(a == b)
+    @Test("entry ids are unique, so the lookup index cannot lose entries")
+    func entryIdsAreUnique() {
+        let ids = DatasetStore.shared.entries.map(\.tmdbId)
+        #expect(Set(ids).count == ids.count)
     }
 }

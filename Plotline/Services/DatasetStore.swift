@@ -50,7 +50,17 @@ final class DatasetStore {
         }
 
         cached = decoded
-        index = Dictionary(uniqueKeysWithValues: decoded.entries.map { ($0.tmdbId, $0) })
+        // `uniqueKeysWithValues` would trap on a duplicate id. The seed list is
+        // meant to keep growing, and a single duplicated tmdbId in a future
+        // regeneration is a generator bug worth fixing, but not worth taking
+        // the app down over — this is a bundled seed and fallback, not a
+        // source of truth worth crashing launch for. Keeping the first
+        // occurrence is deterministic because the generator sorts entries by
+        // id.
+        index = Dictionary(
+            decoded.entries.map { ($0.tmdbId, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
         return decoded
     }
 
