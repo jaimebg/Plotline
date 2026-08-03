@@ -63,6 +63,17 @@ struct EpisodeMetricTests {
         #expect(!make(airDate: nil).hasAired)
     }
 
+    @Test("only a known future air date counts as scheduled")
+    func detectsScheduledEpisode() {
+        let reference = Date(timeIntervalSince1970: 1_577_836_800) // 2020-01-01
+        #expect(make(airDate: "2999-01-01").airsAfter(reference))
+        #expect(!make(airDate: "1999-01-01").airsAfter(reference))
+        // Not the inverse of `hasAired`: a missing date has neither aired nor
+        // been scheduled, so it is evidence of nothing either way.
+        #expect(!make(airDate: nil).airsAfter(reference))
+        #expect(!make(airDate: nil).hasAired)
+    }
+
     @Test("builds the still image URL from the path")
     func buildsStillURL() {
         #expect(make().stillURL?.absoluteString == "https://image.tmdb.org/t/p/w300/still.jpg")

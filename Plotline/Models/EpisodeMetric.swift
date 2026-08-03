@@ -41,10 +41,30 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
     /// Whether the episode has already aired. Episodes without an air date are
     /// treated as unaired so they never reach the analysis engine.
     var hasAired: Bool {
-        guard let airDate, let date = Self.airDateFormatter.date(from: airDate) else {
+        hasAired(asOf: Date())
+    }
+
+    /// Air check against an explicit reference date, so the analysis engine
+    /// stays a pure function of its inputs and its tests never depend on the clock.
+    func hasAired(asOf date: Date) -> Bool {
+        guard let airDate, let aired = Self.airDateFormatter.date(from: airDate) else {
             return false
         }
-        return date <= Date()
+        return aired <= date
+    }
+
+    /// Whether the episode is scheduled to air after the given date.
+    ///
+    /// Not the inverse of `hasAired(asOf:)`: an episode with a missing or
+    /// unparseable air date has not aired *and* is not scheduled, so it is
+    /// evidence of nothing. TMDB returns null air dates routinely, and treating
+    /// those as upcoming would keep a finished series looking unfinished
+    /// forever.
+    func airsAfter(_ date: Date) -> Bool {
+        guard let airDate, let aired = Self.airDateFormatter.date(from: airDate) else {
+            return false
+        }
+        return aired > date
     }
 
     /// URL for the episode still image.
