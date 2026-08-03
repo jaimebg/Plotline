@@ -18,7 +18,7 @@
 - El generador **nunca** forma parte del build de la app ni de su suite de tests.
 - Ninguna clave de API se commitea. El generador lee `TMDB_API_KEY` del entorno.
 - Commits en Conventional Commits, en inglés.
-- La app debe seguir compilando y sus 75 tests pasando al final de **cada** tarea.
+- La app debe seguir compilando y su suite pasando al final de **cada** tarea. El conteo es **75 al empezar y 74 a partir de la Tarea 1**, que borra `buildsStillURL` junto con la propiedad que probaba. Es la única bajada esperada en toda la fase: cualquier otra es una regresión.
 
 **Comando de tests de la app** (regresión, tras cada tarea):
 
