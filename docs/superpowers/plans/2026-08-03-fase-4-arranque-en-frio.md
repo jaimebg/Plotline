@@ -25,7 +25,7 @@ Es la corrección del defecto que causó el rechazo. El diagnóstico, del princi
 - **Nunca `.white` para texto** — `.primary` / `.secondary`. **Nunca fondos oscuros hardcodeados** — `Color.plotlineBackground` / `Color.plotlineCard`. Todo debe funcionar en claro y oscuro.
 - **Todo el texto de UI en inglés.** La app no tiene catálogo de localización y sus vistas son íntegramente inglesas.
 - **Nunca editar `Plotline.xcodeproj/project.pbxproj` ni `Plotline/Info.plist`.** Los archivos nuevos bajo `Plotline/` entran solos al target.
-- Los archivos compartidos con el generador — `EpisodeMetric.swift`, `SeriesAnalysis.swift`, `SeriesAnalysisEngine.swift`, `PlotlineDataset.swift` — están **symlinkados** desde `Tools/DatasetGenerator/`. Pueden leerse y usarse, pero si hay que modificarlos, **solo pueden importar `Foundation`**: una referencia a `TMDBService`, `NetworkManager` o `DiskCache` rompe el build del generador.
+- Cuatro archivos de `Plotline/` los compila también el generador: `Models/EpisodeMetric.swift`, `Models/SeriesAnalysis.swift`, `Models/PlotlineDataset.swift` y `Services/Analysis/SeriesAnalysisEngine.swift`. **Los originales están aquí**; los symlinks viven en `Tools/DatasetGenerator/Sources/DatasetGeneratorCore/Shared/` y apuntan hacia ellos. Pueden leerse y usarse con normalidad, pero si hay que modificarlos, **solo pueden importar `Foundation`**: una referencia a `TMDBService`, `NetworkManager` o `DiskCache` rompe el build del generador.
 - Commits en Conventional Commits, en inglés.
 - La app debe compilar y su suite pasar al final de **cada** tarea. Punto de partida: **74** tests.
 

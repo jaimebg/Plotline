@@ -124,44 +124,11 @@ struct FavoritesView: View {
     }
 
     private var emptyStateView: some View {
-        VStack {
-            Spacer()
-            ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.plotlinePrimary.opacity(0.15),
-                                Color.plotlineGold.opacity(0.1)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-
-                VStack(spacing: 12) {
-                    Image(systemName: "heart.circle")
-                        .font(.system(.largeTitle, weight: .regular))
-                        .imageScale(.large)
-                        .foregroundStyle(Color.plotlinePrimary)
-                        .symbolEffect(.pulse.wholeSymbol, options: .repeating)
-
-                    Text("No Favorites Yet")
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-
-                    Text("Tap the heart on any movie or series to add it to your favorites")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
-                }
-                .padding(.vertical, 32)
-            }
-            .frame(height: 200)
-            .padding(.horizontal)
-            Spacer()
-        }
+        SuggestionsEmptyState(
+            title: "No Favorites Yet",
+            message: "Tap the heart on anything you love and it lands here.",
+            systemImage: "heart"
+        )
     }
 
     private func handleFavoriteDetailOpened() {
