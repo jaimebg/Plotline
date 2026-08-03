@@ -37,6 +37,18 @@ enum SeriesAnalysisEngine {
     /// 0.1-point wobble clears the z-score threshold while meaning nothing.
     static let minimumStandoutDelta = 0.4
 
+    /// How many opening episodes the opening verdict weighs.
+    static let openingEpisodeCount = 6
+
+    /// How far the opening must sit from the rest to be worth calling out.
+    static let openingVerdictThreshold = 0.4
+
+    /// A final season within this much of the peak still counts as ending strong.
+    static let endingStrongTolerance = 0.2
+
+    /// A final season this far below the peak counts as fading out.
+    static let endingFadeThreshold = 0.5
+
     // MARK: - Entry Point
 
     static func analyze(episodes: [EpisodeMetric], asOf now: Date = Date()) -> SeriesAnalysisResult {
@@ -72,9 +84,9 @@ enum SeriesAnalysisEngine {
                 consistency: consistency(from: reliable),
                 essentialEpisodes: standouts.essential,
                 skippableEpisodes: standouts.skippable,
-                openingVerdict: nil,
-                endingVerdict: nil,
-                score: PlotlineScore(value: 0, level: 0, consistency: 0, trajectory: 0),
+                openingVerdict: openingVerdict(from: reliable),
+                endingVerdict: endingVerdict(from: seasons, isOngoing: isOngoing),
+                score: plotlineScore(from: reliable),
                 isOngoing: isOngoing
             )
         )
@@ -207,6 +219,121 @@ enum SeriesAnalysisEngine {
         }
 
         return (essential, skippable)
+    }
+
+    // MARK: - Opening
+
+    /// Compares the opening run against everything after it, which is the
+    /// question a viewer actually asks: is it worth pushing through the start?
+    static func openingVerdict(from reliable: [EpisodeMetric]) -> OpeningVerdict? {
+        let ordered = reliable.sorted {
+            ($0.seasonNumber, $0.episodeNumber) < ($1.seasonNumber, $1.episodeNumber)
+        }
+        guard ordered.count > openingEpisodeCount else { return nil }
+
+        let opening = Array(ordered.prefix(openingEpisodeCount))
+        let remainder = Array(ordered.dropFirst(openingEpisodeCount))
+        guard !remainder.isEmpty else { return nil }
+
+        let openingAverage = weightedMean(opening)
+        let remainderAverage = weightedMean(remainder)
+        let delta = openingAverage - remainderAverage
+
+        let kind: OpeningVerdict.Kind
+        var improvesAtSeason: Int?
+
+        if delta >= openingVerdictThreshold {
+            kind = .hooksEarly
+        } else if -delta >= openingVerdictThreshold {
+            kind = .slowStart
+            improvesAtSeason = firstSeasonClearing(openingAverage, in: remainder)
+        } else {
+            kind = .even
+        }
+
+        return OpeningVerdict(
+            kind: kind,
+            openingAverage: openingAverage,
+            remainderAverage: remainderAverage,
+            episodesConsidered: opening.map(reference),
+            improvesAtSeason: improvesAtSeason
+        )
+    }
+
+    /// The first season whose average clears `baseline` by the opening threshold.
+    private static func firstSeasonClearing(_ baseline: Double, in episodes: [EpisodeMetric]) -> Int? {
+        let bySeason = Dictionary(grouping: episodes, by: \.seasonNumber)
+        return bySeason.keys.sorted().first { season in
+            weightedMean(bySeason[season] ?? []) - baseline >= openingVerdictThreshold
+        }
+    }
+
+    // MARK: - Ending
+
+    /// Only meaningful for a finished series with more than one season: an
+    /// ongoing show has not ended, and a single season has no arc to land.
+    static func endingVerdict(from seasons: [SeasonSummary], isOngoing: Bool) -> EndingVerdict? {
+        guard !isOngoing, seasons.count > 1 else { return nil }
+        guard let final = seasons.last,
+              let peak = seasons.max(by: { $0.weightedAverage < $1.weightedAverage }) else {
+            return nil
+        }
+
+        let shortfall = peak.weightedAverage - final.weightedAverage
+
+        let kind: EndingVerdict.Kind
+        if shortfall <= endingStrongTolerance {
+            kind = .endsStrong
+        } else if shortfall >= endingFadeThreshold {
+            kind = .fadesOut
+        } else {
+            kind = .endsSteady
+        }
+
+        return EndingVerdict(
+            kind: kind,
+            finalSeason: final.seasonNumber,
+            finalSeasonAverage: final.weightedAverage,
+            peakSeason: peak.seasonNumber,
+            peakSeasonAverage: peak.weightedAverage
+        )
+    }
+
+    // MARK: - Plotline Score
+
+    /// A 0-100 score built from three visible components, so the UI can show the
+    /// breakdown rather than an unexplained number.
+    ///
+    /// - level: the weighted average, the single strongest signal, hence 60%.
+    /// - consistency: how evenly the series holds that level.
+    /// - trajectory: whether it climbs or slides across its run.
+    static func plotlineScore(from reliable: [EpisodeMetric]) -> PlotlineScore {
+        let mean = weightedMean(reliable)
+        let level = clampToScore(mean * 10)
+
+        let deviation = weightedStandardDeviation(reliable)
+        let consistency = clampToScore(100 - deviation * 100)
+
+        let ordered = reliable.sorted {
+            ($0.seasonNumber, $0.episodeNumber) < ($1.seasonNumber, $1.episodeNumber)
+        }
+        let third = max(1, ordered.count / 3)
+        let opening = weightedMean(Array(ordered.prefix(third)))
+        let closing = weightedMean(Array(ordered.suffix(third)))
+        let trajectory = clampToScore(50 + (closing - opening) * 25)
+
+        let combined = Double(level) * 0.6 + Double(consistency) * 0.2 + Double(trajectory) * 0.2
+
+        return PlotlineScore(
+            value: clampToScore(combined),
+            level: level,
+            consistency: consistency,
+            trajectory: trajectory
+        )
+    }
+
+    private static func clampToScore(_ value: Double) -> Int {
+        Int(min(100, max(0, value)).rounded())
     }
 
     // MARK: - Statistics
