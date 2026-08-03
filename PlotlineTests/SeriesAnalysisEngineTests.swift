@@ -139,3 +139,68 @@ struct SeriesAnalysisEngineReliabilityTests {
         #expect(analysis.seasons[0].reliableEpisodeCount == 4)
     }
 }
+
+@Suite("SeriesAnalysisEngine — weighted standard deviation")
+struct SeriesAnalysisEngineStandardDeviationTests {
+    private func analyze(_ episodes: [EpisodeMetric]) -> SeriesAnalysisResult {
+        SeriesAnalysisEngine.analyze(episodes: episodes, asOf: EpisodeFixtures.now)
+    }
+
+    @Test("a flat season (every rating identical) has zero standard deviation")
+    func flatSeasonHasZeroStandardDeviation() {
+        let episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.0, 8.0, 8.0], votes: 100)
+        guard case .analyzed(let analysis) = analyze(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(analysis.seasons[0].standardDeviation == 0)
+    }
+
+    @Test("a season with a single reliable episode has zero standard deviation")
+    func singleEpisodeHasZeroStandardDeviation() {
+        let episodes = [EpisodeFixtures.episode(season: 1, number: 1, rating: 8.0, votes: 100)]
+        guard case .analyzed(let analysis) = analyze(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(analysis.seasons[0].standardDeviation == 0)
+    }
+
+    @Test("equal vote weights produce the population standard deviation")
+    func equalWeightsProducePopulationStandardDeviation() {
+        let episodes = [
+            EpisodeFixtures.episode(season: 1, number: 1, rating: 7.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 2, rating: 8.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 3, rating: 9.0, votes: 100)
+        ]
+        guard case .analyzed(let analysis) = analyze(episodes) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        // Mean is 8.0; population standard deviation of [7, 8, 9] is sqrt(2/3) ≈ 0.8165.
+        #expect(abs(analysis.seasons[0].weightedAverage - 8.0) < 0.0001)
+        #expect(abs(analysis.seasons[0].standardDeviation - 0.8165) < 0.001)
+    }
+
+    @Test("down-weighting an outlier's votes shrinks the standard deviation")
+    func downweightingOutlierShrinksStandardDeviation() {
+        // Same three ratings as the equal-weight case above, but the 9.0 outlier
+        // now carries far fewer votes (still above the reliability floor).
+        let evenlyWeighted = [
+            EpisodeFixtures.episode(season: 1, number: 1, rating: 7.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 2, rating: 8.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 3, rating: 9.0, votes: 100)
+        ]
+        let outlierDownweighted = [
+            EpisodeFixtures.episode(season: 1, number: 1, rating: 7.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 2, rating: 8.0, votes: 100),
+            EpisodeFixtures.episode(season: 1, number: 3, rating: 9.0, votes: 10)
+        ]
+        guard case .analyzed(let evenAnalysis) = analyze(evenlyWeighted),
+              case .analyzed(let downweightedAnalysis) = analyze(outlierDownweighted) else {
+            Issue.record("expected .analyzed")
+            return
+        }
+        #expect(downweightedAnalysis.seasons[0].standardDeviation < evenAnalysis.seasons[0].standardDeviation)
+    }
+}
