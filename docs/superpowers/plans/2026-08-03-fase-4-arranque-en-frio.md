@@ -21,7 +21,7 @@ Es la corrección del defecto que causó el rechazo. El diagnóstico, del princi
 ## Global Constraints
 
 - Deployment target iOS 26.0. El proyecto compila en **Swift 5 language mode**. No intentar migración a Swift 6.
-- Estado con `@Observable`, nunca `@ObservableObject`.
+- Los **view models** usan `@Observable`, nunca `@ObservableObject`. `DatasetStore` (Tarea 1) es la excepción deliberada y no es observable: sus getters mutan una caché, lo que bajo observación sería una mutación durante la evaluación del body de una vista, y su contenido no cambia nunca tras la primera lectura.
 - **Nunca `.white` para texto** — `.primary` / `.secondary`. **Nunca fondos oscuros hardcodeados** — `Color.plotlineBackground` / `Color.plotlineCard`. Todo debe funcionar en claro y oscuro.
 - **Todo el texto de UI en inglés.** La app no tiene catálogo de localización y sus vistas son íntegramente inglesas.
 - **Nunca editar `Plotline.xcodeproj/project.pbxproj` ni `Plotline/Info.plist`.** Los archivos nuevos bajo `Plotline/` entran solos al target.
