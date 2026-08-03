@@ -143,7 +143,7 @@ enum SeriesAnalysisEngine {
 
     // MARK: - Reliability
 
-    static func isReliable(_ episode: EpisodeMetric) -> Bool {
+    private static func isReliable(_ episode: EpisodeMetric) -> Bool {
         episode.hasValidRating && episode.voteCount >= minimumVotesPerEpisode
     }
 
@@ -153,20 +153,27 @@ enum SeriesAnalysisEngine {
     ///   - reliable: the episodes the averages are built from.
     ///   - aired: every episode that has aired, reliable or not, so each summary
     ///     can report the coverage its average rests on ("2 of 10 episodes").
-    static func seasonSummaries(reliable: [EpisodeMetric], aired: [EpisodeMetric]) -> [SeasonSummary] {
+    private static func seasonSummaries(reliable: [EpisodeMetric], aired: [EpisodeMetric]) -> [SeasonSummary] {
         let airedCounts = Dictionary(grouping: aired, by: \.seasonNumber).mapValues(\.count)
 
         return Dictionary(grouping: reliable, by: \.seasonNumber)
             .sorted { $0.key < $1.key }
             .map { seasonNumber, episodes in
-                SeasonSummary(
+                // Pick from episodes in broadcast order, so two equally rated
+                // episodes always resolve the same way. Left in input order the
+                // winner would depend on how TMDB happened to sort its response,
+                // and a live recomputation could disagree with the bundled
+                // dataset over the same numbers.
+                let ordered = episodes.sorted { $0.episodeNumber < $1.episodeNumber }
+
+                return SeasonSummary(
                     seasonNumber: seasonNumber,
                     weightedAverage: weightedMean(episodes),
                     standardDeviation: weightedStandardDeviation(episodes),
                     reliableEpisodeCount: episodes.count,
                     airedEpisodeCount: airedCounts[seasonNumber] ?? episodes.count,
-                    bestEpisode: episodes.max(by: { $0.rating < $1.rating }).map(reference),
-                    worstEpisode: episodes.min(by: { $0.rating < $1.rating }).map(reference)
+                    bestEpisode: ordered.max(by: { $0.rating < $1.rating }).map(reference),
+                    worstEpisode: ordered.min(by: { $0.rating < $1.rating }).map(reference)
                 )
             }
     }
@@ -179,7 +186,7 @@ enum SeriesAnalysisEngine {
     ///
     /// Deliberately simple: the result has to be explainable to a user in one
     /// sentence ("it falls off after season 5"), which rules out fitting curves.
-    static func declinePoint(from reliable: [EpisodeMetric]) -> DeclinePoint? {
+    private static func declinePoint(from reliable: [EpisodeMetric]) -> DeclinePoint? {
         let seasons = Set(reliable.map(\.seasonNumber)).sorted()
         guard seasons.count > minimumSeasonsAfterDecline else { return nil }
 
@@ -188,7 +195,6 @@ enum SeriesAnalysisEngine {
         for (index, boundary) in seasons.dropLast(minimumSeasonsAfterDecline).enumerated() {
             let before = reliable.filter { $0.seasonNumber <= boundary }
             let after = reliable.filter { $0.seasonNumber > boundary }
-            guard !before.isEmpty, !after.isEmpty else { continue }
 
             let averageBefore = weightedMean(before)
             let averageAfter = weightedMean(after)
@@ -224,7 +230,7 @@ enum SeriesAnalysisEngine {
 
     // MARK: - Consistency
 
-    static func consistency(from reliable: [EpisodeMetric]) -> Consistency {
+    private static func consistency(from reliable: [EpisodeMetric]) -> Consistency {
         let deviation = weightedStandardDeviation(reliable)
 
         let rating: ConsistencyRating
@@ -235,11 +241,17 @@ enum SeriesAnalysisEngine {
         default: rating = .rollercoaster
         }
 
+        // As in `seasonSummaries`, ties resolve by broadcast order rather than
+        // by whatever order the episodes arrived in.
+        let ordered = reliable.sorted {
+            ($0.seasonNumber, $0.episodeNumber) < ($1.seasonNumber, $1.episodeNumber)
+        }
+
         return Consistency(
             rating: rating,
             standardDeviation: deviation,
-            highestRated: reliable.max(by: { $0.rating < $1.rating }).map(reference),
-            lowestRated: reliable.min(by: { $0.rating < $1.rating }).map(reference)
+            highestRated: ordered.max(by: { $0.rating < $1.rating }).map(reference),
+            lowestRated: ordered.min(by: { $0.rating < $1.rating }).map(reference)
         )
     }
 
@@ -250,7 +262,7 @@ enum SeriesAnalysisEngine {
     /// Judged per season rather than across the series, so a strong episode of a
     /// weak season still registers — which is what a viewer deciding whether to
     /// skip ahead actually wants to know.
-    static func standoutEpisodes(
+    private static func standoutEpisodes(
         from reliable: [EpisodeMetric]
     ) -> (essential: [EpisodeReference], skippable: [EpisodeReference]) {
         var essential: [EpisodeReference] = []
@@ -287,7 +299,7 @@ enum SeriesAnalysisEngine {
 
     /// Compares the opening run against everything after it, which is the
     /// question a viewer actually asks: is it worth pushing through the start?
-    static func openingVerdict(from reliable: [EpisodeMetric]) -> OpeningVerdict? {
+    private static func openingVerdict(from reliable: [EpisodeMetric]) -> OpeningVerdict? {
         let ordered = reliable.sorted {
             ($0.seasonNumber, $0.episodeNumber) < ($1.seasonNumber, $1.episodeNumber)
         }
@@ -352,7 +364,7 @@ enum SeriesAnalysisEngine {
     /// `hasEnded == nil` — an unknown status — is not good enough: an ending
     /// verdict is a claim about a completed work, and a series between seasons
     /// is indistinguishable from a finished one by its episode list alone.
-    static func endingVerdict(from seasons: [SeasonSummary], hasEnded: Bool?) -> EndingVerdict? {
+    private static func endingVerdict(from seasons: [SeasonSummary], hasEnded: Bool?) -> EndingVerdict? {
         guard hasEnded == true else { return nil }
 
         // A season the analysis cannot speak for cannot be the peak either, and
@@ -394,7 +406,7 @@ enum SeriesAnalysisEngine {
     /// - level: the weighted average, the single strongest signal, hence 60%.
     /// - consistency: how evenly the series holds that level.
     /// - trajectory: whether it climbs or slides across its run.
-    static func plotlineScore(from reliable: [EpisodeMetric]) -> PlotlineScore {
+    private static func plotlineScore(from reliable: [EpisodeMetric]) -> PlotlineScore {
         let mean = weightedMean(reliable)
         let level = clampToScore(mean * 10)
 
@@ -427,7 +439,7 @@ enum SeriesAnalysisEngine {
 
     /// Mean rating weighted by vote count, so a 9.8 backed by 12 votes cannot
     /// outweigh an 8.9 backed by 4,000.
-    static func weightedMean(_ episodes: [EpisodeMetric]) -> Double {
+    private static func weightedMean(_ episodes: [EpisodeMetric]) -> Double {
         let totalWeight = episodes.reduce(0) { $0 + $1.voteCount }
         guard totalWeight > 0 else { return 0 }
 
@@ -435,7 +447,7 @@ enum SeriesAnalysisEngine {
         return weightedSum / Double(totalWeight)
     }
 
-    static func weightedStandardDeviation(_ episodes: [EpisodeMetric]) -> Double {
+    private static func weightedStandardDeviation(_ episodes: [EpisodeMetric]) -> Double {
         let totalWeight = episodes.reduce(0) { $0 + $1.voteCount }
         guard totalWeight > 0, episodes.count > 1 else { return 0 }
 
@@ -450,7 +462,7 @@ enum SeriesAnalysisEngine {
 
     // MARK: - Helpers
 
-    static func reference(_ episode: EpisodeMetric) -> EpisodeReference {
+    private static func reference(_ episode: EpisodeMetric) -> EpisodeReference {
         EpisodeReference(
             id: episode.id,
             seasonNumber: episode.seasonNumber,
