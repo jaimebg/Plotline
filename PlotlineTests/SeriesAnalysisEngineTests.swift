@@ -652,15 +652,16 @@ struct SeriesAnalysisEngineVerdictTests {
 
     @Test("a series with a decline point and both verdicts round-trips through Codable")
     func fullAnalysisRoundTrips() throws {
-        // Season 1 hooks hard (opening average 9.0), then the show settles at
-        // 8.0 for seasons 2 and 3 — a drop big enough to register as a decline
-        // point (>= 0.5) and, since the final season sits a full point below
-        // the season-1 peak, a faded ending too. That gives us a fixture where
-        // declinePoint, openingVerdict, and endingVerdict are all non-nil at
-        // once, finally exercising their Codable conformance end to end.
+        // Seasons 1 and 2 hold at 9.0 — two seasons, so there is an established
+        // level to fall from — then the show settles at 8.0 for seasons 3 and 4.
+        // The drop clears the decline threshold, the opening run sits a point
+        // above the rest, and the final season sits a point below the peak, so
+        // declinePoint, openingVerdict and endingVerdict come back non-nil at
+        // once, exercising their Codable conformance end to end.
         var episodes = EpisodeFixtures.season(1, ratings: [9.0, 9.0, 9.0, 9.0, 9.0, 9.0])
-        episodes += EpisodeFixtures.season(2, ratings: [8.0, 8.0, 8.0, 8.0])
+        episodes += EpisodeFixtures.season(2, ratings: [9.0, 9.0, 9.0, 9.0])
         episodes += EpisodeFixtures.season(3, ratings: [8.0, 8.0, 8.0, 8.0])
+        episodes += EpisodeFixtures.season(4, ratings: [8.0, 8.0, 8.0, 8.0])
 
         guard let original = analysis(episodes, hasEnded: true) else {
             Issue.record("expected .analyzed")

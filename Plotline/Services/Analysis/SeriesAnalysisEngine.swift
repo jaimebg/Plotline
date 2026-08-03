@@ -27,11 +27,16 @@ enum SeriesAnalysisEngine {
     static let minimumEpisodesForSeasonVerdict = 3
 
     /// A decline must cost at least this much to count as one.
-    static let minimumDeclineDrop = 0.5
+    static let minimumDeclineDrop = 0.4
 
     /// And at least this many seasons must follow it, so a single weak final
     /// season reads as a weak ending rather than a decline.
     static let minimumSeasonsAfterDecline = 2
+
+    /// And at least this many must precede it. One season is a starting point,
+    /// not an established level, so a fall measured against it says more about
+    /// the length of the run than about the show.
+    static let minimumSeasonsBeforeDecline = 2
 
     /// How far from its season's mean an episode must sit to stand out.
     static let standoutZScoreThreshold = 1.5
@@ -193,6 +198,12 @@ enum SeriesAnalysisEngine {
         var best: DeclinePoint?
 
         for (index, boundary) in seasons.dropLast(minimumSeasonsAfterDecline).enumerated() {
+            // A single season is not a level to fall from. Without this, a
+            // three-season show whose last two sit below its first is reported
+            // as "declines after season 1" — a confident claim resting on one
+            // season of baseline, which is ordinary variance in a short run.
+            guard index + 1 >= minimumSeasonsBeforeDecline else { continue }
+
             let before = reliable.filter { $0.seasonNumber <= boundary }
             let after = reliable.filter { $0.seasonNumber > boundary }
 
