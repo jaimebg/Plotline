@@ -54,3 +54,40 @@ struct DatasetStoreTests {
         #expect(Set(ids).count == ids.count)
     }
 }
+
+@MainActor
+@Suite("Dataset presentation")
+struct DatasetPresentationTests {
+    @Test("every shipped list has English copy")
+    func everyListHasCopy() {
+        // A shelf with no title cannot be rendered, so a dataset id with no
+        // copy is a shipping defect, not a fallback case.
+        for list in DatasetStore.shared.lists {
+            #expect(CuratedListCopy.title(for: list.id) != nil, "no title for \(list.id)")
+            #expect(CuratedListCopy.subtitle(for: list.id) != nil, "no subtitle for \(list.id)")
+        }
+    }
+
+    @Test("an unknown list id has no copy")
+    func unknownIdHasNoCopy() {
+        #expect(CuratedListCopy.title(for: "not-a-list") == nil)
+    }
+
+    @Test("an entry converts to a MediaItem the existing views can render")
+    func convertsToMediaItem() throws {
+        let entry = try #require(DatasetStore.shared.entries.first)
+        let item = entry.asMediaItem
+
+        #expect(item.id == entry.tmdbId)
+        #expect(item.displayTitle == entry.name)
+        #expect(item.isTVSeries)
+        #expect(item.posterPath == entry.posterPath)
+        #expect(item.voteAverage == entry.voteAverage)
+    }
+
+    @Test("converted items carry the genres the taste profile needs")
+    func conversionKeepsGenres() throws {
+        let entry = try #require(DatasetStore.shared.entries.first { !$0.genreIds.isEmpty })
+        #expect(entry.asMediaItem.genreIds == entry.genreIds)
+    }
+}
