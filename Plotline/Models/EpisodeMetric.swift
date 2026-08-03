@@ -41,10 +41,16 @@ struct EpisodeMetric: Identifiable, Codable, Hashable {
     /// Whether the episode has already aired. Episodes without an air date are
     /// treated as unaired so they never reach the analysis engine.
     var hasAired: Bool {
-        guard let airDate, let date = Self.airDateFormatter.date(from: airDate) else {
+        hasAired(asOf: Date())
+    }
+
+    /// Air check against an explicit reference date, so the analysis engine
+    /// stays a pure function of its inputs and its tests never depend on the clock.
+    func hasAired(asOf date: Date) -> Bool {
+        guard let airDate, let aired = Self.airDateFormatter.date(from: airDate) else {
             return false
         }
-        return date <= Date()
+        return aired <= date
     }
 
     /// URL for the episode still image.
