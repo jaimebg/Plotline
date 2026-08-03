@@ -81,7 +81,9 @@ struct StatsView: View {
                 if !viewModel.topGenres.isEmpty {
                     genreBreakdown
                 }
-                averageRatings
+                if !viewModel.isEmpty {
+                    averageRatings
+                }
 
                 // MARK: - Compare
 
