@@ -8,7 +8,7 @@ enum CuratedListCopy {
     private static let copy: [String: (title: String, subtitle: String)] = [
         "never-decline": (
             "Shows That Never Slip",
-            "They hold their level from first season to last"
+            "They hold their level season after season"
         ),
         "perfect-ending": (
             "They Stick the Landing",
