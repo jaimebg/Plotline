@@ -25,6 +25,18 @@ enum SeriesAnalysisEngine {
     /// season reads as a weak ending rather than a decline.
     static let minimumSeasonsAfterDecline = 2
 
+    /// How far from its season's mean an episode must sit to stand out.
+    static let standoutZScoreThreshold = 1.5
+
+    /// Below this many reliable episodes a season's spread is too noisy to
+    /// draw a z-score from, so it contributes no standouts.
+    static let minimumEpisodesForZScore = 4
+
+    /// An episode must also sit this far from its season's mean in absolute
+    /// terms. In a very flat season the standard deviation collapses, so a
+    /// 0.1-point wobble clears the z-score threshold while meaning nothing.
+    static let minimumStandoutDelta = 0.4
+
     // MARK: - Entry Point
 
     static func analyze(episodes: [EpisodeMetric], asOf now: Date = Date()) -> SeriesAnalysisResult {
@@ -49,6 +61,7 @@ enum SeriesAnalysisEngine {
 
         let isOngoing = mainRun.contains { !$0.hasAired(asOf: now) }
         let seasons = seasonSummaries(from: reliable)
+        let standouts = standoutEpisodes(from: reliable)
 
         return .analyzed(
             SeriesAnalysis(
@@ -57,8 +70,8 @@ enum SeriesAnalysisEngine {
                 worstSeason: seasons.min(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
                 declinePoint: declinePoint(from: reliable),
                 consistency: consistency(from: reliable),
-                essentialEpisodes: [],
-                skippableEpisodes: [],
+                essentialEpisodes: standouts.essential,
+                skippableEpisodes: standouts.skippable,
                 openingVerdict: nil,
                 endingVerdict: nil,
                 score: PlotlineScore(value: 0, level: 0, consistency: 0, trajectory: 0),
@@ -154,6 +167,46 @@ enum SeriesAnalysisEngine {
             highestRated: reliable.max(by: { $0.rating < $1.rating }).map(reference),
             lowestRated: reliable.min(by: { $0.rating < $1.rating }).map(reference)
         )
+    }
+
+    // MARK: - Standout Episodes
+
+    /// Episodes that sit far from their own season's mean.
+    ///
+    /// Judged per season rather than across the series, so a strong episode of a
+    /// weak season still registers — which is what a viewer deciding whether to
+    /// skip ahead actually wants to know.
+    static func standoutEpisodes(
+        from reliable: [EpisodeMetric]
+    ) -> (essential: [EpisodeReference], skippable: [EpisodeReference]) {
+        var essential: [EpisodeReference] = []
+        var skippable: [EpisodeReference] = []
+
+        let bySeason = Dictionary(grouping: reliable, by: \.seasonNumber)
+
+        for seasonNumber in bySeason.keys.sorted() {
+            let episodes = bySeason[seasonNumber] ?? []
+            guard episodes.count >= minimumEpisodesForZScore else { continue }
+
+            let mean = weightedMean(episodes)
+            let deviation = weightedStandardDeviation(episodes)
+            guard deviation > 0 else { continue }
+
+            for episode in episodes.sorted(by: { $0.episodeNumber < $1.episodeNumber }) {
+                let delta = episode.rating - mean
+                guard abs(delta) >= minimumStandoutDelta else { continue }
+
+                let zScore = delta / deviation
+
+                if zScore >= standoutZScoreThreshold {
+                    essential.append(reference(episode))
+                } else if zScore <= -standoutZScoreThreshold {
+                    skippable.append(reference(episode))
+                }
+            }
+        }
+
+        return (essential, skippable)
     }
 
     // MARK: - Statistics
