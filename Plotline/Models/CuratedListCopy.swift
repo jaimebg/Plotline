@@ -16,11 +16,11 @@ enum CuratedListCopy {
         ),
         "slow-burn": (
             "Worth the Wait",
-            "Slow to start, and then they take off"
+            "Slow to start, and measurably better once they get going"
         ),
         "falls-off": (
             "Knows When It Peaked",
-            "Great early on, and the numbers show where it turned"
+            "The numbers show a real drop-off it never comes back from"
         ),
         "rollercoaster": (
             "Brilliant and Baffling",
