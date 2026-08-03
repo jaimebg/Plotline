@@ -92,4 +92,32 @@ struct DatasetBuilderTests {
         #expect(decoded == dataset)
         #expect(decoded.entries[0].awards == ["Peabody Awards"])
     }
+
+    @Test("a dataset with skipped entries round-trips through Codable")
+    func roundTripsWithSkipped() throws {
+        let steady = try #require(entry(id: 1, name: "Steady", ratings: [[8.5, 8.6, 8.4, 8.5]]))
+        let skipped = [
+            SkippedSeries(tmdbId: 4614, name: "NCIS", reason: "tooFewReliableEpisodes"),
+            SkippedSeries(tmdbId: 999, name: nil, reason: "badStatus(500)")
+        ]
+        let dataset = DatasetBuilder.build(entries: [steady], skipped: skipped)
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let data = try encoder.encode(dataset)
+        let decoded = try JSONDecoder().decode(PlotlineDataset.self, from: data)
+
+        #expect(decoded == dataset)
+        #expect(decoded.skipped.count == 2)
+        #expect(decoded.skipped.first { $0.tmdbId == 999 }?.name == nil)
+    }
+
+    @Test("skipped series come back sorted by id so regeneration is reproducible")
+    func sortsSkipped() throws {
+        let later = SkippedSeries(tmdbId: 42, name: "Later", reason: "networkError")
+        let earlier = SkippedSeries(tmdbId: 7, name: "Earlier", reason: "tooFewReliableEpisodes")
+
+        let dataset = DatasetBuilder.build(entries: [], skipped: [later, earlier])
+        #expect(dataset.skipped.map(\.tmdbId) == [7, 42])
+    }
 }
