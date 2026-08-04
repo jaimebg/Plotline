@@ -6,7 +6,7 @@ import Foundation
 /// keyed by ISO 3166-1 code. The data behind it comes from JustWatch, which
 /// TMDB requires be credited wherever it is shown; `WatchProvidersSection`
 /// carries that credit.
-struct WatchProvidersResponse: Decodable {
+struct WatchProvidersResponse: Codable {
     let id: Int
     let results: [String: RegionAvailability]
 }
@@ -15,7 +15,7 @@ struct WatchProvidersResponse: Decodable {
 ///
 /// Every category is optional and they genuinely go missing: Spain carries a
 /// subscription entry for Breaking Bad and no purchase or rental at all.
-struct RegionAvailability: Decodable, Hashable {
+struct RegionAvailability: Codable, Hashable {
     /// TMDB's own watch page for this title and region.
     ///
     /// The only link the endpoint offers — there are no per-platform deep
@@ -41,7 +41,7 @@ struct RegionAvailability: Decodable, Hashable {
 }
 
 /// One streaming service.
-struct WatchProvider: Decodable, Hashable, Identifiable {
+struct WatchProvider: Codable, Hashable, Identifiable {
     var id: Int { providerId }
 
     let providerId: Int
