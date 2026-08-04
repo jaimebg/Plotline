@@ -51,13 +51,7 @@ struct SeriesVerdictsView: View {
                     verdict(
                         icon: "flag.checkered",
                         title: endingTitle(ending),
-                        evidence: String(
-                            format: "Season %d averaged %.1f; its best, season %d, averaged %.1f.",
-                            ending.finalSeason,
-                            ending.finalSeasonAverage,
-                            ending.peakSeason,
-                            ending.peakSeasonAverage
-                        )
+                        evidence: Self.endingEvidence(ending)
                     )
                 }
 
@@ -161,5 +155,32 @@ struct SeriesVerdictsView: View {
         case .endsSteady: "Holds its level to the end"
         case .fadesOut: "Fades out at the end"
         }
+    }
+
+    /// The numbers behind the ending verdict.
+    ///
+    /// The last season is often the peak — that is what `endsStrong` usually
+    /// means — and comparing it to itself reads as a tautology on screen:
+    /// "Season 5 averaged 9.0; its best, season 5, averaged 9.0." When the two
+    /// coincide, the fact is stated once instead of dressed up as a comparison.
+    ///
+    /// Internal rather than private so the copy can be tested directly. Static
+    /// because it depends on nothing but its argument.
+    static func endingEvidence(_ ending: EndingVerdict) -> String {
+        if ending.finalSeason == ending.peakSeason {
+            return String(
+                format: "Season %d, its highest-rated, averaged %.1f.",
+                ending.finalSeason,
+                ending.finalSeasonAverage
+            )
+        }
+
+        return String(
+            format: "Season %d averaged %.1f; its best, season %d, averaged %.1f.",
+            ending.finalSeason,
+            ending.finalSeasonAverage,
+            ending.peakSeason,
+            ending.peakSeasonAverage
+        )
     }
 }
