@@ -32,6 +32,12 @@ final class MediaDetailViewModel {
     var analysis: SeriesAnalysisResult?
     private(set) var analysisSource: AnalysisSource = .bundled
 
+    // MARK: - Watch Providers State
+
+    var watchAvailability: RegionAvailability?
+    private(set) var availableWatchRegions: [String] = []
+    private var allWatchRegions: [String: RegionAvailability] = [:]
+
     // MARK: - Movie Features State
 
     // Franchise / Collection
@@ -84,11 +90,13 @@ final class MediaDetailViewModel {
             // duplicate request for the same payload on every series open.
             async let allSeasonsTask: () = fetchAllSeasons()
             async let recsTask: () = fetchRecommendations()
-            _ = await (allSeasonsTask, recsTask)
+            async let watchProvidersTask: () = loadWatchProviders()
+            _ = await (allSeasonsTask, recsTask, watchProvidersTask)
         } else {
             async let movieFeaturesTask: () = fetchMovieFeatures()
             async let recsTask: () = fetchRecommendations()
-            _ = await (movieFeaturesTask, recsTask)
+            async let watchProvidersTask: () = loadWatchProviders()
+            _ = await (movieFeaturesTask, recsTask, watchProvidersTask)
         }
     }
 
@@ -205,6 +213,37 @@ final class MediaDetailViewModel {
         guard case .analyzed(let live) = fresh else { return false }
 
         return live.seasons.count >= bundled.seasons.count
+    }
+
+    // MARK: - Watch Providers
+
+    /// Loads streaming availability for the region currently selected in
+    /// `WatchRegionStore`.
+    ///
+    /// Applies to movies as well as series — unlike the analysis above, half
+    /// the value of this feature is on movie screens. `watchAvailability`
+    /// stays nil, and the section stays hidden, until this completes: a
+    /// "not available here" shown while the request is still in flight would
+    /// state something untrue.
+    @MainActor
+    func loadWatchProviders() async {
+        guard let mediaType = media.mediaType else { return }
+
+        guard let results = try? await tmdbService.fetchWatchProviders(mediaType: mediaType, id: media.id) else {
+            return
+        }
+
+        allWatchRegions = results
+        availableWatchRegions = results.keys.sorted()
+        watchAvailability = results[WatchRegionStore.shared.selected]
+    }
+
+    /// Reindexes the response already in memory. The cached payload carries
+    /// every region, so switching costs no request.
+    @MainActor
+    func changeWatchRegion(_ region: String) {
+        WatchRegionStore.shared.selected = region
+        watchAvailability = allWatchRegions[region]
     }
 
     // MARK: - Private Methods
