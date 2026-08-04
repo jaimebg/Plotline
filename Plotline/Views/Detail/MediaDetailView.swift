@@ -55,7 +55,7 @@ struct MediaDetailView: View {
                     if !viewModel.availableWatchRegions.isEmpty {
                         WatchProvidersSection(
                             availability: viewModel.watchAvailability,
-                            region: WatchRegionStore.shared.selected,
+                            region: viewModel.watchRegion,
                             regions: viewModel.availableWatchRegions,
                             onRegionChange: { viewModel.changeWatchRegion($0) }
                         )
