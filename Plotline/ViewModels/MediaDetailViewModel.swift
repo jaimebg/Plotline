@@ -38,6 +38,16 @@ final class MediaDetailViewModel {
     private(set) var availableWatchRegions: [String] = []
     private var allWatchRegions: [String: RegionAvailability] = [:]
 
+    /// The region the availability above belongs to.
+    ///
+    /// Held here rather than read from `WatchRegionStore` inside the view's
+    /// body. The store is a plain singleton, so a body re-evaluation triggered
+    /// by anything else — a scroll, a sibling screen changing region — would
+    /// redraw the label from the store while the providers still came from the
+    /// region they were fetched for, labelling one country's catalogue with
+    /// another's name.
+    private(set) var watchRegion: String = WatchRegionStore.shared.selected
+
     // MARK: - Movie Features State
 
     // Franchise / Collection
@@ -227,15 +237,35 @@ final class MediaDetailViewModel {
     /// state something untrue.
     @MainActor
     func loadWatchProviders() async {
-        guard let mediaType = media.mediaType else { return }
+        // Derived, not read: TMDB sends `media_type` on /trending and
+        // /search/multi and omits it from /movie/top_rated, /tv/top_rated and
+        // every /discover payload. Guarding on the field left the section
+        // missing from most of the ways into this screen, while the two paths
+        // it was tested on happened to carry it.
+        let mediaType: MediaType = media.isTVSeries ? .tv : .movie
 
         guard let results = try? await tmdbService.fetchWatchProviders(mediaType: mediaType, id: media.id) else {
             return
         }
 
         allWatchRegions = results
-        availableWatchRegions = results.keys.sorted()
-        watchAvailability = results[WatchRegionStore.shared.selected]
+        watchRegion = WatchRegionStore.shared.selected
+        availableWatchRegions = Self.selectableRegions(from: results, including: watchRegion)
+        watchAvailability = results[watchRegion]
+    }
+
+    /// The regions offered in the picker.
+    ///
+    /// The response only lists regions the title *is* available in, so a user
+    /// whose own region is not among them would open the picker and not find
+    /// it — able to look anywhere except home, with the choice persisted and
+    /// no way back. Their region is always included, even when the answer it
+    /// gives is "not here".
+    static func selectableRegions(
+        from results: [String: RegionAvailability],
+        including current: String
+    ) -> [String] {
+        Set(results.keys).union([current]).sorted()
     }
 
     /// Reindexes the response already in memory. The cached payload carries
@@ -243,6 +273,8 @@ final class MediaDetailViewModel {
     @MainActor
     func changeWatchRegion(_ region: String) {
         WatchRegionStore.shared.selected = region
+        watchRegion = region
+        availableWatchRegions = Self.selectableRegions(from: allWatchRegions, including: region)
         watchAvailability = allWatchRegions[region]
     }
 
