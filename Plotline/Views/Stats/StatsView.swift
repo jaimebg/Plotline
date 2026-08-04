@@ -163,7 +163,7 @@ struct StatsView: View {
     // MARK: - Overview Cards
 
     private var overviewCards: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+        LazyVGrid(columns: GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth), spacing: 12) {
             StatCard(
                 icon: "heart.fill",
                 value: "\(viewModel.totalFavorites)",

@@ -6,10 +6,7 @@ struct MoodSelectionView: View {
     let selectedMoods: [MoodFilter]
     let onToggle: (MoodFilter) -> Void
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+    private let columns = GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth)
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
