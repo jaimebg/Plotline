@@ -66,6 +66,7 @@ struct FavoriteRow: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
+        .accessibilityIdentifier(AccessibilityAnchors.favoritesSavedRow)
     }
 
     private var accessibilityLabel: String {

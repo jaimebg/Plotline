@@ -6,10 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
+		3F67E4F53022A56E0059FD72 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3F65C3A22F20EBFD00A13300 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3F65C3A92F20EBFD00A13300;
+			remoteInfo = Plotline;
+		};
 		3F6D6CC9301E924D004A0656 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3F65C3A22F20EBFD00A13300 /* Project object */;
@@ -21,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		3F65C3AA2F20EBFD00A13300 /* Plotline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Plotline.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F67E4EF3022A56E0059FD72 /* PlotlineUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlotlineUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F6D6CC5301E924D004A0656 /* PlotlineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlotlineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -43,6 +48,11 @@
 			path = Plotline;
 			sourceTree = "<group>";
 		};
+		3F67E4F03022A56E0059FD72 /* PlotlineUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PlotlineUITests;
+			sourceTree = "<group>";
+		};
 		3F6D6CC6301E924D004A0656 /* PlotlineTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = PlotlineTests;
@@ -52,6 +62,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		3F65C3A72F20EBFD00A13300 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3F67E4EC3022A56E0059FD72 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -73,6 +90,7 @@
 			children = (
 				3F65C3AC2F20EBFD00A13300 /* Plotline */,
 				3F6D6CC6301E924D004A0656 /* PlotlineTests */,
+				3F67E4F03022A56E0059FD72 /* PlotlineUITests */,
 				3F65C3AB2F20EBFD00A13300 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,6 +100,7 @@
 			children = (
 				3F65C3AA2F20EBFD00A13300 /* Plotline.app */,
 				3F6D6CC5301E924D004A0656 /* PlotlineTests.xctest */,
+				3F67E4EF3022A56E0059FD72 /* PlotlineUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -110,6 +129,29 @@
 			productName = Plotline;
 			productReference = 3F65C3AA2F20EBFD00A13300 /* Plotline.app */;
 			productType = "com.apple.product-type.application";
+		};
+		3F67E4EE3022A56E0059FD72 /* PlotlineUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3F67E4F93022A56E0059FD72 /* Build configuration list for PBXNativeTarget "PlotlineUITests" */;
+			buildPhases = (
+				3F67E4EB3022A56E0059FD72 /* Sources */,
+				3F67E4EC3022A56E0059FD72 /* Frameworks */,
+				3F67E4ED3022A56E0059FD72 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3F67E4F63022A56E0059FD72 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3F67E4F03022A56E0059FD72 /* PlotlineUITests */,
+			);
+			name = PlotlineUITests;
+			packageProductDependencies = (
+			);
+			productName = PlotlineUITests;
+			productReference = 3F67E4EF3022A56E0059FD72 /* PlotlineUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		3F6D6CC4301E924D004A0656 /* PlotlineTests */ = {
 			isa = PBXNativeTarget;
@@ -147,6 +189,10 @@
 					3F65C3A92F20EBFD00A13300 = {
 						CreatedOnToolsVersion = 26.2;
 					};
+					3F67E4EE3022A56E0059FD72 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 3F65C3A92F20EBFD00A13300;
+					};
 					3F6D6CC4301E924D004A0656 = {
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = 3F65C3A92F20EBFD00A13300;
@@ -169,12 +215,20 @@
 			targets = (
 				3F65C3A92F20EBFD00A13300 /* Plotline */,
 				3F6D6CC4301E924D004A0656 /* PlotlineTests */,
+				3F67E4EE3022A56E0059FD72 /* PlotlineUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3F65C3A82F20EBFD00A13300 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3F67E4ED3022A56E0059FD72 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -198,6 +252,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3F67E4EB3022A56E0059FD72 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3F6D6CC1301E924D004A0656 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -208,6 +269,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3F67E4F63022A56E0059FD72 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3F65C3A92F20EBFD00A13300 /* Plotline */;
+			targetProxy = 3F67E4F53022A56E0059FD72 /* PBXContainerItemProxy */;
+		};
 		3F6D6CCA301E924D004A0656 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3F65C3A92F20EBFD00A13300 /* Plotline */;
@@ -430,6 +496,51 @@
 			};
 			name = Release;
 		};
+		3F67E4F73022A56E0059FD72 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8BXWAL9PV5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbgsoft.PlotlineUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Plotline;
+			};
+			name = Debug;
+		};
+		3F67E4F83022A56E0059FD72 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8BXWAL9PV5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jbgsoft.PlotlineUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Plotline;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		3F6D6CCB301E924D004A0656 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -494,6 +605,15 @@
 			buildConfigurations = (
 				3F65C3B62F20EBFE00A13300 /* Debug */,
 				3F65C3B72F20EBFE00A13300 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3F67E4F93022A56E0059FD72 /* Build configuration list for PBXNativeTarget "PlotlineUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F67E4F73022A56E0059FD72 /* Debug */,
+				3F67E4F83022A56E0059FD72 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
