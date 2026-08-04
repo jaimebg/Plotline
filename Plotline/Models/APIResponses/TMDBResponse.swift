@@ -32,6 +32,25 @@ struct TMDBDetailResponse: Codable {
     let numberOfSeasons: Int?
     let numberOfEpisodes: Int?
 
+    /// TMDB's series-level status verbatim ("Ended", "Returning Series", …).
+    /// Kept raw; the terminal reading lives in `hasEnded` below.
+    let status: String?
+
+    /// TMDB's status reduced to the one bit the analysis engine needs.
+    ///
+    /// `nil` means TMDB did not say, which is not the same as still running:
+    /// the engine refuses to judge an ending without a confirmed one, and an
+    /// absent status must not be flattened into `false`.
+    ///
+    /// The terminal set matches the dataset generator's exactly
+    /// (`Tools/DatasetGenerator/…/TMDBClient.swift`) so the same series cannot
+    /// get one verdict from the bundle and another from the network. Both
+    /// spellings of "cancelled" are deliberate — TMDB returns each.
+    var hasEnded: Bool? {
+        guard let status else { return nil }
+        return ["Ended", "Canceled", "Cancelled"].contains(status)
+    }
+
     /// Converts to MediaItem for unified handling
     func toMediaItem(mediaType: MediaType) -> MediaItem {
         MediaItem(
@@ -51,7 +70,8 @@ struct TMDBDetailResponse: Codable {
             budget: budget,
             revenue: revenue,
             collectionId: belongsToCollection?.id,
-            collectionName: belongsToCollection?.name
+            collectionName: belongsToCollection?.name,
+            hasEnded: hasEnded
         )
     }
 }
