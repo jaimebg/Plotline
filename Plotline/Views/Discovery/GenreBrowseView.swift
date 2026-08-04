@@ -4,10 +4,7 @@ import SwiftUI
 struct GenreBrowseView: View {
     let genres: [CuratedGenre]
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+    private let columns = GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.bannerMinimumWidth)
 
     /// Predefined color palette for genre cards
     private static let genreColors: [Color] = [
