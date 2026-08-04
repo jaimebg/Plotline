@@ -64,9 +64,42 @@ struct WatchProvidersTests {
         #expect(us.buy?.first?.providerName == "Apple TV")
     }
 
-    @Test("a region the title is not available in is simply absent")
-    func unknownRegionIsAbsent() throws {
-        #expect(try decoded().results["JP"] == nil)
+    /// The two states the section branches on: a region with something to show,
+    /// and a region the title simply is not in.
+    ///
+    /// The first half is the one that carries weight. Without it, `isEmpty`
+    /// hard-coded to `true` would satisfy every other test in this suite while
+    /// hiding every watch option in the app.
+    @Test("a populated region is not empty, and an absent one is absent")
+    func populatedAndAbsentRegions() throws {
+        let results = try decoded().results
+
+        #expect(try #require(results["ES"]).isEmpty == false)
+        #expect(try #require(results["US"]).isEmpty == false)
+        #expect(results["JP"] == nil)
+    }
+
+    /// Each category on its own must be enough to make a region non-empty —
+    /// otherwise a region offering only rentals would read as unavailable.
+    @Test("any single category is enough to make a region non-empty")
+    func eachCategoryCountsOnItsOwn() throws {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let provider = """
+        [{"logo_path": "/x.jpg", "provider_id": 1, "provider_name": "Test", "display_priority": 0}]
+        """
+
+        for category in ["flatrate", "rent", "buy", "free", "ads"] {
+            let data = Data("""
+            {"id": 1, "results": {"ES": {"link": "https://example.com", "\(category)": \(provider)}}}
+            """.utf8)
+            let response = try decoder.decode(WatchProvidersResponse.self, from: data)
+
+            #expect(
+                try #require(response.results["ES"]).isEmpty == false,
+                "a region offering only \(category) should not read as unavailable"
+            )
+        }
     }
 
     /// A region can come back carrying a link and nothing else. Rendering that
