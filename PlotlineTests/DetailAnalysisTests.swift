@@ -111,6 +111,47 @@ struct DetailAnalysisTests {
         #expect(analysis.endingVerdict != nil)
     }
 
+    /// Pins the boundary the ending-verdict test cannot see: `endingVerdict`
+    /// requires `hasEnded == true` outright, so it stays nil for both `nil`
+    /// and `false` and cannot catch a `media.hasEnded ?? false` regression in
+    /// `recomputeAnalysis`. `isOngoing` can, because the engine treats those
+    /// two inputs differently — `nil` falls back to inferring from scheduled
+    /// episodes, `false` is taken as a confirmed "still running".
+    @Test("an unknown ended status is not reported as still running")
+    func unknownStatusIsNotOngoing() {
+        let viewModel = MediaDetailViewModel(media: media(id: -1, type: .tv))
+        let episodes = EpisodeFixtures.season(1, ratings: [6.0, 6.1, 6.0, 6.2, 6.1, 6.0])
+            + EpisodeFixtures.season(2, ratings: [8.8, 8.9, 9.0, 8.7, 8.9, 9.1])
+        viewModel.episodesBySeason = Dictionary(grouping: episodes, by: \.seasonNumber)
+        viewModel.recomputeAnalysis(asOf: EpisodeFixtures.now)
+
+        guard case .analyzed(let analysis) = viewModel.analysis else {
+            Issue.record("expected an analysis")
+            return
+        }
+        // Every episode is past-dated and nothing is scheduled, so an unknown
+        // status must not read as ongoing.
+        #expect(analysis.isOngoing == false)
+    }
+
+    @Test("a confirmed still-running status is reported as ongoing")
+    func confirmedRunningIsOngoing() {
+        var running = media(id: -1, type: .tv)
+        running.hasEnded = false
+
+        let viewModel = MediaDetailViewModel(media: running)
+        let episodes = EpisodeFixtures.season(1, ratings: [6.0, 6.1, 6.0, 6.2, 6.1, 6.0])
+            + EpisodeFixtures.season(2, ratings: [8.8, 8.9, 9.0, 8.7, 8.9, 9.1])
+        viewModel.episodesBySeason = Dictionary(grouping: episodes, by: \.seasonNumber)
+        viewModel.recomputeAnalysis(asOf: EpisodeFixtures.now)
+
+        guard case .analyzed(let analysis) = viewModel.analysis else {
+            Issue.record("expected an analysis")
+            return
+        }
+        #expect(analysis.isOngoing == true)
+    }
+
     @Test("too little data yields insufficientData rather than a made-up verdict")
     func thinDataIsRefused() {
         let viewModel = MediaDetailViewModel(media: media(id: -1, type: .tv))
