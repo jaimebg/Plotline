@@ -4,7 +4,7 @@ import SwiftUI
 struct TrendsView: View {
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+            LazyVGrid(columns: GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.cardMinimumWidth), spacing: 16) {
                 trendCard(
                     icon: "waveform.path.ecg",
                     title: "Genre Evolution",
