@@ -121,7 +121,11 @@ public enum Generator {
             exit(1)
         }
 
-        let dataset = DatasetBuilder.build(entries: entries, skipped: skipped)
+        // The only clock read in the whole generator. `DatasetBuilder` stays a pure
+        // function so that regenerating from unchanged data reproduces an identical
+        // file, which is what lets ShippedDatasetTests assert exact membership.
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let dataset = DatasetBuilder.build(entries: entries, skipped: skipped, generatedAt: generatedAt)
 
         let encoder = JSONEncoder()
         // Sorted keys and pretty printing keep the committed file's diffs
