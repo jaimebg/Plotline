@@ -200,6 +200,37 @@ struct TMDBService {
         return result
     }
 
+    // MARK: - Watch Providers
+
+    /// Own cache for watch-provider payloads, separate from the shared
+    /// episode cache: availability moves, but not by the hour, so a day is
+    /// long enough before a region's data is considered stale.
+    private static let watchProvidersCache = DiskCache(name: "watch-providers", maxAge: 60 * 60 * 24)
+
+    /// Where a title can be watched, by region.
+    ///
+    /// The whole response is cached, all 126 regions of it, so switching
+    /// region costs nothing. Availability moves, but not by the hour, so a day
+    /// is long enough.
+    ///
+    /// The data comes from JustWatch and TMDB requires it be credited wherever
+    /// it is shown — see `WatchProvidersSection`.
+    func fetchWatchProviders(mediaType: MediaType, id: Int) async throws -> [String: RegionAvailability] {
+        let cacheKey = "watch-providers-\(mediaType.rawValue)-\(id)"
+
+        if let cached: WatchProvidersResponse = await Self.watchProvidersCache.get(for: cacheKey) {
+            return cached.results
+        }
+
+        guard let url = buildURL(path: "/\(mediaType.rawValue)/\(id)/watch/providers") else {
+            throw NetworkError.invalidURL
+        }
+
+        let response: WatchProvidersResponse = try await networkManager.fetch(WatchProvidersResponse.self, from: url)
+        await Self.watchProvidersCache.set(response, for: cacheKey)
+        return response.results
+    }
+
     // MARK: - Search
 
     /// Search for movies, TV shows, and people

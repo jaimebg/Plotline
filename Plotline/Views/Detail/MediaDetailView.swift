@@ -47,6 +47,20 @@ struct MediaDetailView: View {
                     // Overview
                     overviewSection
 
+                    // Where to watch. Answers "can I watch this", which comes
+                    // before the analysis below answers "will I like it" —
+                    // and applies to movies as well as series. Hidden until
+                    // the load completes so it never shows a false "not
+                    // available here" while the request is in flight.
+                    if !viewModel.availableWatchRegions.isEmpty {
+                        WatchProvidersSection(
+                            availability: viewModel.watchAvailability,
+                            region: viewModel.watchRegion,
+                            regions: viewModel.availableWatchRegions,
+                            onRegionChange: { viewModel.changeWatchRegion($0) }
+                        )
+                    }
+
                     // Series-specific content. Plotline's own analysis renders
                     // above the recommendations shelf below: it's the app's
                     // argument over a catalogue listing, so it doesn't sit
