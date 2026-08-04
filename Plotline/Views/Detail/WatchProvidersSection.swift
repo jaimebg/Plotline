@@ -118,11 +118,16 @@ struct WatchProvidersSection: View {
             .frame(width: 48, height: 48)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
+            // Two lines, with the space reserved either way so the logos above
+            // stay on one baseline. Provider names run long — "Netflix
+            // Standard With Ads", "Amazon Prime Video" — and one line turned
+            // most of them into an ellipsis.
             Text(provider.providerName)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .frame(width: 64)
+                .multilineTextAlignment(.center)
+                .lineLimit(2, reservesSpace: true)
+                .frame(width: 72)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(provider.providerName)
