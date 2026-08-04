@@ -21,6 +21,17 @@ final class MediaDetailViewModel {
     var isLoadingAllSeasons = false
     var episodesError: String?
 
+    /// Where the analysis on screen came from. The bundled copy appears
+    /// instantly and offline; a live recomputation replaces it as soon as
+    /// TMDB's episodes arrive.
+    enum AnalysisSource: Equatable {
+        case bundled
+        case live
+    }
+
+    var analysis: SeriesAnalysisResult?
+    private(set) var analysisSource: AnalysisSource = .bundled
+
     // MARK: - Movie Features State
 
     // Franchise / Collection
@@ -62,6 +73,8 @@ final class MediaDetailViewModel {
     /// Load all detail data (TMDB details + movie features)
     @MainActor
     func loadDetails() async {
+        loadBundledAnalysis()
+
         // First, get TMDB details for season count and movie-specific data
         await fetchTMDBDetails()
 
@@ -124,7 +137,52 @@ final class MediaDetailViewModel {
 
         syncEpisodesForSelectedSeason()
 
+        recomputeAnalysis()
+
         isLoadingAllSeasons = false
+    }
+
+    // MARK: - Analysis
+
+    /// Reads the analysis shipped in the app bundle, if this series is one of
+    /// the titles it covers.
+    ///
+    /// This runs before any request, so a bundled series shows its analysis in
+    /// the first frame and keeps showing it with no connection at all. It is a
+    /// seed and a fallback, never the truth: `recomputeAnalysis` overwrites it
+    /// the moment fresher episodes arrive.
+    @MainActor
+    func loadBundledAnalysis() {
+        guard media.isTVSeries else { return }
+        guard let entry = DatasetStore.shared.entry(forTMDBId: media.id) else { return }
+
+        analysis = .analyzed(entry.analysis)
+        analysisSource = .bundled
+    }
+
+    /// Recomputes from the episodes currently held, replacing anything the
+    /// bundle provided.
+    ///
+    /// `media.hasEnded` is read at call time rather than passed in: by the time
+    /// episodes exist, `fetchTMDBDetails()` has already populated it. It stays
+    /// optional all the way down — the engine treats an unknown status as
+    /// grounds to withhold the ending verdict, not as proof the show is still
+    /// running.
+    ///
+    /// - Parameter now: explicit so the result never depends on the clock.
+    @MainActor
+    func recomputeAnalysis(asOf now: Date = Date()) {
+        guard media.isTVSeries else { return }
+
+        let episodes = episodesBySeason.values.flatMap { $0 }
+        guard !episodes.isEmpty else { return }
+
+        analysis = SeriesAnalysisEngine.analyze(
+            episodes: episodes,
+            hasEnded: media.hasEnded,
+            asOf: now
+        )
+        analysisSource = .live
     }
 
     // MARK: - Private Methods
