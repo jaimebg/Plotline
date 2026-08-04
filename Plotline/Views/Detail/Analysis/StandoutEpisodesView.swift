@@ -6,6 +6,11 @@ import SwiftUI
 /// weaker season still shows up — which is what someone deciding whether to
 /// skip ahead actually wants to know.
 struct StandoutEpisodesView: View {
+    /// Headings for the two groups. Internal so the honesty of the wording can
+    /// be asserted directly rather than inspected by eye.
+    static let essentialTitle = "Don't miss"
+    static let weakestTitle = "Weakest of their season"
+
     let analysis: SeriesAnalysis
 
     private var hasAnything: Bool {
@@ -21,7 +26,7 @@ struct StandoutEpisodesView: View {
 
                 if !analysis.essentialEpisodes.isEmpty {
                     group(
-                        title: "Don't miss",
+                        title: Self.essentialTitle,
                         caption: "Rated far above their own season",
                         episodes: analysis.essentialEpisodes,
                         tint: Color.chartHigh
@@ -30,8 +35,13 @@ struct StandoutEpisodesView: View {
 
                 if !analysis.skippableEpisodes.isEmpty {
                     group(
-                        title: "Safe to skip",
-                        caption: "Rated far below their own season",
+                        // Not "safe to skip". The engine establishes distance
+                        // from a season's own average, nothing more: in a
+                        // series averaging 9, its weakest hour still rates 8.3,
+                        // and calling that skippable is advice the data does
+                        // not support.
+                        title: Self.weakestTitle,
+                        caption: "Rated far below the rest of their own season",
                         episodes: analysis.skippableEpisodes,
                         tint: Color.chartLow
                     )
