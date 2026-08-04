@@ -59,7 +59,7 @@ struct SeriesVerdictsView: View {
                     verdict(
                         icon: "chart.bar",
                         title: "Best season \(best), weakest season \(worst)",
-                        evidence: "Measured across the seasons with enough rated episodes to judge."
+                        evidence: Self.seasonSpreadEvidence(analysis, best: best, worst: worst)
                     )
                 }
 
@@ -125,10 +125,25 @@ struct SeriesVerdictsView: View {
     }
 
     private var consistencyEvidence: String {
-        guard let high = analysis.consistency.highestRated,
-              let low = analysis.consistency.lowestRated else {
-            return String(format: "Episode ratings vary by %.2f on average.", analysis.consistency.standardDeviation)
+        Self.consistencyEvidence(analysis.consistency)
+    }
+
+    /// The spread behind the consistency rating.
+    ///
+    /// When every rated episode shares a rating, the highest and lowest are
+    /// different episodes with the same number, and naming both reads as a
+    /// range that isn't one: "Ranges from S1E1 at 8.0 down to S3E6 at 8.0."
+    /// Same self-comparison the ending verdict had; stated once instead.
+    static func consistencyEvidence(_ consistency: Consistency) -> String {
+        guard let high = consistency.highestRated,
+              let low = consistency.lowestRated else {
+            return String(format: "Episode ratings vary by %.2f on average.", consistency.standardDeviation)
         }
+
+        if high.rating == low.rating {
+            return String(format: "Every rated episode sits at %.1f.", high.rating)
+        }
+
         return String(
             format: "Ranges from %@ at %.1f down to %@ at %.1f.",
             high.shortCode, high.rating, low.shortCode, low.rating
@@ -155,6 +170,27 @@ struct SeriesVerdictsView: View {
         case .endsSteady: "Holds its level to the end"
         case .fadesOut: "Fades out at the end"
         }
+    }
+
+    /// The numbers behind the best/weakest season pair.
+    ///
+    /// Without them the row was the badge §5 of the spec calls decoration: a
+    /// claim with nothing under it, while the season averages that produced it
+    /// sat one property away.
+    static func seasonSpreadEvidence(_ analysis: SeriesAnalysis, best: Int, worst: Int) -> String {
+        let averages = Dictionary(
+            analysis.seasons.map { ($0.seasonNumber, $0.weightedAverage) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        guard let high = averages[best], let low = averages[worst] else {
+            return "Measured across the seasons with enough rated episodes to judge."
+        }
+
+        return String(
+            format: "Season %d averaged %.1f against season %d's %.1f.",
+            best, high, worst, low
+        )
     }
 
     /// The numbers behind the ending verdict.
