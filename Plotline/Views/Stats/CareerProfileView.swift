@@ -213,7 +213,7 @@ struct CareerProfileView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
 
-            LazyVGrid(columns: GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.cardMinimumWidth), spacing: 12) {
+            LazyVGrid(columns: GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth), spacing: 12) {
                 quickStatItem(
                     icon: "calendar.badge.clock",
                     title: "Most Active",

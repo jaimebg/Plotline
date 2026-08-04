@@ -8,17 +8,19 @@ import SwiftUI
 /// third of an iPad's screen — the case a size-class branch gets wrong, since
 /// it would still call for four columns in a 320pt window.
 enum AdaptiveLayout {
-    /// Enough for a poster and its two lines of caption.
-    static let posterMinimumWidth: CGFloat = 160
-
-    /// Wide enough that a genre or mood banner still reads as a banner, while
-    /// still resolving to two columns on an iPhone: at 12pt spacing, a phone
-    /// gives a container width of 370pt, and 370pt only splits into two
-    /// columns for minimums up to 179pt.
-    static let bannerMinimumWidth: CGFloat = 175
-
-    /// Statistics cards carry a number and a label.
-    static let cardMinimumWidth: CGFloat = 180
+    /// The one number every adaptive grid in the app is built from.
+    ///
+    /// What actually binds this value: iOS 26 still ships iPhone SE and
+    /// iPhone 12/13 mini at 375pt logical width, which is 343pt of content
+    /// once a 32pt padding is removed. Two columns there requires a minimum
+    /// no larger than 165.5pt — `(343 + 12) / (m + 12) >= 2` — so 160 is the
+    /// ceiling with a little room to spare. Below that ceiling a poster grid,
+    /// a banner grid, and a stats-card grid all resolve to the exact same
+    /// column count at every width that matters here — 375pt, 402pt, 820pt
+    /// (iPad Air 11"), 1024pt (iPad Pro 13") — so one constant is what the
+    /// three separately named ones actually were, and the rest is as many
+    /// columns as fit on anything wider.
+    static let minimumColumnWidth: CGFloat = 160
 
     static let gridSpacing: CGFloat = 12
 

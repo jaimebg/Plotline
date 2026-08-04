@@ -7,7 +7,7 @@ struct GenreResultsView: View {
     @Environment(\.navigationNamespace) private var namespace
     @State private var viewModel = GenreResultsViewModel()
 
-    private let columns = GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.posterMinimumWidth)
+    private let columns = GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth)
 
     var body: some View {
         ScrollView {
