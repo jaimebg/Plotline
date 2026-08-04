@@ -48,8 +48,27 @@ struct AdaptiveLayoutTests {
         #expect(columnCount(width: 320, minimum: minimum, spacing: spacing) == 1)
     }
 
-    @Test("the readable width does not constrain a phone")
+    /// 440pt is the iPhone 17 Pro Max, the widest iPhone there is. Checking
+    /// against a narrower one would leave the claim in this test's name
+    /// unproven for the phones most likely to expose it.
+    @Test("the readable width does not constrain even the widest phone")
     func readableWidthLeavesPhonesAlone() {
-        #expect(AdaptiveLayout.readableMaximumWidth > 402)
+        #expect(AdaptiveLayout.readableMaximumWidth > 440)
+    }
+
+    /// The Stats tab nests Trends inside its own padded scroll view. Trends
+    /// used to add a second `.padding()` of its own, so the grid ran on 64pt
+    /// less than the screen and dropped to one column on every iPhone below
+    /// 402pt — the build device cleared it by 6pt, which is why it survived
+    /// both the tests and an on-screen check.
+    @Test("a grid under two levels of padding still gets two columns on a narrow phone")
+    func doublePaddingWouldBreakNarrowPhones() {
+        let minimum = AdaptiveLayout.minimumColumnWidth
+        let spacing = AdaptiveLayout.gridSpacing
+
+        // What the nested layout used to leave for the grid on an iPhone 15.
+        #expect(columnCount(width: 393 - 64, minimum: minimum, spacing: spacing) == 1)
+        // What a single level of padding leaves, which is what it gets now.
+        #expect(columnCount(width: 393 - 32, minimum: minimum, spacing: spacing) == 2)
     }
 }
