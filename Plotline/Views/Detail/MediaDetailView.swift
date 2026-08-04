@@ -59,6 +59,13 @@ struct MediaDetailView: View {
 
                     // Series-specific content
                     if viewModel.isTVSeries {
+                        // Plotline's own analysis. Outside the grid's gate on
+                        // purpose: for the series the bundle covers this needs
+                        // no network at all, and hiding it behind a fetch would
+                        // repeat a mistake this project already had to fix on
+                        // Discover.
+                        SeriesAnalysisSection(result: viewModel.analysis)
+
                         // Interactive quality curve, then the full-season grid
                         if viewModel.shouldShowEpisodeGrid {
                             seriesGraphSection

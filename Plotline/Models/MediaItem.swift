@@ -30,6 +30,12 @@ struct MediaItem: Identifiable, Codable, Hashable {
     var collectionId: Int?
     var collectionName: String?
 
+    /// Whether the series has finished, when TMDB says so. `nil` means unknown.
+    ///
+    /// Declared `var` and optional on purpose: `MediaItem` is cached to disk,
+    /// and an entry written before this property existed must still decode.
+    var hasEnded: Bool?
+
     // MARK: - Computed Properties
 
     /// Display title (works for both movies and TV)
@@ -111,6 +117,7 @@ struct MediaItem: Identifiable, Codable, Hashable {
         case revenue
         case collectionId
         case collectionName
+        case hasEnded
     }
 
     // MARK: - Custom Decoder (handles missing fields from person results)
@@ -135,6 +142,7 @@ struct MediaItem: Identifiable, Codable, Hashable {
         revenue = try container.decodeIfPresent(Int.self, forKey: .revenue)
         collectionId = try container.decodeIfPresent(Int.self, forKey: .collectionId)
         collectionName = try container.decodeIfPresent(String.self, forKey: .collectionName)
+        hasEnded = try container.decodeIfPresent(Bool.self, forKey: .hasEnded)
     }
 
     // MARK: - Memberwise Initializer
@@ -156,7 +164,8 @@ struct MediaItem: Identifiable, Codable, Hashable {
         budget: Int? = nil,
         revenue: Int? = nil,
         collectionId: Int? = nil,
-        collectionName: String? = nil
+        collectionName: String? = nil,
+        hasEnded: Bool? = nil
     ) {
         self.id = id
         self.overview = overview
@@ -175,6 +184,7 @@ struct MediaItem: Identifiable, Codable, Hashable {
         self.revenue = revenue
         self.collectionId = collectionId
         self.collectionName = collectionName
+        self.hasEnded = hasEnded
     }
 }
 
