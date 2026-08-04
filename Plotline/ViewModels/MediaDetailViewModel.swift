@@ -177,12 +177,34 @@ final class MediaDetailViewModel {
         let episodes = episodesBySeason.values.flatMap { $0 }
         guard !episodes.isEmpty else { return }
 
-        analysis = SeriesAnalysisEngine.analyze(
+        let fresh = SeriesAnalysisEngine.analyze(
             episodes: episodes,
             hasEnded: media.hasEnded,
             asOf: now
         )
+
+        guard isAtLeastAsComplete(fresh) else { return }
+
+        analysis = fresh
         analysisSource = .live
+    }
+
+    /// Whether a freshly-computed analysis may replace the bundled one.
+    ///
+    /// `TMDBService.fetchAllSeasons` swallows per-season failures, and a failed
+    /// detail request leaves `totalSeasons` at 1 — so a flaky connection can
+    /// hand back a single cached season for a five-season series. Assigning
+    /// that unconditionally would replace a complete bundled analysis with a
+    /// fragment, or with "Not Enough Ratings Yet" for a series whose full
+    /// analysis is sitting in the app bundle. Fresher data wins, but only when
+    /// it is not less than what we already had.
+    private func isAtLeastAsComplete(_ fresh: SeriesAnalysisResult) -> Bool {
+        guard analysisSource == .bundled, case .analyzed(let bundled) = analysis else {
+            return true
+        }
+        guard case .analyzed(let live) = fresh else { return false }
+
+        return live.seasons.count >= bundled.seasons.count
     }
 
     // MARK: - Private Methods
@@ -190,42 +212,60 @@ final class MediaDetailViewModel {
     @MainActor
     private func fetchTMDBDetails() async {
         do {
-            var details = try await tmdbService.fetchDetails(for: media)
-
-            // Deep link stubs have "Loading..." as title — replace media entirely
-            let isStub = media.displayTitle == "Loading..." || (media.voteAverage == 0 && media.overview.isEmpty)
-            if isStub {
-                // Preserve any enriched fields already set on the stub
-                details.budget = details.budget ?? media.budget
-                details.revenue = details.revenue ?? media.revenue
-                details.collectionId = details.collectionId ?? media.collectionId
-                details.collectionName = details.collectionName ?? media.collectionName
-                media = details
-            } else {
-                // Normal flow: only update enriched fields missing from the original
-                media.budget = details.budget ?? media.budget
-                media.revenue = details.revenue ?? media.revenue
-                media.collectionId = details.collectionId ?? media.collectionId
-                media.collectionName = details.collectionName ?? media.collectionName
-
-                if media.overview.isEmpty && !details.overview.isEmpty {
-                    media.overview = details.overview
-                }
-                if media.posterPath == nil {
-                    media.posterPath = details.posterPath
-                }
-                if media.backdropPath == nil {
-                    media.backdropPath = details.backdropPath
-                }
-            }
-
-            if let seasons = details.totalSeasons {
-                totalSeasons = seasons
-            }
+            let details = try await tmdbService.fetchDetails(for: media)
+            applyDetails(details)
         } catch {
             #if DEBUG
             debugPrint("Failed to fetch TMDB details: \(error)")
             #endif
+        }
+    }
+
+    /// Folds a freshly-fetched detail payload into `media`.
+    ///
+    /// Internal rather than private so the merge can be tested directly:
+    /// `TMDBService` is a struct with no seam to stand a double in for, and
+    /// this merge silently dropped `hasEnded` once already — the field only
+    /// exists to reach the analysis engine, and losing it here deletes the
+    /// ending verdict from every series the moment its episodes load.
+    @MainActor
+    func applyDetails(_ payload: MediaItem) {
+        var details = payload
+
+        // Deep link stubs have "Loading..." as title — replace media entirely
+        let isStub = media.displayTitle == "Loading..." || (media.voteAverage == 0 && media.overview.isEmpty)
+        if isStub {
+            // Preserve any enriched fields already set on the stub
+            details.budget = details.budget ?? media.budget
+            details.revenue = details.revenue ?? media.revenue
+            details.collectionId = details.collectionId ?? media.collectionId
+            details.collectionName = details.collectionName ?? media.collectionName
+            media = details
+        } else {
+            // Normal flow: only update enriched fields missing from the original
+            media.budget = details.budget ?? media.budget
+            media.revenue = details.revenue ?? media.revenue
+            media.collectionId = details.collectionId ?? media.collectionId
+            media.collectionName = details.collectionName ?? media.collectionName
+
+            // The series status arrives only here — list payloads never carry
+            // it — and it is the sole input that lets the engine judge an
+            // ending. Dropping it leaves every live recomputation blind.
+            media.hasEnded = details.hasEnded ?? media.hasEnded
+
+            if media.overview.isEmpty && !details.overview.isEmpty {
+                media.overview = details.overview
+            }
+            if media.posterPath == nil {
+                media.posterPath = details.posterPath
+            }
+            if media.backdropPath == nil {
+                media.backdropPath = details.backdropPath
+            }
+        }
+
+        if let seasons = details.totalSeasons {
+            totalSeasons = seasons
         }
     }
 

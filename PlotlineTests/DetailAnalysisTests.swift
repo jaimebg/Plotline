@@ -70,14 +70,24 @@ struct DetailAnalysisTests {
         #expect(viewModel.analysis == nil)
     }
 
-    @Test("recomputing from fresh episodes replaces the bundled analysis")
+    /// Originally this fed three flat seasons to a five-season bundled series
+    /// and asserted they won. That encoded a defect: a partial fetch replacing
+    /// a complete bundled analysis. Freshness only wins when the live data
+    /// covers at least as much — see `DetailAnalysisSeamTests` for the guard.
+    @Test("recomputing from equally complete episodes replaces the bundled analysis")
     func freshEpisodesWin() {
         let viewModel = MediaDetailViewModel(media: media(id: bundledSeriesId, type: .tv))
         viewModel.loadBundledAnalysis()
         #expect(viewModel.analysisSource == .bundled)
 
-        // A flat, unremarkable run — nothing like the bundled Breaking Bad.
-        let episodes = (1...3).flatMap { season in
+        guard case .analyzed(let bundled) = viewModel.analysis else {
+            Issue.record("Breaking Bad should be in the bundled dataset")
+            return
+        }
+
+        // A flat, unremarkable run over the same span — nothing like the real
+        // Breaking Bad, so the two analyses cannot be confused for each other.
+        let episodes = (1...bundled.seasons.count).flatMap { season in
             EpisodeFixtures.season(season, ratings: Array(repeating: 7.0, count: 6))
         }
         viewModel.episodesBySeason = Dictionary(grouping: episodes, by: \.seasonNumber)
@@ -88,7 +98,8 @@ struct DetailAnalysisTests {
             return
         }
         #expect(viewModel.analysisSource == .live)
-        #expect(analysis.seasons.count == 3)
+        #expect(analysis.seasons.count == bundled.seasons.count)
+        #expect(analysis.score.value != bundled.score.value)
     }
 
     /// The regression Task 1 exists to prevent: a bundled series shows an
