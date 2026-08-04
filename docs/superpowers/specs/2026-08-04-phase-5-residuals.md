@@ -70,11 +70,21 @@ Los clics sintéticos vía AppleScript están bloqueados por permisos de accesib
 
 Funcionó, pero significa que **nadie ha visto la sección en su sitio real dentro de la ficha, desplazándose**. La colocación se verificó leyendo las llaves del archivo, dos veces. Para la fase siguiente conviene resolver esto: es la clase de verificación que en este proyecto ha encontrado más defectos que cualquier test.
 
-### 7. `analysisSource` no lo lee ninguna vista
+### 7. La guarda nueva protege en una sola dirección
+
+`isAtLeastAsComplete` solo interviene mientras `analysisSource == .bundled`. En cuanto un resultado en vivo entra, la guarda deja pasar cualquier cosa después, incluido un `.insufficientData`.
+
+Hoy no es alcanzable: la única reentrada, el botón "Try Again" de la ficha, solo aparece con `episodesBySeason` vacío, que es justo el estado en el que `recomputeAnalysis` nunca llegó a mover el origen. Pero es una guarda que se desactiva sola, y la primera ruta de refresco que llame dos veces la atravesará sin avisar.
+
+Segunda concesión de la misma guarda: compara **número** de temporadas, no identidad. Una descarga en vivo genuinamente completa que produzca una temporada analizable menos que el bundle —por ejemplo si los votos de una temporada caen bajo el umbral de fiabilidad— queda bloqueada de forma permanente, sin manera de forzar la actualización desde la UI.
+
+Ambas se aceptan a sabiendas: el fallo que evitan es visible y frecuente, y el que introducen es raro y silencioso. Conviene revisarlas cuando exista una ruta de refresco real.
+
+### 8. `analysisSource` no lo lee ninguna vista
 
 Existe para distinguir lo empaquetado de lo recalculado y hoy solo lo consumen `isAtLeastAsComplete` y los tests. Se justifica por eso, pero si la Fase 6 no le da uso en UI, conviene revisarlo.
 
-### 8. Residuos menores heredados, conscientes
+### 9. Residuos menores heredados, conscientes
 
 - `component()` en `PlotlineScoreCard` pone una `accessibilityLabel` que la etiqueta combinada de la tarjeta anula. Inofensivo.
 - La rama de respaldo de `consistencyEvidence` (sin episodio más alto ni más bajo) es inalcanzable: el motor siempre los rellena cuando hay análisis.
