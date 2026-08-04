@@ -47,17 +47,10 @@ struct MediaDetailView: View {
                     // Overview
                     overviewSection
 
-                    // Recommendations
-                    if !viewModel.recommendations.isEmpty {
-                        MediaSection(title: "You Might Also Like", items: viewModel.recommendations)
-                    }
-
-                    // Movie-specific content
-                    if !viewModel.isTVSeries {
-                        movieFeaturesSection
-                    }
-
-                    // Series-specific content
+                    // Series-specific content. Plotline's own analysis renders
+                    // above the recommendations shelf below: it's the app's
+                    // argument over a catalogue listing, so it doesn't sit
+                    // under borrowed TMDB content.
                     if viewModel.isTVSeries {
                         // Plotline's own analysis. Outside the grid's gate on
                         // purpose: for the series the bundle covers this needs
@@ -79,9 +72,20 @@ struct MediaDetailView: View {
                             episodeGridUnavailableView(message: message)
                         }
                     }
+
+                    // Recommendations
+                    if !viewModel.recommendations.isEmpty {
+                        MediaSection(title: "You Might Also Like", items: viewModel.recommendations)
+                    }
+
+                    // Movie-specific content
+                    if !viewModel.isTVSeries {
+                        movieFeaturesSection
+                    }
                 }
                 .padding()
                 .padding(.top, -20) // Overlap with gradient for seamless transition
+                .readableWidth()
             }
         }
         .coordinateSpace(name: "scroll")

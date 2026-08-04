@@ -1,46 +1,47 @@
 import SwiftUI
 
-/// 2x2 grid hub linking to the four trend explorer sub-features
+/// Grid of links to the four trend explorer sub-features.
+///
+/// Rendered only inside `StatsView`, which supplies the scroll view, the
+/// padding, the background and the navigation title. This view used to carry
+/// its own copy of all four: the padding stacked with the parent's to 64pt,
+/// which left too little room for a second column on any iPhone narrower than
+/// 402pt, and the navigation title overrode "Stats" on the tab it lives in.
 struct TrendsView: View {
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                trendCard(
-                    icon: "waveform.path.ecg",
-                    title: "Genre Evolution",
-                    subtitle: "Rating trends over 50 years",
-                    color: .plotlineGold,
-                    destination: GenreEvolutionView()
-                )
+        LazyVGrid(columns: GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth), spacing: 16) {
+            trendCard(
+                icon: "waveform.path.ecg",
+                title: "Genre Evolution",
+                subtitle: "Rating trends over 50 years",
+                color: .plotlineGold,
+                destination: GenreEvolutionView()
+            )
 
-                trendCard(
-                    icon: "calendar.badge.clock",
-                    title: "Best Years",
-                    subtitle: "Top-rated years for film",
-                    color: .plotlineSecondaryAccent,
-                    destination: BestYearsView()
-                )
+            trendCard(
+                icon: "calendar.badge.clock",
+                title: "Best Years",
+                subtitle: "Top-rated years for film",
+                color: .plotlineSecondaryAccent,
+                destination: BestYearsView()
+            )
 
-                trendCard(
-                    icon: "chart.bar.xaxis.ascending",
-                    title: "Decade Battle",
-                    subtitle: "Compare eras head to head",
-                    color: .plotlinePrimary,
-                    destination: DecadeBattleView()
-                )
+            trendCard(
+                icon: "chart.bar.xaxis.ascending",
+                title: "Decade Battle",
+                subtitle: "Compare eras head to head",
+                color: .plotlinePrimary,
+                destination: DecadeBattleView()
+            )
 
-                trendCard(
-                    icon: "square.stack.3d.up",
-                    title: "Franchise Tracker",
-                    subtitle: "Track franchise quality",
-                    color: .rottenGreen,
-                    destination: FranchiseTrackerView()
-                )
-            }
-            .padding()
+            trendCard(
+                icon: "square.stack.3d.up",
+                title: "Franchise Tracker",
+                subtitle: "Track franchise quality",
+                color: .rottenGreen,
+                destination: FranchiseTrackerView()
+            )
         }
-        .background(Color.plotlineBackground)
-        .navigationTitle("Trend Explorer")
     }
 
     // MARK: - Card Builder
