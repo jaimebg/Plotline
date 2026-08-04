@@ -19,6 +19,19 @@ struct PlotlineDataset: Codable, Hashable {
     /// `InsufficientDataReason`) or a fetch failure, rather than leaving the
     /// reason to live only in console output.
     let skipped: [SkippedSeries]
+    /// When the generator produced this file, ISO8601.
+    ///
+    /// **Optional on purpose:** the file committed before this field existed
+    /// must keep decoding, or the app loses its bundled content entirely. The
+    /// release preflight is what refuses an absent value; the decoder accepts
+    /// it.
+    ///
+    /// **A `String` and not a `Date`,** so no check anywhere depends on a
+    /// `JSONDecoder` date strategy. That kind of invisible coupling is what
+    /// makes `regionKeysAreUntouched` unfalsifiable, and it is not worth
+    /// repeating in a new field. `firstAirDate` sets the same precedent in
+    /// this file.
+    let generatedAt: String?
 
     static let currentVersion = 1
 }

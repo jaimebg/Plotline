@@ -2,7 +2,11 @@ import Foundation
 
 /// Turns analysed entries into the file the app ships.
 enum DatasetBuilder {
-    static func build(entries: [DatasetEntry], skipped: [SkippedSeries] = []) -> PlotlineDataset {
+    static func build(
+        entries: [DatasetEntry],
+        skipped: [SkippedSeries] = [],
+        generatedAt: String
+    ) -> PlotlineDataset {
         let sorted = entries.sorted { $0.tmdbId < $1.tmdbId }
         // Sorted for the same reason as entries: so regenerating from
         // unchanged data reproduces an identical file.
@@ -12,7 +16,8 @@ enum DatasetBuilder {
             version: PlotlineDataset.currentVersion,
             entries: sorted,
             lists: curatedLists(from: sorted),
-            skipped: sortedSkipped
+            skipped: sortedSkipped,
+            generatedAt: generatedAt
         )
     }
 
