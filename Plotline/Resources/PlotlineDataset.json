@@ -7,39 +7,32 @@
           "highestRated" : {
             "episodeNumber" : 21,
             "id" : 13575,
-            "rating" : 9.405,
+            "rating" : 9.4,
             "seasonNumber" : 3,
             "title" : "Sozin's Comet: Avatar Aang (4)"
           },
           "lowestRated" : {
             "episodeNumber" : 11,
             "id" : 13545,
-            "rating" : 7.123,
+            "rating" : 7.1,
             "seasonNumber" : 1,
             "title" : "The Great Divide"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.4714427073891466
+          "standardDeviation" : 0.47297637211304255
         },
         "endingVerdict" : {
           "finalSeason" : 3,
-          "finalSeasonAverage" : 8.491499597747383,
+          "finalSeasonAverage" : 8.488954947707159,
           "kind" : "endsStrong",
           "peakSeason" : 3,
-          "peakSeasonAverage" : 8.491499597747383
+          "peakSeasonAverage" : 8.488954947707159
         },
         "essentialEpisodes" : [
           {
-            "episodeNumber" : 13,
-            "id" : 13547,
-            "rating" : 8.721,
-            "seasonNumber" : 1,
-            "title" : "The Blue Spirit"
-          },
-          {
             "episodeNumber" : 20,
             "id" : 13554,
-            "rating" : 8.962,
+            "rating" : 9,
             "seasonNumber" : 1,
             "title" : "The Siege of the North (2)"
           },
@@ -60,7 +53,7 @@
           {
             "episodeNumber" : 21,
             "id" : 13575,
-            "rating" : 9.405,
+            "rating" : 9.4,
             "seasonNumber" : 3,
             "title" : "Sozin's Comet: Avatar Aang (4)"
           }
@@ -114,7 +107,7 @@
           "improvesAtSeason" : 2,
           "kind" : "slowStart",
           "openingAverage" : 7.896830097087379,
-          "remainderAverage" : 8.352852418096726
+          "remainderAverage" : 8.353395007800314
         },
         "score" : {
           "consistency" : 53,
@@ -128,18 +121,18 @@
             "bestEpisode" : {
               "episodeNumber" : 20,
               "id" : 13554,
-              "rating" : 8.962,
+              "rating" : 9,
               "seasonNumber" : 1,
               "title" : "The Siege of the North (2)"
             },
             "reliableEpisodeCount" : 20,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.4454708690133387,
-            "weightedAverage" : 8.046619774919614,
+            "standardDeviation" : 0.4531161990384592,
+            "weightedAverage" : 8.048831189710612,
             "worstEpisode" : {
               "episodeNumber" : 11,
               "id" : 13545,
-              "rating" : 7.123,
+              "rating" : 7.1,
               "seasonNumber" : 1,
               "title" : "The Great Divide"
             }
@@ -155,8 +148,8 @@
             },
             "reliableEpisodeCount" : 20,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.39224633243530954,
-            "weightedAverage" : 8.371200884955753,
+            "standardDeviation" : 0.3927004371569419,
+            "weightedAverage" : 8.373104424778761,
             "worstEpisode" : {
               "episodeNumber" : 5,
               "id" : 13583,
@@ -170,14 +163,14 @@
             "bestEpisode" : {
               "episodeNumber" : 21,
               "id" : 13575,
-              "rating" : 9.405,
+              "rating" : 9.4,
               "seasonNumber" : 3,
               "title" : "Sozin's Comet: Avatar Aang (4)"
             },
             "reliableEpisodeCount" : 21,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.4502693649422194,
-            "weightedAverage" : 8.491499597747383,
+            "standardDeviation" : 0.44899440648314864,
+            "weightedAverage" : 8.488954947707159,
             "worstEpisode" : {
               "episodeNumber" : 9,
               "id" : 13563,
@@ -191,7 +184,7 @@
           {
             "episodeNumber" : 11,
             "id" : 13545,
-            "rating" : 7.123,
+            "rating" : 7.1,
             "seasonNumber" : 1,
             "title" : "The Great Divide"
           },
@@ -237,7 +230,7 @@
       "overview" : "In a war-torn world of elemental magic, a young boy reawakens to undertake a dangerous mystic quest to fulfill his destiny as the Avatar, and bring peace to the world.",
       "posterPath" : "/yaGt4GIutpbXHsv48tWceWg6s56.jpg",
       "tmdbId" : 246,
-      "voteAverage" : 8.8
+      "voteAverage" : 8.774
     },
     {
       "analysis" : {
@@ -3120,7 +3113,7 @@
       "overview" : "David Attenborough celebrates the amazing variety of the natural world in this epic documentary series, filmed over four years across 64 different countries.",
       "posterPath" : "/bNcNxUtZ520d5de5s78onoiSiwQ.jpg",
       "tmdbId" : 1044,
-      "voteAverage" : 8.632
+      "voteAverage" : 8.633
     },
     {
       "analysis" : {
@@ -3141,7 +3134,7 @@
             "title" : "Fly"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.4566319147359888
+          "standardDeviation" : 0.4566382958865902
         },
         "endingVerdict" : {
           "finalSeason" : 5,
@@ -3172,7 +3165,7 @@
             {
               "episodeNumber" : 1,
               "id" : 62085,
-              "rating" : 8.506,
+              "rating" : 8.494,
               "seasonNumber" : 1,
               "title" : "Pilot"
             },
@@ -3213,7 +3206,7 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.376521049753965,
+          "openingAverage" : 8.373432697547685,
           "remainderAverage" : 8.634379624066606
         },
         "score" : {
@@ -3234,8 +3227,8 @@
             },
             "reliableEpisodeCount" : 7,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.2665169493578446,
-            "weightedAverage" : 8.37750459159014,
+            "standardDeviation" : 0.264774114054095,
+            "weightedAverage" : 8.374770602409638,
             "worstEpisode" : {
               "episodeNumber" : 4,
               "id" : 62088,
@@ -3423,7 +3416,7 @@
             "title" : "Moe n' Joe"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.40050915164013945
+          "standardDeviation" : 0.40072270239573343
         },
         "endingVerdict" : {
           "finalSeason" : 6,
@@ -3538,7 +3531,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.914398747390395,
-          "remainderAverage" : 8.170703537170265
+          "remainderAverage" : 8.171150179856117
         },
         "score" : {
           "consistency" : 60,
@@ -3600,8 +3593,8 @@
             },
             "reliableEpisodeCount" : 13,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.42266440074493106,
-            "weightedAverage" : 8.190894632206758,
+            "standardDeviation" : 0.42405257766848,
+            "weightedAverage" : 8.192882703777334,
             "worstEpisode" : {
               "episodeNumber" : 3,
               "id" : 62998,
@@ -3621,8 +3614,8 @@
             },
             "reliableEpisodeCount" : 13,
             "seasonNumber" : 4,
-            "standardDeviation" : 0.32115803429506323,
-            "weightedAverage" : 8.08253579175705,
+            "standardDeviation" : 0.3211909061231034,
+            "weightedAverage" : 8.08359869848156,
             "worstEpisode" : {
               "episodeNumber" : 6,
               "id" : 63010,
@@ -3762,7 +3755,7 @@
             "title" : "The Iron Throne"
           },
           "rating" : "rollercoaster",
-          "standardDeviation" : 0.9151817485329711
+          "standardDeviation" : 0.9149439738650994
         },
         "endingVerdict" : {
           "finalSeason" : 8,
@@ -3814,7 +3807,7 @@
             {
               "episodeNumber" : 1,
               "id" : 63056,
-              "rating" : 8.164,
+              "rating" : 8.153,
               "seasonNumber" : 1,
               "title" : "Winter Is Coming"
             },
@@ -3828,7 +3821,7 @@
             {
               "episodeNumber" : 3,
               "id" : 63058,
-              "rating" : 8.05,
+              "rating" : 8.053,
               "seasonNumber" : 1,
               "title" : "Lord Snow"
             },
@@ -3855,11 +3848,11 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.202576018359151,
+          "openingAverage" : 8.199883495145631,
           "remainderAverage" : 8.062559349279836
         },
         "score" : {
-          "consistency" : 8,
+          "consistency" : 9,
           "level" : 81,
           "trajectory" : 32,
           "value" : 57
@@ -3876,8 +3869,8 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.31481584815706665,
-            "weightedAverage" : 8.371280669144982,
+            "standardDeviation" : 0.31554732596504764,
+            "weightedAverage" : 8.369032987398073,
             "worstEpisode" : {
               "episodeNumber" : 2,
               "id" : 63057,
@@ -4091,12 +4084,12 @@
             "title" : "Diverged"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.43552868660799154
+          "standardDeviation" : 0.43572519163526924
         },
         "declinePoint" : {
           "afterSeason" : 6,
-          "averageAfter" : 7.967202276707531,
-          "averageBefore" : 8.437782414657063,
+          "averageAfter" : 7.967311733800351,
+          "averageBefore" : 8.438128267334482,
           "seasonsAfter" : [
             7,
             8,
@@ -4116,7 +4109,7 @@
           {
             "episodeNumber" : 13,
             "id" : 63353,
-            "rating" : 9.022,
+            "rating" : 9.028,
             "seasonNumber" : 2,
             "title" : "Beside the Dying Fire"
           },
@@ -4190,21 +4183,21 @@
             {
               "episodeNumber" : 1,
               "id" : 63339,
-              "rating" : 7.868,
+              "rating" : 7.87,
               "seasonNumber" : 1,
               "title" : "Days Gone Bye"
             },
             {
               "episodeNumber" : 2,
               "id" : 63337,
-              "rating" : 8.384,
+              "rating" : 8.383,
               "seasonNumber" : 1,
               "title" : "Guts"
             },
             {
               "episodeNumber" : 3,
               "id" : 63338,
-              "rating" : 8.329,
+              "rating" : 8.328,
               "seasonNumber" : 1,
               "title" : "Tell It to the Frogs"
             },
@@ -4231,8 +4224,8 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.244883345045679,
-          "remainderAverage" : 8.24131061752502
+          "openingAverage" : 8.245072230014026,
+          "remainderAverage" : 8.24161899648575
         },
         "score" : {
           "consistency" : 56,
@@ -4252,12 +4245,12 @@
             },
             "reliableEpisodeCount" : 6,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.2723432384305102,
-            "weightedAverage" : 8.244883345045679,
+            "standardDeviation" : 0.27131736637404735,
+            "weightedAverage" : 8.245072230014026,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 63339,
-              "rating" : 7.868,
+              "rating" : 7.87,
               "seasonNumber" : 1,
               "title" : "Days Gone Bye"
             }
@@ -4267,14 +4260,14 @@
             "bestEpisode" : {
               "episodeNumber" : 13,
               "id" : 63353,
-              "rating" : 9.022,
+              "rating" : 9.028,
               "seasonNumber" : 2,
               "title" : "Beside the Dying Fire"
             },
             "reliableEpisodeCount" : 13,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.2920604519481485,
-            "weightedAverage" : 8.524164410058026,
+            "standardDeviation" : 0.2942875121465036,
+            "weightedAverage" : 8.526322549492997,
             "worstEpisode" : {
               "episodeNumber" : 4,
               "id" : 63345,
@@ -4441,8 +4434,8 @@
             },
             "reliableEpisodeCount" : 22,
             "seasonNumber" : 10,
-            "standardDeviation" : 0.43366902023412995,
-            "weightedAverage" : 8.118526206538661,
+            "standardDeviation" : 0.43365252356543715,
+            "weightedAverage" : 8.119045147898287,
             "worstEpisode" : {
               "episodeNumber" : 21,
               "id" : 2455770,
@@ -4564,7 +4557,7 @@
       "overview" : "Sheriff's deputy Rick Grimes awakens from a coma to find a post-apocalyptic world dominated by flesh-eating zombies. He sets out to find his family and encounters many other survivors along the way.",
       "posterPath" : "/aN29llVoCFtBTwDZFtqdD9d8dHb.jpg",
       "tmdbId" : 1402,
-      "voteAverage" : 8.084
+      "voteAverage" : 8.1
     },
     {
       "analysis" : {
@@ -5885,7 +5878,7 @@
       "overview" : "Follows the personal and professional lives of a group of doctors at Seattle's Grey Sloan Memorial Hospital.",
       "posterPath" : "/hjJkrLXhWvGHpLeLBDFznpBTY1S.jpg",
       "tmdbId" : 1416,
-      "voteAverage" : 8.2
+      "voteAverage" : 8.208
     },
     {
       "analysis" : {
@@ -5894,7 +5887,7 @@
           "highestRated" : {
             "episodeNumber" : 1,
             "id" : 1534358,
-            "rating" : 9.867,
+            "rating" : 9.868,
             "seasonNumber" : 12,
             "title" : "The Conjugal Configuration"
           },
@@ -5906,14 +5899,14 @@
             "title" : "The Inspiration Deprivation"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.7450723688520677
+          "standardDeviation" : 0.7472209460841891
         },
         "endingVerdict" : {
           "finalSeason" : 12,
-          "finalSeasonAverage" : 8.62545139813582,
+          "finalSeasonAverage" : 8.631509500662837,
           "kind" : "endsStrong",
           "peakSeason" : 12,
-          "peakSeasonAverage" : 8.62545139813582
+          "peakSeasonAverage" : 8.631509500662837
         },
         "essentialEpisodes" : [
           {
@@ -6049,7 +6042,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.4395115452930725,
-          "remainderAverage" : 7.599932029094557
+          "remainderAverage" : 7.60158474841782
         },
         "score" : {
           "consistency" : 25,
@@ -6111,8 +6104,8 @@
             },
             "reliableEpisodeCount" : 23,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.3010361617350833,
-            "weightedAverage" : 7.753593726090283,
+            "standardDeviation" : 0.3019973626509589,
+            "weightedAverage" : 7.755319571865444,
             "worstEpisode" : {
               "episodeNumber" : 6,
               "id" : 64679,
@@ -6294,14 +6287,14 @@
             "bestEpisode" : {
               "episodeNumber" : 1,
               "id" : 1534358,
-              "rating" : 9.867,
+              "rating" : 9.868,
               "seasonNumber" : 12,
               "title" : "The Conjugal Configuration"
             },
             "reliableEpisodeCount" : 24,
             "seasonNumber" : 12,
-            "standardDeviation" : 1.4511644123825838,
-            "weightedAverage" : 8.62545139813582,
+            "standardDeviation" : 1.4507817499735947,
+            "weightedAverage" : 8.631509500662837,
             "worstEpisode" : {
               "episodeNumber" : 19,
               "id" : 1749468,
@@ -6393,7 +6386,7 @@
             "title" : "What Needs to Be Done Now: Eve of the Counterattack (3)"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.3583505754791395
+          "standardDeviation" : 0.3580995750875536
         },
         "endingVerdict" : {
           "finalSeason" : 4,
@@ -6473,7 +6466,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 8.429196721311476,
-          "remainderAverage" : 8.587025981873115
+          "remainderAverage" : 8.58724048338369
         },
         "score" : {
           "consistency" : 64,
@@ -6493,8 +6486,8 @@
             },
             "reliableEpisodeCount" : 25,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.31534341764488305,
-            "weightedAverage" : 8.385505612493901,
+            "standardDeviation" : 0.3148596708660663,
+            "weightedAverage" : 8.386025378233287,
             "worstEpisode" : {
               "episodeNumber" : 16,
               "id" : 65493,
@@ -6664,7 +6657,7 @@
       "overview" : "100 years ago, the last remnants of humanity were forced to retreat behind the towering walls of a fortified city to escape the massive, man-eating Titans that roamed the land outside their fortress. Only the members of the Scouting Legion dared to stray beyond the safety of the walls – but even those brave warriors seldom returned alive. Those within the city clung to the illusion of a peaceful existence until the day that dream was shattered, and their slim chance at survival was reduced to one horrifying choice: kill – or be devoured!",
       "posterPath" : "/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg",
       "tmdbId" : 1429,
-      "voteAverage" : 8.7
+      "voteAverage" : 8.684
     },
     {
       "analysis" : {
@@ -6803,19 +6796,19 @@
           "lowestRated" : {
             "episodeNumber" : 1,
             "id" : 66452,
-            "rating" : 7.39,
+            "rating" : 7.398,
             "seasonNumber" : 1,
             "title" : "The Target"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.3470769086717466
+          "standardDeviation" : 0.34626307732548245
         },
         "endingVerdict" : {
           "finalSeason" : 5,
-          "finalSeasonAverage" : 8.22831343283582,
+          "finalSeasonAverage" : 8.227636904761905,
           "kind" : "endsStrong",
           "peakSeason" : 5,
-          "peakSeasonAverage" : 8.22831343283582
+          "peakSeasonAverage" : 8.227636904761905
         },
         "essentialEpisodes" : [
           {
@@ -6867,7 +6860,7 @@
             {
               "episodeNumber" : 1,
               "id" : 66452,
-              "rating" : 7.39,
+              "rating" : 7.398,
               "seasonNumber" : 1,
               "title" : "The Target"
             },
@@ -6908,8 +6901,8 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 7.758458445040214,
-          "remainderAverage" : 8.151144755576649
+          "openingAverage" : 7.759248663101604,
+          "remainderAverage" : 8.151337754618663
         },
         "score" : {
           "consistency" : 65,
@@ -6929,12 +6922,12 @@
             },
             "reliableEpisodeCount" : 13,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.3844586455298873,
-            "weightedAverage" : 8.045335227272728,
+            "standardDeviation" : 0.3833810760120965,
+            "weightedAverage" : 8.045347517730496,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 66452,
-              "rating" : 7.39,
+              "rating" : 7.398,
               "seasonNumber" : 1,
               "title" : "The Target"
             }
@@ -6950,8 +6943,8 @@
             },
             "reliableEpisodeCount" : 12,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.3455590761967483,
-            "weightedAverage" : 7.952300952380952,
+            "standardDeviation" : 0.3459813924388016,
+            "weightedAverage" : 7.950524714828897,
             "worstEpisode" : {
               "episodeNumber" : 7,
               "id" : 66475,
@@ -6971,8 +6964,8 @@
             },
             "reliableEpisodeCount" : 12,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.32589553002571464,
-            "weightedAverage" : 8.179034115138593,
+            "standardDeviation" : 0.3237037040942904,
+            "weightedAverage" : 8.180806382978725,
             "worstEpisode" : {
               "episodeNumber" : 3,
               "id" : 66485,
@@ -6992,14 +6985,14 @@
             },
             "reliableEpisodeCount" : 13,
             "seasonNumber" : 4,
-            "standardDeviation" : 0.2794512531690766,
-            "weightedAverage" : 8.136557046979867,
+            "standardDeviation" : 0.2768155349359133,
+            "weightedAverage" : 8.138441964285715,
             "worstEpisode" : {
-              "episodeNumber" : 1,
-              "id" : 66494,
+              "episodeNumber" : 9,
+              "id" : 66495,
               "rating" : 7.829,
               "seasonNumber" : 4,
-              "title" : "Boys of Summer"
+              "title" : "Know Your Place"
             }
           },
           {
@@ -7013,12 +7006,12 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 5,
-            "standardDeviation" : 0.2722816917648065,
-            "weightedAverage" : 8.22831343283582,
+            "standardDeviation" : 0.2720477882913753,
+            "weightedAverage" : 8.227636904761905,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 66502,
-              "rating" : 7.857,
+              "rating" : 7.861,
               "seasonNumber" : 5,
               "title" : "More with Less"
             }
@@ -7028,7 +7021,7 @@
           {
             "episodeNumber" : 1,
             "id" : 66452,
-            "rating" : 7.39,
+            "rating" : 7.398,
             "seasonNumber" : 1,
             "title" : "The Target"
           },
@@ -7077,14 +7070,14 @@
             "title" : "Bloodlines"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.4907525985954866
+          "standardDeviation" : 0.49072897922212194
         },
         "endingVerdict" : {
           "finalSeason" : 15,
           "finalSeasonAverage" : 7.378538461538464,
           "kind" : "fadesOut",
           "peakSeason" : 5,
-          "peakSeasonAverage" : 8.244792336217552
+          "peakSeasonAverage" : 8.24452098765432
         },
         "essentialEpisodes" : [
           {
@@ -7269,7 +7262,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.5233739837398375,
-          "remainderAverage" : 7.8703705574082905
+          "remainderAverage" : 7.870385289634147
         },
         "score" : {
           "consistency" : 51,
@@ -7373,8 +7366,8 @@
             },
             "reliableEpisodeCount" : 22,
             "seasonNumber" : 5,
-            "standardDeviation" : 0.39162394475683304,
-            "weightedAverage" : 8.244792336217552,
+            "standardDeviation" : 0.3913906578987068,
+            "weightedAverage" : 8.24452098765432,
             "worstEpisode" : {
               "episodeNumber" : 5,
               "id" : 162482,
@@ -7767,7 +7760,7 @@
       "overview" : "When they were boys, Sam and Dean Winchester lost their mother to a mysterious and demonic supernatural force. Subsequently, their father raised them to be soldiers. He taught them about the paranormal evil that lives in the dark corners and on the back roads of America ... and he taught them how to kill it. Now, the Winchester brothers crisscross the country in their '67 Chevy Impala, battling every kind of supernatural threat they encounter along the way. ",
       "posterPath" : "/8iixmfGx5EIFPdpNvB2JvI3VIqX.jpg",
       "tmdbId" : 1622,
-      "voteAverage" : 8.313
+      "voteAverage" : 8.3
     },
     {
       "analysis" : {
@@ -8547,7 +8540,7 @@
       "overview" : "Vowing to avenge the murder of his parents, Bruce Wayne devotes his life to wiping out crime in Gotham City as the masked vigilante \"Batman\".",
       "posterPath" : "/lBomQFW1vlm1yUYMNSbFZ45R4Ox.jpg",
       "tmdbId" : 2098,
-      "voteAverage" : 8.584
+      "voteAverage" : 8.6
     },
     {
       "analysis" : {
@@ -8568,7 +8561,7 @@
             "title" : "Here Comes Treble"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.45273304818216376
+          "standardDeviation" : 0.4526360473946463
         },
         "endingVerdict" : {
           "finalSeason" : 9,
@@ -8718,7 +8711,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.726342685370741,
-          "remainderAverage" : 8.105740726278796
+          "remainderAverage" : 8.105595783446121
         },
         "score" : {
           "consistency" : 55,
@@ -8759,8 +8752,8 @@
             },
             "reliableEpisodeCount" : 22,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.26384394672134376,
-            "weightedAverage" : 8.26721366782007,
+            "standardDeviation" : 0.26360176384544837,
+            "weightedAverage" : 8.266111495246326,
             "worstEpisode" : {
               "episodeNumber" : 14,
               "id" : 170149,
@@ -9009,9 +9002,9 @@
       "mediaType" : "tv",
       "name" : "The Office",
       "overview" : "The everyday lives of office employees in the Scranton, Pennsylvania branch of the fictional Dunder Mifflin Paper Company.",
-      "posterPath" : "/7DJKHzAi83BmQrWLrYYOqcoKfhR.jpg",
+      "posterPath" : "/AcsDnYMUKwYepl75Uc1Hb4aKvDC.jpg",
       "tmdbId" : 2316,
-      "voteAverage" : 8.586
+      "voteAverage" : 8.6
     },
     {
       "analysis" : {
@@ -10419,7 +10412,7 @@
       "overview" : "Having spent the summer engaging common criminals with his new-found powers, not so typical 16-year-old Peter Parker must conceal his secret identity and battle super-villains in the real world as he enters his junior year of high school.",
       "posterPath" : "/dCNxOhXT7c4lqYuRpdM3m8s9XDp.jpg",
       "tmdbId" : 3854,
-      "voteAverage" : 8.6
+      "voteAverage" : 8.623
     },
     {
       "analysis" : {
@@ -10435,12 +10428,12 @@
           "lowestRated" : {
             "episodeNumber" : 5,
             "id" : 334394,
-            "rating" : 8.099,
+            "rating" : 8.098,
             "seasonNumber" : 1,
             "title" : "Crossroads"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.28294372358706854
+          "standardDeviation" : 0.2830654632645231
         },
         "essentialEpisodes" : [
           {
@@ -10471,34 +10464,34 @@
             {
               "episodeNumber" : 3,
               "id" : 334393,
-              "rating" : 8.5,
+              "rating" : 8.495,
               "seasonNumber" : 1,
               "title" : "Carentan"
             },
             {
               "episodeNumber" : 4,
               "id" : 334395,
-              "rating" : 8.357,
+              "rating" : 8.354,
               "seasonNumber" : 1,
               "title" : "Replacements"
             },
             {
               "episodeNumber" : 5,
               "id" : 334394,
-              "rating" : 8.099,
+              "rating" : 8.098,
               "seasonNumber" : 1,
               "title" : "Crossroads"
             },
             {
               "episodeNumber" : 6,
               "id" : 334397,
-              "rating" : 8.62,
+              "rating" : 8.624,
               "seasonNumber" : 1,
               "title" : "Bastogne"
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.340083464566929,
+          "openingAverage" : 8.339582159624413,
           "remainderAverage" : 8.639288607594938
         },
         "score" : {
@@ -10519,12 +10512,12 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.28294372358706854,
-            "weightedAverage" : 8.45482718446602,
+            "standardDeviation" : 0.2830654632645231,
+            "weightedAverage" : 8.454073500967118,
             "worstEpisode" : {
               "episodeNumber" : 5,
               "id" : 334394,
-              "rating" : 8.099,
+              "rating" : 8.098,
               "seasonNumber" : 1,
               "title" : "Crossroads"
             }
@@ -10570,7 +10563,7 @@
             "title" : "Hereafter"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.7044927620844802
+          "standardDeviation" : 0.7037931700393156
         },
         "essentialEpisodes" : [
           {
@@ -10611,7 +10604,7 @@
           {
             "episodeNumber" : 1,
             "id" : 334543,
-            "rating" : 8.5,
+            "rating" : 8.333,
             "seasonNumber" : 7,
             "title" : "Truth or Consequences"
           },
@@ -10770,7 +10763,7 @@
           "improvesAtSeason" : 5,
           "kind" : "slowStart",
           "openingAverage" : 7.135873015873015,
-          "remainderAverage" : 7.564138482758616
+          "remainderAverage" : 7.56344983461962
         },
         "score" : {
           "consistency" : 30,
@@ -10895,8 +10888,8 @@
             },
             "reliableEpisodeCount" : 25,
             "seasonNumber" : 6,
-            "standardDeviation" : 0.6484185105546664,
-            "weightedAverage" : 7.439042857142856,
+            "standardDeviation" : 0.6419978445969037,
+            "weightedAverage" : 7.4311132075471695,
             "worstEpisode" : {
               "episodeNumber" : 10,
               "id" : 334414,
@@ -10910,14 +10903,14 @@
             "bestEpisode" : {
               "episodeNumber" : 1,
               "id" : 334543,
-              "rating" : 8.5,
+              "rating" : 8.333,
               "seasonNumber" : 7,
               "title" : "Truth or Consequences"
             },
             "reliableEpisodeCount" : 24,
             "seasonNumber" : 7,
-            "standardDeviation" : 0.5508399656036631,
-            "weightedAverage" : 7.4716417910447745,
+            "standardDeviation" : 0.5413794251876118,
+            "weightedAverage" : 7.469292079207919,
             "worstEpisode" : {
               "episodeNumber" : 5,
               "id" : 334547,
@@ -11499,7 +11492,7 @@
             "title" : "So Long, and Thanks for All the Red Snapper"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.43939933136425335
+          "standardDeviation" : 0.43974545676813687
         },
         "endingVerdict" : {
           "finalSeason" : 7,
@@ -11642,7 +11635,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.769230769230769,
-          "remainderAverage" : 7.6606065916819235
+          "remainderAverage" : 7.66009623430962
         },
         "score" : {
           "consistency" : 56,
@@ -11662,12 +11655,12 @@
             },
             "reliableEpisodeCount" : 23,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.3125866185354285,
-            "weightedAverage" : 7.609388594164456,
+            "standardDeviation" : 0.31481081692743124,
+            "weightedAverage" : 7.60768302387268,
             "worstEpisode" : {
               "episodeNumber" : 14,
               "id" : 367702,
-              "rating" : 7.106,
+              "rating" : 7.1,
               "seasonNumber" : 1,
               "title" : "Crimson Casanova"
             }
@@ -11725,8 +11718,8 @@
             },
             "reliableEpisodeCount" : 24,
             "seasonNumber" : 4,
-            "standardDeviation" : 0.5498549435500331,
-            "weightedAverage" : 7.437837096774195,
+            "standardDeviation" : 0.5493656500690945,
+            "weightedAverage" : 7.437123993558777,
             "worstEpisode" : {
               "episodeNumber" : 22,
               "id" : 367783,
@@ -11803,7 +11796,7 @@
           {
             "episodeNumber" : 14,
             "id" : 367702,
-            "rating" : 7.106,
+            "rating" : 7.1,
             "seasonNumber" : 1,
             "title" : "Crimson Casanova"
           },
@@ -11881,7 +11874,7 @@
       "overview" : "Patrick Jane, a former celebrity psychic medium, uses his razor sharp skills of observation and expertise at \"reading\" people to solve serious crimes with the California Bureau of Investigation.",
       "posterPath" : "/acYXu4KaDj1NIkMgObnhe4C4a0T.jpg",
       "tmdbId" : 5920,
-      "voteAverage" : 8.369
+      "voteAverage" : 8.371
     },
     {
       "analysis" : {
@@ -12235,7 +12228,7 @@
       "overview" : "An anthology series containing drama, psychological thriller, fantasy, science fiction, suspense, and/or horror, often concluding with a macabre or unexpected twist.",
       "posterPath" : "/7uY4pCOxbEdv4M8jTE4uMPVoSIW.jpg",
       "tmdbId" : 6357,
-      "voteAverage" : 8.503
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -12400,7 +12393,7 @@
       "overview" : "Light Yagami is an ace student with great prospects—and he’s bored out of his mind. But all that changes when he finds the Death Note, a notebook dropped by a rogue Shinigami death god. Any human whose name is written in the notebook dies, and Light has vowed to use the power of the Death Note to rid the world of evil. But will Light succeed in his noble goal, or will the Death Note turn him into the very thing he fights against?",
       "posterPath" : "/tCZFfYTIwrR7n94J6G14Y4hAFU6.jpg",
       "tmdbId" : 13916,
-      "voteAverage" : 8.6
+      "voteAverage" : 8.623
     },
     {
       "analysis" : {
@@ -12930,7 +12923,7 @@
       "overview" : "Young Finn and his shape-shifting dog buddy, Jake, go on a series of surreal adventures as they journey through the postapocalyptic Land of Ooo.",
       "posterPath" : "/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg",
       "tmdbId" : 15260,
-      "voteAverage" : 8.508
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -13513,13 +13506,13 @@
             "seasonNumber" : 4,
             "title" : "Bald Spot"
           },
-          "rating" : "steady",
-          "standardDeviation" : 0.5999679984624922
+          "rating" : "uneven",
+          "standardDeviation" : 0.6001468938244985
         },
         "declinePoint" : {
           "afterSeason" : 3,
           "averageAfter" : 7.642127186009539,
-          "averageBefore" : 8.269355477855477,
+          "averageBefore" : 8.26877972027972,
           "seasonsAfter" : [
             4,
             5,
@@ -13619,14 +13612,14 @@
             {
               "episodeNumber" : 2,
               "id" : 752726,
-              "rating" : 7.789,
+              "rating" : 7.8,
               "seasonNumber" : 1,
               "title" : "Just Set Up the Chairs"
             },
             {
               "episodeNumber" : 3,
               "id" : 752729,
-              "rating" : 7.737,
+              "rating" : 7.7,
               "seasonNumber" : 1,
               "title" : "Caffeinated Concert Tickets"
             },
@@ -13653,7 +13646,7 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 7.794272727272727,
+          "openingAverage" : 7.790190082644629,
           "remainderAverage" : 8.02983078045222
         },
         "score" : {
@@ -13674,8 +13667,8 @@
             },
             "reliableEpisodeCount" : 12,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.31956922092705825,
-            "weightedAverage" : 7.929939252336448,
+            "standardDeviation" : 0.3213157081165969,
+            "weightedAverage" : 7.927630841121495,
             "worstEpisode" : {
               "episodeNumber" : 6,
               "id" : 752731,
@@ -14116,7 +14109,7 @@
       "overview" : "Disregard for alchemy’s laws ripped half of Edward Elric’s limbs from his body and left his brother Alphonse’s soul clinging to a suit of armor. To restore what was lost, the brothers seek the Philosopher’s Stone. Enemies and allies – the corrupt military, the Homunculi, and foreign alchemists – will alter the Elric brothers course, but their purpose will remain unchanged and their bond unbreakable.",
       "posterPath" : "/5ZFUEOULaVml7pQuXxhpR2SmVUw.jpg",
       "tmdbId" : 31911,
-      "voteAverage" : 8.715
+      "voteAverage" : 8.716
     },
     {
       "analysis" : {
@@ -15048,7 +15041,7 @@
       "overview" : "The life of Gumball Watterson, a 12-year old cat who attends middle school in Elmore. Accompanied by his pet, adoptive brother, and best friend Darwin Watterson, he frequently finds himself involved in various shenanigans around the city, during which he interacts with various family members: Anais, Richard, and Nicole Watterson, and other various citizens.",
       "posterPath" : "/VYnnyA2hyxi3VUPgCA71mMtt69.jpg",
       "tmdbId" : 37606,
-      "voteAverage" : 8.5
+      "voteAverage" : 8.535
     },
     {
       "analysis" : {
@@ -15069,7 +15062,7 @@
             "title" : "The Friends' Whereabouts – The Science of Weather and the Mechanical Island"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.6106150999941513
+          "standardDeviation" : 0.6105818982777983
         },
         "essentialEpisodes" : [
           {
@@ -15194,7 +15187,7 @@
           {
             "episodeNumber" : 309,
             "id" : 852308,
-            "rating" : 8.909,
+            "rating" : 8.9,
             "seasonNumber" : 9,
             "title" : "Fists Full of Emotion! Luffy Unleashes Gatling with All His Might!"
           },
@@ -15537,7 +15530,7 @@
           {
             "episodeNumber" : 1136,
             "id" : 6350672,
-            "rating" : 9.556,
+            "rating" : 9.6,
             "seasonNumber" : 22,
             "title" : "Kuma's Life"
           },
@@ -15597,7 +15590,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.913657370517929,
-          "remainderAverage" : 7.692337544004965
+          "remainderAverage" : 7.6923909533174575
         },
         "score" : {
           "consistency" : 39,
@@ -15617,8 +15610,8 @@
             },
             "reliableEpisodeCount" : 61,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.41409059948223365,
-            "weightedAverage" : 7.662157333333333,
+            "standardDeviation" : 0.4142426126064348,
+            "weightedAverage" : 7.661711525649565,
             "worstEpisode" : {
               "episodeNumber" : 46,
               "id" : 1153017,
@@ -15785,8 +15778,8 @@
             },
             "reliableEpisodeCount" : 73,
             "seasonNumber" : 9,
-            "standardDeviation" : 0.6453008557027975,
-            "weightedAverage" : 7.594874592833876,
+            "standardDeviation" : 0.6437611735873395,
+            "weightedAverage" : 7.596845779220778,
             "worstEpisode" : {
               "episodeNumber" : 336,
               "id" : 1192297,
@@ -16052,14 +16045,14 @@
             "bestEpisode" : {
               "episodeNumber" : 1136,
               "id" : 6350672,
-              "rating" : 9.556,
+              "rating" : 9.6,
               "seasonNumber" : 22,
               "title" : "Kuma's Life"
             },
             "reliableEpisodeCount" : 65,
             "seasonNumber" : 22,
-            "standardDeviation" : 0.511691977520171,
-            "weightedAverage" : 8.367222857142856,
+            "standardDeviation" : 0.5129203194266393,
+            "weightedAverage" : 8.36759619047619,
             "worstEpisode" : {
               "episodeNumber" : 1141,
               "id" : 6427534,
@@ -16690,7 +16683,7 @@
       "overview" : "Years ago, the fearsome Pirate King, Gol D. Roger was executed leaving a huge pile of treasure and the famous \"One Piece\" behind. Whoever claims the \"One Piece\" will be named the new King of the Pirates.\n\nMonkey D. Luffy, a boy who consumed a \"Devil Fruit,\" decides to follow in the footsteps of his idol, the pirate Shanks, and find the One Piece. It helps, of course, that his body has the properties of rubber and that he's surrounded by a bevy of skilled fighters and thieves to help him along the way.\n\nLuffy will do anything to get the One Piece and become King of the Pirates!",
       "posterPath" : "/dB4EDhre2dsC2kxYDavyKWqLQwi.jpg",
       "tmdbId" : 37854,
-      "voteAverage" : 8.75
+      "voteAverage" : 8.7
     },
     {
       "analysis" : {
@@ -16880,7 +16873,7 @@
       "overview" : "Twin brother and sister Dipper and Mabel Pines are in for an unexpected adventure when they spend the summer helping their great uncle Stan run a tourist trap in the mysterious town of Gravity Falls, Oregon.",
       "posterPath" : "/qwi3p6PzKfQZ4YXBzv3CP5pO2dE.jpg",
       "tmdbId" : 40075,
-      "voteAverage" : 8.619
+      "voteAverage" : 8.618
     },
     {
       "analysis" : {
@@ -17072,7 +17065,7 @@
             "title" : "July 15th (Thurs) (2)"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.7312559066712115
+          "standardDeviation" : 0.7302969358345032
         },
         "essentialEpisodes" : [
           {
@@ -17159,7 +17152,7 @@
             {
               "episodeNumber" : 2,
               "id" : 904517,
-              "rating" : 7.321,
+              "rating" : 7.414,
               "seasonNumber" : 1,
               "title" : "A Letter from the Past"
             },
@@ -17194,7 +17187,7 @@
           ],
           "improvesAtSeason" : 4,
           "kind" : "slowStart",
-          "openingAverage" : 7.253219178082192,
+          "openingAverage" : 7.272027210884352,
           "remainderAverage" : 7.751831821353803
         },
         "score" : {
@@ -17215,8 +17208,8 @@
             },
             "reliableEpisodeCount" : 26,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.27120633230277363,
-            "weightedAverage" : 7.388267857142858,
+            "standardDeviation" : 0.27039848930630483,
+            "weightedAverage" : 7.394124721603563,
             "worstEpisode" : {
               "episodeNumber" : 7,
               "id" : 904521,
@@ -17420,7 +17413,7 @@
       "overview" : "Follow the intergenerational feud between the Joestar Family and various forces of evil, the most prominent of which is Dio Brando and his followers.",
       "posterPath" : "/ogAWwbh3frWtiTyyXrZaVFtqCgp.jpg",
       "tmdbId" : 45790,
-      "voteAverage" : 8.56
+      "voteAverage" : 8.561
     },
     {
       "analysis" : {
@@ -17898,7 +17891,7 @@
       "overview" : "Gon, a young boy who lives on Whale Island, dreams of becoming a Hunter like his father, who left when Gon was still young.",
       "posterPath" : "/i2EEr2uBvRlAwJ8d8zTG2Y19mIa.jpg",
       "tmdbId" : 46298,
-      "voteAverage" : 8.659
+      "voteAverage" : 8.7
     },
     {
       "analysis" : {
@@ -18198,7 +18191,7 @@
           "highestRated" : {
             "episodeNumber" : 13,
             "id" : 973215,
-            "rating" : 8.769,
+            "rating" : 8.741,
             "seasonNumber" : 1,
             "title" : "Unafraid of the Dark"
           },
@@ -18210,14 +18203,14 @@
             "title" : "Seven Wonders of The New World"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.2358815694701382
+          "standardDeviation" : 0.23390875520641272
         },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 8.130674846625766,
           "kind" : "endsSteady",
           "peakSeason" : 1,
-          "peakSeasonAverage" : 8.418618705035971
+          "peakSeasonAverage" : 8.416642004773271
         },
         "essentialEpisodes" : [
 
@@ -18270,13 +18263,13 @@
           ],
           "kind" : "even",
           "openingAverage" : 8.442,
-          "remainderAverage" : 8.264070588235294
+          "remainderAverage" : 8.262552631578949
         },
         "score" : {
-          "consistency" : 76,
+          "consistency" : 77,
           "level" : 83,
           "trajectory" : 42,
-          "value" : 73
+          "value" : 74
         },
         "seasons" : [
           {
@@ -18284,14 +18277,14 @@
             "bestEpisode" : {
               "episodeNumber" : 13,
               "id" : 973215,
-              "rating" : 8.769,
+              "rating" : 8.741,
               "seasonNumber" : 1,
               "title" : "Unafraid of the Dark"
             },
             "reliableEpisodeCount" : 13,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.12926752114983225,
-            "weightedAverage" : 8.418618705035971,
+            "standardDeviation" : 0.12607589770695934,
+            "weightedAverage" : 8.416642004773271,
             "worstEpisode" : {
               "episodeNumber" : 9,
               "id" : 973211,
@@ -18367,14 +18360,14 @@
             "title" : "Rebecca"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.39760229020585475
+          "standardDeviation" : 0.39747040385797483
         },
         "endingVerdict" : {
           "finalSeason" : 6,
           "finalSeasonAverage" : 8.666257142857145,
           "kind" : "endsStrong",
           "peakSeason" : 5,
-          "peakSeasonAverage" : 8.679342737722047
+          "peakSeasonAverage" : 8.679944618599789
         },
         "essentialEpisodes" : [
           {
@@ -18426,7 +18419,7 @@
             {
               "episodeNumber" : 1,
               "id" : 1019693,
-              "rating" : 8.285,
+              "rating" : 8.3,
               "seasonNumber" : 1,
               "title" : "Uno"
             },
@@ -18467,8 +18460,8 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.339677042801558,
-          "remainderAverage" : 8.465697804838967
+          "openingAverage" : 8.342595330739302,
+          "remainderAverage" : 8.465790097740747
         },
         "score" : {
           "consistency" : 60,
@@ -18488,8 +18481,8 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.23260255554296091,
-            "weightedAverage" : 8.359228849665248,
+            "standardDeviation" : 0.2320709603921406,
+            "weightedAverage" : 8.361054777845405,
             "worstEpisode" : {
               "episodeNumber" : 5,
               "id" : 1040244,
@@ -18572,8 +18565,8 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 5,
-            "standardDeviation" : 0.34662676240577744,
-            "weightedAverage" : 8.679342737722047,
+            "standardDeviation" : 0.34648323064299735,
+            "weightedAverage" : 8.679944618599789,
             "worstEpisode" : {
               "episodeNumber" : 4,
               "id" : 2069295,
@@ -18623,7 +18616,7 @@
       "overview" : "Six years before Saul Goodman meets Walter White. We meet him when the man who will become Saul Goodman is known as Jimmy McGill, a small-time lawyer searching for his destiny, and, more immediately, hustling to make ends meet. Working alongside, and, often, against Jimmy, is “fixer” Mike Ehrmantraut. The series tracks Jimmy’s transformation into Saul Goodman, the man who puts “criminal” in “criminal lawyer\".",
       "posterPath" : "/zjg4jpK1Wp2kiRvtt5ND0kznako.jpg",
       "tmdbId" : 60059,
-      "voteAverage" : 8.709
+      "voteAverage" : 8.7
     },
     {
       "analysis" : {
@@ -18895,7 +18888,7 @@
             "title" : "Rise of the Numbericons: The Movie"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.6205211701677401
+          "standardDeviation" : 0.6200539397407865
         },
         "essentialEpisodes" : [
           {
@@ -18982,7 +18975,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.914330673758865,
-          "remainderAverage" : 7.915869308973041
+          "remainderAverage" : 7.915422199322837
         },
         "score" : {
           "consistency" : 38,
@@ -19044,12 +19037,12 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.4483919783817458,
-            "weightedAverage" : 8.333565146579806,
+            "standardDeviation" : 0.4484747376550171,
+            "weightedAverage" : 8.329826439578266,
             "worstEpisode" : {
               "episodeNumber" : 4,
               "id" : 1345587,
-              "rating" : 7.776,
+              "rating" : 7.778,
               "seasonNumber" : 3,
               "title" : "Vindicators 3: The Return of Worldender"
             }
@@ -19170,8 +19163,8 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 9,
-            "standardDeviation" : 0.5158266876379426,
-            "weightedAverage" : 7.847117647058824,
+            "standardDeviation" : 0.5125544076464712,
+            "weightedAverage" : 7.845103603603605,
             "worstEpisode" : {
               "episodeNumber" : 9,
               "id" : 7045611,
@@ -19231,7 +19224,7 @@
         "American Cinema Editors",
         "Shorty Awards"
       ],
-      "backdropPath" : "/i4PpW1XyRlBuSNSIBRIIwSjEpjl.jpg",
+      "backdropPath" : "/iFOkrSrJRwE27PwbyQeYLlMJXzw.jpg",
       "firstAirDate" : "2013-12-02",
       "genreIds" : [
         16,
@@ -19528,7 +19521,7 @@
       "overview" : "Inspired by a small-statured pro volleyball player, Hinata creates a volleyball team in his last year of middle school. Unfortunately the team is matched up against the \"King of the Court\" Tobio Kageyama’s team in their first tournament and inevitably lose. After the crushing defeat, Hinata vows to surpass Kageyama After entering high school, Hinata joins the volleyball team only to find that Tobio has also joined.",
       "posterPath" : "/8WEr48swcqe89Zsy5sdrGCASlIg.jpg",
       "tmdbId" : 60863,
-      "voteAverage" : 8.614
+      "voteAverage" : 8.6
     },
     {
       "analysis" : {
@@ -20775,7 +20768,7 @@
       "overview" : "Bored and unhappy as the Lord of Hell, Lucifer Morningstar abandoned his throne and retired to Los Angeles, where he has teamed up with LAPD detective Chloe Decker to take down criminals. But the longer he's away from the underworld, the greater the threat that the worst of humanity could escape.",
       "posterPath" : "/ekZobS8isE6mA53RAiGDG93hBxL.jpg",
       "tmdbId" : 63174,
-      "voteAverage" : 8.43
+      "voteAverage" : 8.431
     },
     {
       "analysis" : {
@@ -21339,7 +21332,7 @@
       "overview" : "After a traffic accident, Kazuma Sato’s  disappointingly brief life was supposed to be over, but he wakes up to  see a beautiful girl before him. She claims to be a goddess, Aqua, and  asks if he would like to go to another world and bring only one thing  with him. Kazuma decides to bring the goddess herself, and they are  transported to a fantasy world filled with adventure, ruled by a demon  king. Now Kazuma only wants to live in peace, but Aqua wants to solve  many of this world’s problems, and the demon king will only turn a blind  eye for so long…",
       "posterPath" : "/oRaOeQlwktbGSd2T31FYAcgHZlh.jpg",
       "tmdbId" : 65844,
-      "voteAverage" : 8.546
+      "voteAverage" : 8.547
     },
     {
       "analysis" : {
@@ -21360,7 +21353,7 @@
             "title" : "Wild, Wild Pussycats"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.5838404018058364
+          "standardDeviation" : 0.5840800655781351
         },
         "endingVerdict" : {
           "finalSeason" : 8,
@@ -21447,7 +21440,7 @@
             {
               "episodeNumber" : 1,
               "id" : 1176693,
-              "rating" : 7.649,
+              "rating" : 7.632,
               "seasonNumber" : 1,
               "title" : "Izuku Midoriya: Origin"
             },
@@ -21489,7 +21482,7 @@
           ],
           "improvesAtSeason" : 2,
           "kind" : "slowStart",
-          "openingAverage" : 7.775806060606061,
+          "openingAverage" : 7.771150602409638,
           "remainderAverage" : 8.27062845251608
         },
         "score" : {
@@ -21510,8 +21503,8 @@
             },
             "reliableEpisodeCount" : 13,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.2651661722616055,
-            "weightedAverage" : 7.801990099009903,
+            "standardDeviation" : 0.26615451214181746,
+            "weightedAverage" : 7.799361842105264,
             "worstEpisode" : {
               "episodeNumber" : 9,
               "id" : 1183878,
@@ -21774,39 +21767,39 @@
           "highestRated" : {
             "episodeNumber" : 7,
             "id" : 3325040,
-            "rating" : 9.006,
+            "rating" : 9,
             "seasonNumber" : 4,
             "title" : "Chapter Seven: The Massacre at Hawkins Lab"
           },
           "lowestRated" : {
             "episodeNumber" : 7,
             "id" : 5607050,
-            "rating" : 6.023,
+            "rating" : 6,
             "seasonNumber" : 5,
             "title" : "Chapter Seven: The Bridge"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.5147950553978499
+          "standardDeviation" : 0.5178513748277772
         },
         "endingVerdict" : {
           "finalSeason" : 5,
-          "finalSeasonAverage" : 7.580316320807627,
+          "finalSeasonAverage" : 7.58418395961862,
           "kind" : "fadesOut",
           "peakSeason" : 4,
-          "peakSeasonAverage" : 8.561707531380751
+          "peakSeasonAverage" : 8.56071129707113
         },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 8,
             "id" : 1657335,
-            "rating" : 8.632,
+            "rating" : 8.6,
             "seasonNumber" : 3,
             "title" : "Chapter Eight: The Battle of Starcourt"
           },
           {
             "episodeNumber" : 7,
             "id" : 3325040,
-            "rating" : 9.006,
+            "rating" : 9,
             "seasonNumber" : 4,
             "title" : "Chapter Seven: The Massacre at Hawkins Lab"
           }
@@ -21817,52 +21810,52 @@
             {
               "episodeNumber" : 1,
               "id" : 1198665,
-              "rating" : 8.521,
+              "rating" : 8.52,
               "seasonNumber" : 1,
               "title" : "Chapter One: The Vanishing of Will Byers"
             },
             {
               "episodeNumber" : 2,
               "id" : 1203677,
-              "rating" : 8.235,
+              "rating" : 8.2,
               "seasonNumber" : 1,
               "title" : "Chapter Two: The Weirdo on Maple Street"
             },
             {
               "episodeNumber" : 3,
               "id" : 1203679,
-              "rating" : 8.528,
+              "rating" : 8.5,
               "seasonNumber" : 1,
               "title" : "Chapter Three: Holly, Jolly"
             },
             {
               "episodeNumber" : 4,
               "id" : 1203680,
-              "rating" : 8.505,
+              "rating" : 8.5,
               "seasonNumber" : 1,
               "title" : "Chapter Four: The Body"
             },
             {
               "episodeNumber" : 5,
               "id" : 1205904,
-              "rating" : 8.419,
+              "rating" : 8.4,
               "seasonNumber" : 1,
               "title" : "Chapter Five: The Flea and the Acrobat"
             },
             {
               "episodeNumber" : 6,
               "id" : 1205905,
-              "rating" : 8.399,
+              "rating" : 8.4,
               "seasonNumber" : 1,
               "title" : "Chapter Six: The Monster"
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.460769812304484,
-          "remainderAverage" : 8.188575065559442
+          "openingAverage" : 8.450427305888484,
+          "remainderAverage" : 8.186975524475523
         },
         "score" : {
-          "consistency" : 49,
+          "consistency" : 48,
           "level" : 83,
           "trajectory" : 41,
           "value" : 68
@@ -21873,18 +21866,18 @@
             "bestEpisode" : {
               "episodeNumber" : 8,
               "id" : 1205907,
-              "rating" : 8.562,
+              "rating" : 8.6,
               "seasonNumber" : 1,
               "title" : "Chapter Eight: The Upside Down"
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.09752801823434418,
-            "weightedAverage" : 8.472428892889289,
+            "standardDeviation" : 0.10928696416100676,
+            "weightedAverage" : 8.464246513720198,
             "worstEpisode" : {
               "episodeNumber" : 2,
               "id" : 1203677,
-              "rating" : 8.235,
+              "rating" : 8.2,
               "seasonNumber" : 1,
               "title" : "Chapter Two: The Weirdo on Maple Street"
             }
@@ -21892,20 +21885,20 @@
           {
             "airedEpisodeCount" : 9,
             "bestEpisode" : {
-              "episodeNumber" : 8,
-              "id" : 1250990,
-              "rating" : 8.586,
+              "episodeNumber" : 6,
+              "id" : 1250988,
+              "rating" : 8.6,
               "seasonNumber" : 2,
-              "title" : "Chapter Eight: The Mind Flayer"
+              "title" : "Chapter Six: The Spy"
             },
             "reliableEpisodeCount" : 9,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.511675507056036,
-            "weightedAverage" : 8.189560032894738,
+            "standardDeviation" : 0.517721332449283,
+            "weightedAverage" : 8.191940789473684,
             "worstEpisode" : {
               "episodeNumber" : 7,
               "id" : 1250989,
-              "rating" : 6.801,
+              "rating" : 6.8,
               "seasonNumber" : 2,
               "title" : "Chapter Seven: The Lost Sister"
             }
@@ -21915,20 +21908,20 @@
             "bestEpisode" : {
               "episodeNumber" : 8,
               "id" : 1657335,
-              "rating" : 8.632,
+              "rating" : 8.6,
               "seasonNumber" : 3,
               "title" : "Chapter Eight: The Battle of Starcourt"
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.26353442803072885,
-            "weightedAverage" : 8.174668901495615,
+            "standardDeviation" : 0.25776280599690615,
+            "weightedAverage" : 8.160082516761216,
             "worstEpisode" : {
-              "episodeNumber" : 2,
-              "id" : 1657329,
-              "rating" : 7.872,
+              "episodeNumber" : 1,
+              "id" : 1657328,
+              "rating" : 7.9,
               "seasonNumber" : 3,
-              "title" : "Chapter Two: The Mall Rats"
+              "title" : "Chapter One: Suzie, Do You Copy?"
             }
           },
           {
@@ -21936,20 +21929,20 @@
             "bestEpisode" : {
               "episodeNumber" : 7,
               "id" : 3325040,
-              "rating" : 9.006,
+              "rating" : 9,
               "seasonNumber" : 4,
               "title" : "Chapter Seven: The Massacre at Hawkins Lab"
             },
             "reliableEpisodeCount" : 9,
             "seasonNumber" : 4,
-            "standardDeviation" : 0.28456978213721407,
-            "weightedAverage" : 8.561707531380751,
+            "standardDeviation" : 0.2756663974366908,
+            "weightedAverage" : 8.56071129707113,
             "worstEpisode" : {
-              "episodeNumber" : 3,
-              "id" : 3325033,
-              "rating" : 8.17,
+              "episodeNumber" : 2,
+              "id" : 3325032,
+              "rating" : 8.2,
               "seasonNumber" : 4,
-              "title" : "Chapter Three: The Monster and the Superhero"
+              "title" : "Chapter Two: Vecna's Curse"
             }
           },
           {
@@ -21957,18 +21950,18 @@
             "bestEpisode" : {
               "episodeNumber" : 1,
               "id" : 5477828,
-              "rating" : 8.559,
+              "rating" : 8.6,
               "seasonNumber" : 5,
               "title" : "Chapter One: The Crawl"
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 5,
-            "standardDeviation" : 0.8093221274612188,
-            "weightedAverage" : 7.580316320807627,
+            "standardDeviation" : 0.8278163192853711,
+            "weightedAverage" : 7.58418395961862,
             "worstEpisode" : {
               "episodeNumber" : 7,
               "id" : 5607050,
-              "rating" : 6.023,
+              "rating" : 6,
               "seasonNumber" : 5,
               "title" : "Chapter Seven: The Bridge"
             }
@@ -21978,14 +21971,14 @@
           {
             "episodeNumber" : 7,
             "id" : 1250989,
-            "rating" : 6.801,
+            "rating" : 6.8,
             "seasonNumber" : 2,
             "title" : "Chapter Seven: The Lost Sister"
           },
           {
             "episodeNumber" : 7,
             "id" : 5607050,
-            "rating" : 6.023,
+            "rating" : 6,
             "seasonNumber" : 5,
             "title" : "Chapter Seven: The Bridge"
           }
@@ -23008,7 +23001,7 @@
       "overview" : "Shaun Murphy, a young surgeon with autism and savant syndrome, relocates from a quiet country life to join a prestigious hospital's surgical unit. Unable to personally connect with those around him, Shaun uses his extraordinary medical gifts to save lives and challenge the skepticism of his colleagues.",
       "posterPath" : "/luhKkdD80qe62fwop6sdrXK9jUT.jpg",
       "tmdbId" : 71712,
-      "voteAverage" : 8.5
+      "voteAverage" : 8.454
     },
     {
       "analysis" : {
@@ -23429,11 +23422,11 @@
         "bestSeason" : 1,
         "consistency" : {
           "highestRated" : {
-            "episodeNumber" : 6,
-            "id" : 3435045,
+            "episodeNumber" : 8,
+            "id" : 2324567,
             "rating" : 8.6,
-            "seasonNumber" : 3,
-            "title" : "Herogasm"
+            "seasonNumber" : 2,
+            "title" : "What I Know"
           },
           "lowestRated" : {
             "episodeNumber" : 8,
@@ -23443,12 +23436,12 @@
             "title" : "Blood and Bone"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.6914353744587408
+          "standardDeviation" : 0.6833000040765413
         },
         "declinePoint" : {
           "afterSeason" : 3,
-          "averageAfter" : 6.894678217821781,
-          "averageBefore" : 8.088175964546402,
+          "averageAfter" : 6.921882640586798,
+          "averageBefore" : 8.093704663212433,
           "seasonsAfter" : [
             4,
             5
@@ -23456,10 +23449,10 @@
         },
         "endingVerdict" : {
           "finalSeason" : 5,
-          "finalSeasonAverage" : 6.332417582417582,
+          "finalSeasonAverage" : 6.344021739130435,
           "kind" : "fadesOut",
           "peakSeason" : 1,
-          "peakSeasonAverage" : 8.157841935483871
+          "peakSeasonAverage" : 8.164097623635195
         },
         "essentialEpisodes" : [
           {
@@ -23490,52 +23483,52 @@
             {
               "episodeNumber" : 1,
               "id" : 1705013,
-              "rating" : 8.202,
+              "rating" : 8.2,
               "seasonNumber" : 1,
               "title" : "The Name of the Game"
             },
             {
               "episodeNumber" : 2,
               "id" : 1863436,
-              "rating" : 8.19,
+              "rating" : 8.2,
               "seasonNumber" : 1,
               "title" : "Cherry"
             },
             {
               "episodeNumber" : 3,
               "id" : 1863437,
-              "rating" : 8.085,
+              "rating" : 8.1,
               "seasonNumber" : 1,
               "title" : "Get Some"
             },
             {
               "episodeNumber" : 4,
               "id" : 1863438,
-              "rating" : 8.189,
+              "rating" : 8.2,
               "seasonNumber" : 1,
               "title" : "The Female of the Species"
             },
             {
               "episodeNumber" : 5,
               "id" : 1863439,
-              "rating" : 7.957,
+              "rating" : 8,
               "seasonNumber" : 1,
               "title" : "Good for the Soul"
             },
             {
               "episodeNumber" : 6,
               "id" : 1863440,
-              "rating" : 7.866,
+              "rating" : 7.9,
               "seasonNumber" : 1,
               "title" : "The Innocents"
             }
           ],
           "kind" : "hooksEarly",
-          "openingAverage" : 8.091375523889354,
-          "remainderAverage" : 7.634428739140645
+          "openingAverage" : 8.108423686405336,
+          "remainderAverage" : 7.64344891784966
         },
         "score" : {
-          "consistency" : 31,
+          "consistency" : 32,
           "level" : 77,
           "trajectory" : 21,
           "value" : 57
@@ -23546,18 +23539,18 @@
             "bestEpisode" : {
               "episodeNumber" : 8,
               "id" : 1863442,
-              "rating" : 8.412,
+              "rating" : 8.4,
               "seasonNumber" : 1,
               "title" : "You Found Me"
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.16528232010166552,
-            "weightedAverage" : 8.157841935483871,
+            "standardDeviation" : 0.14403814069127854,
+            "weightedAverage" : 8.164097623635195,
             "worstEpisode" : {
               "episodeNumber" : 6,
               "id" : 1863440,
-              "rating" : 7.866,
+              "rating" : 7.9,
               "seasonNumber" : 1,
               "title" : "The Innocents"
             }
@@ -23567,18 +23560,18 @@
             "bestEpisode" : {
               "episodeNumber" : 8,
               "id" : 2324567,
-              "rating" : 8.562,
+              "rating" : 8.6,
               "seasonNumber" : 2,
               "title" : "What I Know"
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.3534772613808392,
-            "weightedAverage" : 8.077522875816992,
+            "standardDeviation" : 0.34407595824554116,
+            "weightedAverage" : 8.08676948051948,
             "worstEpisode" : {
               "episodeNumber" : 2,
               "id" : 2324558,
-              "rating" : 7.549,
+              "rating" : 7.6,
               "seasonNumber" : 2,
               "title" : "Proper Preparation and Planning"
             }
@@ -23594,8 +23587,8 @@
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.2836213369460985,
-            "weightedAverage" : 7.998775894538605,
+            "standardDeviation" : 0.28404432539587643,
+            "weightedAverage" : 7.999346405228757,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 3283017,
@@ -23615,12 +23608,12 @@
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 4,
-            "standardDeviation" : 0.47426074152691194,
-            "weightedAverage" : 7.35563063063063,
+            "standardDeviation" : 0.4582481402304775,
+            "weightedAverage" : 7.394444444444445,
             "worstEpisode" : {
               "episodeNumber" : 2,
               "id" : 4781984,
-              "rating" : 6.6,
+              "rating" : 6.7,
               "seasonNumber" : 4,
               "title" : "Life Among the Septics"
             }
@@ -23636,8 +23629,8 @@
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 5,
-            "standardDeviation" : 0.31338050690564834,
-            "weightedAverage" : 6.332417582417582,
+            "standardDeviation" : 0.30987746450116566,
+            "weightedAverage" : 6.344021739130435,
             "worstEpisode" : {
               "episodeNumber" : 8,
               "id" : 6745012,
@@ -23651,7 +23644,7 @@
           {
             "episodeNumber" : 2,
             "id" : 4781984,
-            "rating" : 6.6,
+            "rating" : 6.7,
             "seasonNumber" : 4,
             "title" : "Life Among the Septics"
           },
@@ -23838,7 +23831,7 @@
             "title" : "Survive the Streets"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.6554317722067549
+          "standardDeviation" : 0.6555410435381382
         },
         "essentialEpisodes" : [
           {
@@ -23904,7 +23897,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 8.134383561643835,
-          "remainderAverage" : 8.514445507872797
+          "remainderAverage" : 8.51493225308642
         },
         "score" : {
           "consistency" : 34,
@@ -24050,8 +24043,8 @@
             },
             "reliableEpisodeCount" : 18,
             "seasonNumber" : 7,
-            "standardDeviation" : 0.4916097791624703,
-            "weightedAverage" : 8.716924324324324,
+            "standardDeviation" : 0.4916002620547162,
+            "weightedAverage" : 8.719043947571317,
             "worstEpisode" : {
               "episodeNumber" : 15,
               "id" : 6112104,
@@ -24164,7 +24157,7 @@
       "overview" : "Starting over isn't easy, especially for small-town guy John Nolan who, after a life-altering incident, is pursuing his dream of being an LAPD officer. As the force's oldest rookie, he's met with skepticism from some higher-ups who see him as just a walking midlife crisis.",
       "posterPath" : "/70kTz0OmjjZe7zHvIDrq2iKW7PJ.jpg",
       "tmdbId" : 79744,
-      "voteAverage" : 8.549
+      "voteAverage" : 8.551
     },
     {
       "analysis" : {
@@ -24173,26 +24166,26 @@
           "highestRated" : {
             "episodeNumber" : 8,
             "id" : 2464381,
-            "rating" : 8.898,
+            "rating" : 8.904,
             "seasonNumber" : 2,
             "title" : "Chapter 16: The Rescue"
           },
           "lowestRated" : {
             "episodeNumber" : 6,
             "id" : 4237596,
-            "rating" : 6.481,
+            "rating" : 6.486,
             "seasonNumber" : 3,
             "title" : "Chapter 22: Guns for Hire"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.5777386770914673
+          "standardDeviation" : 0.578064497575067
         },
         "endingVerdict" : {
           "finalSeason" : 3,
-          "finalSeasonAverage" : 7.196459554513483,
+          "finalSeasonAverage" : 7.204975609756098,
           "kind" : "fadesOut",
           "peakSeason" : 2,
-          "peakSeasonAverage" : 8.241620454545455
+          "peakSeasonAverage" : 8.247067771084337
         },
         "essentialEpisodes" : [
 
@@ -24203,49 +24196,49 @@
             {
               "episodeNumber" : 1,
               "id" : 1586260,
-              "rating" : 7.951,
+              "rating" : 7.955,
               "seasonNumber" : 1,
               "title" : "Chapter 1: The Mandalorian"
             },
             {
               "episodeNumber" : 2,
               "id" : 1857024,
-              "rating" : 8.005,
+              "rating" : 8.009,
               "seasonNumber" : 1,
               "title" : "Chapter 2: The Child"
             },
             {
               "episodeNumber" : 3,
               "id" : 1980403,
-              "rating" : 8.4,
+              "rating" : 8.403,
               "seasonNumber" : 1,
               "title" : "Chapter 3: The Sin"
             },
             {
               "episodeNumber" : 4,
               "id" : 1980404,
-              "rating" : 7.706,
+              "rating" : 7.702,
               "seasonNumber" : 1,
               "title" : "Chapter 4: Sanctuary"
             },
             {
               "episodeNumber" : 5,
               "id" : 1987335,
-              "rating" : 7.385,
+              "rating" : 7.383,
               "seasonNumber" : 1,
               "title" : "Chapter 5: The Gunslinger"
             },
             {
               "episodeNumber" : 6,
               "id" : 1987336,
-              "rating" : 7.939,
+              "rating" : 7.944,
               "seasonNumber" : 1,
               "title" : "Chapter 6: The Prisoner"
             }
           ],
           "kind" : "even",
-          "openingAverage" : 7.910623987034036,
-          "remainderAverage" : 7.923794536817103
+          "openingAverage" : 7.9119508460918615,
+          "remainderAverage" : 7.92863546991742
         },
         "score" : {
           "consistency" : 42,
@@ -24265,12 +24258,12 @@
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.35928156854389115,
-            "weightedAverage" : 8.040136105860114,
+            "standardDeviation" : 0.36074291650870255,
+            "weightedAverage" : 8.041166771159874,
             "worstEpisode" : {
               "episodeNumber" : 5,
               "id" : 1987335,
-              "rating" : 7.385,
+              "rating" : 7.383,
               "seasonNumber" : 1,
               "title" : "Chapter 5: The Gunslinger"
             }
@@ -24280,18 +24273,18 @@
             "bestEpisode" : {
               "episodeNumber" : 8,
               "id" : 2464381,
-              "rating" : 8.898,
+              "rating" : 8.904,
               "seasonNumber" : 2,
               "title" : "Chapter 16: The Rescue"
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.4581297858055264,
-            "weightedAverage" : 8.241620454545455,
+            "standardDeviation" : 0.45951857984890815,
+            "weightedAverage" : 8.247067771084337,
             "worstEpisode" : {
               "episodeNumber" : 2,
               "id" : 2464374,
-              "rating" : 7.375,
+              "rating" : 7.379,
               "seasonNumber" : 2,
               "title" : "Chapter 10: The Passenger"
             }
@@ -24301,18 +24294,18 @@
             "bestEpisode" : {
               "episodeNumber" : 7,
               "id" : 4237597,
-              "rating" : 7.758,
+              "rating" : 7.77,
               "seasonNumber" : 3,
               "title" : "Chapter 23: The Spies"
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.4426301040075966,
-            "weightedAverage" : 7.196459554513483,
+            "standardDeviation" : 0.4454424733702835,
+            "weightedAverage" : 7.204975609756098,
             "worstEpisode" : {
               "episodeNumber" : 6,
               "id" : 4237596,
-              "rating" : 6.481,
+              "rating" : 6.486,
               "seasonNumber" : 3,
               "title" : "Chapter 22: Guns for Hire"
             }
@@ -24322,21 +24315,21 @@
           {
             "episodeNumber" : 5,
             "id" : 1987335,
-            "rating" : 7.385,
+            "rating" : 7.383,
             "seasonNumber" : 1,
             "title" : "Chapter 5: The Gunslinger"
           },
           {
             "episodeNumber" : 2,
             "id" : 2464374,
-            "rating" : 7.375,
+            "rating" : 7.379,
             "seasonNumber" : 2,
             "title" : "Chapter 10: The Passenger"
           },
           {
             "episodeNumber" : 6,
             "id" : 4237596,
-            "rating" : 6.481,
+            "rating" : 6.486,
             "seasonNumber" : 3,
             "title" : "Chapter 22: Guns for Hire"
           }
@@ -24514,7 +24507,7 @@
       "overview" : "During the Warring States period, the young thief Dororo encounters Hyakkimaru, a strange, sightless boy who wields fearsome prosthetics in place of his missing limbs. Parts of Hyakkimaru’s body were traded to a group of 12 demons by his father in exchange for power, but thanks to a kindly medicine man, Hyakkimaru survived his horrifying ordeal. Now he roams the land in search of his missing body, and together he and Dororo will fight to survive in an unforgiving, demon-plagued world.",
       "posterPath" : "/mLSJO9lj2RMHdzHJMNMoksmwlbv.jpg",
       "tmdbId" : 83100,
-      "voteAverage" : 8.525
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -24713,7 +24706,7 @@
       "overview" : "Considered a genius due to having the highest grades in the country, Miyuki Shirogane leads the prestigious Shuchiin Academy's student council as its president, working alongside the beautiful and wealthy vice president Kaguya Shinomiya. The two are often regarded as the perfect couple by students despite them not being in any sort of romantic relationship.",
       "posterPath" : "/5khbC6AuNgnvnoDbjIMKCOhEtIc.jpg",
       "tmdbId" : 83121,
-      "voteAverage" : 8.539
+      "voteAverage" : 8.541
     },
     {
       "analysis" : {
@@ -24899,14 +24892,14 @@
             "title" : "Chapter 4: Freedom to Roam"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.12142540582393999
+          "standardDeviation" : 0.11790404431205724
         },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 8.292585365853657,
           "kind" : "endsStrong",
           "peakSeason" : 1,
-          "peakSeasonAverage" : 8.345088235294117
+          "peakSeasonAverage" : 8.340186274509804
         },
         "essentialEpisodes" : [
 
@@ -24917,7 +24910,7 @@
             {
               "episodeNumber" : 1,
               "id" : 1614828,
-              "rating" : 8.45,
+              "rating" : 8.425,
               "seasonNumber" : 1,
               "title" : "One Planet"
             },
@@ -24958,7 +24951,7 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.3524,
+          "openingAverage" : 8.34615,
           "remainderAverage" : 8.306
         },
         "score" : {
@@ -24979,8 +24972,8 @@
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.10612128678380461,
-            "weightedAverage" : 8.345088235294117,
+            "standardDeviation" : 0.10164497329393463,
+            "weightedAverage" : 8.340186274509804,
             "worstEpisode" : {
               "episodeNumber" : 7,
               "id" : 1749490,
@@ -25251,7 +25244,7 @@
       "overview" : "The life of Christ through the eyes of those who encountered him.",
       "posterPath" : "/dqVUFuNrMFWt7uGNWlpo91VKYOI.jpg",
       "tmdbId" : 85077,
-      "voteAverage" : 8.782
+      "voteAverage" : 8.8
     },
     {
       "analysis" : {
@@ -25272,7 +25265,7 @@
             "title" : "Filmed Before a Live Studio Audience"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.34288731189299126
+          "standardDeviation" : 0.3428549985170152
         },
         "essentialEpisodes" : [
 
@@ -25325,7 +25318,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.743325534079349,
-          "remainderAverage" : 7.867493023255814
+          "remainderAverage" : 7.872554524361949
         },
         "score" : {
           "consistency" : 66,
@@ -25345,8 +25338,8 @@
             },
             "reliableEpisodeCount" : 9,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.34288731189299126,
-            "weightedAverage" : 7.781111818825195,
+            "standardDeviation" : 0.3428549985170152,
+            "weightedAverage" : 7.782715700141443,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 1830976,
@@ -25911,7 +25904,7 @@
       "overview" : "One fateful day, all of humanity was petrified by a blinding flash of light. After several millennia, high schooler Taiju awakens and finds himself lost in a world of statues. However, he’s not alone! His science-loving friend Senku’s been up and running for a few months and he's got a grand plan in mind—to kickstart civilization with the power of science!",
       "posterPath" : "/xbZQ3fDl0y5mt0ARwfeyrgQ4JTw.jpg",
       "tmdbId" : 86031,
-      "voteAverage" : 8.5
+      "voteAverage" : 8.544
     },
     {
       "analysis" : {
@@ -26166,7 +26159,7 @@
       "overview" : "For a thousand years, the Vikings have made quite a name and reputation for themselves as the strongest families with a thirst for violence. Thorfinn, the son of one of the Vikings' greatest warriors, spends his boyhood in a battlefield enhancing his skills in his adventure to redeem his most-desired revenge after his father was murdered.",
       "posterPath" : "/vUHlpA5c1NXkds59reY3HMb4Abs.jpg",
       "tmdbId" : 88803,
-      "voteAverage" : 8.507
+      "voteAverage" : 8.508
     },
     {
       "analysis" : {
@@ -26346,7 +26339,7 @@
       "overview" : "Emily Dickinson. Poet. Daughter. Total rebel. In this coming-of-age story, Emily’s determined to become the world's greatest poet.",
       "posterPath" : "/dDdcAfHBZ6Aalv53iR6o35CSLWA.jpg",
       "tmdbId" : 89901,
-      "voteAverage" : 8.507
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -26687,7 +26680,7 @@
       "overview" : "Luz, a self-assured teenage human girl, accidentally stumbles upon a portal to a magical new world where she befriends a rebellious witch, Eda, and an adorably tiny warrior, King.",
       "posterPath" : "/rhzwpJBhi2WkfihXndS1xUdQlzB.jpg",
       "tmdbId" : 92685,
-      "voteAverage" : 8.67
+      "voteAverage" : 8.671
     },
     {
       "analysis" : {
@@ -26853,7 +26846,7 @@
       "overview" : "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war between magic technologies and clashing convictions.",
       "posterPath" : "/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg",
       "tmdbId" : 94605,
-      "voteAverage" : 8.8
+      "voteAverage" : 8.752
     },
     {
       "analysis" : {
@@ -27142,7 +27135,7 @@
       "overview" : "In attempt to find a non-violent alternative for reducing Hell's overpopulation, the daughter of Lucifer opens a rehabilitation hotel that offers a group of misfit demons a chance at redemption.",
       "posterPath" : "/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg",
       "tmdbId" : 94954,
-      "voteAverage" : 8.56
+      "voteAverage" : 8.561
     },
     {
       "analysis" : {
@@ -27156,14 +27149,14 @@
             "title" : "The Lord of the Tides"
           },
           "lowestRated" : {
-            "episodeNumber" : 7,
-            "id" : 7196570,
-            "rating" : 4.318,
+            "episodeNumber" : 5,
+            "id" : 7196568,
+            "rating" : 5.7,
             "seasonNumber" : 3,
-            "title" : "The Dragon in Winter"
+            "title" : "Unbowed and Unbent"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.510199696883723
+          "standardDeviation" : 0.4873597120756323
         },
         "essentialEpisodes" : [
           {
@@ -27229,13 +27222,13 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.330840037418147,
-          "remainderAverage" : 7.171742268041237
+          "remainderAverage" : 7.172771090811393
         },
         "score" : {
-          "consistency" : 49,
+          "consistency" : 51,
           "level" : 72,
           "trajectory" : 31,
-          "value" : 59
+          "value" : 60
         },
         "seasons" : [
           {
@@ -27291,14 +27284,14 @@
             },
             "reliableEpisodeCount" : 7,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.815699749577029,
-            "weightedAverage" : 6.789571830985915,
+            "standardDeviation" : 0.6911547567865202,
+            "weightedAverage" : 6.813147453083109,
             "worstEpisode" : {
-              "episodeNumber" : 7,
-              "id" : 7196570,
-              "rating" : 4.318,
+              "episodeNumber" : 5,
+              "id" : 7196568,
+              "rating" : 5.7,
               "seasonNumber" : 3,
-              "title" : "The Dragon in Winter"
+              "title" : "Unbowed and Unbent"
             }
           }
         ],
@@ -27318,11 +27311,11 @@
             "title" : "The Queen Who Ever Was"
           },
           {
-            "episodeNumber" : 7,
-            "id" : 7196570,
-            "rating" : 4.318,
+            "episodeNumber" : 5,
+            "id" : 7196568,
+            "rating" : 5.7,
             "seasonNumber" : 3,
-            "title" : "The Dragon in Winter"
+            "title" : "Unbowed and Unbent"
           }
         ],
         "worstSeason" : 3
@@ -27342,7 +27335,7 @@
       "overview" : "The Targaryen dynasty is at the absolute apex of its power, with more than 15 dragons under their yoke. Most empires crumble from such heights. In the case of the Targaryens, their slow fall begins when King Viserys breaks with a century of tradition by naming his daughter Rhaenyra heir to the Iron Throne. But when Viserys later fathers a son, the court is shocked when Rhaenyra retains her status as his heir, and seeds of division sow friction across the realm.",
       "posterPath" : "/7V0Ebks0GgpKvQ7QbLAIdX5dos4.jpg",
       "tmdbId" : 94997,
-      "voteAverage" : 8.4
+      "voteAverage" : 8.384
     },
     {
       "analysis" : {
@@ -27542,7 +27535,7 @@
       "overview" : "Yuji Itadori is a boy with tremendous physical strength, though he lives a completely ordinary high school life. One day, to save a classmate who has been attacked by curses, he eats the finger of Ryomen Sukuna, taking the curse into his own soul. From then on, he shares one body with Ryomen Sukuna. Guided by the most powerful of sorcerers, Satoru Gojo, Itadori is admitted to Tokyo Jujutsu High School, an organization that fights the curses... and thus begins the heroic tale of a boy who became a curse to exorcise a curse, a life from which he could never turn back.",
       "posterPath" : "/fHpKWq9ayzSk8nSwqRuaAUemRKh.jpg",
       "tmdbId" : 95479,
-      "voteAverage" : 8.583
+      "voteAverage" : 8.6
     },
     {
       "analysis" : {
@@ -27750,7 +27743,7 @@
       "overview" : "Mark Grayson is a normal teenager except for the fact that his father is the most powerful superhero on the planet. Shortly after his seventeenth birthday, Mark begins to develop powers of his own and enters into his father's tutelage.",
       "posterPath" : "/4tblBrslcKSifMVZ3TmtT2ukMor.jpg",
       "tmdbId" : 95557,
-      "voteAverage" : 8.636
+      "voteAverage" : 8.637
     },
     {
       "analysis" : {
@@ -28330,7 +28323,7 @@
       "overview" : "A secret life is the one thing they have in common. At school, Hori is a prim and perfect social butterfly, but the truth is she's a brash homebody. Meanwhile, under a gloomy facade, Miyamura hides a gentle heart, along with piercings and tattoos. In a chance meeting, they both reveal a side they've never shown. Could this blossom into something new?",
       "posterPath" : "/iSOKGl5KIeOCAtigUDCfFZe2cOi.jpg",
       "tmdbId" : 110070,
-      "voteAverage" : 8.506
+      "voteAverage" : 8.507
     },
     {
       "analysis" : {
@@ -28339,19 +28332,19 @@
           "highestRated" : {
             "episodeNumber" : 8,
             "id" : 3963648,
-            "rating" : 8.94,
+            "rating" : 8.971,
             "seasonNumber" : 1,
             "title" : "GUNFIRE"
           },
           "lowestRated" : {
             "episodeNumber" : 1,
             "id" : 2551229,
-            "rating" : 8.369,
+            "rating" : 8.406,
             "seasonNumber" : 1,
             "title" : "DOG & CHAINSAW"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.18732268404184352
+          "standardDeviation" : 0.1825687539994775
         },
         "essentialEpisodes" : [
 
@@ -28362,55 +28355,55 @@
             {
               "episodeNumber" : 1,
               "id" : 2551229,
-              "rating" : 8.369,
+              "rating" : 8.406,
               "seasonNumber" : 1,
               "title" : "DOG & CHAINSAW"
             },
             {
               "episodeNumber" : 2,
               "id" : 3963623,
-              "rating" : 8.521,
+              "rating" : 8.56,
               "seasonNumber" : 1,
               "title" : "ARRIVAL IN TOKYO"
             },
             {
               "episodeNumber" : 3,
               "id" : 3963624,
-              "rating" : 8.411,
+              "rating" : 8.453,
               "seasonNumber" : 1,
               "title" : "MEOWY'S WHEREABOUTS"
             },
             {
               "episodeNumber" : 4,
               "id" : 3963636,
-              "rating" : 8.545,
+              "rating" : 8.588,
               "seasonNumber" : 1,
               "title" : "RESCUE"
             },
             {
               "episodeNumber" : 5,
               "id" : 3963640,
-              "rating" : 8.661,
+              "rating" : 8.703,
               "seasonNumber" : 1,
               "title" : "GUN DEVIL"
             },
             {
               "episodeNumber" : 6,
               "id" : 3963643,
-              "rating" : 8.694,
+              "rating" : 8.734,
               "seasonNumber" : 1,
               "title" : "KILL DENJI"
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.520018867924529,
-          "remainderAverage" : 8.738096858638745
+          "openingAverage" : 8.560704128440367,
+          "remainderAverage" : 8.773684478371502
         },
         "score" : {
-          "consistency" : 81,
-          "level" : 86,
+          "consistency" : 82,
+          "level" : 87,
           "trajectory" : 57,
-          "value" : 79
+          "value" : 80
         },
         "seasons" : [
           {
@@ -28418,18 +28411,18 @@
             "bestEpisode" : {
               "episodeNumber" : 8,
               "id" : 3963648,
-              "rating" : 8.94,
+              "rating" : 8.971,
               "seasonNumber" : 1,
               "title" : "GUNFIRE"
             },
             "reliableEpisodeCount" : 12,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.18732268404184352,
-            "weightedAverage" : 8.623375930521092,
+            "standardDeviation" : 0.1825687539994775,
+            "weightedAverage" : 8.661670687575393,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 2551229,
-              "rating" : 8.369,
+              "rating" : 8.406,
               "seasonNumber" : 1,
               "title" : "DOG & CHAINSAW"
             }
@@ -28456,7 +28449,7 @@
       "overview" : "Denji has a simple dream—to live a happy and peaceful life, spending time with a girl he likes. This is a far cry from reality, however, as Denji is forced by the yakuza into killing devils in order to pay off his crushing debts. Using his pet devil Pochita as a weapon, he is ready to do anything for a bit of cash.",
       "posterPath" : "/iFM1dyFi0rByvEomEkmm7NpQeeb.jpg",
       "tmdbId" : 114410,
-      "voteAverage" : 8.517
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -28588,7 +28581,7 @@
       "overview" : "During a visit to his motherland, a Korean-Italian Mafia lawyer gives an unrivaled conglomerate a taste of its own medicine  with a side of justice.",
       "posterPath" : "/qbkSS1cTjT4DzIwD44bdhTuYgdT.jpg",
       "tmdbId" : 117376,
-      "voteAverage" : 8.513
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -28823,7 +28816,7 @@
             "title" : "The Heart Is a Lonely Hunter"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.4773402475683957
+          "standardDeviation" : 0.4778241271968339
         },
         "essentialEpisodes" : [
           {
@@ -28882,13 +28875,13 @@
             {
               "episodeNumber" : 6,
               "id" : 3460124,
-              "rating" : 6.701,
+              "rating" : 6.719,
               "seasonNumber" : 1,
               "title" : "Book 74"
             }
           ],
           "kind" : "hooksEarly",
-          "openingAverage" : 6.729265720081137,
+          "openingAverage" : 6.731868421052631,
           "remainderAverage" : 6.143928068410465
         },
         "score" : {
@@ -28909,8 +28902,8 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.27323165977918984,
-            "weightedAverage" : 6.719190288713911,
+            "standardDeviation" : 0.27299009226136683,
+            "weightedAverage" : 6.720888597640892,
             "worstEpisode" : {
               "episodeNumber" : 3,
               "id" : 3460121,
@@ -29023,7 +29016,7 @@
       "overview" : "Unravel the mystery of a nightmarish town in middle America that traps all those who enter. As the unwilling residents fight to keep a sense of normalcy and search for a way out, they must also survive the threats of the surrounding forest – including the terrifying creatures that come out when the sun goes down.",
       "posterPath" : "/pRtJagIxpfODzzb0T0NAvZSzErC.jpg",
       "tmdbId" : 124364,
-      "voteAverage" : 8.497
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -29208,7 +29201,7 @@
       "overview" : "Teens Charlie and Nick discover their unlikely friendship might be something more as they navigate school and young love.",
       "posterPath" : "/dQc0QbDiHjGmWxTfKtBgYtS4bj5.jpg",
       "tmdbId" : 124834,
-      "voteAverage" : 8.579
+      "voteAverage" : 8.6
     },
     {
       "analysis" : {
@@ -29385,7 +29378,7 @@
       "overview" : "Prince Wilhelm adjusts to life at his prestigious new boarding school, Hillerska, but following his heart proves more challenging than anticipated.",
       "posterPath" : "/aEW8K07BTiBRtARw6dNzTcb3TJZ.jpg",
       "tmdbId" : 125910,
-      "voteAverage" : 8.506
+      "voteAverage" : 8.5
     },
     {
       "analysis" : {
@@ -29406,7 +29399,7 @@
             "title" : "The Book of Quinn"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.41378812549809846
+          "standardDeviation" : 0.41347788068791813
         },
         "essentialEpisodes" : [
           {
@@ -29451,14 +29444,14 @@
             {
               "episodeNumber" : 3,
               "id" : 4281667,
-              "rating" : 7.2,
+              "rating" : 7.236,
               "seasonNumber" : 1,
               "title" : "Machines"
             },
             {
               "episodeNumber" : 4,
               "id" : 4281669,
-              "rating" : 6.6,
+              "rating" : 6.679,
               "seasonNumber" : 1,
               "title" : "Truth"
             },
@@ -29472,20 +29465,20 @@
             {
               "episodeNumber" : 6,
               "id" : 4281674,
-              "rating" : 6.5,
+              "rating" : 6.577,
               "seasonNumber" : 1,
               "title" : "The Relic"
             }
           ],
           "kind" : "even",
-          "openingAverage" : 6.889621087314662,
-          "remainderAverage" : 6.652835820895524
+          "openingAverage" : 6.919332786885246,
+          "remainderAverage" : 6.655302602230484
         },
         "score" : {
           "consistency" : 59,
           "level" : 67,
-          "trajectory" : 38,
-          "value" : 60
+          "trajectory" : 37,
+          "value" : 59
         },
         "seasons" : [
           {
@@ -29499,12 +29492,12 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.32950513130108,
-            "weightedAverage" : 7.020122574055158,
+            "standardDeviation" : 0.3115094469456688,
+            "weightedAverage" : 7.038180244399185,
             "worstEpisode" : {
               "episodeNumber" : 6,
               "id" : 4281674,
-              "rating" : 6.5,
+              "rating" : 6.577,
               "seasonNumber" : 1,
               "title" : "The Relic"
             }
@@ -29520,8 +29513,8 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.2366966804766016,
-            "weightedAverage" : 6.451591511936339,
+            "standardDeviation" : 0.24441171826260696,
+            "weightedAverage" : 6.457288537549408,
             "worstEpisode" : {
               "episodeNumber" : 8,
               "id" : 5501103,
@@ -29553,13 +29546,6 @@
           }
         ],
         "skippableEpisodes" : [
-          {
-            "episodeNumber" : 6,
-            "id" : 4281674,
-            "rating" : 6.5,
-            "seasonNumber" : 1,
-            "title" : "The Relic"
-          },
           {
             "episodeNumber" : 8,
             "id" : 5501103,
@@ -29777,7 +29763,7 @@
       "overview" : "Smiling Friends Inc. is a small company whose main purpose is to bring happiness and make people smile. The series follows the day-to-day lives and misadventures of its representatives, the lazy, cynical Charlie, and the cheerful, optimistic Pim, as they try to cheer up and comfort the troubled people who call their company's hotline. They receive seemingly simple requests but the jobs turn out to be more complicated than they seem, making it difficult to bring happiness to the world.",
       "posterPath" : "/q3CSxl3G06MBc73TpHWwBYYTPxL.jpg",
       "tmdbId" : 126506,
-      "voteAverage" : 8.518
+      "voteAverage" : 8.519
     },
     {
       "analysis" : {
@@ -30108,14 +30094,14 @@
             "title" : "Remember It"
           },
           "lowestRated" : {
-            "episodeNumber" : 7,
-            "id" : 7383317,
-            "rating" : 6.2,
+            "episodeNumber" : 6,
+            "id" : 7383316,
+            "rating" : 6.625,
             "seasonNumber" : 2,
-            "title" : "Strange Land, Savage Heart"
+            "title" : "Danger.Exe"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.6506228414974667
+          "standardDeviation" : 0.6346903872737923
         },
         "essentialEpisodes" : [
           {
@@ -30181,13 +30167,13 @@
           ],
           "kind" : "even",
           "openingAverage" : 8.10047393364929,
-          "remainderAverage" : 8.01638596491228
+          "remainderAverage" : 8.028902298850573
         },
         "score" : {
-          "consistency" : 35,
+          "consistency" : 37,
           "level" : 81,
-          "trajectory" : 32,
-          "value" : 62
+          "trajectory" : 33,
+          "value" : 63
         },
         "seasons" : [
           {
@@ -30201,8 +30187,8 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.5833514465076471,
-            "weightedAverage" : 8.154517133956386,
+            "standardDeviation" : 0.5822291583161117,
+            "weightedAverage" : 8.158372670807454,
             "worstEpisode" : {
               "episodeNumber" : 4,
               "id" : 5195789,
@@ -30212,7 +30198,7 @@
             }
           },
           {
-            "airedEpisodeCount" : 7,
+            "airedEpisodeCount" : 8,
             "bestEpisode" : {
               "episodeNumber" : 4,
               "id" : 7383313,
@@ -30222,14 +30208,14 @@
             },
             "reliableEpisodeCount" : 7,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.7636262503707608,
-            "weightedAverage" : 7.580360655737705,
+            "standardDeviation" : 0.6890205031175063,
+            "weightedAverage" : 7.606873015873016,
             "worstEpisode" : {
-              "episodeNumber" : 7,
-              "id" : 7383317,
-              "rating" : 6.2,
+              "episodeNumber" : 6,
+              "id" : 7383316,
+              "rating" : 6.625,
               "seasonNumber" : 2,
-              "title" : "Strange Land, Savage Heart"
+              "title" : "Danger.Exe"
             }
           }
         ],
@@ -30240,13 +30226,6 @@
             "rating" : 6.9,
             "seasonNumber" : 1,
             "title" : "Motendo / Lifedeath (1)"
-          },
-          {
-            "episodeNumber" : 7,
-            "id" : 7383317,
-            "rating" : 6.2,
-            "seasonNumber" : 2,
-            "title" : "Strange Land, Savage Heart"
           }
         ],
         "worstSeason" : 2
@@ -30266,7 +30245,7 @@
       "overview" : "The X-Men, a band of mutants who use their uncanny gifts to protect a world that hates and fears them, are challenged like never before, forced to face a dangerous and unexpected new future.",
       "posterPath" : "/2HKBc5UiFw8JrruHq8S1Y7TnlW0.jpg",
       "tmdbId" : 138502,
-      "voteAverage" : 8.677
+      "voteAverage" : 8.7
     },
     {
       "analysis" : {
@@ -30401,7 +30380,7 @@
       "overview" : "With a genius-level IQ, Woo Young-woo learns to embrace her extraordinary self while forming a tight-knit community of friends and allies.",
       "posterPath" : "/zuNOQVI4rEaqwknrfQUVKtlKE2C.jpg",
       "tmdbId" : 197067,
-      "voteAverage" : 8.485
+      "voteAverage" : 8.486
     },
     {
       "analysis" : {
@@ -30422,14 +30401,14 @@
             "title" : "Episode 6"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.25570583788273576
+          "standardDeviation" : 0.2558955789549279
         },
         "endingVerdict" : {
           "finalSeason" : 2,
-          "finalSeasonAverage" : 8.769195804195803,
+          "finalSeasonAverage" : 8.779289655172413,
           "kind" : "endsStrong",
           "peakSeason" : 2,
-          "peakSeasonAverage" : 8.769195804195803
+          "peakSeasonAverage" : 8.779289655172413
         },
         "essentialEpisodes" : [
 
@@ -30482,13 +30461,13 @@
           ],
           "kind" : "even",
           "openingAverage" : 8.485582857142857,
-          "remainderAverage" : 8.763331360946745
+          "remainderAverage" : 8.771959064327485
         },
         "score" : {
           "consistency" : 74,
           "level" : 86,
-          "trajectory" : 55,
-          "value" : 77
+          "trajectory" : 56,
+          "value" : 78
         },
         "seasons" : [
           {
@@ -30523,12 +30502,12 @@
             },
             "reliableEpisodeCount" : 8,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.2583238402005546,
-            "weightedAverage" : 8.769195804195803,
+            "standardDeviation" : 0.25225867722996576,
+            "weightedAverage" : 8.779289655172413,
             "worstEpisode" : {
               "episodeNumber" : 7,
               "id" : 6089771,
-              "rating" : 8.077,
+              "rating" : 8.143,
               "seasonNumber" : 2,
               "title" : "Episode 7"
             }
@@ -30545,7 +30524,7 @@
           {
             "episodeNumber" : 7,
             "id" : 6089771,
-            "rating" : 8.077,
+            "rating" : 8.143,
             "seasonNumber" : 2,
             "title" : "Episode 7"
           }
@@ -30725,21 +30704,14 @@
           "lowestRated" : {
             "episodeNumber" : 13,
             "id" : 4698549,
-            "rating" : 7.395,
+            "rating" : 7.4,
             "seasonNumber" : 1,
             "title" : "Aversion to One's Own Kind"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.42767714849856286
+          "standardDeviation" : 0.4215848317795912
         },
         "essentialEpisodes" : [
-          {
-            "episodeNumber" : 25,
-            "id" : 4810162,
-            "rating" : 8.848,
-            "seasonNumber" : 1,
-            "title" : "A Fatal Vulnerability"
-          },
           {
             "episodeNumber" : 26,
             "id" : 4810163,
@@ -30768,28 +30740,28 @@
             {
               "episodeNumber" : 1,
               "id" : 3946240,
-              "rating" : 8.491,
+              "rating" : 8.5,
               "seasonNumber" : 1,
               "title" : "The Journey's End"
             },
             {
               "episodeNumber" : 2,
               "id" : 4698536,
-              "rating" : 7.67,
+              "rating" : 7.7,
               "seasonNumber" : 1,
               "title" : "It Didn't Have to Be Magic..."
             },
             {
               "episodeNumber" : 3,
               "id" : 4698538,
-              "rating" : 8.174,
+              "rating" : 8.2,
               "seasonNumber" : 1,
               "title" : "Killing Magic"
             },
             {
               "episodeNumber" : 4,
               "id" : 4698539,
-              "rating" : 8.273,
+              "rating" : 8.3,
               "seasonNumber" : 1,
               "title" : "The Land Where Souls Rest"
             },
@@ -30803,17 +30775,17 @@
             {
               "episodeNumber" : 6,
               "id" : 4698541,
-              "rating" : 8.417,
+              "rating" : 8.4,
               "seasonNumber" : 1,
               "title" : "The Hero of the Village"
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.187851985559567,
-          "remainderAverage" : 8.169943376068376
+          "openingAverage" : 8.201083032490976,
+          "remainderAverage" : 8.171367521367522
         },
         "score" : {
-          "consistency" : 57,
+          "consistency" : 58,
           "level" : 82,
           "trajectory" : 53,
           "value" : 71
@@ -30830,12 +30802,12 @@
             },
             "reliableEpisodeCount" : 38,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.42767714849856286,
-            "weightedAverage" : 8.174032976092334,
+            "standardDeviation" : 0.4215848317795912,
+            "weightedAverage" : 8.178153338829347,
             "worstEpisode" : {
               "episodeNumber" : 13,
               "id" : 4698549,
-              "rating" : 7.395,
+              "rating" : 7.4,
               "seasonNumber" : 1,
               "title" : "Aversion to One's Own Kind"
             }
@@ -30845,28 +30817,28 @@
           {
             "episodeNumber" : 13,
             "id" : 4698549,
-            "rating" : 7.395,
+            "rating" : 7.4,
             "seasonNumber" : 1,
             "title" : "Aversion to One's Own Kind"
           },
           {
             "episodeNumber" : 18,
             "id" : 4698555,
-            "rating" : 7.487,
+            "rating" : 7.5,
             "seasonNumber" : 1,
             "title" : "First-Class Mage Exam"
           },
           {
             "episodeNumber" : 19,
             "id" : 4698556,
-            "rating" : 7.514,
+            "rating" : 7.5,
             "seasonNumber" : 1,
             "title" : "Well-Laid Plans"
           },
           {
             "episodeNumber" : 22,
             "id" : 4698563,
-            "rating" : 7.395,
+            "rating" : 7.4,
             "seasonNumber" : 1,
             "title" : "Future Enemies"
           }
@@ -30889,7 +30861,7 @@
       "overview" : "After the party of heroes defeated the Demon King, they restored peace to the land and returned to lives of solitude.  Generations pass, and the elven mage Frieren comes face to face with humanity’s mortality. She takes on a new apprentice and promises to fulfill old friends’ dying wishes. Can an elven mind make peace with the nature of life and death? Frieren embarks on her quest to find out.",
       "posterPath" : "/dqZENchTd7lp5zht7BdlqM7RBhD.jpg",
       "tmdbId" : 209867,
-      "voteAverage" : 8.808
+      "voteAverage" : 8.8
     },
     {
       "analysis" : {
@@ -31031,76 +31003,55 @@
       "overview" : "In Jeju, a spirited girl and a steadfast boy's island story blossoms into a lifelong tale of setbacks and triumphs — proving love endures across time.",
       "posterPath" : "/1VC3sEFxYXYDqQUCAnvWfUsYg1s.jpg",
       "tmdbId" : 219246,
-      "voteAverage" : 8.755
+      "voteAverage" : 8.8
     },
     {
       "analysis" : {
         "bestSeason" : 1,
         "consistency" : {
           "highestRated" : {
-            "episodeNumber" : 42,
-            "id" : 5892128,
-            "rating" : 8.833,
+            "episodeNumber" : 29,
+            "id" : 5892115,
+            "rating" : 8.5,
             "seasonNumber" : 1,
-            "title" : "Lantern Plant"
+            "title" : "The Moon Fairy"
           },
           "lowestRated" : {
             "episodeNumber" : 12,
             "id" : 4698629,
-            "rating" : 6.81,
+            "rating" : 6.818,
             "seasonNumber" : 1,
             "title" : "The Eunuch and the Courtesan"
           },
           "rating" : "steady",
-          "standardDeviation" : 0.4959182661148677
+          "standardDeviation" : 0.452829076112379
         },
         "essentialEpisodes" : [
           {
-            "episodeNumber" : 25,
-            "id" : 5892111,
-            "rating" : 8.444,
-            "seasonNumber" : 1,
-            "title" : "Maomao and Maomao"
-          },
-          {
             "episodeNumber" : 29,
             "id" : 5892115,
-            "rating" : 8.667,
+            "rating" : 8.5,
             "seasonNumber" : 1,
             "title" : "The Moon Fairy"
           },
           {
             "episodeNumber" : 33,
             "id" : 5892119,
-            "rating" : 8.611,
+            "rating" : 8.45,
             "seasonNumber" : 1,
             "title" : "The Late Emperor"
           },
           {
-            "episodeNumber" : 35,
-            "id" : 5892121,
-            "rating" : 8.444,
-            "seasonNumber" : 1,
-            "title" : "The Hunt"
-          },
-          {
-            "episodeNumber" : 39,
-            "id" : 5892125,
-            "rating" : 8.429,
-            "seasonNumber" : 1,
-            "title" : "Ice"
-          },
-          {
             "episodeNumber" : 42,
             "id" : 5892128,
-            "rating" : 8.833,
+            "rating" : 8.5,
             "seasonNumber" : 1,
             "title" : "Lantern Plant"
           },
           {
             "episodeNumber" : 46,
             "id" : 5892132,
-            "rating" : 8.438,
+            "rating" : 8.389,
             "seasonNumber" : 1,
             "title" : "Royal Guard"
           }
@@ -31111,74 +31062,74 @@
             {
               "episodeNumber" : 1,
               "id" : 4237712,
-              "rating" : 7.63,
+              "rating" : 7.607,
               "seasonNumber" : 1,
               "title" : "Maomao"
             },
             {
               "episodeNumber" : 2,
               "id" : 4680388,
-              "rating" : 7.125,
+              "rating" : 7.12,
               "seasonNumber" : 1,
               "title" : "Chilly Apothecary"
             },
             {
               "episodeNumber" : 3,
               "id" : 4680389,
-              "rating" : 6.87,
+              "rating" : 6.875,
               "seasonNumber" : 1,
               "title" : "The Unsettling Matter of the Spirit"
             },
             {
               "episodeNumber" : 4,
               "id" : 4698615,
-              "rating" : 7.955,
+              "rating" : 7.913,
               "seasonNumber" : 1,
               "title" : "The Threat"
             },
             {
               "episodeNumber" : 5,
               "id" : 4698617,
-              "rating" : 7.391,
+              "rating" : 7.375,
               "seasonNumber" : 1,
               "title" : "Covert Operations"
             },
             {
               "episodeNumber" : 6,
               "id" : 4698618,
-              "rating" : 7.905,
+              "rating" : 7.909,
               "seasonNumber" : 1,
               "title" : "The Garden Party"
             }
           ],
           "kind" : "even",
-          "openingAverage" : 7.47162857142857,
-          "remainderAverage" : 7.731842610364682
+          "openingAverage" : 7.458856164383561,
+          "remainderAverage" : 7.694535211267604
         },
         "score" : {
-          "consistency" : 50,
-          "level" : 77,
-          "trajectory" : 65,
+          "consistency" : 55,
+          "level" : 76,
+          "trajectory" : 63,
           "value" : 69
         },
         "seasons" : [
           {
             "airedEpisodeCount" : 48,
             "bestEpisode" : {
-              "episodeNumber" : 42,
-              "id" : 5892128,
-              "rating" : 8.833,
+              "episodeNumber" : 29,
+              "id" : 5892115,
+              "rating" : 8.5,
               "seasonNumber" : 1,
-              "title" : "Lantern Plant"
+              "title" : "The Moon Fairy"
             },
             "reliableEpisodeCount" : 48,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.4959182661148677,
-            "weightedAverage" : 7.676729198184567,
+            "standardDeviation" : 0.452829076112379,
+            "weightedAverage" : 7.6463431372549,
             "worstEpisode" : {
               "episodeNumber" : 12,
               "id" : 4698629,
-              "rating" : 6.81,
+              "rating" : 6.818,
               "seasonNumber" : 1,
               "title" : "The Eunuch and the Courtesan"
             }
@@ -31188,21 +31139,28 @@
           {
             "episodeNumber" : 3,
             "id" : 4680389,
-            "rating" : 6.87,
+            "rating" : 6.875,
             "seasonNumber" : 1,
             "title" : "The Unsettling Matter of the Spirit"
           },
           {
             "episodeNumber" : 12,
             "id" : 4698629,
-            "rating" : 6.81,
+            "rating" : 6.818,
             "seasonNumber" : 1,
             "title" : "The Eunuch and the Courtesan"
           },
           {
+            "episodeNumber" : 34,
+            "id" : 5892120,
+            "rating" : 6.833,
+            "seasonNumber" : 1,
+            "title" : "A Ghost Story"
+          },
+          {
             "episodeNumber" : 37,
             "id" : 5892123,
-            "rating" : 6.9,
+            "rating" : 6.909,
             "seasonNumber" : 1,
             "title" : "The Baths"
           }
@@ -31224,7 +31182,7 @@
       "overview" : "Maomao lived a peaceful life with her apothecary father. Until one day, she's sold as a lowly servant to the emperor's palace. But she wasn't meant for a compliant life among royalty. So when imperial heirs fall ill, she decides to step in and find a cure! This catches the eye of Jinshi, a handsome palace official who promotes her. Now, she's making a name for herself solving medical mysteries!",
       "posterPath" : "/e3ojpANrFnmJCyeBNTinYwyBCIN.jpg",
       "tmdbId" : 220542,
-      "voteAverage" : 8.6
+      "voteAverage" : 8.615
     },
     {
       "analysis" : {
@@ -31355,7 +31313,7 @@
       "overview" : "Driven by a dream of revenge against those who made her an outcast in Edo-period Japan, a young warrior cuts a bloody path toward her destiny.",
       "posterPath" : "/fXm3JT4WLQVnwukdvghtAblc1wc.jpg",
       "tmdbId" : 225180,
-      "voteAverage" : 8.492
+      "voteAverage" : 8.493
     },
     {
       "analysis" : {
@@ -31646,12 +31604,12 @@
           "lowestRated" : {
             "episodeNumber" : 9,
             "id" : 6768681,
-            "rating" : 7.081,
+            "rating" : 7.132,
             "seasonNumber" : 2,
             "title" : "3:00 P.M."
           },
           "rating" : "steady",
-          "standardDeviation" : 0.38645470292263534
+          "standardDeviation" : 0.3794871065878343
         },
         "essentialEpisodes" : [
           {
@@ -31738,10 +31696,10 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.913754646840148,
-          "remainderAverage" : 7.750980519480518
+          "remainderAverage" : 7.756811361200429
         },
         "score" : {
-          "consistency" : 61,
+          "consistency" : 62,
           "level" : 78,
           "trajectory" : 41,
           "value" : 67
@@ -31779,12 +31737,12 @@
             },
             "reliableEpisodeCount" : 15,
             "seasonNumber" : 2,
-            "standardDeviation" : 0.25185079579388586,
-            "weightedAverage" : 7.528507772020724,
+            "standardDeviation" : 0.24340057196416326,
+            "weightedAverage" : 7.541164965986394,
             "worstEpisode" : {
               "episodeNumber" : 9,
               "id" : 6768681,
-              "rating" : 7.081,
+              "rating" : 7.132,
               "seasonNumber" : 2,
               "title" : "3:00 P.M."
             }
@@ -31794,7 +31752,7 @@
           {
             "episodeNumber" : 9,
             "id" : 6768681,
-            "rating" : 7.081,
+            "rating" : 7.132,
             "seasonNumber" : 2,
             "title" : "3:00 P.M."
           }
@@ -31815,7 +31773,7 @@
       "overview" : "The staff of Pittsburgh's Trauma Medical Center work around the clock to save lives in an overcrowded and underfunded emergency department.",
       "posterPath" : "/kvFSpESyBZMjaeOJDx7RS3P1jey.jpg",
       "tmdbId" : 250307,
-      "voteAverage" : 8.731
+      "voteAverage" : 8.733
     },
     {
       "analysis" : {
@@ -31960,7 +31918,7 @@
       "overview" : "Accused of murder and thrown into the Pit, a young orphan joins a group of monster fighters with special powers to uncover the truth and seek vengeance.",
       "posterPath" : "/jH78nLFrTU6aP7hY7KO6DZHFLoX.jpg",
       "tmdbId" : 256721,
-      "voteAverage" : 8.524
+      "voteAverage" : 8.535
     },
     {
       "analysis" : {
@@ -32091,7 +32049,7 @@
       "overview" : "Dexter Morgan awakens from a coma to find Harrison gone without a trace. Realizing the weight of what he put his son through, Dexter sets out for New York City, determined to find him and make things right. But closure won't come easy. When Miami Metro's Angel Batista arrives with questions, Dexter realizes his past is catching up to him fast. As father and son navigate their own darkness in the city that never sleeps, they soon find themselves deeper than they ever imagined - and that the only way out is together.",
       "posterPath" : "/kEHZfSZhZKDot4wqurgIzMUNq1W.jpg",
       "tmdbId" : 259909,
-      "voteAverage" : 8.532
+      "voteAverage" : 8.534
     },
     {
       "analysis" : {
@@ -32223,7 +32181,7 @@
       "overview" : "A woman finds herself trapped in a virtual circus where she and five other humans are subject to the whims of a wacky AI ringmaster. In this digital purgatory they must face frightening NPCs and cope with their own personal traumas.",
       "posterPath" : "/lpfrgfomX8uNFxv4VaEzvJGs9TK.jpg",
       "tmdbId" : 261145,
-      "voteAverage" : 8.7
+      "voteAverage" : 8.661
     },
     {
       "analysis" : {
@@ -32488,7 +32446,7 @@
       "overview" : "Hannah Wells tutors hockey captain Garrett Graham to win over her crush. Their deal becomes real connection as they face their pasts. Friends Logan, Dean, Tucker, and Allie navigate college life and love.",
       "posterPath" : "/tcPc5ZMBO4y2BtCJMe3o2nwZb2B.jpg",
       "tmdbId" : 273240,
-      "voteAverage" : 8.9
+      "voteAverage" : 8.937
     },
     {
       "analysis" : {
@@ -32504,12 +32462,12 @@
           "lowestRated" : {
             "episodeNumber" : 1,
             "id" : 5734099,
-            "rating" : 8.104,
+            "rating" : 8.075,
             "seasonNumber" : 1,
             "title" : "Episode 1"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.2760525665502261
+          "standardDeviation" : 0.2765583524576718
         },
         "essentialEpisodes" : [
           {
@@ -32526,7 +32484,7 @@
             {
               "episodeNumber" : 1,
               "id" : 5734099,
-              "rating" : 8.104,
+              "rating" : 8.075,
               "seasonNumber" : 1,
               "title" : "Episode 1"
             },
@@ -32540,7 +32498,7 @@
             {
               "episodeNumber" : 3,
               "id" : 7258076,
-              "rating" : 8.7,
+              "rating" : 8.6,
               "seasonNumber" : 1,
               "title" : "Episode 3"
             },
@@ -32567,13 +32525,13 @@
             }
           ],
           "kind" : "even",
-          "openingAverage" : 8.297021582733814,
+          "openingAverage" : 8.272858156028368,
           "remainderAverage" : 8.470270270270271
         },
         "score" : {
           "consistency" : 72,
           "level" : 83,
-          "trajectory" : 55,
+          "trajectory" : 56,
           "value" : 75
         },
         "seasons" : [
@@ -32588,12 +32546,12 @@
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.2760525665502261,
-            "weightedAverage" : 8.333443181818181,
+            "standardDeviation" : 0.2765583524576718,
+            "weightedAverage" : 8.313893258426965,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 5734099,
-              "rating" : 8.104,
+              "rating" : 8.075,
               "seasonNumber" : 1,
               "title" : "Episode 1"
             }
@@ -32619,7 +32577,7 @@
       "overview" : "An inspector from the Educational Rights Protection Bureau (ERPB) who is authorized by the government to use physical intervention and unconventional methods to discipline delinquent students and reform the educational system.",
       "posterPath" : "/fMECSPrTmRClSViMsXFYmiYIcWP.jpg",
       "tmdbId" : 276161,
-      "voteAverage" : 9.428
+      "voteAverage" : 9.407
     },
     {
       "analysis" : {
@@ -32628,25 +32586,25 @@
           "highestRated" : {
             "episodeNumber" : 10,
             "id" : 6876370,
-            "rating" : 9.023,
+            "rating" : 9,
             "seasonNumber" : 1,
             "title" : "Chapter 10: The Dark Lord"
           },
           "lowestRated" : {
             "episodeNumber" : 3,
             "id" : 6876363,
-            "rating" : 7.32,
+            "rating" : 7.3,
             "seasonNumber" : 1,
             "title" : "Chapter 3: Whispers in the Unknown"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.6210812687125532
+          "standardDeviation" : 0.6116610151409951
         },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 10,
             "id" : 6876370,
-            "rating" : 9.023,
+            "rating" : 9,
             "seasonNumber" : 1,
             "title" : "Chapter 10: The Dark Lord"
           }
@@ -32657,54 +32615,54 @@
             {
               "episodeNumber" : 1,
               "id" : 6140910,
-              "rating" : 7.453,
+              "rating" : 7.5,
               "seasonNumber" : 1,
               "title" : "Chapter 1: The Dark Revenge"
             },
             {
               "episodeNumber" : 2,
               "id" : 6876362,
-              "rating" : 7.397,
+              "rating" : 7.4,
               "seasonNumber" : 1,
               "title" : "Chapter 2: Sinister Schemes"
             },
             {
               "episodeNumber" : 3,
               "id" : 6876363,
-              "rating" : 7.32,
+              "rating" : 7.3,
               "seasonNumber" : 1,
               "title" : "Chapter 3: Whispers in the Unknown"
             },
             {
               "episodeNumber" : 4,
               "id" : 6876364,
-              "rating" : 7.375,
+              "rating" : 7.4,
               "seasonNumber" : 1,
               "title" : "Chapter 4: Pride and Vengeance"
             },
             {
               "episodeNumber" : 5,
               "id" : 6876365,
-              "rating" : 7.667,
+              "rating" : 7.7,
               "seasonNumber" : 1,
               "title" : "Chapter 5: Inquisition"
             },
             {
               "episodeNumber" : 6,
               "id" : 6876366,
-              "rating" : 8.381,
+              "rating" : 8.4,
               "seasonNumber" : 1,
               "title" : "Chapter 6: Night of the Hunted"
             }
           ],
           "kind" : "slowStart",
-          "openingAverage" : 7.565901315789474,
-          "remainderAverage" : 8.69751851851852
+          "openingAverage" : 7.584210526315791,
+          "remainderAverage" : 8.68641975308642
         },
         "score" : {
-          "consistency" : 38,
+          "consistency" : 39,
           "level" : 80,
-          "trajectory" : 84,
+          "trajectory" : 83,
           "value" : 72
         },
         "seasons" : [
@@ -32713,18 +32671,18 @@
             "bestEpisode" : {
               "episodeNumber" : 10,
               "id" : 6876370,
-              "rating" : 9.023,
+              "rating" : 9,
               "seasonNumber" : 1,
               "title" : "Chapter 10: The Dark Lord"
             },
             "reliableEpisodeCount" : 10,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.6210812687125532,
-            "weightedAverage" : 7.959296137339056,
+            "standardDeviation" : 0.6116610151409951,
+            "weightedAverage" : 7.967381974248927,
             "worstEpisode" : {
               "episodeNumber" : 3,
               "id" : 6876363,
-              "rating" : 7.32,
+              "rating" : 7.3,
               "seasonNumber" : 1,
               "title" : "Chapter 3: Whispers in the Unknown"
             }
@@ -32750,7 +32708,7 @@
       "overview" : "After the Clone Wars, Maul plots to rebuild his criminal syndicate on a planet untouched by the Empire.",
       "posterPath" : "/fTfLd3s9yBNOzbFHD2aXvwEs93H.jpg",
       "tmdbId" : 289219,
-      "voteAverage" : 8.636
+      "voteAverage" : 8.6
     },
     {
       "analysis" : {
@@ -32874,7 +32832,7 @@
       "overview" : "Rip Wheeler and Beth Dutton gamble everything on a new life in South Texas, but the promise of building a future far from the ghosts of Yellowstone quickly collides with brutal new realities and a rival ranch that will stop at nothing to protect its empire.",
       "posterPath" : "/xsiecCxd8lkcAluw0wWwbW5CwSv.jpg",
       "tmdbId" : 299167,
-      "voteAverage" : 9.204
+      "voteAverage" : 9.2
     },
     {
       "analysis" : {
@@ -32954,9 +32912,10 @@
       "overview" : "Two of the biggest stars in Major League Hockey are bound by ambition, rivalry, and a magnetic pull neither of them fully understands. What begins as a secret fling between two fresh faced rookies evolves into a years-long journey of love, denial, and self-discovery. Over the next eight years, as they chase glory on the ice, they struggle to navigate their feelings for each other. Torn between the sport they live for and the love they can’t ignore, they must decide if there’s room in their fiercely competitive world for something as fragile – and powerful – as real love.",
       "posterPath" : "/3YCKbtAkYWCMDLHvkUjGhG7eWoS.jpg",
       "tmdbId" : 301507,
-      "voteAverage" : 8.749
+      "voteAverage" : 8.751
     }
   ],
+  "generatedAt" : "2026-08-05T08:38:39Z",
   "lists" : [
     {
       "id" : "never-decline",
