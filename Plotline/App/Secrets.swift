@@ -1,8 +1,14 @@
 import Foundation
 
-/// Helper to read API keys from bundle plist or environment variables.
+/// Helper to read API keys from environment variables or a bundled plist.
 ///
-/// Priority: Secrets.plist (bundle) → Environment Variables
+/// Priority: Environment Variables → Secrets.plist (bundle)
+///
+/// The plist is a default compiled into the build; an environment variable is
+/// a deliberate act by whoever launched the process, so it wins. That order is
+/// also what lets the cold-start UI test starve the app of TMDB by launching
+/// it with `TMDB_API_KEY=""`, without a single line of test-only code inside
+/// the binary that ships.
 ///
 /// For command-line builds (xcodebuild): Add keys to Plotline/Secrets.plist
 /// For Xcode builds: Either use plist or set environment variables in scheme
@@ -18,7 +24,20 @@ enum Secrets {
         return dict
     }()
 
+    /// Pure so the order can be asserted without a bundle or a process
+    /// environment to stand in the way.
+    ///
+    /// An empty environment value counts as **set**: `TMDB_API_KEY=""` means
+    /// "no key", not "fall through to the plist".
+    static func resolve(
+        _ key: String,
+        environment: [String: String],
+        plist: [String: String]
+    ) -> String {
+        environment[key] ?? plist[key] ?? ""
+    }
+
     static var tmdbAPIKey: String {
-        plistSecrets["TMDB_API_KEY"] ?? environment["TMDB_API_KEY"] ?? ""
+        resolve("TMDB_API_KEY", environment: environment, plist: plistSecrets)
     }
 }

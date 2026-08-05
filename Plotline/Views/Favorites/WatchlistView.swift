@@ -158,7 +158,8 @@ struct WatchlistView: View {
         SuggestionsEmptyState(
             title: "Nothing on Your List",
             message: "Add anything you mean to get to, and track what you have finished.",
-            systemImage: "eye"
+            systemImage: "eye",
+            shelfIdentifier: AccessibilityAnchors.watchlistSuggestions
         )
     }
 

@@ -127,7 +127,8 @@ struct FavoritesView: View {
         SuggestionsEmptyState(
             title: "No Favorites Yet",
             message: "Tap the heart on anything you love and it lands here.",
-            systemImage: "heart"
+            systemImage: "heart",
+            shelfIdentifier: AccessibilityAnchors.favoritesSuggestions
         )
     }
 

@@ -82,6 +82,7 @@ struct MediaCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Double tap to view details")
+        .accessibilityIdentifier(AccessibilityAnchors.mediaCard)
     }
 
     // MARK: - Subviews

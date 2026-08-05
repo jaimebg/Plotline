@@ -17,6 +17,7 @@ struct SettingsView: View {
                                 themeManager.currentTheme = theme
                             }
                         }
+                        .accessibilityIdentifier(AccessibilityAnchors.settingsRow)
                     }
                 } header: {
                     Text("Appearance")
@@ -24,6 +25,7 @@ struct SettingsView: View {
 
                 Section("About") {
                     InfoRow(label: "Version", value: appVersion)
+                        .accessibilityIdentifier(AccessibilityAnchors.settingsRow)
                 }
             }
             .navigationTitle("Settings")

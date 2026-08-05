@@ -72,7 +72,7 @@ struct DatasetBuilderTests {
         let steady = try entries(ids: [1, 2, 3], ratings: Self.steadyRatings)
         let fallers = try entries(ids: [4, 5, 6], ratings: Self.fallerRatings)
 
-        let dataset = DatasetBuilder.build(entries: steady + fallers)
+        let dataset = DatasetBuilder.build(entries: steady + fallers, generatedAt: "2026-01-01T00:00:00Z")
         let list = try #require(dataset.lists.first { $0.id == "never-decline" })
         #expect(list.tmdbIds == [1, 2, 3])
     }
@@ -82,7 +82,7 @@ struct DatasetBuilderTests {
         let steady = try entries(ids: [1, 2, 3], ratings: Self.steadyRatings)
         let fallers = try entries(ids: [4, 5, 6], ratings: Self.fallerRatings)
 
-        let dataset = DatasetBuilder.build(entries: steady + fallers)
+        let dataset = DatasetBuilder.build(entries: steady + fallers, generatedAt: "2026-01-01T00:00:00Z")
         let list = try #require(dataset.lists.first { $0.id == "falls-off" })
         #expect(list.tmdbIds == [4, 5, 6])
     }
@@ -105,7 +105,7 @@ struct DatasetBuilderTests {
             )
         }
 
-        let dataset = DatasetBuilder.build(entries: fading)
+        let dataset = DatasetBuilder.build(entries: fading, generatedAt: "2026-01-01T00:00:00Z")
         #expect(dataset.lists.first { $0.id == "never-decline" } == nil)
     }
 
@@ -130,7 +130,7 @@ struct DatasetBuilderTests {
             )
         }
 
-        let dataset = DatasetBuilder.build(entries: thin)
+        let dataset = DatasetBuilder.build(entries: thin, generatedAt: "2026-01-01T00:00:00Z")
         #expect(dataset.lists.first { $0.id == "never-decline" } == nil)
     }
 
@@ -140,7 +140,7 @@ struct DatasetBuilderTests {
             + entries(ids: [4, 5, 6], ratings: Self.fallerRatings)
             + entries(ids: [7, 8, 9], ratings: Self.fadesOutRatings)
 
-        let dataset = DatasetBuilder.build(entries: mixed)
+        let dataset = DatasetBuilder.build(entries: mixed, generatedAt: "2026-01-01T00:00:00Z")
         let byId = Dictionary(uniqueKeysWithValues: dataset.entries.map { ($0.tmdbId, $0) })
 
         for list in dataset.lists {
@@ -177,16 +177,16 @@ struct DatasetBuilderTests {
     @Test("a list is never emitted below the minimum size")
     func dropsUndersizedLists() throws {
         let two = try entries(ids: [1, 2], ratings: Self.steadyRatings)
-        #expect(DatasetBuilder.build(entries: two).lists.isEmpty)
+        #expect(DatasetBuilder.build(entries: two, generatedAt: "2026-01-01T00:00:00Z").lists.isEmpty)
 
         let three = try entries(ids: [1, 2, 3], ratings: Self.steadyRatings)
-        #expect(DatasetBuilder.build(entries: three).lists.isEmpty == false)
+        #expect(DatasetBuilder.build(entries: three, generatedAt: "2026-01-01T00:00:00Z").lists.isEmpty == false)
     }
 
     @Test("every curated list carries members and no user-facing copy")
     func listsAreWellFormed() throws {
         let steady = try entries(ids: [1, 2, 3], ratings: Self.steadyRatings)
-        let dataset = DatasetBuilder.build(entries: steady)
+        let dataset = DatasetBuilder.build(entries: steady, generatedAt: "2026-01-01T00:00:00Z")
 
         #expect(dataset.lists.isEmpty == false)
         for list in dataset.lists {
@@ -207,13 +207,13 @@ struct DatasetBuilderTests {
         let a = try #require(entry(id: 9, name: "Nine", ratings: [[8.5, 8.6, 8.4, 8.5]]))
         let b = try #require(entry(id: 2, name: "Two", ratings: [[8.5, 8.6, 8.4, 8.5]]))
 
-        #expect(DatasetBuilder.build(entries: [a, b]).entries.map(\.tmdbId) == [2, 9])
+        #expect(DatasetBuilder.build(entries: [a, b], generatedAt: "2026-01-01T00:00:00Z").entries.map(\.tmdbId) == [2, 9])
     }
 
     @Test("the dataset round-trips through Codable")
     func roundTrips() throws {
         let steady = try #require(entry(id: 1, name: "Steady", ratings: [[8.5, 8.6, 8.4, 8.5]], awards: ["Peabody Awards"]))
-        let dataset = DatasetBuilder.build(entries: [steady])
+        let dataset = DatasetBuilder.build(entries: [steady], generatedAt: "2026-01-01T00:00:00Z")
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
@@ -227,7 +227,7 @@ struct DatasetBuilderTests {
     @Test("an entry carries everything an offline favourite needs")
     func entriesCarryMediaItemFields() throws {
         let steady = try #require(entry(id: 1, name: "Steady", ratings: [[8.5, 8.6, 8.4, 8.5]]))
-        let dataset = DatasetBuilder.build(entries: [steady])
+        let dataset = DatasetBuilder.build(entries: [steady], generatedAt: "2026-01-01T00:00:00Z")
 
         let data = try JSONEncoder().encode(dataset)
         let decoded = try JSONDecoder().decode(PlotlineDataset.self, from: data).entries[0]
@@ -251,7 +251,7 @@ struct DatasetBuilderTests {
             ),
             SkippedSeries(tmdbId: 999, name: nil, kind: SkippedSeries.fetchFailedKind, detail: "HTTP 500")
         ]
-        let dataset = DatasetBuilder.build(entries: [steady], skipped: skipped)
+        let dataset = DatasetBuilder.build(entries: [steady], skipped: skipped, generatedAt: "2026-01-01T00:00:00Z")
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
@@ -281,7 +281,7 @@ struct DatasetBuilderTests {
             SkippedSeries(tmdbId: 2, name: nil, kind: SkippedSeries.fetchFailedKind, detail: "HTTP 429")
         ]
 
-        for entry in DatasetBuilder.build(entries: [], skipped: skipped).skipped {
+        for entry in DatasetBuilder.build(entries: [], skipped: skipped, generatedAt: "2026-01-01T00:00:00Z").skipped {
             #expect(known.contains(entry.kind))
         }
     }
@@ -296,7 +296,61 @@ struct DatasetBuilderTests {
             detail: nil
         )
 
-        let dataset = DatasetBuilder.build(entries: [], skipped: [later, earlier])
+        let dataset = DatasetBuilder.build(entries: [], skipped: [later, earlier], generatedAt: "2026-01-01T00:00:00Z")
         #expect(dataset.skipped.map(\.tmdbId) == [7, 42])
+    }
+
+    @Test("the builder records the timestamp it was given")
+    func buildRecordsGeneratedAt() {
+        let dataset = DatasetBuilder.build(
+            entries: [],
+            skipped: [],
+            generatedAt: "2026-08-04T12:00:00Z"
+        )
+        #expect(dataset.generatedAt == "2026-08-04T12:00:00Z")
+    }
+
+    /// The committed dataset predates this field. If it stopped decoding, the
+    /// app would fall back to no bundled content at all — the exact emptiness
+    /// this whole effort exists to prevent — so absence must decode to nil
+    /// rather than throw. It is the release preflight that refuses an absent
+    /// value, not the decoder.
+    @Test("a dataset written before this field existed still decodes")
+    func legacyFileDecodes() throws {
+        let json = #"{"version":1,"entries":[],"lists":[],"skipped":[]}"#
+        let dataset = try JSONDecoder().decode(PlotlineDataset.self, from: Data(json.utf8))
+        #expect(dataset.generatedAt == nil)
+    }
+
+    /// The builder must stay a pure function of its inputs: same inputs, same
+    /// bytes — that is why it sorts what it is handed — and every input must
+    /// reach the output, including the timestamp.
+    ///
+    /// Compared **encoded**, with real entries, and with the second build fed
+    /// the same entries in the opposite order, because that is what makes the
+    /// comparison able to fail: two empty datasets built a moment apart are
+    /// equal whether or not the builder is deterministic. The last assertion
+    /// is the one that sees a `Date()` moved inside `build` — a clock would
+    /// stamp both of the last two builds with the same instant and make them
+    /// match.
+    @Test("the same inputs produce the same bytes, in whatever order they arrive")
+    func buildIsDeterministic() throws {
+        let entries = try entries(ids: [1, 2, 3], ratings: Self.steadyRatings)
+            + entries(ids: [4, 5, 6], ratings: Self.fallerRatings)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+
+        let first = try encoder.encode(
+            DatasetBuilder.build(entries: entries, generatedAt: "2026-01-01T00:00:00Z")
+        )
+        let reordered = try encoder.encode(
+            DatasetBuilder.build(entries: entries.reversed(), generatedAt: "2026-01-01T00:00:00Z")
+        )
+        #expect(first == reordered)
+
+        let later = try encoder.encode(
+            DatasetBuilder.build(entries: entries, generatedAt: "2026-06-01T00:00:00Z")
+        )
+        #expect(later != first)
     }
 }

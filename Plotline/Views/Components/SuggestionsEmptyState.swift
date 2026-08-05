@@ -9,6 +9,8 @@ struct SuggestionsEmptyState: View {
     let title: String
     let message: String
     let systemImage: String
+    /// Set by the caller so Favorites and Watchlist are told apart on screen.
+    let shelfIdentifier: String
 
     private var suggestions: [MediaItem] {
         // Highest-scoring series first: if we are going to suggest anything
@@ -42,6 +44,7 @@ struct SuggestionsEmptyState: View {
 
                 if !suggestions.isEmpty {
                     MediaSection(title: "Analysed by Plotline", items: suggestions)
+                        .accessibilityIdentifier(shelfIdentifier)
                 }
             }
             .padding(.vertical)
