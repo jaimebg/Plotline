@@ -160,13 +160,15 @@ final class ColdStartUITests: XCTestCase {
     /// iterates `DatasetStore.shared.lists` unconditionally, so it renders the
     /// same with a live key as without one.
     ///
-    /// Discover's network sections are the observable, because they are the
-    /// one place where the two outcomes are mutually exclusive: no content and
-    /// an error renders `discoverNetworkError`; anything else renders
+    /// Discover's network sections are the observable, because they are the one
+    /// place where the two outcomes are mutually exclusive: no content and an
+    /// error renders `discoverNetworkError`; the non-error branch renders
     /// `discoverTrendingMovies`, including a fetch that succeeds with zero
     /// results — `MediaSection` draws a placeholder rather than nothing when
-    /// empty, so this anchor proves the fetch did not fail, not that it
-    /// returned content.
+    /// empty. A third branch, the loading skeleton, carries neither anchor; it
+    /// is transient and `scrollToAnchor` waits it out. This anchor proves
+    /// Discover did not take its error branch — an error and no content at all
+    /// — not that the fetch succeeded.
     func testDiscoverMatchesTheModeThisPassClaims() {
         openTab("Discover")
 

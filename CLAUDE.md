@@ -200,10 +200,15 @@ and its `ShippedDatasetTests` is the only suite that opens
 `Plotline/Resources/PlotlineDataset.json` as a file on disk — via `#filePath`
 — and asserts the full set of cross-list invariants and its secret scan.
 `ColdStartTests` and `DatasetStoreTests` do read that same file, but the copy
-inside the built bundle. `ColdStartTests.everyShelfIsRenderable` asserts a
-weaker form of one of those invariants — that every list has copy and
-resolves to at least one entry — but neither suite asserts the full set or
-runs the secret scan.
+inside the built bundle. `DatasetStoreTests.listsResolve` asserts, at full
+strength over that copy, the same invariant as
+`ShippedDatasetTests.listsOnlyReferenceKnownEntries` — that every list id
+resolves to a known entry. `ColdStartTests.everyShelfIsRenderable` asserts a
+weaker form of that same invariant — resolves to at least one entry, not all
+of them — plus a copy check with no counterpart in `ShippedDatasetTests`,
+because `CuratedListCopy` is app-side and unreachable from the generator
+package. Neither suite asserts the full set of cross-list invariants or runs
+the secret scan.
 
 It is wired to the Archive pre-action, **and that does not make it a
 barrier**: a pre-action that returns an error does not reliably abort an
