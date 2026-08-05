@@ -11,7 +11,8 @@ cd "$(dirname "$0")/.." || exit 1
 DEVICE="iPhone 17"
 BUNDLE_ID="com.jbgsoft.Plotline"
 DATASET="Plotline/Resources/PlotlineDataset.json"
-SCHEME_FILE="Plotline.xcodeproj/xcshareddata/xcschemes/Plotline.xcscheme"
+SCHEMES_DIR="Plotline.xcodeproj/xcshareddata/xcschemes"
+SCHEME_FILE="$SCHEMES_DIR/Plotline.xcscheme"
 MAX_DATASET_AGE_DAYS=90   # A judgement, not a calculation. Change it here.
 
 failures=0
@@ -39,28 +40,42 @@ xcrun simctl bootstatus "$DEVICE" -b >/dev/null 2>&1
 # no-op when there is nothing installed to remove, so a real "first run,
 # nothing to clean" is never mistaken for a failure here. A non-zero exit
 # means the device itself could not be reached — most likely $DEVICE no
-# longer names a real simulator. Returns 2 for that case, distinct from a
-# genuine test failure, so the caller does not print a second, misleading
-# "pass red" on top of the specific reason already given below.
+# longer names a real simulator. That case sets `suite_skipped`, in its own
+# variable rather than in the return code, so it can never be confused with
+# an exit code xcodebuild itself might produce; the caller reads it to avoid
+# printing a second, misleading "pass red" on top of the specific reason
+# already given below.
+#
+# The whole run is written to $SUITE_LOG and only its tail is shown, so a
+# caller can still ask the full output a question — which step 2 does.
+suite_skipped=0
+SUITE_LOG=$(mktemp -t plotline-preflight-suite)
+trap 'rm -f "$SUITE_LOG"' EXIT
 run_suite() {
+    suite_skipped=0
     if ! xcrun simctl uninstall "$DEVICE" "$BUNDLE_ID"; then
         # `fail`, not a hard stop: -e is deliberately absent so one bad
         # step does not stop the rest of the preflight from reporting
         # everything else wrong in the same pass.
         fail "could not uninstall $BUNDLE_ID from $DEVICE — the suite below did not run"
-        return 2
+        suite_skipped=1
+        return 1
     fi
     env $1 xcodebuild -project Plotline.xcodeproj -scheme Plotline \
-        -destination "platform=iOS Simulator,name=$DEVICE" $2 test 2>&1 | tail -20
-    return "${PIPESTATUS[0]}"
+        -destination "platform=iOS Simulator,name=$DEVICE" $2 test > "$SUITE_LOG" 2>&1
+    local result=$?
+    tail -20 "$SUITE_LOG"
+    return "$result"
 }
 
 step "1/8  App suite, starved of TMDB"
 run_suite "" ""
 status=$?
-if [ "$status" -eq 0 ]; then
+if [ "$suite_skipped" -eq 1 ]; then
+    :   # already reported, with the reason
+elif [ "$status" -eq 0 ]; then
     pass "starved pass green"
-elif [ "$status" -ne 2 ]; then
+else
     fail "starved pass red"
 fi
 
@@ -70,13 +85,32 @@ step "2/8  Cold-start suite, live against TMDB"
 # defect or a TMDB rate limit; read the failure before treating it as either.
 run_suite "TEST_RUNNER_PLOTLINE_UITEST_MODE=live" "-only-testing:PlotlineUITests"
 status=$?
-if [ "$status" -eq 0 ]; then
-    pass "live pass green"
-elif [ "$status" -ne 2 ]; then
+# Green is not enough here. The mode is delivered by xcodebuild stripping the
+# TEST_RUNNER_ prefix; if that forwarding ever breaks, the variable is simply
+# absent, ColdStartUITests falls back to its starved default, every assertion
+# still passes, and this step would print "live pass green" over a second copy
+# of step 1 — with the live recomputation path, the only thing this pass
+# exists to exercise, untouched. No assertion inside the suite can catch that:
+# it reads the same absent variable and concludes, correctly for what it can
+# see, that this is a starved pass. So the suite reports the mode it observed
+# and this is what reads it back.
+if [ "$suite_skipped" -eq 1 ]; then
+    :   # already reported, with the reason
+elif [ "$status" -ne 0 ]; then
     fail "live pass red — check whether TMDB rate-limited before blaming the code"
+elif ! grep -q 'PLOTLINE_UITEST_MODE_OBSERVED=live' "$SUITE_LOG"; then
+    fail "the suite passed but never reported running in live mode — TEST_RUNNER_PLOTLINE_UITEST_MODE did not reach the runner, so this was a second starved pass"
+else
+    pass "live pass green, and the suite reported it ran live"
 fi
 
-step "3/8  Generator suite (the only tests that read the shipped dataset)"
+# `ShippedDatasetTests` lives in this package and is the only suite that opens
+# Plotline/Resources/PlotlineDataset.json as a file on disk, asserts its
+# cross-list invariants and scans it for a leaked key. The app's own
+# ColdStartTests and DatasetStoreTests read the copy of that same file inside
+# the built bundle, so they see its contents but none of those invariants —
+# and `xcodebuild test` never runs this package at all.
+step "3/8  Generator suite (the only tests that open the committed dataset)"
 if (cd Tools/DatasetGenerator && swift test 2>&1 | tail -10); then
     pass "shipped dataset invariants hold"
 else
@@ -91,7 +125,10 @@ else
     if [ -z "$generated" ] || [ "$generated" = "null" ]; then
         fail "$DATASET declares no generatedAt — regenerate it with Tools/DatasetGenerator"
     else
-        gen_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$generated" +%s 2>/dev/null)
+        # -u because the trailing Z is UTC: without it `date` reads the
+        # timestamp in local time, and every zone behind UTC turns a dataset
+        # generated minutes ago into one dated in the future.
+        gen_epoch=$(date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$generated" +%s 2>/dev/null)
         if [ -z "$gen_epoch" ]; then
             fail "generatedAt is not ISO8601: $generated"
         else
@@ -111,13 +148,19 @@ else
 fi
 
 step "5/8  Version coherence with the App Review artefacts"
-version=$(grep -m1 'MARKETING_VERSION' Plotline.xcodeproj/project.pbxproj \
-          | sed 's/.*= *//; s/;.*//' | tr -d ' ')
+# Asked of the build system rather than grepped out of project.pbxproj:
+# MARKETING_VERSION appears once per configuration of every target, six times
+# in this project, and the first one a grep finds is the app's only because
+# Xcode's generated UUIDs happen to sort it there. This names the target and
+# the configuration that ships.
+version=$(xcodebuild -project Plotline.xcodeproj -target Plotline \
+          -configuration Release -showBuildSettings 2>/dev/null \
+          | grep -m1 ' MARKETING_VERSION = ' | sed 's/.*= //' | tr -d ' ')
 # An empty $version would make the grep below match every line of every file
 # — an empty pattern matches unconditionally — turning a missing key into a
 # silent pass instead of the failure it actually is. Guard it explicitly.
 if [ -z "$version" ]; then
-    fail "MARKETING_VERSION could not be read from Plotline.xcodeproj/project.pbxproj"
+    fail "MARKETING_VERSION could not be read from the Plotline target's Release configuration"
 elif grep -rq "$version" docs/app-review/; then
     pass "project and docs/app-review both say $version"
 else
@@ -128,25 +171,66 @@ step "6/8  No trace of OMDb"
 if grep -rq "omdbapi" --include="*.swift" --include="*.plist" Plotline/ Tools/; then
     fail "a reference to omdbapi.com is back"
 else
-    pass "no reference to omdbapi.com"
+    pass "no omdbapi reference in any .swift or .plist under Plotline/ or Tools/"
 fi
 
-step "7/8  No leaked secret in the shared scheme"
+step "7/8  Shared schemes: no leaked secret, and the UI suite still serialised"
 # xcshareddata/ used to be gitignored wholesale to keep a scheme-embedded API
-# key out of git, which also meant the UI suite's <TestAction> entry and
-# Task 6's Archive pre-action could never be versioned. The condition for
-# lifting that blanket rule was replacing it with this visible check: the
-# shared scheme must declare no environment variable carrying a value. A
-# populated `value` attribute inside <EnvironmentVariables> would be
+# key out of git, which also meant the UI suite's <TestAction> entry and the
+# Archive pre-action that runs this script could never be versioned. The
+# condition for lifting that blanket rule was replacing it with this visible
+# check: no shared scheme may declare an environment variable carrying a
+# value. A populated `value` attribute inside <EnvironmentVariables> would be
 # committed to git in plain text, unlike Plotline/Secrets.plist, which stays
-# gitignored.
-if [ ! -f "$SCHEME_FILE" ]; then
-    fail "$SCHEME_FILE is missing — cannot check it for a leaked secret"
-elif awk '/<EnvironmentVariables>/,/<\/EnvironmentVariables>/' "$SCHEME_FILE" \
-        | grep -q 'value = "[^"]'; then
-    fail "$SCHEME_FILE declares an environment variable with a value — it would be committed in plain text"
+# gitignored. Every scheme in the directory is checked, because .gitignore
+# versions the whole directory, not one file.
+#
+# The regex tolerates any spacing around `=`: Xcode writes `value = "…"`, a
+# hand edit writes `value="…"`, and both would ship the same secret.
+shopt -s nullglob
+schemes=("$SCHEMES_DIR"/*.xcscheme)
+shopt -u nullglob
+if [ "${#schemes[@]}" -eq 0 ]; then
+    fail "no shared scheme in $SCHEMES_DIR — this check has nothing to read, and the UI suite's test action is versioned nowhere"
 else
-    pass "$SCHEME_FILE declares no environment variable carrying a value"
+    leaked=0
+    for scheme in "${schemes[@]}"; do
+        if awk '/<EnvironmentVariables>/,/<\/EnvironmentVariables>/' "$scheme" \
+                | grep -qE 'value *= *"[^"]'; then
+            fail "$scheme declares an environment variable with a value — it would be committed in plain text"
+            leaked=1
+        fi
+    done
+    if [ "$leaked" -eq 0 ]; then
+        pass "no <EnvironmentVariables> value in ${#schemes[@]} shared scheme(s) — command-line arguments and pre-action scripts are not read by this check"
+    fi
+fi
+
+# Separate from the scan above and specific to this one scheme, because this
+# is where the UI target's testable lives.
+#
+# `parallelizable = "NO"` is what makes every uninstall in run_suite mean
+# anything: with parallelization on, Xcode clones the simulator and runs the
+# tests on the clones, so the device named in -destination — the one this
+# script uninstalls from — is no longer the container the suite runs in.
+# The attribute has already been lost once on this branch — a local
+# `xcodebuild test` run put it back to YES, and a person happened to notice.
+# This is so the next time it is not a person.
+if [ ! -f "$SCHEME_FILE" ]; then
+    fail "$SCHEME_FILE is missing — cannot check that the UI suite still runs serially"
+else
+    ui_testable=$(awk '
+        /<TestableReference/ { block = "" }
+        { block = block $0 "\n" }
+        /<\/TestableReference>/ { if (block ~ /PlotlineUITests\.xctest/) printf "%s", block }
+    ' "$SCHEME_FILE")
+    if [ -z "$ui_testable" ]; then
+        fail "$SCHEME_FILE declares no PlotlineUITests testable — the cold-start suite does not run from this scheme at all"
+    elif ! printf '%s' "$ui_testable" | grep -qE 'parallelizable *= *"NO"'; then
+        fail "$SCHEME_FILE no longer marks PlotlineUITests parallelizable = \"NO\" — parallel runs happen on simulator clones, so the uninstalls above stop reaching the container under test"
+    else
+        pass "PlotlineUITests is still parallelizable = \"NO\", so it runs on the device -destination names and not on a clone"
+    fi
 fi
 
 step "8/8  What still has to be done by hand"

@@ -7,12 +7,17 @@ build/
 DerivedData/
 *.xcuserstate
 xcuserdata/
-# xcshareddata/ (shared schemes) is versioned on purpose: the UI test
-# target's <TestAction> entry and parallelizable settings live there, and
-# Task 6's Archive pre-action will too. Scripts/release-preflight.sh (Task 5)
-# checks every shared scheme for embedded environment variables before a
-# build, so a leaked secret is caught there instead of by never versioning
-# the file.
+# Plotline.xcodeproj/xcshareddata/ (shared schemes) is versioned on purpose:
+# the UI test target's <TestAction> entry, its parallelizable setting and the
+# Archive pre-action that runs the release preflight all live there, and none
+# of them would exist outside one machine otherwise. Step 7 of
+# Scripts/release-preflight.sh reads every scheme in that directory and fails
+# if any declares an environment variable with a value, so a leaked secret is
+# caught there instead of by never versioning the file.
+#
+# The workspace's own xcshareddata/ is a different thing — per-checkout
+# workspace settings, nothing shared worth versioning — so it stays ignored.
+Plotline.xcodeproj/project.xcworkspace/xcshareddata/
 
 # CocoaPods
 Pods/
