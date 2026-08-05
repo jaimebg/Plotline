@@ -16,7 +16,7 @@ Es la misma forma exacta del residuo nº 5 de la Fase 7: un test que no puede fa
 
 Y alrededor, cuatro huecos que salieron al mirar:
 
-- **`ShippedDatasetTests` no los ejecuta `xcodebuild test`.** Son los únicos tests que leen el fichero que de verdad se envía, y viven en el paquete SwiftPM de `Tools/DatasetGenerator`. Una release puede llevar un dataset que viole sus cinco invariantes con la suite de la app entera en verde.
+- **`ShippedDatasetTests` no los ejecuta `xcodebuild test`.** Viven en el paquete SwiftPM de `Tools/DatasetGenerator`, y son los únicos que abren `Plotline/Resources/PlotlineDataset.json` **como fichero en disco** —vía `#filePath`— y los únicos que afirman sus invariantes cruzadas entre listas y su barrido de secretos. `ColdStartTests` y `DatasetStoreTests` sí leen ese mismo fichero, pero la copia que va dentro del bundle construido, vía `Bundle.main`. `ColdStartTests.everyShelfIsRenderable` sí afirma una forma más débil de una de esas invariantes —que cada lista tiene copy y resuelve a al menos una entrada—, pero ninguna de las dos suites afirma el conjunto completo de invariantes cruzadas, ni el barrido de secretos. Una release puede llevar un dataset que viole las cinco invariantes con la suite de la app entera en verde.
 - **`PlotlineDataset` no guarda fecha de generación.** "Cómo de viejo es esto" no tiene respuesta en ninguna parte del repositorio.
 - **El repo no tiene ni un tag.** No hay ancla contra la que comparar una versión.
 - **No hay CI.** Todo lo que no se ejecute a mano, no se ejecuta.

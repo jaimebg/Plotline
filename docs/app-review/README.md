@@ -27,6 +27,12 @@ Las dos muestran lo que pide §12 del spec: **el análisis, no pósters**. Se ve
 
 **Faltan capturas** para completar el envío. Estas dos son las que defienden el argumento; conviene añadir al menos Discover con los estantes curados y la pestaña Stats, y App Store Connect admite hasta diez. Como no puedo simular toques en el simulador desde aquí, esas requieren una pasada manual.
 
+## Paso 0
+
+`./Scripts/release-preflight.sh` antes de nada. No sustituye a la lista de
+abajo —los textos se siguen pegando a mano a propósito— pero comprueba lo que
+sí se puede comprobar, e imprime esa lista al terminar.
+
 ## El orden que importa
 
 1. **Responder en el Resolution Center antes de subir nada.** Reenviar en silencio es lo que convirtió un rechazo en tres: cada revisor nuevo abría la misma app con la misma primera impresión y ningún motivo para mirar más.
