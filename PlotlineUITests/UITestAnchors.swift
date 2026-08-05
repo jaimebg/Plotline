@@ -19,4 +19,13 @@ enum UITestAnchors {
     static let statsYourStatsEmpty = "plotline.stats.yourStatsEmpty"
     static let settingsRow = "plotline.settings.row"
     static let mediaCard = "plotline.mediaCard"
+
+    /// The two mutually exclusive outcomes of Discover's TMDB fetch. These are
+    /// not part of the rejection guard: they are how this suite observes which
+    /// of its two passes it is actually running, instead of trusting the
+    /// launch environment to have arrived. Starved of a key the fetch fails
+    /// with no content and `networkError` is what renders; with a working key
+    /// `trendingMovies` is.
+    static let discoverNetworkError = "plotline.discover.networkError"
+    static let discoverTrendingMovies = "plotline.discover.trendingMovies"
 }

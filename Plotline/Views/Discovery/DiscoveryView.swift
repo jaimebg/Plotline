@@ -125,12 +125,20 @@ struct DiscoveryView: View {
 
     /// Everything that depends on TMDB, with its own loading and failure
     /// states. When these fail the curated shelves above are still on screen.
+    ///
+    /// The failure branch and the trending section carry accessibility
+    /// identifiers because they are the only place in the app where "TMDB
+    /// answered" and "TMDB gave us nothing" are distinguishable from outside
+    /// the process. `ColdStartUITests` reads them to prove each of its two
+    /// passes ran in the mode it claims.
     @ViewBuilder
     private var networkSections: some View {
         if viewModel.isLoading && !viewModel.hasContent {
             DiscoverySkeletonView()
         } else if let error = viewModel.errorMessage, !viewModel.hasContent {
             errorView(message: error)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(AccessibilityAnchors.discoverNetworkError)
         } else {
             // Taste Profile Card
             if tasteProfileVM.hasEnoughData {
@@ -174,6 +182,7 @@ struct DiscoveryView: View {
             SmartListsView(viewModel: smartListsVM)
 
             MediaSection(title: "Trending Movies", items: viewModel.trendingMovies)
+                .accessibilityIdentifier(AccessibilityAnchors.discoverTrendingMovies)
             MediaSection(title: "Trending Series", items: viewModel.trendingSeries)
 
             if !viewModel.topRatedMovies.isEmpty {

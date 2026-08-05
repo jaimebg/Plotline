@@ -323,12 +323,34 @@ struct DatasetBuilderTests {
     }
 
     /// The builder must stay a pure function of its inputs: same inputs, same
-    /// file. A `Date()` read inside it would make every regeneration produce a
-    /// different file and make this suite unable to assert anything exactly.
-    @Test("the timestamp comes from the caller, not from a clock inside")
-    func buildTakesTheTimestampAsInput() {
-        let first = DatasetBuilder.build(entries: [], skipped: [], generatedAt: "A")
-        let second = DatasetBuilder.build(entries: [], skipped: [], generatedAt: "A")
-        #expect(first == second)
+    /// bytes — that is why it sorts what it is handed — and every input must
+    /// reach the output, including the timestamp.
+    ///
+    /// Compared **encoded**, with real entries, and with the second build fed
+    /// the same entries in the opposite order, because that is what makes the
+    /// comparison able to fail: two empty datasets built a moment apart are
+    /// equal whether or not the builder is deterministic. The last assertion
+    /// is the one that sees a `Date()` moved inside `build` — a clock would
+    /// stamp both of the last two builds with the same instant and make them
+    /// match.
+    @Test("the same inputs produce the same bytes, in whatever order they arrive")
+    func buildIsDeterministic() throws {
+        let entries = try entries(ids: [1, 2, 3], ratings: Self.steadyRatings)
+            + entries(ids: [4, 5, 6], ratings: Self.fallerRatings)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+
+        let first = try encoder.encode(
+            DatasetBuilder.build(entries: entries, generatedAt: "2026-01-01T00:00:00Z")
+        )
+        let reordered = try encoder.encode(
+            DatasetBuilder.build(entries: entries.reversed(), generatedAt: "2026-01-01T00:00:00Z")
+        )
+        #expect(first == reordered)
+
+        let later = try encoder.encode(
+            DatasetBuilder.build(entries: entries, generatedAt: "2026-06-01T00:00:00Z")
+        )
+        #expect(later != first)
     }
 }
