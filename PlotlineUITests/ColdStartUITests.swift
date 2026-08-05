@@ -162,8 +162,11 @@ final class ColdStartUITests: XCTestCase {
     ///
     /// Discover's network sections are the observable, because they are the
     /// one place where the two outcomes are mutually exclusive: no content and
-    /// an error renders `discoverNetworkError`, content renders
-    /// `discoverTrendingMovies`.
+    /// an error renders `discoverNetworkError`; anything else renders
+    /// `discoverTrendingMovies`, including a fetch that succeeds with zero
+    /// results — `MediaSection` draws a placeholder rather than nothing when
+    /// empty, so this anchor proves the fetch did not fail, not that it
+    /// returned content.
     func testDiscoverMatchesTheModeThisPassClaims() {
         openTab("Discover")
 

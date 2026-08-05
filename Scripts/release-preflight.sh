@@ -105,11 +105,13 @@ else
 fi
 
 # `ShippedDatasetTests` lives in this package and is the only suite that opens
-# Plotline/Resources/PlotlineDataset.json as a file on disk, asserts its
-# cross-list invariants and scans it for a leaked key. The app's own
+# Plotline/Resources/PlotlineDataset.json as a file on disk, asserts the full
+# set of cross-list invariants, and scans it for a leaked key. The app's own
 # ColdStartTests and DatasetStoreTests read the copy of that same file inside
-# the built bundle, so they see its contents but none of those invariants —
-# and `xcodebuild test` never runs this package at all.
+# the built bundle. ColdStartTests checks a weaker form of one invariant —
+# every list resolves to at least one entry — but neither suite asserts the
+# rest, or the secret scan, and `xcodebuild test` never runs this package at
+# all.
 step "3/8  Generator suite (the only tests that open the committed dataset)"
 if (cd Tools/DatasetGenerator && swift test 2>&1 | tail -10); then
     pass "shipped dataset invariants hold"

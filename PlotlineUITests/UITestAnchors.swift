@@ -25,7 +25,11 @@ enum UITestAnchors {
     /// of its two passes it is actually running, instead of trusting the
     /// launch environment to have arrived. Starved of a key the fetch fails
     /// with no content and `networkError` is what renders; with a working key
-    /// `trendingMovies` is.
+    /// the fetch does not fail, and `trendingMovies` is what renders instead
+    /// — even a fetch that succeeds with zero results renders it, since
+    /// `MediaSection` draws a placeholder rather than nothing when `items` is
+    /// empty. The anchor proves the non-error branch ran, not that TMDB
+    /// returned anything.
     static let discoverNetworkError = "plotline.discover.networkError"
     static let discoverTrendingMovies = "plotline.discover.trendingMovies"
 }
