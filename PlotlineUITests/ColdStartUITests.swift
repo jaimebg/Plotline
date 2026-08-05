@@ -47,10 +47,13 @@ final class ColdStartUITests: XCTestCase {
         XCTAssertEqual(
             savedRows.count, 0,
             """
-            The simulator container carried \(savedRows.count) saved favorites, \
-            so this run is not testing a clean install. Run \
-            `xcrun simctl uninstall booted com.jbgsoft.Plotline` first, or use \
-            Scripts/release-preflight.sh which does it for you.
+            The simulator container matched \(savedRows.count) accessibility \
+            elements carrying the saved-favorite row identifier — a count of \
+            elements, not of favorites, since XCUITest can report more than \
+            one per row — so this run is not testing a clean install. Run \
+            `xcrun simctl uninstall "iPhone 17" com.jbgsoft.Plotline` first, \
+            or use Scripts/release-preflight.sh, which does it against the \
+            same device it tests.
             """
         )
     }

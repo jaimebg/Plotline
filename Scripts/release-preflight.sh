@@ -26,23 +26,53 @@ xcrun simctl bootstatus "$DEVICE" -b >/dev/null 2>&1
 # Both unquoted on purpose: empty expands to nothing rather than to an empty
 # argument. Always uninstalls first — the UI suite asserts a clean container
 # and would otherwise report the container, not the code.
+#
+# Uninstalls from "$DEVICE" by name, not "booted": "booted" resolves to
+# whichever simulator answers first, and on a machine with a second
+# simulator left booted from an earlier iPad pass that is not the device
+# `-destination` below is about to test on. That let an uninstall succeed
+# against the wrong device while the suite ran against a dirty container on
+# the right one — silently, because the result was discarded. Naming the
+# device makes the uninstall act on the exact simulator the suite runs on.
+#
+# Verified directly (not assumed): `simctl uninstall` exits 0 as a silent
+# no-op when there is nothing installed to remove, so a real "first run,
+# nothing to clean" is never mistaken for a failure here. A non-zero exit
+# means the device itself could not be reached — most likely $DEVICE no
+# longer names a real simulator. Returns 2 for that case, distinct from a
+# genuine test failure, so the caller does not print a second, misleading
+# "pass red" on top of the specific reason already given below.
 run_suite() {
-    xcrun simctl uninstall booted "$BUNDLE_ID" 2>/dev/null
+    if ! xcrun simctl uninstall "$DEVICE" "$BUNDLE_ID"; then
+        # `fail`, not a hard stop: -e is deliberately absent so one bad
+        # step does not stop the rest of the preflight from reporting
+        # everything else wrong in the same pass.
+        fail "could not uninstall $BUNDLE_ID from $DEVICE — the suite below did not run"
+        return 2
+    fi
     env $1 xcodebuild -project Plotline.xcodeproj -scheme Plotline \
         -destination "platform=iOS Simulator,name=$DEVICE" $2 test 2>&1 | tail -20
     return "${PIPESTATUS[0]}"
 }
 
 step "1/8  App suite, starved of TMDB"
-if run_suite "" ""; then pass "starved pass green"; else fail "starved pass red"; fi
+run_suite "" ""
+status=$?
+if [ "$status" -eq 0 ]; then
+    pass "starved pass green"
+elif [ "$status" -ne 2 ]; then
+    fail "starved pass red"
+fi
 
 step "2/8  Cold-start suite, live against TMDB"
 # The only place this runs, and only the UI suite: the unit tests neither touch
 # the network nor change between the two passes. A red here can mean a real
 # defect or a TMDB rate limit; read the failure before treating it as either.
-if run_suite "TEST_RUNNER_PLOTLINE_UITEST_MODE=live" "-only-testing:PlotlineUITests"; then
+run_suite "TEST_RUNNER_PLOTLINE_UITEST_MODE=live" "-only-testing:PlotlineUITests"
+status=$?
+if [ "$status" -eq 0 ]; then
     pass "live pass green"
-else
+elif [ "$status" -ne 2 ]; then
     fail "live pass red — check whether TMDB rate-limited before blaming the code"
 fi
 
