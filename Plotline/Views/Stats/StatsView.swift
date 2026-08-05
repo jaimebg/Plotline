@@ -61,6 +61,7 @@ struct StatsView: View {
         .padding(.horizontal)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Your stats are empty. Save favorites to fill this section. The rest of the tab works now.")
+        .accessibilityIdentifier(AccessibilityAnchors.statsYourStatsEmpty)
     }
 
     // MARK: - Stats Content
@@ -119,6 +120,7 @@ struct StatsView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                .accessibilityIdentifier(AccessibilityAnchors.statsCompare)
 
                 // MARK: - Career Profiles
 
@@ -144,6 +146,7 @@ struct StatsView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                .accessibilityIdentifier(AccessibilityAnchors.statsCareerProfiles)
 
                 // MARK: - Trends
 
@@ -154,6 +157,7 @@ struct StatsView: View {
 
                     TrendsView()
                 }
+                .accessibilityIdentifier(AccessibilityAnchors.statsTrends)
             }
             .padding()
         }

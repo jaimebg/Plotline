@@ -60,16 +60,102 @@ final class ColdStartUITests: XCTestCase {
         assertShelf(UITestAnchors.favoritesSuggestions, tab: "Favorites")
     }
 
+    func testDiscoverShowsCuratedShelves() {
+        openTab("Discover")
+        let shelves = app.descendants(matching: .any)
+            .matching(identifier: UITestAnchors.discoverShelf)
+        XCTAssertTrue(
+            shelves.firstMatch.waitForExistence(timeout: 10),
+            "Discover rendered no curated shelf at all"
+        )
+        // Only the shelves scrolled into view have materialised. The dataset
+        // ships five; ColdStartTests is what asserts that number exactly.
+        XCTAssertGreaterThanOrEqual(
+            shelves.count, 2,
+            "Discover showed only \(shelves.count) curated shelves on first screen"
+        )
+    }
+
+    func testWatchlistOffersSuggestionsWithNothingSaved() {
+        openTab("Watchlist")
+        assertShelf(UITestAnchors.watchlistSuggestions, tab: "Watchlist")
+    }
+
+    /// Two assertions, not one, and that is the whole point.
+    ///
+    /// The rejected build showed the empty-state invitation *instead of* the
+    /// rest of the tab. A suite that only checked the invitation was there
+    /// would have passed on the build that got rejected.
+    func testStatsKeepsItsUserIndependentSectionsWhenNothingIsSaved() {
+        openTab("Stats")
+
+        let invitation = app.descendants(matching: .any)[UITestAnchors.statsYourStatsEmpty]
+        XCTAssertTrue(
+            invitation.waitForExistence(timeout: 10),
+            "Stats did not show the empty-state invitation with nothing saved"
+        )
+
+        for anchor in [
+            UITestAnchors.statsCompare,
+            UITestAnchors.statsCareerProfiles,
+            UITestAnchors.statsTrends,
+        ] {
+            let section = app.descendants(matching: .any)[anchor]
+            if !section.exists {
+                app.swipeUp()
+            }
+            XCTAssertTrue(
+                section.waitForExistence(timeout: 5),
+                """
+                Stats is missing \"\(anchor)\" with nothing saved. This section \
+                analyses TMDB, not the user's library, and gating it behind \
+                saved favorites is the defect that got 1.3.0 rejected.
+                """
+            )
+        }
+    }
+
+    func testSettingsIsReachableAndPopulated() {
+        openTab("Settings")
+        let rows = app.descendants(matching: .any)
+            .matching(identifier: UITestAnchors.settingsRow)
+        XCTAssertTrue(
+            rows.firstMatch.waitForExistence(timeout: 10),
+            "Settings rendered no rows"
+        )
+        XCTAssertGreaterThanOrEqual(rows.count, 2, "Settings showed only \(rows.count) rows")
+    }
+
     // MARK: - Helpers
 
     private func openTab(_ name: String) {
-        // The tab bar on iPhone, the sidebar on iPad under .sidebarAdaptable.
-        let button = app.buttons[name]
+        // The tab bar on iPhone; on iPad under .sidebarAdaptable this renders
+        // as a horizontal tab bar that only fits four items at this width.
+        // The fifth (Settings) sits behind a "Next Page" control rather than
+        // a chevron — page forward once and look again before giving up.
+        var button = tabButton(name)
+        if !button.exists {
+            let nextPage = app.buttons["Next Page"]
+            if nextPage.waitForExistence(timeout: 5) {
+                nextPage.tap()
+                button = tabButton(name)
+            }
+        }
         XCTAssertTrue(
             button.waitForExistence(timeout: 10),
             "no way to reach the \(name) tab"
         )
         button.tap()
+    }
+
+    /// `.firstMatch`, not the bare `app.buttons[name]` subscript: on iPad the
+    /// floating tab bar renders each item as two nested elements sharing the
+    /// same label — a rendering quirk, not two tabs — and resolving that to
+    /// exactly one match throws "multiple matching elements found" at tap
+    /// time. iPhone has only the one element, so `.firstMatch` is a no-op
+    /// there.
+    private func tabButton(_ name: String) -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "label == %@", name)).firstMatch
     }
 
     /// A shelf must exist and show something. The exact counts — five lists,

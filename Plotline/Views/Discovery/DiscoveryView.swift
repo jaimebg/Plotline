@@ -211,6 +211,7 @@ struct DiscoveryView: View {
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel(title)
                 .accessibilityHint(CuratedListCopy.subtitle(for: list.id) ?? "")
+                .accessibilityIdentifier(AccessibilityAnchors.discoverShelf)
             }
         }
     }
