@@ -188,13 +188,13 @@ The app targets iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`). App Revi
   - Example: `feat: add episode ratings grid for TV series`
 - **When building features**: Use the `apple-docs` MCP tools to check Apple Developer Documentation for correct API usage, best practices, and platform compatibility
 
-### Antes de una release
+### Before a Release
 
-`Scripts/release-preflight.sh` reúne las dos pasadas del suite de cold start,
-la suite del generador —que `xcodebuild test` **no** ejecuta, y es la única que
-lee el dataset que de verdad se envía—, la frescura del dataset, la coherencia
-entre `MARKETING_VERSION` y `docs/app-review/`, y la ausencia de OMDb.
+`Scripts/release-preflight.sh` gathers the two cold-start suite passes, the
+generator suite — which `xcodebuild test` **never** runs, and is the only one
+that reads the dataset that actually ships — dataset freshness, the coherence
+between `MARKETING_VERSION` and `docs/app-review/`, and the absence of OMDb.
 
-Está enganchado a la pre-action de Archive, **y eso no lo convierte en una
-barrera**: una pre-action que devuelve error no aborta el archive de forma
-fiable en Xcode reciente. Avisa en el momento exacto; no impide.
+It is wired to the Archive pre-action, **and that does not make it a
+barrier**: a pre-action that returns an error does not reliably abort an
+archive in recent Xcode. It warns at the right moment; it does not prevent.
