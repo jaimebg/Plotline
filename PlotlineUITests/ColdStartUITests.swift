@@ -26,22 +26,49 @@ final class ColdStartUITests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         if !isLiveMode {
-            // Beats the bundled Secrets.plist since Task 2. An empty value
-            // counts as set, so the app runs with no key and TMDB yields
-            // nothing.
+            // An explicitly set environment variable beats the bundled
+            // Secrets.plist, and an empty value still counts as set, so the
+            // app runs with no key and TMDB yields nothing.
+            // `testDiscoverMatchesTheModeThisPassClaims` is what checks this
+            // arrived; without it the whole suite could run live and say so
+            // nowhere.
             app.launchEnvironment["TMDB_API_KEY"] = ""
         }
+        // Printed rather than asserted, because no assertion here can do this
+        // job: the suite reads PLOTLINE_UITEST_MODE to *choose* its mode, so
+        // if xcodebuild's TEST_RUNNER_ forwarding ever broke, the variable
+        // would simply be absent, the suite would starve the app, every test
+        // would pass, and the release preflight would print "live pass green"
+        // over a second starved pass. Step 2 of Scripts/release-preflight.sh
+        // greps this line for `live` and fails the step when it says
+        // `starved`. Do not change the format without changing that grep.
+        print("PLOTLINE_UITEST_MODE_OBSERVED=\(isLiveMode ? "live" : "starved")")
         app.launch()
     }
 
     /// Asserts the suite's own precondition instead of trusting the runner.
     ///
-    /// Favorites and the watchlist persist in SwiftData, inside the app
-    /// container, so no launch argument can clear them — only uninstalling
-    /// can. A run that skipped the uninstall would otherwise pass green while
+    /// Favorites and the watchlist persist in SwiftData, in a store no launch
+    /// argument can reach — only uninstalling the app removes it. The store is
+    /// not in the app's own container but in the shared app-group one,
+    /// `group.com.jbgsoft.Plotline`; the simulator takes that with the app,
+    /// but only while the device is booted, which is what makes the
+    /// preflight's device-by-name uninstall load-bearing rather than tidy.
+    ///
+    /// A run that skipped the uninstall would otherwise pass green while
     /// testing a state no reviewer ever sees.
     func testContainerIsClean() {
         openTab("Favorites")
+
+        // Zero is what a clean container looks like — and also what a screen
+        // that has not drawn yet looks like. Wait for the tab to be on screen
+        // first, so the count below is a count of the Favorites tab rather
+        // than of nothing.
+        XCTAssertTrue(
+            app.navigationBars["Favorites"].waitForExistence(timeout: 10),
+            "the Favorites tab never drew, so the row count below would say nothing about the container"
+        )
+
         let savedRows = app.descendants(matching: .any)
             .matching(identifier: UITestAnchors.favoritesSavedRow)
         XCTAssertEqual(
@@ -50,10 +77,11 @@ final class ColdStartUITests: XCTestCase {
             The simulator container matched \(savedRows.count) accessibility \
             elements carrying the saved-favorite row identifier — a count of \
             elements, not of favorites, since XCUITest can report more than \
-            one per row — so this run is not testing a clean install. Run \
-            `xcrun simctl uninstall "iPhone 17" com.jbgsoft.Plotline` first, \
-            or use Scripts/release-preflight.sh, which does it against the \
-            same device it tests.
+            one per row — so this run is not testing a clean install. \
+            Uninstall com.jbgsoft.Plotline from the simulator this suite just \
+            ran on, by name rather than by `booted`, and run it again; \
+            Scripts/release-preflight.sh does exactly that against the device \
+            it then tests.
             """
         )
     }
@@ -103,16 +131,62 @@ final class ColdStartUITests: XCTestCase {
             UITestAnchors.statsCareerProfiles,
             UITestAnchors.statsTrends,
         ] {
+            // No scrolling here on purpose: `statsContent` is a plain `VStack`
+            // inside a `ScrollView`, not a lazy one, so all three identifiers
+            // are in the tree whether or not they are on screen.
             let section = app.descendants(matching: .any)[anchor]
-            if !section.exists {
-                app.swipeUp()
-            }
             XCTAssertTrue(
                 section.waitForExistence(timeout: 5),
                 """
                 Stats is missing \"\(anchor)\" with nothing saved. This section \
                 analyses TMDB, not the user's library, and gating it behind \
                 saved favorites is the defect that got 1.3.0 rejected.
+                """
+            )
+        }
+    }
+
+    /// Proves the pass ran in the mode it says it ran in.
+    ///
+    /// Every other assertion here is silent about this. Starved, the suite's
+    /// whole claim is that the *bundled dataset* fills five tabs with no TMDB
+    /// key — but if `launchEnvironment["TMDB_API_KEY"] = ""` never reached
+    /// `Secrets`, the app would be pulling live content and every other test
+    /// here would still be green, having proved nothing about the dataset.
+    /// That is the app's Guideline 4.2 defence, so it cannot rest on an
+    /// assumption.
+    ///
+    /// `testDiscoverShowsCuratedShelves` does not cover this: `curatedShelves`
+    /// iterates `DatasetStore.shared.lists` unconditionally, so it renders the
+    /// same with a live key as without one.
+    ///
+    /// Discover's network sections are the observable, because they are the
+    /// one place where the two outcomes are mutually exclusive: no content and
+    /// an error renders `discoverNetworkError`, content renders
+    /// `discoverTrendingMovies`.
+    func testDiscoverMatchesTheModeThisPassClaims() {
+        openTab("Discover")
+
+        if isLiveMode {
+            XCTAssertTrue(
+                scrollToAnchor(UITestAnchors.discoverTrendingMovies).exists,
+                """
+                This pass declares itself live, but Discover never rendered \
+                its TMDB-backed sections. Either TMDB answered with nothing \
+                — a bad key, or a rate limit — or the anchor moved. Either \
+                way nothing below this line exercised the live recomputation \
+                path, which is the only reason the live pass exists.
+                """
+            )
+        } else {
+            XCTAssertTrue(
+                scrollToAnchor(UITestAnchors.discoverNetworkError).exists,
+                """
+                Discover never rendered its TMDB failure state. Either the \
+                empty TMDB_API_KEY in launchEnvironment did not reach \
+                Secrets — in which case this pass ran against live TMDB and \
+                proves nothing about the bundled dataset, which is what it \
+                exists to prove — or the anchor moved.
                 """
             )
         }
@@ -159,6 +233,23 @@ final class ColdStartUITests: XCTestCase {
     /// there.
     private func tabButton(_ name: String) -> XCUIElement {
         app.buttons.matching(NSPredicate(format: "label == %@", name)).firstMatch
+    }
+
+    /// Scrolls until the anchor is in the tree, or gives up and returns an
+    /// element that does not exist, for the caller to assert on.
+    ///
+    /// Discover's network sections sit below five curated shelves inside a
+    /// `LazyVStack`, and XCUITest cannot see a view SwiftUI has not built yet,
+    /// so on the first screen their absence means nothing either way.
+    private func scrollToAnchor(_ identifier: String, maximumSwipes: Int = 12) -> XCUIElement {
+        let element = app.descendants(matching: .any)[identifier]
+        if element.waitForExistence(timeout: 5) { return element }
+
+        for _ in 0..<maximumSwipes {
+            app.swipeUp(velocity: .fast)
+            if element.waitForExistence(timeout: 1) { return element }
+        }
+        return element
     }
 
     /// A shelf must exist and show something. The exact counts — five lists,
