@@ -32,6 +32,9 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 # The dataset generator's own suite
 cd Tools/DatasetGenerator && swift test
 
+# Everything that has to be true before a release
+./Scripts/release-preflight.sh
+
 # Clean build
 xcodebuild -project Plotline.xcodeproj -scheme Plotline clean && rm -rf build
 ```
@@ -184,3 +187,14 @@ The app targets iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`). App Revi
   - `chore:` for maintenance tasks
   - Example: `feat: add episode ratings grid for TV series`
 - **When building features**: Use the `apple-docs` MCP tools to check Apple Developer Documentation for correct API usage, best practices, and platform compatibility
+
+### Antes de una release
+
+`Scripts/release-preflight.sh` reúne las dos pasadas del suite de cold start,
+la suite del generador —que `xcodebuild test` **no** ejecuta, y es la única que
+lee el dataset que de verdad se envía—, la frescura del dataset, la coherencia
+entre `MARKETING_VERSION` y `docs/app-review/`, y la ausencia de OMDb.
+
+Está enganchado a la pre-action de Archive, **y eso no lo convierte en una
+barrera**: una pre-action que devuelve error no aborta el archive de forma
+fiable en Xcode reciente. Avisa en el momento exacto; no impide.
