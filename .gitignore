@@ -7,7 +7,12 @@ build/
 DerivedData/
 *.xcuserstate
 xcuserdata/
-xcshareddata/
+# xcshareddata/ (shared schemes) is versioned on purpose: the UI test
+# target's <TestAction> entry and parallelizable settings live there, and
+# Task 6's Archive pre-action will too. Scripts/release-preflight.sh (Task 5)
+# checks every shared scheme for embedded environment variables before a
+# build, so a leaked secret is caught there instead of by never versioning
+# the file.
 
 # CocoaPods
 Pods/
