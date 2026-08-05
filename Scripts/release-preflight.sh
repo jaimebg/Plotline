@@ -54,19 +54,28 @@ else
 fi
 
 step "4/8  Dataset freshness"
-generated=$(plutil -extract generatedAt raw -o - "$DATASET" 2>/dev/null)
-if [ -z "$generated" ] || [ "$generated" = "null" ]; then
-    fail "$DATASET declares no generatedAt — regenerate it with Tools/DatasetGenerator"
+if [ ! -f "$DATASET" ]; then
+    fail "$DATASET does not exist"
 else
-    gen_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$generated" +%s 2>/dev/null)
-    if [ -z "$gen_epoch" ]; then
-        fail "generatedAt is not ISO8601: $generated"
+    generated=$(plutil -extract generatedAt raw -o - "$DATASET" 2>/dev/null)
+    if [ -z "$generated" ] || [ "$generated" = "null" ]; then
+        fail "$DATASET declares no generatedAt — regenerate it with Tools/DatasetGenerator"
     else
-        age_days=$(( ( $(date +%s) - gen_epoch ) / 86400 ))
-        if [ "$age_days" -gt "$MAX_DATASET_AGE_DAYS" ]; then
-            fail "dataset is $age_days days old (limit $MAX_DATASET_AGE_DAYS)"
+        gen_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$generated" +%s 2>/dev/null)
+        if [ -z "$gen_epoch" ]; then
+            fail "generatedAt is not ISO8601: $generated"
         else
-            pass "dataset is $age_days days old"
+            now_epoch=$(date +%s)
+            if [ "$gen_epoch" -gt "$now_epoch" ]; then
+                fail "generatedAt ($generated) is in the future — check the clock that produced it"
+            else
+                age_days=$(( ( now_epoch - gen_epoch ) / 86400 ))
+                if [ "$age_days" -gt "$MAX_DATASET_AGE_DAYS" ]; then
+                    fail "dataset is $age_days days old (limit $MAX_DATASET_AGE_DAYS)"
+                else
+                    pass "dataset is $age_days days old"
+                fi
+            fi
         fi
     fi
 fi
@@ -74,7 +83,12 @@ fi
 step "5/8  Version coherence with the App Review artefacts"
 version=$(grep -m1 'MARKETING_VERSION' Plotline.xcodeproj/project.pbxproj \
           | sed 's/.*= *//; s/;.*//' | tr -d ' ')
-if grep -rq "$version" docs/app-review/; then
+# An empty $version would make the grep below match every line of every file
+# — an empty pattern matches unconditionally — turning a missing key into a
+# silent pass instead of the failure it actually is. Guard it explicitly.
+if [ -z "$version" ]; then
+    fail "MARKETING_VERSION could not be read from Plotline.xcodeproj/project.pbxproj"
+elif grep -rq "$version" docs/app-review/; then
     pass "project and docs/app-review both say $version"
 else
     fail "project says $version but no file in docs/app-review/ mentions it"
