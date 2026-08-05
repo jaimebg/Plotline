@@ -23,7 +23,8 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — Swift Testing, 147 of them
+# Run tests — 147 Swift Testing functions, 151 cases (two are parameterised),
+# plus the 7-method cold-start UI suite, which runs starved of a TMDB key
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
 # Build for iPad — the device App Review used
@@ -191,9 +192,15 @@ The app targets iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`). App Revi
 ### Before a Release
 
 `Scripts/release-preflight.sh` gathers the two cold-start suite passes, the
-generator suite — which `xcodebuild test` **never** runs, and is the only one
-that reads the dataset that actually ships — dataset freshness, the coherence
-between `MARKETING_VERSION` and `docs/app-review/`, and the absence of OMDb.
+generator suite, dataset freshness, the coherence between `MARKETING_VERSION`
+and `docs/app-review/`, the absence of OMDb, and the shared schemes.
+
+The generator suite is in there because `xcodebuild test` **never** runs it,
+and its `ShippedDatasetTests` is the only suite that opens
+`Plotline/Resources/PlotlineDataset.json` as a file on disk — via `#filePath`
+— and asserts its cross-list invariants and its secret scan. `ColdStartTests`
+and `DatasetStoreTests` do read that same file, but the copy inside the built
+bundle, and neither checks any of those invariants.
 
 It is wired to the Archive pre-action, **and that does not make it a
 barrier**: a pre-action that returns an error does not reliably abort an
