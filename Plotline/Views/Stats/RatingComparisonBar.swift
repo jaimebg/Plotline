@@ -7,7 +7,7 @@ struct RatingComparisonBar: View {
     let displayValue: (MediaItem) -> String?
 
     /// Colors assigned per slot index for visual distinction
-    private let slotColors: [Color] = [.plotlineGold, .plotlineSecondaryAccent, .plotlinePrimary]
+    private let slotColors: [Color] = [.plotlineGold, .plotlineSecondaryAccent, .plotlineAccent]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

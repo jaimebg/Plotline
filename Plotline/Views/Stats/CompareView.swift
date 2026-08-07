@@ -137,7 +137,7 @@ struct CompareView: View {
 
     private var episodeOverlaySection: some View {
         let seriesSlots = viewModel.filledSlots.filter { $0.item.isTVSeries }
-        let lineColors: [Color] = [.plotlineGold, .plotlineSecondaryAccent, .plotlinePrimary]
+        let lineColors: [Color] = [.plotlineGold, .plotlineSecondaryAccent, .plotlineAccent]
 
         return Group {
             if seriesSlots.count >= 1 {

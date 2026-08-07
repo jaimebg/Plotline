@@ -13,7 +13,7 @@ struct GenreDNAChart: View {
     private let genreColors: [Color] = [
         .plotlineGold,
         .plotlineSecondaryAccent,
-        .plotlinePrimary,
+        .plotlineAccent,
         .rottenGreen,
         .metacriticGreen,
         .cyan,

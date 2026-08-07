@@ -115,7 +115,7 @@ struct WatchlistView: View {
                             systemImage: item.watchStatus == "watched" ? "eye" : "checkmark.circle"
                         )
                     }
-                    .tint(Color.plotlinePrimary)
+                    .tint(Color.plotlineAccent)
                 }
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
@@ -149,7 +149,7 @@ struct WatchlistView: View {
         } label: {
             Image(systemName: "arrow.up.arrow.down")
                 .font(.body)
-                .foregroundStyle(Color.plotlinePrimary)
+                .foregroundStyle(Color.plotlineAccent)
                 .accessibilityLabel("Sort watchlist")
         }
     }
@@ -221,7 +221,7 @@ struct WatchlistRow: View {
 
                     Label(item.statusLabel, systemImage: item.watchStatus == "watched" ? "checkmark.circle.fill" : "eye.fill")
                         .font(.caption)
-                        .foregroundStyle(item.watchStatus == "watched" ? .green : Color.plotlinePrimary)
+                        .foregroundStyle(item.watchStatus == "watched" ? .green : .secondary)
                 }
 
                 if item.voteAverage > 0 {

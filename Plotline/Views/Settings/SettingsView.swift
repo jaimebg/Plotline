@@ -76,7 +76,7 @@ private struct ThemeOptionRow: View {
 
                 Image(systemName: "checkmark")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.plotlinePrimary)
+                    .foregroundStyle(Color.plotlineAccent)
                     .opacity(isSelected ? 1 : 0)
                     .symbolEffect(.bounce, value: isSelected)
             }

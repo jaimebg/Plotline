@@ -26,7 +26,7 @@ enum AppTheme: String, CaseIterable {
         switch self {
         case .system: return .secondary
         case .light: return .plotlineGold
-        case .dark: return .plotlinePrimary
+        case .dark: return .plotlineAccent
         }
     }
 }

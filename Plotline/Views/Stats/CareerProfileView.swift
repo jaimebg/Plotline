@@ -236,7 +236,7 @@ struct CareerProfileView: View {
                     icon: "arrow.down.circle.fill",
                     title: "Worst Rated",
                     value: worstRatedText,
-                    color: .plotlinePrimary
+                    color: .plotlineAccent
                 )
             }
         }

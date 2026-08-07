@@ -414,7 +414,7 @@ struct AllSeasonsGraphView: View {
         let colors: [Color] = [
             .plotlineGold,
             .plotlineSecondaryAccent,
-            .plotlinePrimary,
+            .plotlineAccent,
             .rottenGreen,
             .metacriticGreen
         ]

@@ -36,7 +36,7 @@ struct StatCard: View {
 
 #Preview {
     HStack {
-        StatCard(icon: "heart.fill", value: "42", label: "Favorites", color: .plotlinePrimary)
+        StatCard(icon: "heart.fill", value: "42", label: "Favorites", color: .plotlineAccent)
         StatCard(icon: "eye.fill", value: "18", label: "Watched", color: .plotlineSecondaryAccent)
     }
     .padding()

@@ -38,7 +38,7 @@ struct MainTabView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
-        .tint(Color.plotlinePrimary)
+        .tint(Color.plotlineAccent)
         .preferredColorScheme(themeManager.colorScheme)
         .onChange(of: deepLinkManager.pendingTab) { _, newTab in
             if let tab = newTab {

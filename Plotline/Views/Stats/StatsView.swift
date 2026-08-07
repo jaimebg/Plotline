@@ -172,7 +172,7 @@ struct StatsView: View {
                 icon: "heart.fill",
                 value: "\(viewModel.totalFavorites)",
                 label: "Favorites",
-                color: .plotlinePrimary
+                color: .plotlineAccent
             )
             StatCard(
                 icon: "list.bullet",
@@ -409,7 +409,7 @@ struct StatsView: View {
             sectionHeader("Average Ratings", icon: "chart.line.uptrend.xyaxis")
 
             HStack(spacing: 12) {
-                ratingPill(label: "Favorites", value: viewModel.favoritesAvgRating, color: .plotlinePrimary)
+                ratingPill(label: "Favorites", value: viewModel.favoritesAvgRating, color: .plotlineAccent)
                 ratingPill(label: "Watchlist", value: viewModel.watchlistAvgRating, color: .plotlineSecondaryAccent)
                 ratingPill(label: "Watched", value: viewModel.watchedAvgRating, color: .rottenGreen)
             }

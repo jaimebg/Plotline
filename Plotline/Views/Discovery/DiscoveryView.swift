@@ -373,7 +373,7 @@ struct GenreBrowseCard: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.plotlinePrimary, Color.plotlineSecondaryAccent],
+                            colors: [Color.plotlineAccentDeep, Color.plotlineSecondaryAccent],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )

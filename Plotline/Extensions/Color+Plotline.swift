@@ -15,9 +15,17 @@ extension Color {
     /// Highlight - golden yellow
     static let plotlineGold = Color(hex: "F6CE71")
 
-    // MARK: - Adaptive Background Colors
-    // Note: plotlineBackground, plotlineBlack, plotlineCard, plotlineSecondary
-    // are auto-generated from Asset Catalog color sets
+    // MARK: - Adaptive Colors
+    // Note: plotlineAccent, plotlineBackground, plotlineBlack, plotlineCard,
+    // plotlineSecondary are auto-generated from Asset Catalog color sets
+
+    /// Fixed deep orange for gradients that used to start at `plotlinePrimary`.
+    ///
+    /// `plotlineAccent` adapts to the appearance, and its dark value (#FF7A33)
+    /// sits close enough to `plotlineSecondaryAccent` (#FF6500) that a ramp
+    /// between the two collapses to a flat fill. Gradients take this fixed
+    /// value instead, so they keep their range in both appearances.
+    static let plotlineAccentDeep = Color(hex: "B33A00")
 
     // MARK: - Fallback Colors (for programmatic use)
 

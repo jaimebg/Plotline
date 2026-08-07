@@ -102,7 +102,7 @@ struct GenreResultsView: View {
         } label: {
             Image(systemName: "arrow.up.arrow.down")
                 .font(.body)
-                .foregroundStyle(Color.plotlinePrimary)
+                .foregroundStyle(Color.plotlineAccent)
         }
     }
 

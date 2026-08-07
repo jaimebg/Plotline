@@ -182,7 +182,7 @@ struct MediaDetailView: View {
         } label: {
             Image(systemName: watchlistManager.isOnWatchlist(viewModel.media) ? "eye.fill" : "eye")
                 .font(.body.weight(.semibold))
-                .foregroundStyle(watchlistManager.isOnWatchlist(viewModel.media) ? Color.plotlinePrimary : .primary)
+                .foregroundStyle(watchlistManager.isOnWatchlist(viewModel.media) ? Color.plotlineAccent : .primary)
                 .accessibilityLabel(watchlistManager.isOnWatchlist(viewModel.media) ? "Watchlist options, currently on watchlist" : "Add to watchlist")
         }
     }

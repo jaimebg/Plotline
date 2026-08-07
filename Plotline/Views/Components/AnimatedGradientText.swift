@@ -5,13 +5,16 @@ struct AnimatedGradientText: View {
     let text: String
     var font: Font = .system(.largeTitle, design: .default, weight: .bold)
 
-    // Gradient colors - gold (brightest) in center, surrounded by darker colors
+    // Gradient colors - gold (brightest) in center, surrounded by darker colors.
+    // The ends take the fixed deep orange rather than the adaptive accent: in
+    // dark mode the accent (#FF7A33) is close enough to plotlineSecondaryAccent
+    // (#FF6500) that the ramp would collapse.
     private let gradientColors: [Color] = [
-        .plotlinePrimary,
+        .plotlineAccentDeep,
         .plotlineSecondaryAccent,
         .plotlineGold,
         .plotlineSecondaryAccent,
-        .plotlinePrimary
+        .plotlineAccentDeep
     ]
 
     var body: some View {
@@ -24,7 +27,8 @@ struct AnimatedGradientText: View {
                     LinearGradient(
                         colors: gradientColors,
                         // Gradient is 2 units wide, moves 3 units total
-                        // Starts off-screen left (text shows red), gold sweeps through, ends off-screen right (text shows red)
+                        // Starts off-screen left (text shows deep orange), gold
+                        // sweeps through, ends off-screen right (deep orange again)
                         startPoint: UnitPoint(x: -2 + phase * 3, y: 0.5),
                         endPoint: UnitPoint(x: 0 + phase * 3, y: 0.5)
                     )

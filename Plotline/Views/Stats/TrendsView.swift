@@ -14,7 +14,7 @@ struct TrendsView: View {
                 icon: "chart.bar.xaxis.ascending",
                 title: "Decade Battle",
                 subtitle: "Compare eras head to head",
-                color: .plotlinePrimary,
+                color: .plotlineAccent,
                 destination: DecadeBattleView()
             )
 

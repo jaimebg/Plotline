@@ -28,7 +28,7 @@ struct BoxOfficeView: View {
                         label: "Revenue",
                         value: boxOffice.formattedRevenue,
                         progress: min(boxOffice.revenueRatio, 1.0),
-                        color: boxOffice.isProfitable ? Color.rottenGreen : Color.rottenRed
+                        color: boxOffice.isProfitable ? Color.rottenGreen : Color.plotlineAccent
                     )
                 }
 
@@ -48,7 +48,7 @@ struct BoxOfficeView: View {
                             Text(roi)
                                 .font(.system(.subheadline, weight: .semibold))
                         }
-                        .foregroundStyle(boxOffice.isProfitable ? Color.rottenGreen : Color.rottenRed)
+                        .foregroundStyle(boxOffice.isProfitable ? Color.rottenGreen : .primary)
                     }
                 }
 
@@ -63,7 +63,7 @@ struct BoxOfficeView: View {
 
                         Text(boxOffice.formattedProfit)
                             .font(.system(.subheadline, weight: .semibold))
-                            .foregroundStyle(boxOffice.isProfitable ? Color.rottenGreen : Color.rottenRed)
+                            .foregroundStyle(boxOffice.isProfitable ? Color.rottenGreen : .primary)
                     }
                 }
             }
