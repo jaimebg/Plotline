@@ -204,18 +204,12 @@ struct DiscoveryView: View {
     private var curatedShelves: some View {
         ForEach(DatasetStore.shared.lists) { list in
             if let title = CuratedListCopy.title(for: list.id) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 0) {
                     MediaSection(
                         title: title,
+                        subtitle: CuratedListCopy.subtitle(for: list.id),
                         items: DatasetStore.shared.entries(for: list).map(\.asMediaItem)
                     )
-
-                    if let subtitle = CuratedListCopy.subtitle(for: list.id) {
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal)
-                    }
                 }
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel(title)

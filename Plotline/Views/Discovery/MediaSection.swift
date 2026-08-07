@@ -3,32 +3,41 @@ import SwiftUI
 /// Horizontal scrolling section for media items
 struct MediaSection: View {
     let title: String
+    let subtitle: String?
     let items: [MediaItem]
     let style: MediaCard.CardStyle
 
     @Environment(\.navigationNamespace) private var namespace
 
-    init(title: String, items: [MediaItem], style: MediaCard.CardStyle = .poster) {
+    init(
+        title: String,
+        subtitle: String? = nil,
+        items: [MediaItem],
+        style: MediaCard.CardStyle = .poster
+    ) {
         self.title = title
+        self.subtitle = subtitle
         self.items = items
         self.style = style
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Section header
-            HStack {
+            // Section header. The subtitle explains the shelf, so it renders
+            // above the shelf. It used to sit under the poster row, where the
+            // explanation arrived after the thing being explained.
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(.title2, weight: .bold))
                     .foregroundStyle(.primary)
 
-                Spacer()
-
-                // Optional "See All" button (for future use)
-                // Button("See All") { }
-                //     .font(.subheadline)
-                //     .foregroundStyle(.secondary)
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
 
             // Horizontal scroll

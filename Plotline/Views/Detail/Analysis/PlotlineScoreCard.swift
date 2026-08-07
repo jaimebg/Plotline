@@ -53,12 +53,14 @@ struct PlotlineScoreCard: View {
                     .foregroundStyle(.secondary)
             }
 
-            ProgressView(value: Double(value), total: 100)
-                .tint(Color.plotlineGold)
-
+            // The caption explains the component, so it sits under the
+            // component's name rather than under the bar it describes.
             Text(caption)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+
+            ProgressView(value: Double(value), total: 100)
+                .tint(Color.plotlineGold)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(name): \(value) out of 100. \(caption)")
