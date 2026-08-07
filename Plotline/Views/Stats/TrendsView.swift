@@ -4,9 +4,9 @@ import SwiftUI
 ///
 /// Rendered only inside `StatsView`, which supplies the scroll view, the
 /// padding, the background and the navigation title. This view used to carry
-/// its own copy of all four: the padding stacked with the parent's to 64pt,
-/// which left too little room for a second column on any iPhone narrower than
-/// 402pt, and the navigation title overrode "Stats" on the tab it lives in.
+/// its own copies: the padding stacked with the parent's to 64pt, which left
+/// too little room for a second column on any iPhone narrower than 402pt, and
+/// the navigation title overrode "Stats" on the tab it lives in.
 struct TrendsView: View {
     var body: some View {
         LazyVGrid(columns: GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth), spacing: 16) {
