@@ -37,13 +37,6 @@ struct MediaDetailView: View {
                     titleSection
                         .opacity(titleVisible ? 0 : 1)
 
-                    // Ratings section
-                    ScorecardsView(
-                        tmdbScore: viewModel.media.voteAverage,
-                        mediaId: viewModel.media.id,
-                        isTVSeries: viewModel.media.isTVSeries
-                    )
-
                     // Overview
                     overviewSection
 
@@ -246,7 +239,11 @@ struct MediaDetailView: View {
                 .font(.system(.title, weight: .bold))
                 .foregroundStyle(.primary)
 
-            // Metadata row
+            // Metadata row. The rating lives here rather than in a section of
+            // its own: TMDB is the only source this app has, and a heading over
+            // a single tile was the leftover of a two-source layout. "TMDB"
+            // stays beside the number — it is the only place on this screen
+            // that names where the figure came from.
             HStack(spacing: 12) {
                 if let year = viewModel.media.year {
                     Label(year, systemImage: "calendar")
@@ -258,6 +255,22 @@ struct MediaDetailView: View {
                     Label("\(totalSeasons) Seasons", systemImage: "film.stack")
                         .font(.subheadline)
                         .foregroundStyle(.primary.opacity(0.9))
+                }
+
+                if viewModel.media.voteAverage > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(Color.imdbYellow)
+
+                        Text(viewModel.media.formattedRating)
+                            .foregroundStyle(.primary.opacity(0.9))
+
+                        Text("TMDB")
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(.subheadline)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Rated \(viewModel.media.formattedRating) out of 10 on TMDB")
                 }
             }
             .labelStyle(.titleAndIcon)
