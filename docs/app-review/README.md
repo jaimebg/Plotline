@@ -21,7 +21,9 @@ En `screenshots/1.4.0/`, con las medidas exactas que acepta App Store Connect:
 | `iphone-69-analysis.png` | 1320 × 2868 | iPhone 6.9" |
 | `ipad-13-analysis.png` | 2064 × 2752 | iPad 13" |
 
-Las dos muestran lo que pide §12 del spec: **el análisis, no pósters**. Se ve el Plotline Score con sus tres componentes, los cuatro veredictos con las cifras que los sustentan, los episodios destacados y el inicio del gráfico por episodio.
+Las dos muestran lo que pide §12 del spec: **el análisis, no pósters**. Se ve el Plotline Score con sus tres componentes, los cuatro veredictos con las cifras que los sustentan y el inicio del gráfico por episodio.
+
+**Ojo:** estos dos PNG de 1.4.0 se capturaron antes de quitar la sección de episodios destacados de la pantalla de detalle. Ya no reflejan la app tal como está y hay que rehacerlos antes del próximo envío — el paso 4 de este mismo README es el que las sube.
 
 **Cómo se hicieron, para que conste:** la app se arrancó temporalmente en la ficha de Breaking Bad y se desplazó el `ScrollView` con un anclaje, de forma que la captura muestra la pantalla real a media altura en lugar de tener que hacer scroll a mano. Ambos cambios se revirtieron; no están en el repositorio. Las pantallas son las de verdad, con datos reales de TMDB.
 

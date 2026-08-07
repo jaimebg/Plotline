@@ -16,7 +16,7 @@ Thank you for the detailed feedback across our previous submissions. Re-reading 
 
 **What version 1.4.0 changes.**
 
-- **Our own analysis is now on every series screen.** Plotline computes, from every episode rating of a series, where its quality declines and never recovers, how consistent it is, whether it starts slow or hooks early, whether it lands its ending, which episodes stand far above or below their own season, and a 0-100 Plotline Score shown together with the three components it is made of. Each verdict is displayed with the figures that produced it. None of this is available from TMDB or any other source — it is derived in the app.
+- **Our own analysis is now on every series screen.** Plotline computes, from every episode rating of a series, where its quality declines and never recovers, how consistent it is, whether it starts slow or hooks early, whether it lands its ending, and a 0-100 Plotline Score shown together with the three components it is made of. Each verdict is displayed with the figures that produced it. None of this is available from TMDB or any other source — it is derived in the app.
 
 - **The app has content on first launch, offline.** 122 fully analysed series ship inside the binary, grouped into lists we derived ourselves — "Shows That Never Slip", "Knows When It Peaked" — that no catalogue provides. All five tabs show real content with no account and no network.
 
