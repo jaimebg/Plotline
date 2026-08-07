@@ -20,9 +20,6 @@ step()  { printf '\n\033[1m▸ %s\033[0m\n' "$1"; }
 fail()  { printf '\033[31m  ✗ %s\033[0m\n' "$1"; failures=$((failures + 1)); }
 pass()  { printf '\033[32m  ✓ %s\033[0m\n' "$1"; }
 
-xcrun simctl boot "$DEVICE" 2>/dev/null
-xcrun simctl bootstatus "$DEVICE" -b >/dev/null 2>&1
-
 # $1 = extra env assignment, or empty. $2 = extra xcodebuild args, or empty.
 # Both unquoted on purpose: empty expands to nothing rather than to an empty
 # argument. Always uninstalls first — the UI suite asserts a clean container
@@ -53,6 +50,14 @@ SUITE_LOG=$(mktemp -t plotline-preflight-suite)
 trap 'rm -f "$SUITE_LOG"' EXIT
 run_suite() {
     suite_skipped=0
+    # Booted here, not once at the top: `xcodebuild test` leaves the
+    # simulator shut down when it exits, so without this, the second pass's
+    # uninstall below runs against a Shutdown device and reports a failure
+    # that is about the device rather than the code. `simctl boot` on an
+    # already-booted device is a harmless no-op, which is what makes it safe
+    # to call before every pass instead of once before the first.
+    xcrun simctl boot "$DEVICE" 2>/dev/null
+    xcrun simctl bootstatus "$DEVICE" -b >/dev/null 2>&1
     if ! xcrun simctl uninstall "$DEVICE" "$BUNDLE_ID"; then
         # `fail`, not a hard stop: -e is deliberately absent so one bad
         # step does not stop the rest of the preflight from reporting
