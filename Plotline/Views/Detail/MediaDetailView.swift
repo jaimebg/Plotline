@@ -33,7 +33,7 @@ struct MediaDetailView: View {
 
                 // Content
                 VStack(alignment: .leading, spacing: 24) {
-                    // Title section (now in content, above ratings)
+                    // Title section, which now carries the rating too
                     titleSection
                         .opacity(titleVisible ? 0 : 1)
 
@@ -241,9 +241,10 @@ struct MediaDetailView: View {
 
             // Metadata row. The rating lives here rather than in a section of
             // its own: TMDB is the only source this app has, and a heading over
-            // a single tile was the leftover of a two-source layout. "TMDB"
-            // stays beside the number — it is the only place on this screen
-            // that names where the figure came from.
+            // a single tile was the leftover of a two-source layout. The source
+            // is named in the accessibility label rather than on screen — a
+            // third visible item pushed this row into truncating at large text
+            // sizes. Nothing on this screen names TMDB visually any more.
             HStack(spacing: 12) {
                 if let year = viewModel.media.year {
                     Label(year, systemImage: "calendar")
@@ -264,9 +265,6 @@ struct MediaDetailView: View {
 
                         Text(viewModel.media.formattedRating)
                             .foregroundStyle(.primary.opacity(0.9))
-
-                        Text("TMDB")
-                            .foregroundStyle(.secondary)
                     }
                     .font(.subheadline)
                     .accessibilityElement(children: .combine)
