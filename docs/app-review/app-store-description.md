@@ -51,8 +51,6 @@ WHAT PLOTLINE WORKS OUT
 
 • Whether it lands the ending — ends on a high, holds its level, or fades out.
 
-• Standout episodes — the ones far above their own season, and the ones far below. Judged within each season, so a high point of a weaker year still shows up.
-
 • Episode-by-episode charts across every season.
 
 SHELVES YOU WON'T FIND ELSEWHERE
@@ -61,7 +59,7 @@ Shows That Never Slip. Knows When It Peaked. Worth the Wait. They Stick the Land
 
 WORKS BEFORE YOU DO ANYTHING
 
-122 fully analysed series ship inside the app. No account, no sign-up, no subscription. Open it on a plane and the scores, verdicts and standout episodes are all there.
+122 fully analysed series ship inside the app. No account, no sign-up, no subscription. Open it on a plane and the scores and the verdicts are there.
 
 ALSO INSIDE
 
@@ -92,7 +90,7 @@ series,tv,episode,ratings,analysis,seasons,binge,watchlist,streaming,shows,score
 ## What's New in This Version
 
 ```
-Plotline now shows its analysis on every series screen: a Plotline Score with its three components, a decline point, consistency, opening and ending verdicts, and the standout episodes of each season — each with the episode ratings behind it.
+Plotline now shows its analysis on every series screen: a Plotline Score with its three components, a decline point, consistency, and opening and ending verdicts — each with the episode ratings behind it.
 
 • 122 fully analysed series ship inside the app and work with no network
 • Where to watch, by service and region

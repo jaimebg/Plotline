@@ -15,7 +15,6 @@ struct SeriesAnalysisSection: View {
             VStack(alignment: .leading, spacing: 16) {
                 PlotlineScoreCard(score: analysis.score)
                 SeriesVerdictsView(analysis: analysis)
-                StandoutEpisodesView(analysis: analysis)
             }
 
         case .insufficientData(let reason):
