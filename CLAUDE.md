@@ -23,7 +23,7 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — 147 Swift Testing functions, 151 cases (two are parameterised),
+# Run tests — 146 Swift Testing functions, 150 cases (two are parameterised),
 # plus the 7-method cold-start UI suite, which runs starved of a TMDB key
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
