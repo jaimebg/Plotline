@@ -130,13 +130,6 @@ extension Color {
 // MARK: - Gradient Extensions
 
 extension LinearGradient {
-    /// Gradient for chart lines based on rating
-    static let ratingGradient = LinearGradient(
-        colors: [.chartLow, .chartMedium, .chartHigh],
-        startPoint: .bottom,
-        endPoint: .top
-    )
-
     /// Brand gradient (deep orange to gold). Fixed rather than adaptive: see
     /// `plotlineAccentDeep`.
     static let plotlineGradient = LinearGradient(
