@@ -137,9 +137,10 @@ extension LinearGradient {
         endPoint: .top
     )
 
-    /// Brand gradient (red to gold)
+    /// Brand gradient (deep orange to gold). Fixed rather than adaptive: see
+    /// `plotlineAccentDeep`.
     static let plotlineGradient = LinearGradient(
-        colors: [.plotlinePrimary, .plotlineSecondaryAccent, .plotlineGold],
+        colors: [.plotlineAccentDeep, .plotlineSecondaryAccent, .plotlineGold],
         startPoint: .leading,
         endPoint: .trailing
     )
