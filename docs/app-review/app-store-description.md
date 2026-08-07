@@ -66,7 +66,7 @@ ALSO INSIDE
 • Where to watch, by streaming service, with a region selector
 • Compare any two titles side by side
 • Career profiles for any actor or director
-• Trend explorers: genre evolution, best years, decade battles, franchise tracking
+• Trend explorers: decade battles and franchise tracking
 • Favorites and a watchlist, synced across your devices
 • Full support for iPhone and iPad, light and dark
 

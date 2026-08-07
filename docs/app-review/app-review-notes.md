@@ -22,7 +22,7 @@ Plotline analyses TV series ratings rather than listing them. TMDB supplies the 
    - **What the Numbers Say** — plain-language verdicts, each printed with the figures that produced it: where quality declines and never recovers, how consistent the show is between its best and worst episode, whether it hooks early or starts slow, and whether it lands its ending.
    - **Episode Ratings** — a per-episode chart across every season.
 
-3. Tap the **Stats** tab. Compare, Career Profiles and Trends all work on first launch with no saved data: side-by-side comparison of any two titles, a filmography analysis for any actor or director, and four trend explorers.
+3. Tap the **Stats** tab. Compare, Career Profiles and Trends all work on first launch with no saved data: side-by-side comparison of any two titles, a filmography analysis for any actor or director, and two trend explorers.
 
 **Works with no network and no account.** 122 fully analysed series ship inside the app. Turn off Wi-Fi and cellular, install, and open any title from the Discover shelves — the score and the verdicts are both there. There is no sign-up, no paywall and no account of any kind.
 

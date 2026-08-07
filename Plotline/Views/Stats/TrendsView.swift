@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Grid of links to the four trend explorer sub-features.
+/// Grid of links to the two trend explorer sub-features.
 ///
 /// Rendered only inside `StatsView`, which supplies the scroll view, the
 /// padding, the background and the navigation title. This view used to carry
@@ -10,22 +10,6 @@ import SwiftUI
 struct TrendsView: View {
     var body: some View {
         LazyVGrid(columns: GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth), spacing: 16) {
-            trendCard(
-                icon: "waveform.path.ecg",
-                title: "Genre Evolution",
-                subtitle: "Rating trends over 50 years",
-                color: .plotlineGold,
-                destination: GenreEvolutionView()
-            )
-
-            trendCard(
-                icon: "calendar.badge.clock",
-                title: "Best Years",
-                subtitle: "Top-rated years for film",
-                color: .plotlineSecondaryAccent,
-                destination: BestYearsView()
-            )
-
             trendCard(
                 icon: "chart.bar.xaxis.ascending",
                 title: "Decade Battle",
