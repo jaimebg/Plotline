@@ -124,15 +124,6 @@ struct MediaDetailView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 16) {
-                    if let url = viewModel.media.shareURL {
-                        ShareLink(item: url, subject: Text(viewModel.media.displayTitle),
-                                  message: Text(viewModel.media.shareText)) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.body.weight(.semibold))
-                                .foregroundStyle(.primary)
-                        }
-                    }
-
                     watchlistMenuButton
 
                     Button {
