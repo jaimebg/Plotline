@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Plotline is an iOS app for exploring movies and TV series. It sources all metadata and ratings from TMDB, and its own analysis engine derives things TMDB does not publish: where a series declines, how consistent it is, which episodes stand out, and a 0-100 Plotline Score. Every verdict is shown with the numbers behind it.
+Plotline is an iOS app for exploring movies and TV series. It sources all metadata and ratings from TMDB, and its own analysis engine derives things TMDB does not publish: where a series declines, how consistent it is, and a 0-100 Plotline Score. Every displayed verdict is shown with the numbers behind it. The engine also computes which episodes stand out within their season, but that output is not currently surfaced in the UI.
 
 That distinction matters when working here. The app is not a TMDB catalogue browser; the derived analysis is the product, and it is the standing answer to three App Store rejections under Guideline 4.2. Changes that bury it, or that state more than the engine can support, undo the point.
 
@@ -107,8 +107,9 @@ Use `@Observable` macro (iOS 17+) for ViewModels, not `@ObservableObject`.
 
 ### Color System
 Brand colors defined in `Extensions/Color+Plotline.swift`:
-- Rating colors: `.imdbYellow`, `.rottenRed`, `.rottenGreen`, `.metacriticGreen/Yellow/Red`
+- Rating colors: `.imdbYellow`, `.rottenGreen`, `.metacriticGreen/Yellow`
 - Chart colors: `.chartHigh`, `.chartMedium`, `.chartLow`
+- `.rottenRed` and `.metacriticRed` still exist but are dead aliases of the removed brand red (`plotlinePrimary`) with zero consumers, kept only so `chartLow` has a value. Do not use them in views.
 - Use `Color(hex:)` initializer for hex colors
 
 ## API Keys
@@ -155,7 +156,8 @@ The star feature uses Swift Charts to visualize episode ratings:
   - `Color.plotlineBackground` - light gray (#F5F5F5) / dark (#121212)
   - `Color.plotlineCard` - white / dark gray (#1E1E1E)
   - `Color.plotlineSecondary` - adapts for both modes
-- Brand accent colors (`.plotlinePrimary`, `.plotlineGold`, etc.) remain constant
+- `.plotlineGold` and `.plotlineTertiary` remain constant. `.plotlinePrimary`, the old brand red, appears in no view — it survives only as the value behind `chartLow`.
+- `.plotlineAccent` is the brand accent, and it is adaptive by design: asset-catalog generated, #B33A00 in light mode / #FF7A33 in dark. `.plotlineAccentDeep` is a fixed #B33A00 (never adapts), used only as a gradient start point where the adaptive `plotlineAccent` would collapse against `plotlineSecondaryAccent` in dark mode.
 
 ### All Changes Must Support Light Mode
 - **Never use `.white` for text** - use `.primary` instead
