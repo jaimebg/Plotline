@@ -283,8 +283,7 @@ enum SeriesAnalysisEngine {
     /// Episodes that sit far from their own season's mean.
     ///
     /// Judged per season rather than across the series, so a strong episode of a
-    /// weak season still registers — which is what a viewer deciding whether to
-    /// skip ahead actually wants to know.
+    /// weak season still registers instead of being averaged away.
     private static func standoutEpisodes(
         from reliable: [EpisodeMetric]
     ) -> (essential: [EpisodeReference], skippable: [EpisodeReference]) {

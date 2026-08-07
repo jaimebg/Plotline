@@ -54,8 +54,11 @@ run_suite() {
     # simulator shut down when it exits, so without this, the second pass's
     # uninstall below runs against a Shutdown device and reports a failure
     # that is about the device rather than the code. `simctl boot` on an
-    # already-booted device is a harmless no-op, which is what makes it safe
-    # to call before every pass instead of once before the first.
+    # already-booted device is not a no-op — it fails with "Unable to boot
+    # device in current state: Booted" and a non-zero exit — but that failure
+    # is harmless: it is suppressed (2>/dev/null) and its exit code is never
+    # checked, so it is still safe to call before every pass instead of once
+    # before the first.
     xcrun simctl boot "$DEVICE" 2>/dev/null
     xcrun simctl bootstatus "$DEVICE" -b >/dev/null 2>&1
     if ! xcrun simctl uninstall "$DEVICE" "$BUNDLE_ID"; then
