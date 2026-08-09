@@ -40,6 +40,12 @@ for i in 0..<count {
     guard let frame = sheet.cropping(to: rect) else {
         die("cropping frame \(i + 1) failed", 1)
     }
+    // cropping(to:) clips silently instead of failing when the rect runs past
+    // the sheet, so without this a short sheet yields a narrow last frame and
+    // an exit code of 0 — a malformed screenshot reported as a success.
+    guard frame.width == frameWidth, frame.height == sheet.height else {
+        die("frame \(i + 1) came out \(frame.width)x\(frame.height), expected \(frameWidth)x\(sheet.height)", 1)
+    }
     let url = outDir.appendingPathComponent(String(format: "%02d.png", startIndex + i))
     guard let destination = CGImageDestinationCreateWithURL(
         url as CFURL, UTType.png.identifier as CFString, 1, nil

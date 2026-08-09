@@ -1,8 +1,13 @@
 #!/bin/bash
 # The slicer's own test. Renders eight known colours, cuts them, and checks
-# every frame — including its left and right edge, one pixel in. An off-by-one
-# offset shifts a neighbour's colour into an edge, and nothing else here would
-# see it.
+# every frame at both of its true edge columns — 0 and frameWidth-1 — plus the
+# centre. A one-pixel offset moves a neighbour's colour into an edge column,
+# and nothing else here would see it.
+#
+# The edge columns are literal, not "one pixel in". On a 1320-wide frame the
+# columns are 0..1319: with a +1 offset, local column 1318 still lands inside
+# the frame's own colour and only 1319 crosses into the neighbour. Sampling
+# 1 and 1318 makes this suite blind to exactly the defect it exists for.
 set -uo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -46,8 +51,9 @@ for i in 1 2 3 4 5 6 7 8; do
     got_size=$(swift "$ROOT/Scripts/screenshots/verify.swift" size "$f")
     [ "$got_size" = "1320x2868" ] || fail "frame $i is $got_size, expected 1320x2868"
 
-    # Left edge, centre and right edge. The edges are what catch an offset.
-    for x in 1 660 1318; do
+    # Left edge, centre, right edge. The two edge columns are what catch an
+    # offset; the centre only proves the frame is not blank.
+    for x in 0 660 1319; do
         got=$(swift "$ROOT/Scripts/screenshots/verify.swift" pixel "$f" "$x" 1400)
         if [ "$got" != "$want" ]; then
             fail "frame $i at x=$x is #$got, expected #$want — the cut is offset"
