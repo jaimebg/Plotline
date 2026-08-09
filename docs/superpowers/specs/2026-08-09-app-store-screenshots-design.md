@@ -140,15 +140,20 @@ curva pasa a ser física en vez de calculada: no puede desalinearse porque nunca
 
 ```
 iphone.html   →  10560×2868   (8 × 1320)   → corte ×8
-ipad-a.html   →  11008×2064   (4 × 2752)   → corte ×4   (capturas 1-4)
-ipad-b.html   →  11008×2064   (4 × 2752)   → corte ×4   (capturas 5-8)
+ipad.html     →  22016×2064   (8 × 2752)   → corte ×8
 ```
 
-El iPad no cabe en una sola pasada: 8 × 2752 = **22016 px**, por encima del límite de textura de 16384
-que tienen muchas GPU. Se parte en dos hojas de cuatro, y **el corte cae entre la 4 y la 5, que es
-justo donde no hay escena compartida** — la composición elegida hace que la partición salga gratis.
-La curva sí cruza esa frontera, y sigue cuadrando porque cada hoja windowea el mismo `path` global con
-su desplazamiento; no se recalcula por hoja.
+**Una hoja por familia, medido y no supuesto.** El diseño llegó a especificar el iPad partido en dos
+hojas de cuatro, por miedo a que 8 × 2752 = 22016 px superara el límite de textura de 16384 que tienen
+muchas GPU. Se probó: Chrome headless con `--disable-gpu` renderiza 22016×2064 completo, y el octavo
+frame sale entero, comprobado recortándolo y mirándolo. También se comprobó 10560×2868 para iPhone.
+La suposición era falsa y el spec la llevaba escrita como hecho.
+
+La partición se queda documentada como **respaldo**, no como diseño: si en otra máquina una hoja
+volviera corta o en blanco, se parte en dos de cuatro capturas, y la frontera cae entre la 4 y la 5,
+que es justo donde no hay escena compartida — la composición elegida hace que la partición salga
+gratis. La curva sí cruza esa frontera y sigue cuadrando, porque cada hoja windowea el mismo `path`
+global con su desplazamiento en vez de recalcularlo.
 
 Render con Chrome headless: `--headless --screenshot --window-size=W,H
 --force-device-scale-factor=1 --hide-scrollbars --default-background-color=0`.
@@ -202,10 +207,13 @@ Se borran en el mismo commit que introduce el reemplazo, no antes.
   descripción— no se puede capturar de forma determinista: **ninguna de las 122 series del dataset la
   dispara**, comprobado, así que exigiría una serie fina traída en vivo y dependería de qué devuelva
   TMDB ese día. Queda anotada como mejora si alguna vez se le da una entrada estable.
-- **El límite de ancho de render de Chrome no está medido, está supuesto.** 16384 es el límite de
-  textura habitual, no una constante garantizada. La hoja de iPhone (10560) queda holgada; si la de
-  iPad fallara aun partida en dos, se parte en cuatro de dos capturas, y las fronteras siguen cayendo
-  fuera de las escenas compartidas.
+- **El ancho de render de Chrome ya no es un riesgo abierto: se midió.** 10560×2868 y 22016×2064
+  renderizan completos con `--disable-gpu`, y el `slice.swift` de CoreGraphics devuelve ocho recortes
+  del tamaño exacto en los dos casos. Lo que queda es que la medición es de **una** máquina; por eso
+  el respaldo de la partición se documenta en §6 en vez de borrarse.
+- **`--default-background-color=0` no vale**, aunque aparezca así en muchos ejemplos: Chrome exige un
+  valor hexadecimal RGB o RGBA y aborta el render con `Expected a hex RGB or RGBA value`. El lienzo ya
+  pinta su propio fondo, así que la bandera sobra y no se usa.
 
 ## 10. Lo que esto no hace
 
