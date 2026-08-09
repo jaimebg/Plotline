@@ -19,6 +19,9 @@ case "$FAMILY" in
     *) echo "usage: $0 iphone-69|ipad-13" >&2; exit 2 ;;
 esac
 
+# testCaptureAll attaches exactly one capture per numbered frame, 1 through 8.
+EXPECTED_COUNT=8
+
 OUT="screenshots/raw/$FAMILY"
 BUNDLE=$(mktemp -d -t plotline-shots)/result.xcresult
 EXPORT=$(mktemp -d -t plotline-export)
@@ -29,10 +32,16 @@ if ! xcrun simctl bootstatus "$DEVICE" -b >/dev/null 2>&1; then
     echo "could not boot $DEVICE" >&2; exit 1
 fi
 
-xcrun simctl ui "$DEVICE" appearance dark
-xcrun simctl status_bar "$DEVICE" override \
+if ! xcrun simctl ui "$DEVICE" appearance dark; then
+    echo "could not force dark appearance on $DEVICE; captures would ship light-mode" >&2
+    exit 1
+fi
+if ! xcrun simctl status_bar "$DEVICE" override \
     --time "9:41" --batteryState charged --batteryLevel 100 \
-    --wifiBars 3 --cellularBars 4 --dataNetwork wifi
+    --wifiBars 3 --cellularBars 4 --dataNetwork wifi; then
+    echo "could not override the status bar on $DEVICE; captures would ship the real clock" >&2
+    exit 1
+fi
 
 echo "==> capturing"
 # TEST_RUNNER_PLOTLINE_SCREENSHOT_CAPTURE=1 has to be a real environment
@@ -83,6 +92,10 @@ PY
 
 count=$(ls "$OUT"/*.png 2>/dev/null | wc -l | tr -d ' ')
 echo "==> $count file(s) in $OUT"
+if [ "$count" -ne "$EXPECTED_COUNT" ]; then
+    echo "expected $EXPECTED_COUNT screenshot(s) but found $count in $OUT; the run is incomplete — check the xcodebuild log for a retried or skipped frame before trusting anything in this directory" >&2
+    exit 1
+fi
 for f in "$OUT"/*.png; do
     got=$(swift Scripts/screenshots/verify.swift size "$f")
     if [ "$got" != "$EXPECT" ]; then
