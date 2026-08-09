@@ -1,8 +1,15 @@
 import SwiftUI
 
-/// Grid view for browsing all curated genres
-struct GenreBrowseView: View {
+/// The full set of curated genres as a grid of tappable cards.
+///
+/// Selection is a closure rather than a `NavigationLink` because the caller has
+/// to control *when* the push happens, not just where it goes. This grid renders
+/// inside Discover's search state, and on iPad a push issued while the search
+/// field is collapsing is silently lost. See
+/// `DiscoveryView.pushAfterSearchCloses(_:)`.
+struct GenreGrid: View {
     let genres: [CuratedGenre]
+    let onSelect: (CuratedGenre) -> Void
 
     private let columns = GridItem.adaptiveColumns(minimumWidth: AdaptiveLayout.minimumColumnWidth)
 
@@ -31,20 +38,16 @@ struct GenreBrowseView: View {
     ]
 
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 12) {
-                ForEach(Array(genres.enumerated()), id: \.element.id) { index, genre in
-                    NavigationLink(value: genre) {
-                        GenreCard(name: genre.name, color: Self.genreColors[index % Self.genreColors.count])
-                    }
-                    .buttonStyle(.plain)
+        LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(Array(genres.enumerated()), id: \.element.id) { index, genre in
+                Button {
+                    onSelect(genre)
+                } label: {
+                    GenreCard(name: genre.name, color: Self.genreColors[index % Self.genreColors.count])
                 }
+                .buttonStyle(.plain)
             }
-            .padding()
         }
-        .background(Color.plotlineBackground)
-        .navigationTitle("Browse by Genre")
-        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -78,7 +81,9 @@ struct GenreCard: View {
 // MARK: - Preview
 
 #Preview {
-    NavigationStack {
-        GenreBrowseView(genres: Array(CuratedGenre.all.prefix(4)))
+    ScrollView {
+        GenreGrid(genres: Array(CuratedGenre.all.prefix(4))) { _ in }
+            .padding()
     }
+    .background(Color.plotlineBackground)
 }

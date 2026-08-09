@@ -1,10 +1,5 @@
 import SwiftUI
 
-/// Navigation routes for discovery (non-media destinations)
-enum DiscoveryRoute: Hashable {
-    case genreBrowse
-}
-
 /// Main discovery screen with trending and popular content
 struct DiscoveryView: View {
     @Environment(\.themeManager) private var themeManager
@@ -15,6 +10,10 @@ struct DiscoveryView: View {
     @State private var tasteProfileVM = TasteProfileViewModel()
     @State private var smartListsVM = SmartListsViewModel()
     @State private var showWhatToWatch = false
+    /// True from the moment the user taps the search field until they cancel.
+    /// Drives nothing but which of `content`'s branches renders behind the
+    /// field; the query itself still decides everything below that.
+    @State private var isSearchPresented = false
     @State private var navigationPath = NavigationPath()
     @Namespace private var namespace
 
@@ -26,6 +25,7 @@ struct DiscoveryView: View {
                 .navigationBarTitleDisplayMode(.large)
                 .searchable(
                     text: $viewModel.searchText,
+                    isPresented: $isSearchPresented,
                     prompt: "Search movies and series"
                 )
                 .onChange(of: viewModel.searchText) { _, _ in
@@ -37,12 +37,6 @@ struct DiscoveryView: View {
                 }
                 .navigationDestination(for: CuratedGenre.self) { genre in
                     GenreResultsView(genre: genre)
-                }
-                .navigationDestination(for: DiscoveryRoute.self) { route in
-                    switch route {
-                    case .genreBrowse:
-                        GenreBrowseView(genres: viewModel.genres)
-                    }
                 }
                 .refreshable {
                     await viewModel.refresh()
@@ -90,10 +84,19 @@ struct DiscoveryView: View {
 
     // MARK: - Content
 
+    /// `isSearchPresented` alone would not do. The deep-link handler below
+    /// writes `searchText` and searches without ever presenting the field, so
+    /// gating on the binding would land a deep-linked query on the main feed
+    /// with results it never shows. The binding only decides what an *empty*
+    /// query looks like; a query with text behaves as it always has.
     @ViewBuilder
     private var content: some View {
-        if viewModel.isSearchActive {
-            searchResultsView
+        if isSearchPresented || viewModel.isSearchActive {
+            if viewModel.isSearchActive {
+                searchResultsView
+            } else {
+                searchIdleView
+            }
         } else {
             mainContentView
         }
@@ -105,15 +108,6 @@ struct DiscoveryView: View {
     private var mainContentView: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 28) {
-                // Needs no network, no API key and no saved data, so it must
-                // never sit behind a fetch that can fail. An empty screen
-                // behind an error is what got this app rejected.
-                NavigationLink(value: DiscoveryRoute.genreBrowse) {
-                    GenreBrowseCard()
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal)
-
                 curatedShelves
 
                 networkSections
@@ -216,6 +210,51 @@ struct DiscoveryView: View {
                 .accessibilityHint(CuratedListCopy.subtitle(for: list.id) ?? "")
                 .accessibilityIdentifier(AccessibilityAnchors.discoverShelf)
             }
+        }
+    }
+
+    // MARK: - Search, Nothing Typed Yet
+
+    /// What the search field opens onto before there is a query: every genre,
+    /// one tap from results. It needs no network, no API key and no saved data,
+    /// so it renders whatever TMDB is doing.
+    private var searchIdleView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Browse by Genre")
+                    .font(.system(.title3, weight: .bold))
+                    .foregroundStyle(.primary)
+
+                GenreGrid(genres: viewModel.genres) { genre in
+                    pushAfterSearchCloses(genre)
+                }
+            }
+            .padding()
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    /// Pushes a genre picked from the search state, once search has closed.
+    ///
+    /// The wait is not padding. On iPad the same tap collapses the tab-bar
+    /// search field, and a push issued while that collapse is in flight is
+    /// lost: the entry stays in `navigationPath` but the stack never renders
+    /// it, so testing the path for emptiness cannot detect the loss and
+    /// re-issue it. Measured, not assumed — the button fires, its other state
+    /// writes stick, and the same genre pushes fine from the feed. Pushing
+    /// once, after the collapse, is the only ordering that survives.
+    /// iPhone keeps its search field inline, has no collapse to wait for, and
+    /// pushes immediately — the idiom check is there so the primary device
+    /// never pays for the iPad workaround. 300ms was measured as too short and
+    /// 600ms as enough.
+    private func pushAfterSearchCloses(_ genre: CuratedGenre) {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            navigationPath.append(genre)
+            return
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(600))
+            navigationPath.append(genre)
         }
     }
 
@@ -360,54 +399,6 @@ struct SearchResultRow: View {
         label += ", \(item.isTVSeries ? "TV Series" : "Movie")"
         if item.voteAverage > 0 { label += ", rated \(item.formattedRating) out of 10" }
         return label
-    }
-}
-
-// MARK: - Genre Browse Card
-
-/// Prominent card linking to genre browsing
-struct GenreBrowseCard: View {
-    var body: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.plotlineAccentDeep, Color.plotlineSecondaryAccent],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 48, height: 48)
-
-                Image(systemName: "square.grid.2x2")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.white)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Browse by Genre")
-                    .font(.system(.headline, weight: .bold))
-                    .foregroundStyle(.primary)
-
-                Text("Discover movies and series by category")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(true)
-        }
-        .padding()
-        .background(Color.plotlineCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Browse by Genre. Discover movies and series by category")
-        .accessibilityAddTraits(.isButton)
     }
 }
 
