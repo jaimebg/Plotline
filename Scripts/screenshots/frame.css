@@ -1,0 +1,70 @@
+/* The visual system, shared by both sheets. Every value here is from
+   docs/superpowers/specs/2026-08-09-app-store-screenshots-design.md §3. */
+
+html, body { margin: 0; padding: 0; background: #0E0E12; }
+
+.sheet { display: flex; }
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  container-type: inline-size;
+  background: linear-gradient(175deg, #0E0E12 0%, #17110B 100%);
+  flex: 0 0 auto;
+}
+
+.curve { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+/* A scene three frames wide, slid left by whole frames. Each frame shows its
+   own window; the devices are never cut apart, so they cannot misalign. */
+.stage {
+  position: absolute; top: 0; left: 0; height: 100%;
+  width: 300cqw;
+  transform: translateX(calc(var(--window) * -100cqw));
+}
+
+.device {
+  position: absolute;
+  background: #2A2A2E;
+  overflow: hidden;
+  box-shadow: 0 3cqw 7cqw rgba(0, 0, 0, .72);
+}
+.device img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.phone { border-radius: 9% / 4.1%; padding: 1.1%; }
+.phone img { border-radius: 8% / 3.6%; object-position: top center; }
+
+.tablet { border-radius: 3.4% / 2.6%; padding: .8%; }
+.tablet img { border-radius: 3% / 2.2%; object-position: top center; }
+
+.headline {
+  position: absolute; z-index: 5;
+  color: #fff;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  letter-spacing: -.025em;
+  line-height: 1.04;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, .55);
+}
+.headline em { font-style: normal; color: #E8A33D; }
+
+.chip {
+  position: absolute; z-index: 5;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: rgba(255, 255, 255, .85);
+  background: rgba(12, 12, 14, .6);
+  border: 1px solid rgba(232, 163, 61, .42);
+  border-radius: 99px;
+  white-space: nowrap;
+}
+.chip b { color: #E8A33D; font-weight: 600; }
+
+/* Rendered off-canvas and measured by render.sh. If the headline face fell
+   back to a substitute, this element's width changes and the render is
+   rejected — a sheet in the wrong font looks perfectly plausible otherwise. */
+#font-probe {
+  position: absolute; left: -9999px; top: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 800; font-size: 200px; letter-spacing: -.025em;
+  white-space: nowrap;
+}

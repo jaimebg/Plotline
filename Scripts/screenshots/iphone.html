@@ -1,0 +1,83 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="frame.css">
+<style>
+  .frame { width: 1320px; height: 2868px; }
+  .sheet { width: 10560px; height: 2868px; }
+  .headline { left: 7%; right: 7%; top: 5.5%; font-size: 7.4cqw; }
+  .headline.centred { text-align: center; }
+  .chip { left: 7%; top: 21%; font-size: 3.1cqw; padding: 1.1cqw 2.6cqw; }
+  .chip.centred { left: 50%; transform: translateX(-50%); }
+</style></head><body>
+<div class="sheet" id="sheet"></div>
+<div id="font-probe">Plotline</div>
+<script src="curve.js"></script>
+<script>
+// Chip text is transcribed from the capture beneath it. See the spec's copy
+// rule: the app recomputes live, so the dataset is not a source for these.
+var FRAMES = [
+  { head: 'A 0–100 score,<br>and the <em>arithmetic</em><br>behind it',
+    chip: 'LEVEL <b>86</b> · CONSISTENCY <b>54</b> · TRAJECTORY <b>65</b>' },
+  { head: 'It tells you where<br>a series <em>falls off</em>',
+    chip: 'BEFORE <b>8.4</b> → AFTER <b>8.0</b>' },
+  { head: 'Pick a season.<br>Every episode,<br><em>plotted</em>',
+    chip: 'SEASON 1 · AVG <b>8.4</b>' },
+  { head: 'Every rated episode,<br><em>at a glance</em>', chip: null, centred: true },
+  { head: 'Shelves you won\'t<br>find <em>anywhere else</em>',
+    chip: '122 SERIES · SHIPPED INSIDE THE APP', centred: true },
+  { head: 'Where to watch it,<br><em>in your region</em>', chip: null },
+  { head: 'Any two titles,<br><em>side by side</em>', chip: null },
+  { head: 'Genres and decades,<br><em>charted</em>', chip: null }
+];
+
+// Two shared scenes. Offsets are cqw — percentages of ONE frame's width —
+// across a stage three frames wide. Scene A spans frames 1·2·3, scene B
+// spans 6·7·8; frames 4 and 5 carry a single upright device.
+var SCENE_A = [
+  { left: 2,   top: 34, width: 62, rotate: -9 },
+  { left: 74,  top: 27, width: 74, rotate: 4 },
+  { left: 158, top: 36, width: 66, rotate: -13 },
+  { left: 232, top: 30, width: 70, rotate: 7 }
+];
+var SCENE_B = [
+  { left: -8,  top: 31, width: 70, rotate: 11 },
+  { left: 66,  top: 38, width: 60, rotate: -6 },
+  { left: 132, top: 28, width: 76, rotate: 3 },
+  { left: 222, top: 35, width: 64, rotate: -10 }
+];
+// Which raw capture each device in a scene shows, in scene order.
+var SCENE_A_SHOTS = ['01', '02', '03', '01'];
+var SCENE_B_SHOTS = ['06', '07', '08', '06'];
+
+function device(shot, d) {
+  return '<div class="device phone" style="left:' + d.left + 'cqw;top:' + d.top +
+    '%;width:' + d.width + 'cqw;aspect-ratio:1320/2400;transform:rotate(' + d.rotate + 'deg)">' +
+    '<img src="../../screenshots/raw/iphone-69/' + shot + '.png" alt=""></div>';
+}
+
+function stage(scene, shots, windowIndex) {
+  var html = '<div class="stage" style="--window:' + windowIndex + '">';
+  for (var i = 0; i < scene.length; i++) html += device(shots[i], scene[i]);
+  return html + '</div>';
+}
+
+var out = '';
+for (var i = 0; i < 8; i++) {
+  var f = FRAMES[i];
+  out += '<div class="frame">' + PlotlineCurve.svg(i, 8);
+  if (i < 3) {
+    out += stage(SCENE_A, SCENE_A_SHOTS, i);
+  } else if (i >= 5) {
+    out += stage(SCENE_B, SCENE_B_SHOTS, i - 5);
+  } else {
+    out += '<div class="device phone" style="left:50%;top:30%;width:70cqw;' +
+           'aspect-ratio:1320/2400;transform:translateX(-50%)">' +
+           '<img src="../../screenshots/raw/iphone-69/0' + (i + 1) + '.png" alt=""></div>';
+  }
+  out += '<div class="headline' + (f.centred ? ' centred' : '') + '">' + f.head + '</div>';
+  if (f.chip) out += '<div class="chip' + (f.centred ? ' centred' : '') + '">' + f.chip + '</div>';
+  out += '</div>';
+}
+document.getElementById('sheet').innerHTML = out;
+document.title = 'ready:' + document.getElementById('font-probe').getBoundingClientRect().width.toFixed(1);
+</script></body></html>
