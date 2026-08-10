@@ -32,6 +32,53 @@ if ! xcrun simctl bootstatus "$DEVICE" -b >/dev/null 2>&1; then
     echo "could not boot $DEVICE" >&2; exit 1
 fi
 
+# The simulator's own system locale, not the app's. -AppleLanguages/-AppleLocale
+# (set as launch arguments by ScreenshotCaptureTests) only reach the app
+# process — the status bar is drawn by the OS around it and follows the
+# device's locale instead, so an English UI can still ship under a Spanish
+# clock: "Lunes 10 de agosto" instead of "Mon Aug 10". That is the exact
+# defect the design spec calls out from the hand-made submission this
+# pipeline replaced, and it showed up on iPad (whose status bar has room for
+# a date) even after the app-side fix.
+EXPECT_LOCALE="en_US"
+EXPECT_LANGUAGES="(en)"
+if ! xcrun simctl spawn "$DEVICE" defaults write -g AppleLocale -string "$EXPECT_LOCALE"; then
+    echo "could not set AppleLocale on $DEVICE; captures would ship the sim's system locale" >&2
+    exit 1
+fi
+if ! xcrun simctl spawn "$DEVICE" defaults write -g AppleLanguages -array "en"; then
+    echo "could not set AppleLanguages on $DEVICE; captures would ship the sim's system language" >&2
+    exit 1
+fi
+
+# Read both back rather than trusting the writes landed: a silent no-op has
+# cost a full run on this script twice before (TEST_RUNNER_ forwarding, the
+# attachment-name parser), both invisible until something checked.
+got_locale=$(xcrun simctl spawn "$DEVICE" defaults read -g AppleLocale 2>/dev/null)
+if [ "$got_locale" != "$EXPECT_LOCALE" ]; then
+    echo "AppleLocale reads back as '$got_locale' after writing $EXPECT_LOCALE on $DEVICE; the write did not take" >&2
+    exit 1
+fi
+got_languages=$(xcrun simctl spawn "$DEVICE" defaults read -g AppleLanguages 2>/dev/null | tr -d '[:space:]')
+if [ "$got_languages" != "$EXPECT_LANGUAGES" ]; then
+    echo "AppleLanguages reads back as '$got_languages' after writing en on $DEVICE; the write did not take" >&2
+    exit 1
+fi
+
+# The write alone does not move the status bar: SpringBoard reads locale
+# once at launch and holds it in memory, so it keeps drawing the old one
+# until it restarts. `launchctl stop` kills it; launchd runs it as a
+# LaunchDaemon and restarts it automatically, this time reading the locale
+# just written. The xcodebuild run below takes minutes, which is far more
+# settle time than the respring itself needs, but a fixed sleep is still
+# here so a screenshot taken this instant would not race it.
+echo "==> respringing $DEVICE for the new locale to take effect"
+if ! xcrun simctl spawn "$DEVICE" launchctl stop com.apple.SpringBoard; then
+    echo "could not respring $DEVICE; the status bar would keep the old locale" >&2
+    exit 1
+fi
+sleep 5
+
 if ! xcrun simctl ui "$DEVICE" appearance dark; then
     echo "could not force dark appearance on $DEVICE; captures would ship light-mode" >&2
     exit 1
