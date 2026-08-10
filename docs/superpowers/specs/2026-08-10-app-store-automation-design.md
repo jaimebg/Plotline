@@ -136,10 +136,18 @@ Pasos 1–8: sin cambios. Tres nuevos, y la lista manual reescrita:
   repo público.
 - **10 — Presupuestos ASO y desperdicio de keywords.** Pasarse del límite **falla**; el
   desperdicio **avisa**.
-- **11 — El texto de la ficha concuerda con el dataset.** El «122 series» y los cinco nombres
-  de estantería, contra `PlotlineDataset.json`. Es la misma comprobación que `render.sh` ya hace
-  para su pastilla de marketing, extendida al texto de la tienda: una regeneración del dataset
-  que cambie la cuenta no puede dejar en silencio un número falso en la ficha.
+- **11 — El texto de la ficha concuerda con la app.** Dos fuentes distintas, porque los datos
+  están en dos sitios: el «122 series» sale de contar `entries` en `PlotlineDataset.json` — la
+  misma comprobación que `render.sh` ya hace para su pastilla de marketing —, y los cinco
+  nombres de estantería salen de `Plotline/Models/CuratedListCopy.swift`, **no del dataset**:
+  el dataset guarda ids y miembros, nunca palabras. Una regeneración del dataset que cambie la
+  cuenta, o un cambio de copy en `CuratedListCopy`, no puede dejar en silencio un texto falso
+  en la ficha.
+
+  La extracción de los cinco títulos depende del formato de ese archivo Swift, así que la
+  comprobación **exige encontrar exactamente cinco**. Si alguien reformatea `CuratedListCopy`
+  y el patrón deja de casar, el paso falla en vez de comprobar cero títulos en silencio — el
+  mismo fail-open que cerró el commit `f90d8fe`.
 - **12 — Lo que sigue siendo manual.** Era el 9. Casi toda su lista pasa a estar automatizada.
 
 ### Los pasos 10 y 11 fallan, no se saltan
