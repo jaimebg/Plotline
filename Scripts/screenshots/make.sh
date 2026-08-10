@@ -19,6 +19,10 @@
 set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 
+if [ "$#" -gt 1 ]; then
+    echo "usage: $0 [iphone-69|ipad-13]  — pass at most one family (got $#: $*)" >&2
+    exit 2
+fi
 families=${1:-}
 if [ -z "$families" ]; then families="iphone-69 ipad-13"; fi
 

@@ -104,5 +104,7 @@ echo "==> $n frames at ${W}x${H} in $OUT"
 printf '\n\033[33mCheck by hand:\033[0m the chip text hardcoded in iphone.html/ipad.html\n'
 printf '(LEVEL 86 · CONSISTENCY 54 · TRAJECTORY 65, BEFORE 8.4 -> AFTER 8.0,\n'
 printf 'SEASON 1 · AVG 8.4) was transcribed from a past capture, not this one. This\n'
-printf 'run just pulled fresh numbers from TMDB — if any moved, those chips now\n'
+printf "run composed from whatever is already sitting in screenshots/raw/$FAMILY —\n"
+printf 'it pulled nothing from TMDB itself. If those raw captures are stale, or the\n'
+printf 'chips were transcribed from a different capture entirely, those chips now\n'
 printf 'contradict the screenshots beneath them, and no check above would catch it.\n'

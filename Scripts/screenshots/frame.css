@@ -1,5 +1,8 @@
-/* The visual system, shared by both sheets. Every value here is from
-   docs/superpowers/specs/2026-08-09-app-store-screenshots-design.md §3. */
+/* The visual system, shared by both sheets. Most values are from
+   docs/superpowers/specs/2026-08-09-app-store-screenshots-design.md §3 (canvas,
+   curve, bezel colour and radius, headline and chip type). §3 does not specify
+   the device padding or the box-shadow below — those were tuned by eye and are
+   explained where they're set. */
 
 html, body { margin: 0; padding: 0; background: #0E0E12; }
 

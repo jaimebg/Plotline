@@ -14,20 +14,16 @@ Los textos que se pegan están en inglés y marcados entre `## Paste from here` 
 
 ## Capturas
 
-En `screenshots/1.4.0/`, con las medidas exactas que acepta App Store Connect:
+En `screenshots/1.4.0/`, con las medidas exactas que acepta App Store Connect — ocho archivos por familia, `01.png` a `08.png`:
 
-| Archivo | Medida | Dispositivo |
-|---|---|---|
-| `iphone-69-analysis.png` | 1320 × 2868 | iPhone 6.9" |
-| `ipad-13-analysis.png` | 2064 × 2752 | iPad 13" |
+| Carpeta | Archivos | Medida | Dispositivo |
+|---|---|---|---|
+| `screenshots/1.4.0/iphone-69/` | `01.png`–`08.png` | 1320 × 2868 | iPhone 6.9" |
+| `screenshots/1.4.0/ipad-13/` | `01.png`–`08.png` | 2752 × 2064 (apaisado) | iPad 13" |
 
-Las dos muestran lo que pide §12 del spec: **el análisis, no pósters**. Se ve el Plotline Score con sus tres componentes, los cuatro veredictos con las cifras que los sustentan y el inicio del gráfico por episodio.
+Cada archivo es un fotograma de marketing — titular, pastilla de evidencia y una captura real de la app compuestos en una sola imagen —, no una captura suelta de una pantalla. Las dieciséis muestran lo que pide §12 del spec: **el análisis, no pósters**. Entre las ocho de cada familia: el Plotline Score con sus tres componentes, el veredicto de caída con las cifras que lo sustentan, el gráfico por temporada, la rejilla de episodios, los estantes curados de Discover, Where to Watch, Compare y Decade Battle.
 
-**Ojo:** estos dos PNG de 1.4.0 se capturaron antes de quitar la sección de episodios destacados de la pantalla de detalle. Ya no reflejan la app tal como está y hay que rehacerlos antes del próximo envío — el paso 4 de este mismo README es el que las sube.
-
-**Cómo se hicieron, para que conste:** la app se arrancó temporalmente en la ficha de Breaking Bad y se desplazó el `ScrollView` con un anclaje, de forma que la captura muestra la pantalla real a media altura en lugar de tener que hacer scroll a mano. Ambos cambios se revirtieron; no están en el repositorio. Las pantallas son las de verdad, con datos reales de TMDB.
-
-**Faltan capturas** para completar el envío. Estas dos son las que defienden el argumento; conviene añadir al menos Discover con los estantes curados y la pestaña Stats, y App Store Connect admite hasta diez. Como no puedo simular toques en el simulador desde aquí, esas requieren una pasada manual.
+**Cómo se hicieron:** `Scripts/screenshots/make.sh` (o `capture.sh` seguido de `render.sh` por separado — ver `CLAUDE.md`, sección «App Store Screenshots»). `capture.sh` recorre la app de verdad en el simulador, con datos reales de TMDB, y guarda ocho capturas crudas por familia; `render.sh` las compone con el titular y la evidencia en una sola pasada de Chrome y las corta en los ocho archivos de la tabla de arriba. No hay paso manual ni anclaje de `ScrollView`: ese método, usado para el 1.4.0 original, quedó retirado en este branch junto con las dos capturas que produjo. `Scripts/release-preflight.sh` (paso 8/9) comprueba que las dieciséis existen con su tamaño exacto antes de cualquier release, pero no que el titular de cada una siga siendo cierto sobre lo que la captura muestra — eso se sigue mirando a mano.
 
 ## Paso 0
 

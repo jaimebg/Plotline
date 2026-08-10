@@ -101,9 +101,16 @@ Regenerate with the tool in `Tools/DatasetGenerator/`. It has its own test suite
 ### App Store Screenshots
 
 `Scripts/screenshots/` produces the store listing images. Two halves:
-`capture.sh` drives the app through `ScreenshotCaptureTests`, navigating by the
-identifiers in `AccessibilityAnchors` and never by coordinates, and writes eight
-raw PNGs per device family. `render.sh` lays all eight marketing frames out in a
+`capture.sh` drives the app through `ScreenshotCaptureTests`, finding elements
+rather than tapping screen positions — but most of those elements are matched by
+their visible English label ("Where to Watch", "Plotline Score", "Episode
+Ratings", "Episode Scores", "What the Numbers Say", "Compare Movies & Series",
+"Decade Battle", "Ratings", "Empty comparison slot"), not by an identifier, so
+renaming any of those strings breaks a capture. Only three lookups go through
+`AccessibilityAnchors` (the Discover shelf, and the Compare and Trends section
+anchors in Stats); one more is a bare element index. `scrollTo`/`step` scroll by
+normalized window coordinates to frame each target. It writes eight raw PNGs per
+device family. `render.sh` lays all eight marketing frames out in a
 single HTML row, renders it in one Chrome pass, and cuts it up.
 
 **The single pass is the design, not an optimisation.** Device scenes and the
@@ -226,7 +233,8 @@ The app targets iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`). App Revi
 
 `Scripts/release-preflight.sh` gathers the two cold-start suite passes, the
 generator suite, dataset freshness, the coherence between `MARKETING_VERSION`
-and `docs/app-review/`, the absence of OMDb, and the shared schemes.
+and `docs/app-review/`, the absence of OMDb, the shared schemes, and that the
+current version's screenshot set has all sixteen files at their required sizes.
 
 The generator suite is in there because `xcodebuild test` **never** runs it,
 and its `ShippedDatasetTests` is the only suite that opens
