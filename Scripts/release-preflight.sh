@@ -1,9 +1,17 @@
 #!/bin/bash
 # Everything that has to be true before a Plotline release, in one place.
 #
-# NOT A BARRIER. This is also wired to the scheme's Archive pre-action, and a
+# A BARRIER, when a lane runs it. The release lanes in fastlane/Fastfile call
+# this through sh(), and a non-zero exit aborts the lane. It is still ALSO
+# wired to the scheme's Archive pre-action, and there it only warns — a
 # pre-action that exits non-zero does not reliably abort an archive in recent
-# Xcode. It tells you at the right moment; it does not stop you.
+# Xcode. Same script, two callers, two strengths: the lane stops, the
+# pre-action tells you.
+#
+# Usage: release-preflight.sh [--for=beta|--for=release]
+#   --for=release  (default) every check, including the screenshot set
+#   --for=beta     skips step 8: a TestFlight build of an in-progress version
+#                  legitimately has no marketing screenshots yet
 set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 1
@@ -14,6 +22,19 @@ DATASET="Plotline/Resources/PlotlineDataset.json"
 SCHEMES_DIR="Plotline.xcodeproj/xcshareddata/xcschemes"
 SCHEME_FILE="$SCHEMES_DIR/Plotline.xcscheme"
 MAX_DATASET_AGE_DAYS=90   # A judgement, not a calculation. Change it here.
+
+MODE=release
+for arg in "$@"; do
+    case "$arg" in
+        --for=beta)    MODE=beta ;;
+        --for=release) MODE=release ;;
+        *)
+            printf 'unknown argument: %s\nusage: %s [--for=beta|--for=release]\n' \
+                "$arg" "$(basename "$0")" >&2
+            exit 2
+            ;;
+    esac
+done
 
 failures=0
 step()  { printf '\n\033[1m▸ %s\033[0m\n' "$1"; }
@@ -76,7 +97,7 @@ run_suite() {
     return "$result"
 }
 
-step "1/9  App suite, starved of TMDB"
+step "1/12  App suite, starved of TMDB"
 run_suite "" ""
 status=$?
 if [ "$suite_skipped" -eq 1 ]; then
@@ -87,7 +108,7 @@ else
     fail "starved pass red"
 fi
 
-step "2/9  Cold-start suite, live against TMDB"
+step "2/12  Cold-start suite, live against TMDB"
 # The only place this runs, and only the UI suite: the unit tests neither touch
 # the network nor change between the two passes. A red here can mean a real
 # defect or a TMDB rate limit; read the failure before treating it as either.
@@ -121,14 +142,14 @@ fi
 # ColdStartTests checks a weaker form of that same invariant — every list
 # resolves to at least one entry — but neither suite asserts the rest, or the
 # secret scan, and `xcodebuild test` never runs this package at all.
-step "3/9  Generator suite (the only tests that open the committed dataset)"
+step "3/12  Generator suite (the only tests that open the committed dataset)"
 if (cd Tools/DatasetGenerator && swift test 2>&1 | tail -10); then
     pass "shipped dataset invariants hold"
 else
     fail "shipped dataset invariants broken"
 fi
 
-step "4/9  Dataset freshness"
+step "4/12  Dataset freshness"
 if [ ! -f "$DATASET" ]; then
     fail "$DATASET does not exist"
 else
@@ -158,7 +179,7 @@ else
     fi
 fi
 
-step "5/9  Version coherence with the App Review artefacts"
+step "5/12  Version coherence with the App Review artefacts"
 # Asked of the build system rather than grepped out of project.pbxproj:
 # MARKETING_VERSION appears once per configuration of every target, six times
 # in this project, and the first one a grep finds is the app's only because
@@ -178,14 +199,14 @@ else
     fail "project says $version but no file in docs/app-review/ mentions it"
 fi
 
-step "6/9  No trace of OMDb"
+step "6/12  No trace of OMDb"
 if grep -rq "omdbapi" --include="*.swift" --include="*.plist" Plotline/ Tools/; then
     fail "a reference to omdbapi.com is back"
 else
     pass "no omdbapi reference in any .swift or .plist under Plotline/ or Tools/"
 fi
 
-step "7/9  Shared schemes: no leaked secret, and the UI suite still serialised"
+step "7/12  Shared schemes: no leaked secret, and the UI suite still serialised"
 # xcshareddata/ used to be gitignored wholesale to keep a scheme-embedded API
 # key out of git, which also meant the UI suite's <TestAction> entry and the
 # Archive pre-action that runs this script could never be versioned. The
@@ -251,39 +272,85 @@ else
     fi
 fi
 
-step "8/9  The screenshot set for this version"
+step "8/12  The screenshot set for this version"
 # Asked of the build system for the same reason step 5 does: a grepped
 # MARKETING_VERSION would be the first of six matches in project.pbxproj, not
 # necessarily this target's. An empty result is guarded explicitly — an
 # unguarded empty $shot_version would still resolve to a real (wrong)
 # directory name here, "screenshots//family", rather than to the empty
 # pattern step 5 warns about, but it is just as much a silent wrong answer.
-shot_version=$(xcodebuild -project Plotline.xcodeproj -target Plotline -configuration Release \
-    -showBuildSettings 2>/dev/null | awk '/ MARKETING_VERSION = /{print $3; exit}')
-if [ -z "$shot_version" ]; then
-    fail "MARKETING_VERSION could not be read from the Plotline target's Release configuration — cannot locate the screenshot set"
+if [ "$MODE" = beta ]; then
+    pass "skipped — beta build, marketing screenshots are not required until release"
 else
-    shot_ok=1
-    for family in "iphone-69:1320x2868" "ipad-13:2752x2064"; do
-        dir="screenshots/$shot_version/${family%%:*}"
-        want=${family##*:}
-        n=$(ls "$dir"/*.png 2>/dev/null | wc -l | tr -d ' ')
-        if [ "$n" -ne 8 ]; then
-            fail "$dir has $n screenshot(s), expected 8 — run Scripts/screenshots/make.sh"
-            shot_ok=0
-            continue
-        fi
-        for f in "$dir"/*.png; do
-            got=$(swift Scripts/screenshots/verify.swift size "$f")
-            if [ "$got" != "$want" ]; then
-                fail "$f is $got, expected $want"
+    shot_version=$(xcodebuild -project Plotline.xcodeproj -target Plotline -configuration Release \
+        -showBuildSettings 2>/dev/null | awk '/ MARKETING_VERSION = /{print $3; exit}')
+    if [ -z "$shot_version" ]; then
+        fail "MARKETING_VERSION could not be read from the Plotline target's Release configuration — cannot locate the screenshot set"
+    else
+        shot_ok=1
+        for family in "iphone-69:1320x2868" "ipad-13:2752x2064"; do
+            dir="screenshots/$shot_version/${family%%:*}"
+            want=${family##*:}
+            n=$(ls "$dir"/*.png 2>/dev/null | wc -l | tr -d ' ')
+            if [ "$n" -ne 8 ]; then
+                fail "$dir has $n screenshot(s), expected 8 — run Scripts/screenshots/make.sh"
                 shot_ok=0
+                continue
             fi
+            for f in "$dir"/*.png; do
+                got=$(swift Scripts/screenshots/verify.swift size "$f")
+                if [ "$got" != "$want" ]; then
+                    fail "$f is $got, expected $want"
+                    shot_ok=0
+                fi
+            done
         done
-    done
-    if [ "$shot_ok" -eq 1 ]; then
-        pass "16 screenshots for $shot_version at their required sizes"
+        if [ "$shot_ok" -eq 1 ]; then
+            pass "16 screenshots for $shot_version at their required sizes"
+        fi
     fi
+fi
+
+step "9/12  No App Store Connect credential in version control"
+# The repo is public and now has an upload credential living beside it. This
+# is the same idea as step 7's scheme scan, aimed at the new secret.
+#
+# The issuer id cannot be hardcoded here — writing it into a tracked file is
+# the very thing this step exists to prevent. It is read at runtime from the
+# untracked .env and then searched for among tracked files.
+cred_ok=1
+tracked=$(git ls-files fastlane 2>/dev/null)
+if [ -n "$tracked" ]; then
+    fail "git is tracking files under fastlane/ — that directory must stay local:"
+    printf '      %s\n' $tracked
+    cred_ok=0
+fi
+if [ -n "$(git ls-files '*.p8' 2>/dev/null)" ]; then
+    fail "git is tracking a .p8 private key"
+    cred_ok=0
+fi
+if git grep -q -- "BEGIN PRIVATE KEY" -- . 2>/dev/null; then
+    fail "a PEM private key block appears in a tracked file"
+    cred_ok=0
+fi
+if [ -f fastlane/.env ]; then
+    issuer=$(grep -m1 '^ASC_ISSUER_ID=' fastlane/.env | cut -d= -f2- | tr -d "\"' ")
+    if [ -z "$issuer" ]; then
+        fail "fastlane/.env has no ASC_ISSUER_ID — cannot check whether it leaked"
+        cred_ok=0
+    elif git grep -q -- "$issuer" -- . 2>/dev/null; then
+        fail "the App Store Connect issuer id appears in a tracked file"
+        cred_ok=0
+    fi
+else
+    # Not a pass. Without the .env this check cannot run at all, and a check
+    # that silently reports success when it did not run is the fail-open
+    # pattern commit f90d8fe was written to close.
+    fail "fastlane/.env is missing — cannot verify the issuer id has not leaked; run: bundle exec fastlane bootstrap"
+    cred_ok=0
+fi
+if [ "$cred_ok" -eq 1 ]; then
+    pass "no key, issuer id or fastlane file under version control"
 fi
 
 step "9/9  What still has to be done by hand"
