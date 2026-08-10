@@ -49,6 +49,24 @@ echo "==> rendering $SHEET at ${SHEET_W}x${H}"
 if [ ! -f "$WORK/sheet.png" ]; then
     echo "Chrome produced no sheet" >&2; exit 1
 fi
+
+# A missing headline face falls back to something plausible and the sheet
+# still looks fine, so the size checks below would all pass on a wrong render.
+# The sheet measures a known string and puts the width in its title; if that
+# moved, the font is not the one the design specifies.
+EXPECTED_PROBE=662.9
+probe=$("$CHROME" --headless --disable-gpu --dump-dom \
+    "file://$ROOT/Scripts/screenshots/$SHEET" 2>/dev/null |
+    grep -o 'ready:[0-9.]*' | head -1 | cut -d: -f2)
+if [ -z "$probe" ]; then
+    echo "the sheet did not report a font probe width" >&2; exit 1
+fi
+delta=$(awk -v a="$probe" -v b="$EXPECTED_PROBE" 'BEGIN{d=a-b; print (d<0?-d:d)}')
+if awk -v d="$delta" 'BEGIN{exit !(d > 2)}'; then
+    echo "headline font probe is ${probe}px, expected ~${EXPECTED_PROBE}px — the face fell back" >&2
+    exit 1
+fi
+
 got=$(swift Scripts/screenshots/verify.swift size "$WORK/sheet.png")
 if [ "$got" != "${SHEET_W}x${H}" ]; then
     echo "sheet is $got, expected ${SHEET_W}x${H}" >&2; exit 1
