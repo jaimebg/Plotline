@@ -42,10 +42,19 @@ html, body { margin: 0; padding: 0; background: #0E0E12; }
 }
 .device img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
-.phone { border-radius: 9% / 4.1%; padding: 1.1%; }
+/* Padding is cqw, not %, and that is load-bearing. A percentage resolves
+   against the element's own containing block, which is .stage (300cqw — three
+   frames wide) for a scene device but .frame (100cqw) for the single device in
+   frames 4/5, so the same "1.1%" rendered a bezel three times thicker in a
+   scene than alone (measured: 43.55px vs 14.52px on iPhone, 66.05px vs 22.02px
+   on iPad). cqw always resolves against the nearest container-type ancestor —
+   .frame, regardless of how deep the element sits inside .stage — so the same
+   value now reads as the same bezel everywhere. The thinner figure is the one
+   kept: it reads closer to a real device bezel at this frame size. */
+.phone { border-radius: 9% / 4.1%; padding: 1.1cqw; }
 .phone img { border-radius: 8% / 3.6%; object-position: top center; }
 
-.tablet { border-radius: 3.4% / 2.6%; padding: .8%; }
+.tablet { border-radius: 3.4% / 2.6%; padding: .8cqw; }
 .tablet img { border-radius: 3% / 2.2%; object-position: top center; }
 
 .headline {
