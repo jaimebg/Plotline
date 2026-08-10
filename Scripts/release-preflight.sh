@@ -357,6 +357,64 @@ if [ "$cred_ok" -eq 1 ]; then
     pass "no key, issuer id or fastlane file under version control"
 fi
 
+step "10/12  ASO budgets and keyword waste"
+if [ ! -d fastlane/metadata/en-US ]; then
+    fail "fastlane/metadata/en-US is missing — run: bundle exec fastlane bootstrap"
+elif swift Scripts/aso-lint.swift fastlane/metadata; then
+    :   # the linter prints its own pass line, and any warnings under it
+else
+    fail "a store string is over its App Store character budget"
+fi
+
+step "11/12  Store copy agrees with the app"
+# Two sources, because the facts live in two places. The series count comes
+# from counting entries in the dataset; the shelf names come from
+# CuratedListCopy.swift and NOT from the dataset, which carries ids and
+# members but never words.
+#
+# render.sh used to make the count check too, for a "122 SERIES" marketing
+# chip on frame 5. That chip and its check have been removed. So this is now
+# the only mechanical verification of that number anywhere in the project,
+# while the claim itself still sits in the public App Store description.
+DESCRIPTION="fastlane/metadata/en-US/description.txt"
+LIST_COPY="Plotline/Models/CuratedListCopy.swift"
+if [ ! -f "$DESCRIPTION" ]; then
+    fail "$DESCRIPTION is missing — run: bundle exec fastlane bootstrap"
+else
+    copy_ok=1
+
+    entries=$(python3 -c "import json;print(len(json.load(open('$DATASET'))['entries']))" 2>/dev/null)
+    if [ -z "$entries" ]; then
+        fail "could not count entries in $DATASET"
+        copy_ok=0
+    elif ! grep -qF "$entries fully analysed series" "$DESCRIPTION"; then
+        fail "$DATASET has $entries entries but the description does not say \"$entries fully analysed series\""
+        copy_ok=0
+    fi
+
+    # Title lines in CuratedListCopy end with a quote then a comma; subtitle
+    # lines do not. That makes the extraction sensitive to the file's format,
+    # so the count is asserted: a reformat must fail here rather than quietly
+    # check zero titles and pass.
+    titles=$(grep -oE '^ +"[^"]+",$' "$LIST_COPY" | sed 's/^ *"//; s/",$//')
+    title_count=$(printf '%s\n' "$titles" | grep -c .)
+    if [ "$title_count" -ne 5 ]; then
+        fail "expected 5 shelf titles in $LIST_COPY, extracted $title_count — the file's format changed and this check can no longer read it"
+        copy_ok=0
+    else
+        while IFS= read -r title; do
+            if ! grep -qF "$title" "$DESCRIPTION"; then
+                fail "the description never mentions the shelf \"$title\""
+                copy_ok=0
+            fi
+        done <<< "$titles"
+    fi
+
+    if [ "$copy_ok" -eq 1 ]; then
+        pass "description agrees with $DATASET's $entries entries and all 5 shelf names"
+    fi
+fi
+
 step "9/9  What still has to be done by hand"
 cat <<'MANUAL'
   App Store Connect is not automated, on purpose — see docs/app-review/README.md.
