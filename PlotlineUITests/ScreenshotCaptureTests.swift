@@ -100,15 +100,25 @@ final class ScreenshotCaptureTests: XCTestCase {
         openSeriesDetail(named: "The Walking Dead")
         capture(2, of: "decline verdict") {
             scrollTo(app.staticTexts["What the Numbers Say"])
+            let decline = app.staticTexts.containing(
+                NSPredicate(format: "label BEGINSWITH %@", "Falls off after season")
+            ).firstMatch
+            // `.exists` alone is true anywhere in the accessibility tree,
+            // including off-screen, so it would not catch this verdict
+            // rendering somewhere `scrollTo` failed to bring into frame —
+            // the same class of gap frame 8's `waitForExistence` + implicit
+            // on-screen check below (a navigation bar, always visible when
+            // present) closes for the Decade Battle push. `isHittable`
+            // additionally requires the element sit within the visible
+            // window, which is what the capture actually shows.
             XCTAssertTrue(
-                app.staticTexts.containing(
-                    NSPredicate(format: "label BEGINSWITH %@", "Falls off after season")
-                ).firstMatch.exists,
+                decline.waitForExistence(timeout: 5) && decline.isHittable,
                 """
-                The Walking Dead rendered no decline verdict, so frame 2's \
-                headline would claim a fall the screenshot does not show. \
-                Do not ship this capture; pick another series with a \
-                declinePoint in PlotlineDataset.json.
+                The Walking Dead rendered no decline verdict, or it isn't \
+                visible on screen, so frame 2's headline would claim a fall \
+                the screenshot does not show. Do not ship this capture; \
+                pick another series with a declinePoint in \
+                PlotlineDataset.json.
                 """
             )
         }
@@ -139,12 +149,16 @@ final class ScreenshotCaptureTests: XCTestCase {
             addCompareSlot(named: "Breaking Bad")
             addCompareSlot(named: "The Walking Dead")
 
+            let comparison = app.descendants(matching: .any)["Ratings"]
+            // Same gap as frame 2's check: `waitForExistence` alone proves
+            // the element is somewhere in the tree, not that it's on the
+            // screen this capture takes. `isHittable` proves the latter.
             XCTAssertTrue(
-                app.descendants(matching: .any)["Ratings"].waitForExistence(timeout: 10),
+                comparison.waitForExistence(timeout: 10) && comparison.isHittable,
                 """
-                Compare filled two slots but never rendered a comparison, so \
-                frame 7 would still show the empty state under a headline \
-                that claims two titles side by side.
+                Compare filled two slots but never rendered a visible \
+                comparison, so frame 7 would still show the empty state \
+                under a headline that claims two titles side by side.
                 """
             )
         }
@@ -348,7 +362,28 @@ final class ScreenshotCaptureTests: XCTestCase {
     /// carry both past "hittable" in the same motion. Small steps converge
     /// on the top band instead of jumping past it; a step in the other
     /// direction corrects an overshoot rather than compounding it.
+    ///
+    /// This used to fail roughly half of cold-boot capture attempts,
+    /// clearing on an identical retry with no code change — the signature of
+    /// a race, not a broken assertion. The cause was geometric, not a
+    /// loading race: `step(up:)`'s drag used to cover 0.35 of the window
+    /// height, *more* than this method's own 0.3 acceptance band. A step
+    /// that size can start just outside the band and land past its far edge
+    /// in one motion; the correction on the next iteration then overshoots
+    /// back the same way, oscillating until the 25-step cap. `step(up:)`'s
+    /// drag is also a flick (`press(forDuration:thenDragTo:)`), so its
+    /// momentum — and how far the scroll view actually travels — varies run
+    /// to run, which is exactly why an identical retry could clear it.
+    /// `scrollStepFraction` now stays well under the band, and `step(up:)`
+    /// settles before returning so this method's next read of
+    /// `element.frame.minY` is not taken mid-deceleration.
     private func scrollTo(_ element: XCUIElement) {
+        // Does not replace the loop below — a `LazyVStack`'s off-screen
+        // content genuinely does not exist until scrolled near — but it
+        // keeps an already-loaded target from burning a step or two of the
+        // 25-step budget while the screen is still settling right after a
+        // push.
+        _ = element.waitForExistence(timeout: 3)
         let topBand = app.windows.firstMatch.frame.height * 0.3
         for _ in 0..<25 {
             if element.exists {
@@ -364,13 +399,30 @@ final class ScreenshotCaptureTests: XCTestCase {
         XCTFail("never framed \(element.debugDescription) near the top of the screen after twenty-five scroll steps")
     }
 
-    /// One scroll step, roughly a third of a screen — small enough that
+    /// Fraction of the window height one `step(up:)` drags by. Must stay
+    /// under `scrollTo`'s 0.3 acceptance-band fraction with real margin, not
+    /// just barely under it: `step(up:)`'s drag is a flick, so the distance
+    /// the scroll view actually travels varies run to run, and a step that
+    /// can reach the far edge of the band in one motion can also overshoot
+    /// past it on an unlucky flick.
+    private let scrollStepFraction: CGFloat = 0.12
+
+    /// One scroll step, well under a third of a screen — small enough that
     /// `scrollTo` converges on its target instead of jumping past it.
     private func step(up: Bool) {
         let window = app.windows.firstMatch
-        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: up ? 0.7 : 0.3))
-        let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: up ? 0.35 : 0.65))
+        let half = scrollStepFraction / 2
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: up ? 0.5 + half : 0.5 - half))
+        let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: up ? 0.5 - half : 0.5 + half))
         start.press(forDuration: 0.05, thenDragTo: end)
+        // `press(forDuration:thenDragTo:)` is a flick: this call returns as
+        // soon as the gesture is injected, not once the scroll view stops
+        // moving, and momentum keeps it decelerating afterward. `scrollTo`
+        // reads `element.frame.minY` right after calling this; without a
+        // settle, that read can land mid-deceleration, so the direction
+        // decision for the *next* step is made against a position the
+        // scroll view has already left.
+        Thread.sleep(forTimeInterval: 0.3)
     }
 
     private func openTab(_ name: String) {
