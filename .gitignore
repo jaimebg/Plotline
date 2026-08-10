@@ -39,3 +39,12 @@ Pods/
 # Scripts/screenshots/capture.sh, and about 25 MB. screenshots/<version>/ —
 # the composed frames actually uploaded to App Store Connect — is committed.
 screenshots/raw/
+
+# Fastlane: local-only, never committed. The directory holds an App Store
+# Connect .p8 upload credential, the issuer id, and review-contact details
+# (phone, email) that have no business in a public repo. The store copy in
+# fastlane/metadata/ is therefore unversioned too — a known, accepted cost,
+# recorded in docs/superpowers/specs/2026-08-10-app-store-automation-design.md.
+# The *recipe* is versioned instead: docs/app-review/README.md documents the
+# lanes and how to rebuild this directory on a new machine.
+fastlane/
