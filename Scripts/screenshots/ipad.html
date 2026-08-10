@@ -1,0 +1,108 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="frame.css">
+<style>
+  .frame { width: 2752px; height: 2064px; }
+  .sheet { width: 22016px; height: 2064px; }
+  /* Top band: full width, centred, with the devices entering beneath it. A
+     left column and an overlaid headline were both tried and rejected — see
+     the task brief. */
+  .headline { left: 5%; right: 5%; top: 6%; font-size: 5.4cqw; text-align: center; }
+  .chip { left: 50%; transform: translateX(-50%); top: 29%; font-size: 2.2cqw; padding: .9cqw 2cqw; }
+</style></head><body>
+<div class="sheet" id="sheet"></div>
+<div id="font-probe">Plotline</div>
+<script src="curve.js"></script>
+<script>
+// Chip text is transcribed from the capture beneath it. See the spec's copy
+// rule: the app recomputes live, so the dataset is not a source for these.
+// Frame 3's copy is the corrected version (the brief's own draft overshot).
+var FRAMES = [
+  { head: 'A 0–100 score, and the <em>arithmetic</em> behind it',
+    chip: 'LEVEL <b>86</b> · CONSISTENCY <b>54</b> · TRAJECTORY <b>65</b>' },
+  { head: 'It tells you where a series <em>falls off</em>',
+    chip: 'BEFORE <b>8.4</b> → AFTER <b>8.0</b>' },
+  { head: 'Pick a season. Every episode, <em>plotted</em>',
+    chip: 'SEASON 1 · AVG <b>8.4</b>' },
+  { head: 'Every rated episode, <em>at a glance</em>', chip: null },
+  { head: 'Shelves you won\'t find <em>anywhere else</em>',
+    chip: '122 SERIES · SHIPPED INSIDE THE APP' },
+  { head: 'Where to watch it, <em>in your region</em>', chip: null },
+  { head: 'Any two titles, <em>side by side</em>', chip: null },
+  { head: 'Genres and decades, <em>charted</em>', chip: null }
+];
+
+// Two shared scenes, same shape as iphone.html's after its composition
+// rework: each of the three frames in a scene gets exactly one hero (large,
+// fully inside its own 100cqw window, tilted 3° — enough for life, not
+// enough to push its proof text toward the edge), and two smaller, more
+// tilted supporting devices straddle the two internal boundaries, each cut
+// cleanly by a frame edge on one side so it reads as the same tablet
+// entering the next frame. Supporting devices are listed first so heroes
+// (drawn after, later in DOM order) always sit on top where they'd touch.
+//
+// Landscape tablets leave much less vertical room below the top band than
+// the phone sheet did (headline ends ~21%, the chip ~34%), so heroes start
+// no earlier than 35-37% and stay under ~58cqw wide to clear the bottom
+// edge — a wider hero here runs past the frame and gets clipped by
+// overflow:hidden, not just cropped inside its own aspect ratio.
+var SCENE_A = [
+  { left: 88,  top: 41, width: 24, rotate: 8 },
+  { left: 188, top: 39, width: 24, rotate: -8 },
+  { left: 21,  top: 37, width: 58, rotate: -3 },
+  { left: 121, top: 35, width: 58, rotate: 3 },
+  { left: 221, top: 37, width: 58, rotate: -3 }
+];
+var SCENE_B = [
+  { left: 88,  top: 40, width: 24, rotate: -8 },
+  { left: 188, top: 42, width: 24, rotate: 8 },
+  { left: 21,  top: 36, width: 58, rotate: 3 },
+  { left: 121, top: 38, width: 58, rotate: -3 },
+  { left: 221, top: 36, width: 58, rotate: 3 }
+];
+// Which raw capture each device in a scene shows, in scene order. The two
+// supporting devices preview the next frame's hero (the same capture that
+// device shows large one frame later), which is what makes the boundary
+// read as one tablet sliding through rather than two unrelated crops.
+var SCENE_A_SHOTS = ['02', '03', '01', '02', '03'];
+var SCENE_B_SHOTS = ['07', '08', '06', '07', '08'];
+
+function device(shot, d) {
+  return '<div class="device tablet" style="left:' + d.left + 'cqw;top:' + d.top +
+    '%;width:' + d.width + 'cqw;aspect-ratio:2752/1900;transform:rotate(' + d.rotate + 'deg)">' +
+    '<img src="../../screenshots/raw/ipad-13/' + shot + '.png" alt=""></div>';
+}
+
+function stage(scene, shots, windowIndex) {
+  var html = '<div class="stage" style="--window:' + windowIndex + '">';
+  for (var i = 0; i < scene.length; i++) html += device(shots[i], scene[i]);
+  return html + '</div>';
+}
+
+var out = '';
+for (var i = 0; i < 8; i++) {
+  var f = FRAMES[i];
+  // The curve is windowed vertically too: on this wide, short canvas the
+  // full 867-unit height would push most of its arc under the devices.
+  out += '<div class="frame">' + PlotlineCurve.svg(i, 8, 200, 500);
+  if (i < 3) {
+    out += stage(SCENE_A, SCENE_A_SHOTS, i);
+  } else if (i >= 5) {
+    out += stage(SCENE_B, SCENE_B_SHOTS, i - 5);
+  } else {
+    // Frames 4 and 5: a single upright hero, no chip on 4 (more headroom,
+    // so it can sit a little higher and larger) and a chip on 5 (needs to
+    // start below it, same as the scene heroes).
+    var singleTop = (i === 3) ? 30 : 36;
+    var singleWidth = (i === 3) ? 70 : 66;
+    out += '<div class="device tablet" style="left:50%;top:' + singleTop + '%;width:' +
+           singleWidth + 'cqw;aspect-ratio:2752/1900;transform:translateX(-50%)">' +
+           '<img src="../../screenshots/raw/ipad-13/0' + (i + 1) + '.png" alt=""></div>';
+  }
+  out += '<div class="headline">' + f.head + '</div>';
+  if (f.chip) out += '<div class="chip">' + f.chip + '</div>';
+  out += '</div>';
+}
+document.getElementById('sheet').innerHTML = out;
+document.title = 'ready:' + document.getElementById('font-probe').getBoundingClientRect().width.toFixed(1);
+</script></body></html>
