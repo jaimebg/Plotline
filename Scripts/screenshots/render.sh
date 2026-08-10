@@ -36,6 +36,31 @@ for i in 01 02 03 04 05 06 07 08; do
     fi
 done
 
+# The "122 SERIES" chip (frame 5) is the one chip that is not TMDB-derived —
+# it counts `entries` in PlotlineDataset.json, and the design spec grounds it
+# there explicitly. Unlike the other three chips (checked only by eye, because
+# they come from a live capture this script has no independent way to
+# recompute), this one has a second, static source of truth sitting right in
+# the repo, so it gets an actual check instead of a warning: regenerating the
+# dataset (preflight step 4/9, every ~90 days) changes the entry count without
+# touching this hardcoded string, and nothing else would catch the drift.
+DATASET="Plotline/Resources/PlotlineDataset.json"
+chip_count=$(grep -oE '[0-9]+ SERIES · SHIPPED INSIDE THE APP' "Scripts/screenshots/$SHEET" | grep -oE '^[0-9]+')
+if [ -z "$chip_count" ]; then
+    echo "could not find the 'N SERIES · SHIPPED INSIDE THE APP' chip text in $SHEET" >&2
+    exit 1
+fi
+dataset_count=$(python3 -c "import json; print(len(json.load(open('$DATASET'))['entries']))" 2>/dev/null)
+if [ -z "$dataset_count" ]; then
+    echo "could not count entries in $DATASET" >&2
+    exit 1
+fi
+if [ "$chip_count" != "$dataset_count" ]; then
+    echo "$SHEET's chip says $chip_count SERIES but $DATASET has $dataset_count entries — update the chip text (it is transcribed by hand, not read live)" >&2
+    exit 1
+fi
+echo "==> chip's $chip_count SERIES matches $DATASET's $dataset_count entries"
+
 WORK=$(mktemp -d -t plotline-render)
 trap 'rm -rf "$WORK"' EXIT
 
@@ -93,6 +118,77 @@ for f in "$OUT"/*.png; do
 done
 n=$(ls "$OUT"/*.png | wc -l | tr -d ' ')
 if [ "$n" -ne "$COUNT" ]; then echo "$n file(s) in $OUT, expected $COUNT" >&2; exit 1; fi
+
+# Every check above can pass on eight empty bezels: file count, pixel
+# dimensions, and the font probe all read fine even when every <img src> in
+# the sheet failed to resolve — proven by rendering the sheet with its raw
+# image paths pointed at a nonexistent directory, which produced a correctly
+# sized sheet, a passing font probe, a successful slice, and eight
+# correctly-sized frames with headline, chip and curve intact but an empty
+# device. The existence check above tests the path THIS SCRIPT computes
+# (screenshots/raw/$FAMILY/NN.png); the sheet carries its own separate copy of
+# that same path (iphone.html:69,89 / ipad.html:73,100), and nothing until now
+# checked that the two agree, or that the PNG at the end of it actually
+# decoded. An undecodable raw PNG, or Chrome silently dropping an image on the
+# 22016px-wide iPad sheet, would fail exactly the same way.
+#
+# Each frame's hero device is centred at 50cqw horizontally by construction —
+# every scene hero and every single-device frame is drawn left:50%-anchored —
+# so X is one constant per family. Y is the vertical centre of that frame's
+# hero device box (top% + half its cqw-derived height), independently worked
+# out from the same geometry iphone.html/ipad.html hard-code rather than
+# copied from it, so a bug shared between the sheet and this check can't
+# quietly agree. Rotation is around each device's own centre (CSS default
+# transform-origin), so a few degrees of tilt does not move this point.
+#
+# When the image behind that point failed to load in the reproduction above,
+# every one of these samples read exactly #2A2A2E — the .device background
+# colour, which paints through because .device itself always renders even
+# when its <img> does not. That is checked here; the canvas gradient's own
+# two stops are checked too, in case a different failure leaves the device
+# box itself unpainted instead.
+case "$FAMILY" in
+    iphone-69) HERO_X=660;  HERO_Y=(1681 1624 1681 1700 1700 1652 1710 1652) ;;
+    ipad-13)   HERO_X=1376; HERO_Y=(1315 1273 1315 1284 1370 1294 1335 1294) ;;
+esac
+BEZEL="2A2A2E"
+CANVAS_TOP="0E0E12"
+CANVAS_BOTTOM="17110B"
+# 3, not something rounder: Color.plotlineBackground (#121212, sampled for
+# real at frame 2's hero on the iPad sheet) is only 4 channels away from
+# CANVAS_TOP. Tolerance 4 flagged that real content as canvas — caught by
+# actually running this check, not assumed. 3 is the largest tolerance that
+# still lets #121212 through while catching the bezel match, which measured
+# exactly 0 away in every reproduction.
+TOL=3
+
+close_to() {
+    # $1 = sampled hex (RRGGBB), $2 = reference hex (RRGGBB). True if every
+    # channel is within $TOL — tight enough that no real content colour
+    # sampled from a shipped frame (checked by hand against this branch's own
+    # captures) falls inside it, loose enough to survive rounding.
+    local sample=$1 ref=$2 chan off sv rv d
+    for chan in 0 1 2; do
+        off=$((chan * 2))
+        sv=$(printf '%d' "0x${sample:$off:2}")
+        rv=$(printf '%d' "0x${ref:$off:2}")
+        d=$((sv - rv)); d=${d#-}
+        [ "$d" -gt "$TOL" ] && return 1
+    done
+    return 0
+}
+
+i=0
+for idx in 01 02 03 04 05 06 07 08; do
+    y=${HERO_Y[$i]}
+    sample=$(swift Scripts/screenshots/verify.swift pixel "$OUT/$idx.png" "$HERO_X" "$y")
+    if close_to "$sample" "$BEZEL" || close_to "$sample" "$CANVAS_TOP" || close_to "$sample" "$CANVAS_BOTTOM"; then
+        echo "$OUT/$idx.png: pixel ($HERO_X,$y), inside the hero device, is #$sample — bezel or canvas colour, not app content. This frame's screenshot did not load." >&2
+        exit 1
+    fi
+    i=$((i + 1))
+done
+echo "==> hero pixel in all $n frames reads as app content, not bezel/canvas"
 
 echo "==> $n frames at ${W}x${H} in $OUT"
 
