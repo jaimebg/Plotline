@@ -52,7 +52,9 @@
 | `Scripts/release-preflight.sh` | Add step 9: the screenshot set for the current version exists at the right sizes. |
 | `CLAUDE.md` | Document the command and the pipeline in Build Commands. |
 
-**Delete (Task 7 only, never earlier):** `.asc/screenshots.json`, `screenshots/koubou.yaml`, `screenshots/framed/`, `screenshots/raw/*.png` (the eight loose files), `screenshots/*.png` (the six loose files), `screenshots/1.4.0/`.
+**Delete (Task 7 only, never earlier):** `.asc/screenshots.json`, `screenshots/koubou.yaml`, `screenshots/framed/`, `screenshots/raw/*.png` (the eight loose files), `screenshots/*.png` (the six loose files), and the two loose PNGs inside `screenshots/1.4.0/`.
+
+**`screenshots/<MARKETING_VERSION>/` is not deleted.** `MARKETING_VERSION` is `1.4.0` today, so `render.sh` writes into `screenshots/1.4.0/iphone-69/` and `screenshots/1.4.0/ipad-13/` — the same directory that holds the previous submission's two hand-made PNGs. Only those two files go; the directory stays and is where Tasks 4 and 5 put their output. Deleting the directory would destroy the work of the two tasks before it.
 
 ---
 
@@ -102,9 +104,14 @@ Create `Scripts/screenshots/tests/run-tests.sh`:
 ```bash
 #!/bin/bash
 # The slicer's own test. Renders eight known colours, cuts them, and checks
-# every frame — including its left and right edge, one pixel in. An off-by-one
-# offset shifts a neighbour's colour into an edge, and nothing else here would
-# see it.
+# every frame at both of its true edge columns — 0 and frameWidth-1 — plus the
+# centre. A one-pixel offset moves a neighbour's colour into an edge column,
+# and nothing else here would see it.
+#
+# The edge columns are literal, not "one pixel in". On a 1320-wide frame the
+# columns are 0..1319: with a +1 offset, local column 1318 still lands inside
+# the frame's own colour and only 1319 crosses into the neighbour. Sampling
+# 1 and 1318 makes this suite blind to exactly the defect it exists for.
 set -uo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -148,8 +155,9 @@ for i in 1 2 3 4 5 6 7 8; do
     got_size=$(swift "$ROOT/Scripts/screenshots/verify.swift" size "$f")
     [ "$got_size" = "1320x2868" ] || fail "frame $i is $got_size, expected 1320x2868"
 
-    # Left edge, centre and right edge. The edges are what catch an offset.
-    for x in 1 660 1318; do
+    # Left edge, centre, right edge. The two edge columns are what catch an
+    # offset; the centre only proves the frame is not blank.
+    for x in 0 660 1319; do
         got=$(swift "$ROOT/Scripts/screenshots/verify.swift" pixel "$f" "$x" 1400)
         if [ "$got" != "$want" ]; then
             fail "frame $i at x=$x is #$got, expected #$want — the cut is offset"
@@ -277,6 +285,12 @@ for i in 0..<count {
     let rect = CGRect(x: i * frameWidth, y: 0, width: frameWidth, height: sheet.height)
     guard let frame = sheet.cropping(to: rect) else {
         die("cropping frame \(i + 1) failed", 1)
+    }
+    // cropping(to:) clips silently instead of failing when the rect runs past
+    // the sheet, so without this a short sheet yields a narrow last frame and
+    // an exit code of 0 — a malformed screenshot reported as a success.
+    guard frame.width == frameWidth, frame.height == sheet.height else {
+        die("frame \(i + 1) came out \(frame.width)x\(frame.height), expected \(frameWidth)x\(sheet.height)", 1)
     }
     let url = outDir.appendingPathComponent(String(format: "%02d.png", startIndex + i))
     guard let destination = CGImageDestinationCreateWithURL(
@@ -567,9 +581,6 @@ Replace `testCaptureAll` in `PlotlineUITests/ScreenshotCaptureTests.swift`:
                 "the Plotline Score card never appeared on the detail screen"
             )
         }
-        capture(2, of: "verdicts") {
-            scrollTo(app.staticTexts["What the Numbers Say"])
-        }
         capture(3, of: "season chart") {
             scrollTo(app.staticTexts["Episode Ratings"])
         }
@@ -578,6 +589,28 @@ Replace `testCaptureAll` in `PlotlineUITests/ScreenshotCaptureTests.swift`:
         }
         capture(6, of: "where to watch") {
             scrollTo(app.staticTexts["Streaming data provided by JustWatch"])
+        }
+
+        // Frame 2's headline says a series falls off, so it has to photograph
+        // one that does. Breaking Bad's declinePoint is null — it never
+        // declines — so shooting its verdicts under that headline would be the
+        // exact defect the copy rule exists to prevent. The Walking Dead falls
+        // off after season 6 and is in the bundled dataset.
+        returnToDiscover()
+        openSeriesDetail(named: "The Walking Dead")
+        capture(2, of: "decline verdict") {
+            scrollTo(app.staticTexts["What the Numbers Say"])
+            XCTAssertTrue(
+                app.staticTexts.containing(
+                    NSPredicate(format: "label BEGINSWITH %@", "Falls off after season")
+                ).firstMatch.exists,
+                """
+                The Walking Dead rendered no decline verdict, so frame 2's \
+                headline would claim a fall the screenshot does not show. \
+                Do not ship this capture; pick another series with a \
+                declinePoint in PlotlineDataset.json.
+                """
+            )
         }
 
         openTab("Stats")
@@ -620,6 +653,18 @@ Replace `testCaptureAll` in `PlotlineUITests/ScreenshotCaptureTests.swift`:
         XCTAssertTrue(
             app.staticTexts["Plotline Score"].waitForExistence(timeout: 30),
             "opened \(title) but no analysis rendered; it may have no episode data"
+        )
+    }
+
+    /// Pops back to the Discover root so a second series can be opened. The
+    /// tab tap alone leaves the pushed detail screen in place; tapping the
+    /// already-selected tab is what pops it.
+    private func returnToDiscover() {
+        openTab("Discover")
+        openTab("Discover")
+        XCTAssertTrue(
+            app.searchFields.firstMatch.waitForExistence(timeout: 20),
+            "never got back to the Discover root"
         )
     }
 
@@ -1276,7 +1321,7 @@ git commit -m "feat: run the whole screenshot pipeline, and reject a sheet in th
 ## Task 7: Retire the old pipeline and document the new one
 
 **Files:**
-- Delete: `.asc/screenshots.json`, `screenshots/koubou.yaml`, `screenshots/framed/`, the eight loose PNGs in `screenshots/raw/`, the six loose PNGs in `screenshots/`, `screenshots/1.4.0/`
+- Delete: `.asc/screenshots.json`, `screenshots/koubou.yaml`, `screenshots/framed/`, the eight loose PNGs in `screenshots/raw/`, the six loose PNGs in `screenshots/`, and the two loose PNGs inside `screenshots/1.4.0/`
 - Modify: `CLAUDE.md`
 - Modify: `Scripts/release-preflight.sh`
 
@@ -1287,11 +1332,14 @@ git commit -m "feat: run the whole screenshot pipeline, and reject a sheet in th
 - [ ] **Step 1: Delete the old pipeline**
 
 ```bash
-git rm -r .asc/screenshots.json screenshots/koubou.yaml screenshots/framed screenshots/1.4.0
+git rm -r .asc/screenshots.json screenshots/koubou.yaml screenshots/framed
 git rm screenshots/raw/0*.png
+git rm screenshots/1.4.0/iphone-69-analysis.png screenshots/1.4.0/ipad-13-analysis.png
 git rm screenshots/discover.png screenshots/detail.png screenshots/detail-scroll.png \
        screenshots/favorites.png screenshots/genres.png screenshots/watchlist.png
 ```
+
+**Do not `git rm -r screenshots/1.4.0`.** `MARKETING_VERSION` is `1.4.0`, so that directory is where Tasks 4 and 5 wrote the sixteen new screenshots. Only the two hand-made PNGs at its top level go.
 
 Confirm nothing references them: `grep -rn "koubou\|screenshots.json\|screenshots/framed" --include=* . | grep -v "^./docs/superpowers"`
 

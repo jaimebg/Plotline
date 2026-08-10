@@ -76,7 +76,7 @@ run_suite() {
     return "$result"
 }
 
-step "1/8  App suite, starved of TMDB"
+step "1/9  App suite, starved of TMDB"
 run_suite "" ""
 status=$?
 if [ "$suite_skipped" -eq 1 ]; then
@@ -87,7 +87,7 @@ else
     fail "starved pass red"
 fi
 
-step "2/8  Cold-start suite, live against TMDB"
+step "2/9  Cold-start suite, live against TMDB"
 # The only place this runs, and only the UI suite: the unit tests neither touch
 # the network nor change between the two passes. A red here can mean a real
 # defect or a TMDB rate limit; read the failure before treating it as either.
@@ -121,14 +121,14 @@ fi
 # ColdStartTests checks a weaker form of that same invariant — every list
 # resolves to at least one entry — but neither suite asserts the rest, or the
 # secret scan, and `xcodebuild test` never runs this package at all.
-step "3/8  Generator suite (the only tests that open the committed dataset)"
+step "3/9  Generator suite (the only tests that open the committed dataset)"
 if (cd Tools/DatasetGenerator && swift test 2>&1 | tail -10); then
     pass "shipped dataset invariants hold"
 else
     fail "shipped dataset invariants broken"
 fi
 
-step "4/8  Dataset freshness"
+step "4/9  Dataset freshness"
 if [ ! -f "$DATASET" ]; then
     fail "$DATASET does not exist"
 else
@@ -158,7 +158,7 @@ else
     fi
 fi
 
-step "5/8  Version coherence with the App Review artefacts"
+step "5/9  Version coherence with the App Review artefacts"
 # Asked of the build system rather than grepped out of project.pbxproj:
 # MARKETING_VERSION appears once per configuration of every target, six times
 # in this project, and the first one a grep finds is the app's only because
@@ -178,14 +178,14 @@ else
     fail "project says $version but no file in docs/app-review/ mentions it"
 fi
 
-step "6/8  No trace of OMDb"
+step "6/9  No trace of OMDb"
 if grep -rq "omdbapi" --include="*.swift" --include="*.plist" Plotline/ Tools/; then
     fail "a reference to omdbapi.com is back"
 else
     pass "no omdbapi reference in any .swift or .plist under Plotline/ or Tools/"
 fi
 
-step "7/8  Shared schemes: no leaked secret, and the UI suite still serialised"
+step "7/9  Shared schemes: no leaked secret, and the UI suite still serialised"
 # xcshareddata/ used to be gitignored wholesale to keep a scheme-embedded API
 # key out of git, which also meant the UI suite's <TestAction> entry and the
 # Archive pre-action that runs this script could never be versioned. The
@@ -220,10 +220,17 @@ fi
 # Separate from the scan above and specific to this one scheme, because this
 # is where the UI target's testable lives.
 #
-# `parallelizable = "NO"` is what makes every uninstall in run_suite mean
-# anything: with parallelization on, Xcode clones the simulator and runs the
-# tests on the clones, so the device named in -destination — the one this
-# script uninstalls from — is no longer the container the suite runs in.
+# What makes every uninstall in run_suite mean anything is that
+# PlotlineUITests runs non-parallel: with parallelization on, Xcode clones
+# the simulator and runs the tests on the clones, so the device named in
+# -destination — the one this script uninstalls from — is no longer the
+# container the suite runs in. `parallelizable = "YES"` is the only value
+# that turns that on. An absent attribute is Xcode's default for a UI test
+# target and already means non-parallel — confirmed independently in this
+# same release's screenshot captures, which pin the status bar by name on
+# `-destination` and show it correctly in every shot, which a clone would
+# not — so this only fails on an explicit "YES", not on the attribute being
+# unset.
 # The attribute has already been lost once on this branch — a local
 # `xcodebuild test` run put it back to YES, and a person happened to notice.
 # This is so the next time it is not a person.
@@ -237,14 +244,49 @@ else
     ' "$SCHEME_FILE")
     if [ -z "$ui_testable" ]; then
         fail "$SCHEME_FILE declares no PlotlineUITests testable — the cold-start suite does not run from this scheme at all"
-    elif ! printf '%s' "$ui_testable" | grep -qE 'parallelizable *= *"NO"'; then
-        fail "$SCHEME_FILE no longer marks PlotlineUITests parallelizable = \"NO\" — parallel runs happen on simulator clones, so the uninstalls above stop reaching the container under test"
+    elif printf '%s' "$ui_testable" | grep -qE 'parallelizable *= *"YES"'; then
+        fail "$SCHEME_FILE marks PlotlineUITests parallelizable = \"YES\" — parallel runs happen on simulator clones, so the uninstalls above stop reaching the container under test"
     else
-        pass "PlotlineUITests is still parallelizable = \"NO\", so it runs on the device -destination names and not on a clone"
+        pass "PlotlineUITests is not parallelizable = \"YES\" (absent or explicit \"NO\" both run on the device -destination names, not a clone)"
     fi
 fi
 
-step "8/8  What still has to be done by hand"
+step "8/9  The screenshot set for this version"
+# Asked of the build system for the same reason step 5 does: a grepped
+# MARKETING_VERSION would be the first of six matches in project.pbxproj, not
+# necessarily this target's. An empty result is guarded explicitly — an
+# unguarded empty $shot_version would still resolve to a real (wrong)
+# directory name here, "screenshots//family", rather than to the empty
+# pattern step 5 warns about, but it is just as much a silent wrong answer.
+shot_version=$(xcodebuild -project Plotline.xcodeproj -target Plotline -configuration Release \
+    -showBuildSettings 2>/dev/null | awk '/ MARKETING_VERSION = /{print $3; exit}')
+if [ -z "$shot_version" ]; then
+    fail "MARKETING_VERSION could not be read from the Plotline target's Release configuration — cannot locate the screenshot set"
+else
+    shot_ok=1
+    for family in "iphone-69:1320x2868" "ipad-13:2752x2064"; do
+        dir="screenshots/$shot_version/${family%%:*}"
+        want=${family##*:}
+        n=$(ls "$dir"/*.png 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$n" -ne 8 ]; then
+            fail "$dir has $n screenshot(s), expected 8 — run Scripts/screenshots/make.sh"
+            shot_ok=0
+            continue
+        fi
+        for f in "$dir"/*.png; do
+            got=$(swift Scripts/screenshots/verify.swift size "$f")
+            if [ "$got" != "$want" ]; then
+                fail "$f is $got, expected $want"
+                shot_ok=0
+            fi
+        done
+    done
+    if [ "$shot_ok" -eq 1 ]; then
+        pass "16 screenshots for $shot_version at their required sizes"
+    fi
+fi
+
+step "9/9  What still has to be done by hand"
 cat <<'MANUAL'
   App Store Connect is not automated, on purpose — see docs/app-review/README.md.
   In this order:

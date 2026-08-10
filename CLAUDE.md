@@ -36,6 +36,12 @@ cd Tools/DatasetGenerator && swift test
 # Everything that has to be true before a release
 ./Scripts/release-preflight.sh
 
+# App Store screenshots — 8 iPhone 6.9" and 8 iPad 13", captured and composed
+./Scripts/screenshots/make.sh
+
+# Just recompose from the captures already on disk (seconds, no simulator)
+./Scripts/screenshots/render.sh iphone-69
+
 # Clean build
 xcodebuild -project Plotline.xcodeproj -scheme Plotline clean && rm -rf build
 ```
@@ -91,6 +97,44 @@ Four files under `Plotline/` are also compiled by the SwiftPM tool in `Tools/Dat
 `Resources/PlotlineDataset.json` ships 122 pre-analysed series and five curated lists. It is a **seed and a fallback, never the truth**: the app shows it in the first frame and offline, and a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch cannot replace a full analysis with a fragment.
 
 Regenerate with the tool in `Tools/DatasetGenerator/`. It has its own test suite (`swift test`).
+
+### App Store Screenshots
+
+`Scripts/screenshots/` produces the store listing images. Two halves:
+`capture.sh` drives the app through `ScreenshotCaptureTests`, finding elements
+rather than tapping screen positions — but most of those elements are matched by
+their visible English label ("Where to Watch", "Plotline Score", "Episode
+Ratings", "Episode Scores", "What the Numbers Say", "Compare Movies & Series",
+"Decade Battle", "Ratings", "Empty comparison slot"), not by an identifier, so
+renaming any of those strings breaks a capture. Only three lookups go through
+`AccessibilityAnchors` (the Discover shelf, and the Compare and Trends section
+anchors in Stats); one more is a bare element index. `scrollTo`/`step` scroll by
+normalized window coordinates to frame each target. It writes eight raw PNGs per
+device family. `render.sh` lays all eight marketing frames out in a
+single HTML row, renders it in one Chrome pass, and cuts it up.
+
+**The single pass is the design, not an optimisation.** Device scenes and the
+rating curve run across frame boundaries; a sheet that is never separated cannot
+drift. Both widths — 10560×2868 and 22016×2064 — were measured to render whole.
+
+Three of the four marketing chips — Level/Consistency/Trajectory, Before/After,
+Season/Avg — are transcribed from the capture beneath them, never from
+`PlotlineDataset.json`: the app recomputes analysis live when fresher episodes
+arrive, so the two can legitimately disagree, and a marketing chip that
+contradicts the screenshot next to it is the same defect as a verdict string
+claiming more than its predicate. The fourth, "122 SERIES · SHIPPED INSIDE THE
+APP," has no live capture to draw a number from — it is sourced from, and
+checked against, `PlotlineDataset.json`'s entry count instead (below).
+
+**What the pipeline checks, and what it does not.** `make.sh` and `render.sh`
+verify file counts, pixel dimensions, that the headline font actually loaded
+— not a system fallback — that each frame's hero device shows app content
+rather than an empty bezel or canvas gradient, and that the "122 SERIES"
+chip's count matches `PlotlineDataset.json`'s entry count. The other three
+chips (Level/Consistency/Trajectory, Before/After, Season/Avg) have no
+independent source to check against, so neither script compares them to
+anything; both print a warning to that effect once they finish successfully.
+Reading the sixteen finished frames before uploading is still a human step.
 
 ### Watch Providers — a blocking legal requirement
 
@@ -195,7 +239,8 @@ The app targets iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`). App Revi
 
 `Scripts/release-preflight.sh` gathers the two cold-start suite passes, the
 generator suite, dataset freshness, the coherence between `MARKETING_VERSION`
-and `docs/app-review/`, the absence of OMDb, and the shared schemes.
+and `docs/app-review/`, the absence of OMDb, the shared schemes, and that the
+current version's screenshot set has all sixteen files at their required sizes.
 
 The generator suite is in there because `xcodebuild test` **never** runs it,
 and its `ShippedDatasetTests` is the only suite that opens

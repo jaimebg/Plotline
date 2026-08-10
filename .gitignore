@@ -34,3 +34,8 @@ Pods/
 
 # SDD scratch workspace (subagent-driven-development)
 .superpowers/
+
+# App Store screenshots: raw captures are intermediate, regenerable by
+# Scripts/screenshots/capture.sh, and about 25 MB. screenshots/<version>/ —
+# the composed frames actually uploaded to App Store Connect — is committed.
+screenshots/raw/
