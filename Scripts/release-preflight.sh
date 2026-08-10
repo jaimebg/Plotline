@@ -415,16 +415,23 @@ else
     fi
 fi
 
-step "9/9  What still has to be done by hand"
+step "12/12  What still has to be done by hand"
 cat <<'MANUAL'
-  App Store Connect is not automated, on purpose — see docs/app-review/README.md.
-  In this order:
-    1. Reply in the existing Resolution Center thread. Before uploading anything.
-    2. Upload the build.
-    3. Update description, subtitle, promotional text, keywords, what's new.
-    4. Replace the screenshots.
-    5. Paste the App Review Notes.
-    6. Request the call from the Resolution Center.
+  Most of this list is now automated — see docs/app-review/README.md for the
+  lanes. What no API can do, in this order:
+
+    1. Reply in the Resolution Center thread. BEFORE uploading anything.
+       There is no API for this and the release lane does NOT stop for it;
+       it prints this warning and continues. Resubmitting in silence is what
+       turned one rejection into three.
+    2. Deploy the CloudKit container iCloud.com.jbgsoft.Plotline to
+       Production. A build can be approved and still fail to sync favorites
+       and the watchlist for real users if this is skipped.
+    3. Age rating, privacy nutrition labels, category and pricing.
+    4. Read the sixteen screenshots before they go up. Nothing checks that
+       each headline is still true about the capture beneath it.
+    5. Read release_notes.txt. Step 5 proves the version string matches; it
+       cannot prove the notes describe this version.
 MANUAL
 
 if [ "$failures" -eq 0 ]; then
