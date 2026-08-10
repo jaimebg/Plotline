@@ -36,6 +36,12 @@ cd Tools/DatasetGenerator && swift test
 # Everything that has to be true before a release
 ./Scripts/release-preflight.sh
 
+# App Store screenshots — 8 iPhone 6.9" and 8 iPad 13", captured and composed
+./Scripts/screenshots/make.sh
+
+# Just recompose from the captures already on disk (seconds, no simulator)
+./Scripts/screenshots/render.sh iphone-69
+
 # Clean build
 xcodebuild -project Plotline.xcodeproj -scheme Plotline clean && rm -rf build
 ```
@@ -91,6 +97,31 @@ Four files under `Plotline/` are also compiled by the SwiftPM tool in `Tools/Dat
 `Resources/PlotlineDataset.json` ships 122 pre-analysed series and five curated lists. It is a **seed and a fallback, never the truth**: the app shows it in the first frame and offline, and a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch cannot replace a full analysis with a fragment.
 
 Regenerate with the tool in `Tools/DatasetGenerator/`. It has its own test suite (`swift test`).
+
+### App Store Screenshots
+
+`Scripts/screenshots/` produces the store listing images. Two halves:
+`capture.sh` drives the app through `ScreenshotCaptureTests`, navigating by the
+identifiers in `AccessibilityAnchors` and never by coordinates, and writes eight
+raw PNGs per device family. `render.sh` lays all eight marketing frames out in a
+single HTML row, renders it in one Chrome pass, and cuts it up.
+
+**The single pass is the design, not an optimisation.** Device scenes and the
+rating curve run across frame boundaries; a sheet that is never separated cannot
+drift. Both widths — 10560×2868 and 22016×2064 — were measured to render whole.
+
+Chip text is transcribed from the capture beneath it, never from
+`PlotlineDataset.json`: the app recomputes analysis live when fresher episodes
+arrive, so the two can legitimately disagree, and a marketing chip that
+contradicts the screenshot next to it is the same defect as a verdict string
+claiming more than its predicate.
+
+**What the pipeline checks, and what it does not.** `make.sh` and `render.sh`
+verify file counts, pixel dimensions, and that the headline font actually
+loaded — not a system fallback. Neither one compares a marketing chip's text
+against the screenshot it sits beside; both print a warning to that effect
+once they finish successfully. Reading the sixteen finished frames before
+uploading is still a human step.
 
 ### Watch Providers — a blocking legal requirement
 
