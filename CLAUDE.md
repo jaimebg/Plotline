@@ -42,6 +42,9 @@ cd Tools/DatasetGenerator && swift test
 # Just recompose from the captures already on disk (seconds, no simulator)
 ./Scripts/screenshots/render.sh iphone-69
 
+# Rejoin a family's eight composed frames into the README's one-line strip
+./Scripts/screenshots/readme-strip.sh iphone-69
+
 # Clean build
 xcodebuild -project Plotline.xcodeproj -scheme Plotline clean && rm -rf build
 ```
@@ -135,6 +138,15 @@ chips (Level/Consistency/Trajectory, Before/After, Season/Avg) have no
 independent source to check against, so neither script compares them to
 anything; both print a warning to that effect once they finish successfully.
 Reading the sixteen finished frames before uploading is still a human step.
+
+**The README's banner is the same sheet, put back together.**
+`readme-strip.sh` joins a family's eight composed frames left to right — the
+inverse of `slice.swift` — and scales the join down, so the curve and the
+device scenes that run across frame boundaries line back up on their own. It
+writes `screenshots/readme-<family>.png`, a fixed path outside the versioned
+directories, so bumping `MARKETING_VERSION` cannot turn the README's image
+into a broken link. It is not wired into `make.sh`: re-run it after a new
+screenshot set, or the banner keeps showing the previous version's frames.
 
 ### Watch Providers — a blocking legal requirement
 
