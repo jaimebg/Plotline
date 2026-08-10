@@ -163,6 +163,22 @@ final class ScreenshotCaptureTests: XCTestCase {
             ).firstMatch
             XCTAssertTrue(decadeBattle.waitForExistence(timeout: 5), "Decade Battle trend card never appeared")
             decadeBattle.tap()
+
+            // Frame 7's own "Ratings" check exists for the same reason: a
+            // tap registering is not proof the push happened. Without this,
+            // a slow push animation racing `capture`'s fixed sleep could ship
+            // a screenshot of the Trends list under a headline that claims
+            // Decade Battle, and nothing would catch it — the file would
+            // still be the right size. `DecadeBattleView` sets this as its
+            // `.navigationTitle`, so it is cheap and specific to wait for.
+            XCTAssertTrue(
+                app.navigationBars["Decade Battle"].waitForExistence(timeout: 10),
+                """
+                Decade Battle never pushed after the tap, so frame 8 would \
+                still show the Trends list under a headline that claims \
+                Decade Battle.
+                """
+            )
         }
     }
 
