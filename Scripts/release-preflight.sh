@@ -387,7 +387,7 @@ else
     if [ -z "$entries" ]; then
         fail "could not count entries in $DATASET"
         copy_ok=0
-    elif ! grep -qF "$entries fully analysed series" "$DESCRIPTION"; then
+    elif ! grep -qF -- "$entries fully analysed series" "$DESCRIPTION"; then
         fail "$DATASET has $entries entries but the description does not say \"$entries fully analysed series\""
         copy_ok=0
     fi
@@ -399,11 +399,11 @@ else
     titles=$(grep -oE '^ +"[^"]+",$' "$LIST_COPY" | sed 's/^ *"//; s/",$//')
     title_count=$(printf '%s\n' "$titles" | grep -c .)
     if [ "$title_count" -ne 5 ]; then
-        fail "expected 5 shelf titles in $LIST_COPY, extracted $title_count — the file's format changed and this check can no longer read it"
+        fail "expected 5 shelf titles in $LIST_COPY, extracted $title_count — either the extraction pattern no longer matches this file's format, or a shelf was legitimately added or removed; if the list genuinely changed, update the 5 in this check to $title_count, otherwise fix the extraction pattern"
         copy_ok=0
     else
         while IFS= read -r title; do
-            if ! grep -qF "$title" "$DESCRIPTION"; then
+            if ! grep -qF -- "$title" "$DESCRIPTION"; then
                 fail "the description never mentions the shelf \"$title\""
                 copy_ok=0
             fi
