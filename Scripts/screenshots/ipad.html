@@ -25,8 +25,7 @@ var FRAMES = [
   { head: 'Pick a season. Every episode, <em>plotted</em>',
     chip: 'SEASON 1 · AVG <b>8.4</b>' },
   { head: 'Every rated episode, <em>at a glance</em>', chip: null },
-  { head: 'Shelves you won\'t find <em>anywhere else</em>',
-    chip: '122 SERIES · SHIPPED INSIDE THE APP' },
+  { head: 'Shelves you won\'t find <em>anywhere else</em>', chip: null },
   { head: 'Where to watch it, <em>in your region</em>', chip: null },
   { head: 'Any two titles, <em>side by side</em>', chip: null },
   { head: 'Decade against decade,<br><em>charted</em>', chip: null }
@@ -90,13 +89,18 @@ for (var i = 0; i < 8; i++) {
   } else if (i >= 5) {
     out += stage(SCENE_B, SCENE_B_SHOTS, i - 5);
   } else {
-    // Frames 4 and 5: a single upright hero, no chip on 4 (more headroom,
-    // so it can sit a little higher and larger) and a chip on 5 (needs to
-    // start below it, same as the scene heroes).
-    var singleTop = (i === 3) ? 30 : 36;
-    var singleWidth = (i === 3) ? 70 : 66;
-    out += '<div class="device tablet" style="left:50%;top:' + singleTop + '%;width:' +
-           singleWidth + 'cqw;aspect-ratio:2752/1900;transform:translateX(-50%)">' +
+    // Frames 4 and 5: a single upright hero, same geometry for both, as on
+    // the phone sheet. Frame 5 used to sit lower and smaller (top 36%, 66cqw)
+    // to clear a "122 SERIES · SHIPPED INSIDE THE APP" chip; that chip is
+    // gone, so it takes frame 4's headroom instead of leaving a dead band
+    // where the chip was.
+    //
+    // render.sh samples a hard-coded hero-centre pixel per frame to prove the
+    // capture loaded, and those constants are derived from this geometry:
+    // top% x 2064 + (width_cqw x 2752 x 1900/2752)/2. Both frames now land on
+    // HERO_Y 1284 for this family. Move one, move the other.
+    out += '<div class="device tablet" style="left:50%;top:30%;width:70cqw;' +
+           'aspect-ratio:2752/1900;transform:translateX(-50%)">' +
            '<img src="../../screenshots/raw/ipad-13/0' + (i + 1) + '.png" alt=""></div>';
   }
   out += '<div class="headline">' + f.head + '</div>';

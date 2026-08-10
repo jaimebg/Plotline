@@ -36,30 +36,18 @@ for i in 01 02 03 04 05 06 07 08; do
     fi
 done
 
-# The "122 SERIES" chip (frame 5) is the one chip that is not TMDB-derived —
-# it counts `entries` in PlotlineDataset.json, and the design spec grounds it
-# there explicitly. Unlike the other three chips (checked only by eye, because
-# they come from a live capture this script has no independent way to
-# recompute), this one has a second, static source of truth sitting right in
-# the repo, so it gets an actual check instead of a warning: regenerating the
-# dataset (preflight step 4/9, every ~90 days) changes the entry count without
-# touching this hardcoded string, and nothing else would catch the drift.
-DATASET="Plotline/Resources/PlotlineDataset.json"
-chip_count=$(grep -oE '[0-9]+ SERIES · SHIPPED INSIDE THE APP' "Scripts/screenshots/$SHEET" | grep -oE '^[0-9]+')
-if [ -z "$chip_count" ]; then
-    echo "could not find the 'N SERIES · SHIPPED INSIDE THE APP' chip text in $SHEET" >&2
-    exit 1
-fi
-dataset_count=$(python3 -c "import json; print(len(json.load(open('$DATASET'))['entries']))" 2>/dev/null)
-if [ -z "$dataset_count" ]; then
-    echo "could not count entries in $DATASET" >&2
-    exit 1
-fi
-if [ "$chip_count" != "$dataset_count" ]; then
-    echo "$SHEET's chip says $chip_count SERIES but $DATASET has $dataset_count entries — update the chip text (it is transcribed by hand, not read live)" >&2
-    exit 1
-fi
-echo "==> chip's $chip_count SERIES matches $DATASET's $dataset_count entries"
+# Frame 5 used to carry a "122 SERIES · SHIPPED INSIDE THE APP" chip, and this
+# is where it was checked: alone among the four chips it had a second, static
+# source of truth in the repo — `entries` in PlotlineDataset.json — so instead
+# of a by-eye warning it got a real comparison, because regenerating the
+# dataset (preflight step 4/9, every ~90 days) moves that count without
+# touching a hardcoded string in a sheet.
+#
+# The chip is gone, so there is nothing left here to check: every remaining
+# chip is transcribed from a live capture this script cannot recompute, and
+# they are covered by the by-hand warning at the end. If a count sourced from
+# the dataset is ever put back on a frame, put this check back with it — that
+# drift is silent otherwise.
 
 WORK=$(mktemp -d -t plotline-render)
 trap 'rm -rf "$WORK"' EXIT
@@ -149,7 +137,7 @@ if [ "$n" -ne "$COUNT" ]; then echo "$n file(s) in $OUT, expected $COUNT" >&2; e
 # box itself unpainted instead.
 case "$FAMILY" in
     iphone-69) HERO_X=660;  HERO_Y=(1681 1624 1681 1700 1700 1652 1710 1652) ;;
-    ipad-13)   HERO_X=1376; HERO_Y=(1315 1273 1315 1284 1370 1294 1335 1294) ;;
+    ipad-13)   HERO_X=1376; HERO_Y=(1315 1273 1315 1284 1284 1294 1335 1294) ;;
 esac
 BEZEL="2A2A2E"
 CANVAS_TOP="0E0E12"

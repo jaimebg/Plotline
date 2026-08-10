@@ -120,24 +120,27 @@ single HTML row, renders it in one Chrome pass, and cuts it up.
 rating curve run across frame boundaries; a sheet that is never separated cannot
 drift. Both widths — 10560×2868 and 22016×2064 — were measured to render whole.
 
-Three of the four marketing chips — Level/Consistency/Trajectory, Before/After,
+All three marketing chips — Level/Consistency/Trajectory, Before/After,
 Season/Avg — are transcribed from the capture beneath them, never from
 `PlotlineDataset.json`: the app recomputes analysis live when fresher episodes
 arrive, so the two can legitimately disagree, and a marketing chip that
 contradicts the screenshot next to it is the same defect as a verdict string
-claiming more than its predicate. The fourth, "122 SERIES · SHIPPED INSIDE THE
-APP," has no live capture to draw a number from — it is sourced from, and
-checked against, `PlotlineDataset.json`'s entry count instead (below).
+claiming more than its predicate. A fourth chip, "122 SERIES · SHIPPED INSIDE
+THE APP," sat on frame 5 and was the exception — no live capture to draw a
+number from, so it was sourced from and checked against
+`PlotlineDataset.json`'s entry count. It has been removed from both sheets,
+and its check with it. The same claim still appears in prose in
+`docs/app-review/` and `README.md`, where nothing verifies it.
 
 **What the pipeline checks, and what it does not.** `make.sh` and `render.sh`
 verify file counts, pixel dimensions, that the headline font actually loaded
-— not a system fallback — that each frame's hero device shows app content
-rather than an empty bezel or canvas gradient, and that the "122 SERIES"
-chip's count matches `PlotlineDataset.json`'s entry count. The other three
-chips (Level/Consistency/Trajectory, Before/After, Season/Avg) have no
-independent source to check against, so neither script compares them to
-anything; both print a warning to that effect once they finish successfully.
-Reading the sixteen finished frames before uploading is still a human step.
+— not a system fallback — and that each frame's hero device shows app content
+rather than an empty bezel or canvas gradient. **No chip is checked against
+anything.** All three are transcribed from a live capture neither script can
+recompute, so both print a warning to that effect once they finish
+successfully. Reading the sixteen finished frames before uploading is still a
+human step. If a chip sourced from the dataset is ever added back, restore the
+count check in `render.sh` with it — that drift is silent otherwise.
 
 **The README's banner is the same sheet, put back together.**
 `readme-strip.sh` joins a family's eight composed frames left to right — the
