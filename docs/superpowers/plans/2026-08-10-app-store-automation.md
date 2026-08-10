@@ -22,6 +22,8 @@
 - Swift scripts take their input path as an argument and exit `2` on usage/environment errors, `1` on a real failure, `0` on success.
 - Commit messages follow Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`).
 - Light and dark mode, iPhone and iPad rules from `CLAUDE.md` are untouched by this work — no view code changes here.
+- **Nothing is uploaded to Apple during implementation.** Only two lanes may actually run: `bootstrap` (downloads metadata) and `release_dry_run` (validates and archives locally). The `beta`, `metadata`, `screenshots` and `release` lanes are written and checked with `bundle exec fastlane lanes`, never executed. No build is uploaded, no version is submitted, no build number is consumed.
+- **Store copy is transcribed, never edited.** Tasks that move strings between files copy them verbatim. Linter warnings about the copy get reported, not acted on — rewording App Store copy is the human's decision.
 
 ---
 
@@ -520,17 +522,45 @@ bundle exec fastlane bootstrap
 
 Expected: `fastlane/metadata/en-US/` exists and contains at least `description.txt`, `keywords.txt`, `name.txt`, `subtitle.txt`, plus `support_url.txt`, `privacy_url.txt` and `copyright.txt` carrying the values already live.
 
-- [ ] **Step 8: Confirm the download is real, and lint it**
+- [ ] **Step 8: Write the authored 1.4.0 copy over the downloaded strings**
+
+`bootstrap` downloaded the **currently live** listing, which is the previous version's copy. The authored 1.4.0 copy lives in `docs/app-review/app-store-description.md`, and Task 8 removes it from that file — so it must be transferred here first or it is lost.
+
+Read `docs/app-review/app-store-description.md` and copy each fenced block **verbatim** into the matching file. Transcription only: do not reword, retitle, shorten, or "improve" any string. If the linter later warns about one, that is a decision for the human, not a licence to edit here.
+
+| Fenced block in the markdown | Destination |
+|---|---|
+| Subtitle (the first block, not the alternatives) | `fastlane/metadata/en-US/subtitle.txt` |
+| Promotional text | `fastlane/metadata/en-US/promotional_text.txt` |
+| Description | `fastlane/metadata/en-US/description.txt` |
+| Keywords | `fastlane/metadata/en-US/keywords.txt` |
+| What's New in This Version | `fastlane/metadata/en-US/release_notes.txt` |
+
+Leave every other downloaded file exactly as it came down — `support_url.txt`, `privacy_url.txt`, `copyright.txt`, `name.txt` and the category files hold values already live and correct.
+
+The Subtitle section contains three blocks: one chosen subtitle and two alternatives kept as phrasing notes, the third of which the markdown itself flags as 35 characters and too long. Only the first block is the subtitle.
+
+Verify the transfer landed:
+
+```bash
+for f in subtitle promotional_text description keywords release_notes; do
+  printf '%-18s %s chars\n' "$f" "$(wc -m < fastlane/metadata/en-US/$f.txt | tr -d ' ')"
+done
+head -c 120 fastlane/metadata/en-US/description.txt; echo
+```
+
+Expected: subtitle 27, promotional_text 161, keywords 96 (each includes the trailing newline), description and release_notes non-empty, and the description opening with "Plotline tells you whether a series is worth your time".
+
+- [ ] **Step 9: Confirm the tree is complete, and lint it**
 
 ```bash
 ls fastlane/metadata/en-US/
-wc -c fastlane/metadata/en-US/{name,subtitle,keywords}.txt
 swift Scripts/aso-lint.swift fastlane/metadata; echo "exit: $?"
 ```
 
-Expected: the files listed with non-zero sizes, and the linter reporting on the live copy. Record what it says — this is the first real ASO reading of the shipped listing.
+Expected: exit 0. The linter is expected to emit a warning that `seasons` is bought by both the subtitle and the keyword field. **Report that warning; do not act on it.** Changing store copy is the human's call, and this task transcribes rather than edits.
 
-- [ ] **Step 9: Nothing to commit — verify that**
+- [ ] **Step 10: Nothing to commit — verify that**
 
 ```bash
 git status --porcelain
