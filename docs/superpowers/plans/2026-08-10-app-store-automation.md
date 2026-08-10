@@ -746,9 +746,14 @@ Insert directly after step 10:
 ```bash
 step "11/12  Store copy agrees with the app"
 # Two sources, because the facts live in two places. The series count comes
-# from the dataset — the same check render.sh makes for its marketing chip.
-# The shelf names come from CuratedListCopy.swift and NOT from the dataset:
-# the dataset carries ids and members, never words.
+# from counting entries in the dataset; the shelf names come from
+# CuratedListCopy.swift and NOT from the dataset, which carries ids and
+# members but never words.
+#
+# render.sh used to make the count check too, for a "122 SERIES" marketing
+# chip on frame 5. That chip and its check have been removed. So this is now
+# the only mechanical verification of that number anywhere in the project,
+# while the claim itself still sits in the public App Store description.
 DESCRIPTION="fastlane/metadata/en-US/description.txt"
 LIST_COPY="Plotline/Models/CuratedListCopy.swift"
 if [ ! -f "$DESCRIPTION" ]; then
@@ -1196,6 +1201,15 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline \
 ```
 
 Expected: `** BUILD SUCCEEDED **`.
+
+**PRECONDITION for steps 3, 4 and 6 — check before touching `CLAUDE.md`.**
+
+A concurrent session is editing `CLAUDE.md` in this same working tree (it is removing the "122 SERIES" marketing chip and rewriting the screenshot section). Run `git status --porcelain CLAUDE.md` first:
+
+- **Clean** → proceed normally.
+- **Modified (` M`)** → their edit is still uncommitted. **Do not stage it.** Stop and report `NEEDS_CONTEXT` rather than committing someone else's half-finished work. Step 1's `project.pbxproj` change is independent and may still be committed on its own.
+
+Never use `git add -A` or `git commit -a` in this task. Stage only the exact paths named.
 
 - [ ] **Step 3: Add the lanes to CLAUDE.md's Build Commands**
 
