@@ -220,10 +220,17 @@ fi
 # Separate from the scan above and specific to this one scheme, because this
 # is where the UI target's testable lives.
 #
-# `parallelizable = "NO"` is what makes every uninstall in run_suite mean
-# anything: with parallelization on, Xcode clones the simulator and runs the
-# tests on the clones, so the device named in -destination — the one this
-# script uninstalls from — is no longer the container the suite runs in.
+# What makes every uninstall in run_suite mean anything is that
+# PlotlineUITests runs non-parallel: with parallelization on, Xcode clones
+# the simulator and runs the tests on the clones, so the device named in
+# -destination — the one this script uninstalls from — is no longer the
+# container the suite runs in. `parallelizable = "YES"` is the only value
+# that turns that on. An absent attribute is Xcode's default for a UI test
+# target and already means non-parallel — confirmed independently in this
+# same release's screenshot captures, which pin the status bar by name on
+# `-destination` and show it correctly in every shot, which a clone would
+# not — so this only fails on an explicit "YES", not on the attribute being
+# unset.
 # The attribute has already been lost once on this branch — a local
 # `xcodebuild test` run put it back to YES, and a person happened to notice.
 # This is so the next time it is not a person.
@@ -237,10 +244,10 @@ else
     ' "$SCHEME_FILE")
     if [ -z "$ui_testable" ]; then
         fail "$SCHEME_FILE declares no PlotlineUITests testable — the cold-start suite does not run from this scheme at all"
-    elif ! printf '%s' "$ui_testable" | grep -qE 'parallelizable *= *"NO"'; then
-        fail "$SCHEME_FILE no longer marks PlotlineUITests parallelizable = \"NO\" — parallel runs happen on simulator clones, so the uninstalls above stop reaching the container under test"
+    elif printf '%s' "$ui_testable" | grep -qE 'parallelizable *= *"YES"'; then
+        fail "$SCHEME_FILE marks PlotlineUITests parallelizable = \"YES\" — parallel runs happen on simulator clones, so the uninstalls above stop reaching the container under test"
     else
-        pass "PlotlineUITests is still parallelizable = \"NO\", so it runs on the device -destination names and not on a clone"
+        pass "PlotlineUITests is not parallelizable = \"YES\" (absent or explicit \"NO\" both run on the device -destination names, not a clone)"
     fi
 fi
 
