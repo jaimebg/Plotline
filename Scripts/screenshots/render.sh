@@ -182,6 +182,19 @@ i=0
 for idx in 01 02 03 04 05 06 07 08; do
     y=${HERO_Y[$i]}
     sample=$(swift Scripts/screenshots/verify.swift pixel "$OUT/$idx.png" "$HERO_X" "$y")
+    # verify.swift pixel writes its failure (unreadable PNG, an (x,y) outside
+    # the image, a missing swift toolchain) to stderr and this script's
+    # `set -uo pipefail` has no `-e`, so a dead subshell just leaves $sample
+    # empty rather than stopping anything. An empty string fails both
+    # `close_to` calls below — every channel comparison reads it as 0 — so the
+    # bezel/canvas check silently passed on no data at all, and this printed
+    # the same green line it prints on real content. Reject anything that
+    # isn't a full RGB hex sample before it reaches that comparison, the same
+    # way the size checks above fail closed on `got=""`.
+    if ! [[ "$sample" =~ ^[0-9A-Fa-f]{6}$ ]]; then
+        echo "$OUT/$idx.png: pixel probe at ($HERO_X,$y) returned no sample (\"$sample\") instead of a hex colour — verify.swift pixel likely failed. Run \`swift Scripts/screenshots/verify.swift pixel $OUT/$idx.png $HERO_X $y\` directly to see why (an unreadable PNG, a coordinate outside the image, or a missing swift toolchain are the known causes)." >&2
+        exit 1
+    fi
     if close_to "$sample" "$BEZEL" || close_to "$sample" "$CANVAS_TOP" || close_to "$sample" "$CANVAS_BOTTOM"; then
         echo "$OUT/$idx.png: pixel ($HERO_X,$y), inside the hero device, is #$sample — bezel or canvas colour, not app content. This frame's screenshot did not load." >&2
         exit 1

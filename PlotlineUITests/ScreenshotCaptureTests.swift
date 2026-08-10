@@ -10,10 +10,18 @@ import XCTest
 /// it needs a working TMDB key, which the normal loop deliberately withholds,
 /// and it is slow.
 ///
-/// Navigation goes through the identifiers in `UITestAnchors`, never through
-/// coordinates. If a screen turns out to be unreachable by identifier, add the
-/// anchor to `Plotline/Support/AccessibilityAnchors.swift` and its twin here —
-/// do not tap a point.
+/// Navigation mostly finds its target by visible English label, not by
+/// identifier: "Where to Watch", "Plotline Score", "Episode Ratings",
+/// "Episode Scores", "What the Numbers Say", "Compare Movies & Series",
+/// "Decade Battle", "Ratings", "Empty comparison slot". Renaming any of
+/// those strings breaks a capture. Only three lookups go through
+/// `UITestAnchors` (the Discover shelf, and the Compare and Trends section
+/// anchors in Stats), and one more is a bare element index
+/// (`app.navigationBars.buttons.element(boundBy: 0)`). `scrollTo`/`step`
+/// scroll by normalized window coordinates — that's a drag gesture, not a
+/// lookup. If a screen turns out to be unreachable any other way, add an
+/// anchor to `Plotline/Support/AccessibilityAnchors.swift` and its twin
+/// here rather than reaching for a raw point.
 final class ScreenshotCaptureTests: XCTestCase {
     private var app: XCUIApplication!
 
