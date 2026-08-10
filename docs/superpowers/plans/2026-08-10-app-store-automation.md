@@ -669,7 +669,11 @@ if [ -n "$(git ls-files '*.p8' 2>/dev/null)" ]; then
     fail "git is tracking a .p8 private key"
     cred_ok=0
 fi
-if git grep -q -- "BEGIN PRIVATE KEY" -- . 2>/dev/null; then
+# Assembled at runtime, not written as one literal: a check that greps
+# every tracked file for a PEM header would otherwise match its own
+# source line and fail forever on a repo with no leak in it at all.
+pem_header="BEGIN PRIVATE"' KEY'
+if git grep -q -- "$pem_header" -- . 2>/dev/null; then
     fail "a PEM private key block appears in a tracked file"
     cred_ok=0
 fi
