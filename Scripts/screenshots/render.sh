@@ -54,6 +54,15 @@ fi
 # still looks fine, so the size checks below would all pass on a wrong render.
 # The sheet measures a known string and puts the width in its title; if that
 # moved, the font is not the one the design specifies.
+#
+# Measured with (Chrome 151.0.7922.108, run from the repo root, against
+# iphone.html — ipad.html renders the same probe string at the same size in
+# the same face and measured identically):
+#   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
+#     --dump-dom "file://$PWD/Scripts/screenshots/iphone.html" 2>/dev/null | grep -o 'ready:[0-9.]*' | head -1
+# Re-run that and update this constant if the headline face is ever
+# deliberately changed (the design spec floats Inter as an alternative to the
+# current system-ui face) — a stale EXPECTED_PROBE would reject every render.
 EXPECTED_PROBE=662.9
 probe=$("$CHROME" --headless --disable-gpu --dump-dom \
     "file://$ROOT/Scripts/screenshots/$SHEET" 2>/dev/null |
@@ -86,3 +95,14 @@ n=$(ls "$OUT"/*.png | wc -l | tr -d ' ')
 if [ "$n" -ne "$COUNT" ]; then echo "$n file(s) in $OUT, expected $COUNT" >&2; exit 1; fi
 
 echo "==> $n frames at ${W}x${H} in $OUT"
+
+# make.sh prints this same warning, but only after a full, successful,
+# both-families run — it never fires if capture.sh and render.sh are called
+# directly instead, which is exactly what shipped 1.4.0's real screenshots.
+# render.sh is the step that turns raw captures into the files that get
+# uploaded, and it runs on every path, so the warning belongs here too.
+printf '\n\033[33mCheck by hand:\033[0m the chip text hardcoded in iphone.html/ipad.html\n'
+printf '(LEVEL 86 · CONSISTENCY 54 · TRAJECTORY 65, BEFORE 8.4 -> AFTER 8.0,\n'
+printf 'SEASON 1 · AVG 8.4) was transcribed from a past capture, not this one. This\n'
+printf 'run just pulled fresh numbers from TMDB — if any moved, those chips now\n'
+printf 'contradict the screenshots beneath them, and no check above would catch it.\n'
