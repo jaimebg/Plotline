@@ -855,8 +855,9 @@ cat <<'MANUAL'
     3. Age rating, privacy nutrition labels, category and pricing.
     4. Read the sixteen screenshots before they go up. Nothing checks that
        each headline is still true about the capture beneath it.
-    5. Read release_notes.txt. Step 5 proves the version string matches; it
-       cannot prove the notes describe this version.
+    5. Read fastlane/metadata/en-US/release_notes.txt. NOTHING checks it.
+       Step 5 only proves docs/app-review/ mentions the current
+       MARKETING_VERSION — it never opens release_notes.txt.
 MANUAL
 ```
 
