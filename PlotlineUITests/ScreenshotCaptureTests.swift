@@ -73,7 +73,13 @@ final class ScreenshotCaptureTests: XCTestCase {
         // instead of the score card when frame 1 ran first without its own
         // scroll.
         capture(6, of: "where to watch") {
-            scrollTo(app.staticTexts["Streaming data provided by JustWatch"])
+            // Framed by the section's own header, not the attribution
+            // caption at its foot. `scrollTo` pins its target near the top
+            // of the screen, and the header is what belongs there: pinning
+            // the caption instead would push the provider logos above it
+            // mostly off-screen, which frames the wrong part of this
+            // section's own subject.
+            scrollTo(app.staticTexts["Where to Watch"])
         }
         capture(1, of: "plotline score") {
             scrollTo(app.staticTexts["Plotline Score"])
@@ -122,6 +128,25 @@ final class ScreenshotCaptureTests: XCTestCase {
             let compareLink = app.staticTexts["Compare Movies & Series"]
             XCTAssertTrue(compareLink.waitForExistence(timeout: 5), "Compare Movies & Series link never appeared")
             compareLink.tap()
+
+            // Frame 7's headline claims a real comparison, so the capture has
+            // to show one. `CompareView`'s empty state — three dashed slots
+            // and "Add at least 2 titles to compare" — is a real screen, but
+            // not what the headline promises. Breaking Bad and The Walking
+            // Dead are both reachable through the same TMDB search an empty
+            // slot opens, and both carry analysis, so the filled comparison
+            // shows real numbers rather than a placeholder.
+            addCompareSlot(named: "Breaking Bad")
+            addCompareSlot(named: "The Walking Dead")
+
+            XCTAssertTrue(
+                app.descendants(matching: .any)["Ratings"].waitForExistence(timeout: 10),
+                """
+                Compare filled two slots but never rendered a comparison, so \
+                frame 7 would still show the empty state under a headline \
+                that claims two titles side by side.
+                """
+            )
         }
         capture(8, of: "trends") {
             app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -207,6 +232,57 @@ final class ScreenshotCaptureTests: XCTestCase {
         )
     }
 
+    /// Fills the next empty Compare slot through the same flow a user would
+    /// use: tap the dashed "Add" placeholder, search TMDB, tap the result.
+    /// Never by coordinate — the slot is found by the accessibility label
+    /// `ComparisonSlotView` gives an empty slot, and the result by the title
+    /// text `CompareView`'s own search row renders.
+    private func addCompareSlot(named title: String) {
+        let emptySlot = app.buttons["Empty comparison slot"].firstMatch
+        XCTAssertTrue(
+            emptySlot.waitForExistence(timeout: 10),
+            "Compare has no empty slot left to add \(title) to"
+        )
+        emptySlot.tap()
+
+        let field = app.searchFields.firstMatch
+        XCTAssertTrue(
+            field.waitForExistence(timeout: 20),
+            "Compare's search sheet never presented a search field"
+        )
+        // The sheet's presentation animation can still be settling right
+        // after the field appears in the tree, and a tap during that window
+        // can land without taking keyboard focus — the same failure mode
+        // `openSeriesDetail` guards against on Discover. Retry rather than
+        // trust a single tap.
+        let focused = app.searchFields.matching(NSPredicate(format: "hasKeyboardFocus == true")).firstMatch
+        var didFocus = false
+        for _ in 0..<5 {
+            field.tap()
+            Thread.sleep(forTimeInterval: 0.4)
+            if focused.exists { didFocus = true; break }
+        }
+        XCTAssertTrue(didFocus, "Compare's search field never took keyboard focus")
+        field.typeText(title)
+
+        let result = app.staticTexts[title].firstMatch
+        XCTAssertTrue(
+            result.waitForExistence(timeout: 30),
+            "Compare search for \(title) returned nothing — is TMDB_API_KEY set?"
+        )
+        result.tap()
+
+        // `selectItem` dismisses the sheet synchronously, then fetches the
+        // full TMDB detail plus every season's episodes in the background —
+        // the slot shows a spinner briefly before its title text reappears,
+        // this time on the slot itself rather than the now-dismissed search
+        // row.
+        XCTAssertTrue(
+            app.staticTexts[title].waitForExistence(timeout: 45),
+            "\(title) never filled a Compare slot after selection"
+        )
+    }
+
     /// Pops back to the Discover root so a second series can be opened. The
     /// tab tap alone leaves the pushed detail screen in place; tapping the
     /// already-selected tab is what pops it.
@@ -236,15 +312,49 @@ final class ScreenshotCaptureTests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.5)
     }
 
-    /// Swipes until the element is hittable, then stops. Ten swipes is well
-    /// past the length of the detail screen; failing loudly beats a capture of
-    /// whatever happened to be on screen.
+    /// Scrolls until `element` is pinned within the top 30% of the screen,
+    /// not merely hittable somewhere on it.
+    ///
+    /// The original version stopped the instant the target was hittable,
+    /// anywhere on screen. That let two sections that fit on one screen
+    /// together settle at the identical scroll position: the Plotline Score
+    /// card and the Where to Watch attribution just above it, and the
+    /// episode chart and the episode grid just below it. Whichever target a
+    /// single swipe made hittable first, the other was hittable too, so the
+    /// two captures came back byte-identical — md5-confirmed on both device
+    /// families. Framing each target near the top pushes its neighbour
+    /// mostly or fully off-screen, so each frame photographs the section its
+    /// own headline claims rather than whatever else shares its screen.
+    ///
+    /// Drags in small steps rather than `swipeUp()`'s near-full-screen
+    /// gesture, which is what caused the collision above: when the gap
+    /// between two targets is under one screen's height, one big swipe can
+    /// carry both past "hittable" in the same motion. Small steps converge
+    /// on the top band instead of jumping past it; a step in the other
+    /// direction corrects an overshoot rather than compounding it.
     private func scrollTo(_ element: XCUIElement) {
-        for _ in 0..<10 {
-            if element.exists && element.isHittable { return }
-            app.swipeUp()
+        let topBand = app.windows.firstMatch.frame.height * 0.3
+        for _ in 0..<25 {
+            if element.exists {
+                let y = element.frame.minY
+                if element.isHittable, y >= 0, y <= topBand {
+                    return
+                }
+                step(up: y > topBand)
+            } else {
+                step(up: true)
+            }
         }
-        XCTFail("never reached \(element.debugDescription) after ten swipes")
+        XCTFail("never framed \(element.debugDescription) near the top of the screen after twenty-five scroll steps")
+    }
+
+    /// One scroll step, roughly a third of a screen — small enough that
+    /// `scrollTo` converges on its target instead of jumping past it.
+    private func step(up: Bool) {
+        let window = app.windows.firstMatch
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: up ? 0.7 : 0.3))
+        let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: up ? 0.35 : 0.65))
+        start.press(forDuration: 0.05, thenDragTo: end)
     }
 
     private func openTab(_ name: String) {
@@ -288,14 +398,98 @@ final class ScreenshotCaptureTests: XCTestCase {
         // would never catch. Rotating the raw, uncropped capture keeps every
         // pixel and fixes the shape in one step; confirmed against a real
         // capture that this direction, not the other, reads upright.
+        //
+        // The `app.screenshot()` attempt above is why dimensions alone are
+        // not trusted to prove this rotation is still correct: that image
+        // reported the right 2752x2064, and `capture.sh`'s only automated
+        // check is exactly that — width and height — so it would have
+        // shipped. Only opening the file and looking found the crop.
+        // `assertNotPaddedBlank` below is that look, automated: it samples
+        // the strip a crop-to-square bug would leave as solid padding and
+        // fails if every sample there is blank, so a future regression that
+        // is dimensionally correct but visually wrong — this rotation
+        // silently breaking under a different Xcode or simulator runtime,
+        // or someone "simplifying" it back to `app.screenshot()` — cannot
+        // pass by matching width and height alone. Do not delete this
+        // rotation because it looks like unnecessary machinery next to a
+        // one-line `app.screenshot()` call; that one-line call is the
+        // version already proven wrong.
         let image = UIDevice.current.userInterfaceIdiom == .pad
             ? raw.rotated90CounterClockwise()
             : raw
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            assertNotPaddedBlank(image, context: "frame \(String(format: "%02d", index)) (\(label))")
+        }
         let attachment = XCTAttachment(image: image)
         attachment.name = String(format: "%02d", index)
         attachment.lifetime = .keepAlways
         add(attachment)
         print("PLOTLINE_SHOT=\(String(format: "%02d", index)) \(label)")
+    }
+
+    /// Confirms the region a crop-to-square bug would leave blank actually
+    /// has content, instead of trusting dimensions alone.
+    ///
+    /// `app.screenshot()` was tried in place of the rotation above and
+    /// reported the correct 2752x2064 while silently cropping to a
+    /// 2064x2064 square and padding the remaining ~700px with solid black —
+    /// a defect `capture.sh`'s dimension check does not see, because it only
+    /// reads width and height. This samples ten points spread across
+    /// exactly the strip that crop would have padded (the region beyond the
+    /// image's shorter side) and fails if all ten read near-black. Real UI
+    /// content never does, even under the app's own dark theme: the darkest
+    /// background here, `Color.plotlineBackground`'s `#121212`, is RGB
+    /// (18, 18, 18) — above the near-black threshold below — while a
+    /// zeroed, unpainted `CGContext` region is exactly (0, 0, 0). Ten
+    /// samples, not one, so a single genuinely black pixel — a poster's
+    /// shadow, a letterboxed edge — cannot fail this by chance.
+    private func assertNotPaddedBlank(_ image: UIImage, context: String) {
+        guard let cgImage = image.cgImage else {
+            XCTFail("\(context): no cgImage to inspect for padding")
+            return
+        }
+        let width = cgImage.width
+        let height = cgImage.height
+        guard width != height else { return } // nothing a square crop could pad
+        let shorter = min(width, height)
+        guard
+            let data = cgImage.dataProvider?.data,
+            let bytes = CFDataGetBytePtr(data)
+        else {
+            XCTFail("\(context): could not read pixel data to check for padding")
+            return
+        }
+        let bytesPerRow = cgImage.bytesPerRow
+        let bytesPerPixel = max(cgImage.bitsPerPixel / 8, 1)
+        let length = CFDataGetLength(data)
+
+        func isNearBlack(x: Int, y: Int) -> Bool {
+            let offset = y * bytesPerRow + x * bytesPerPixel
+            guard offset + 2 < length else { return true }
+            return bytes[offset] < 10 && bytes[offset + 1] < 10 && bytes[offset + 2] < 10
+        }
+
+        var samples: [Bool] = []
+        if width > height {
+            let sampleX = shorter + (width - shorter) / 2
+            for y in stride(from: 0, to: height, by: max(height / 10, 1)) {
+                samples.append(isNearBlack(x: sampleX, y: y))
+            }
+        } else {
+            let sampleY = shorter + (height - shorter) / 2
+            for x in stride(from: 0, to: width, by: max(width / 10, 1)) {
+                samples.append(isNearBlack(x: x, y: sampleY))
+            }
+        }
+        XCTAssertFalse(
+            samples.allSatisfy { $0 },
+            """
+            \(context): every sampled pixel in the region a crop-to-square \
+            bug would pad reads near-black even though the dimensions are \
+            correct. This looks like the app.screenshot() cropping \
+            regression, not real content — do not trust this capture.
+            """
+        )
     }
 }
 
