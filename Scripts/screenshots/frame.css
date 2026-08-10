@@ -27,7 +27,15 @@ html, body { margin: 0; padding: 0; background: #0E0E12; }
   position: absolute;
   background: #2A2A2E;
   overflow: hidden;
-  box-shadow: 0 3cqw 7cqw rgba(0, 0, 0, .72);
+  /* A dark screenshot on a near-black canvas gives the #2A2A2E bezel almost
+     nothing to contrast against, so the lift has to come from the shadow
+     and a hairline rim rather than the fill colour (which the spec fixes).
+     The rim is a second zero-blur shadow, not a border, so it follows the
+     device's own border-radius exactly. */
+  box-shadow:
+    0 4cqw 9cqw rgba(0, 0, 0, .8),
+    0 1.4cqw 2.4cqw rgba(0, 0, 0, .55),
+    0 0 0 1px rgba(255, 255, 255, .08);
 }
 .device img { display: block; width: 100%; height: 100%; object-fit: cover; }
 

@@ -33,21 +33,35 @@ var FRAMES = [
 // Two shared scenes. Offsets are cqw — percentages of ONE frame's width —
 // across a stage three frames wide. Scene A spans frames 1·2·3, scene B
 // spans 6·7·8; frames 4 and 5 carry a single upright device.
+//
+// Each of the three frames in a scene gets exactly one hero: large, fully
+// inside its own 100cqw window, tilted only a few degrees. Two smaller,
+// more-tilted supporting devices sit behind the heroes straddling the two
+// internal boundaries (stage x=100 and x=200) — each is cut cleanly by the
+// frame edge on one side, so it reads as the same phone entering frame N+1
+// that was leaving frame N, without ever being the thing a headline's proof
+// depends on. Devices are listed supporting-first so the heroes (drawn
+// last) always sit on top where they'd otherwise touch.
 var SCENE_A = [
-  { left: 2,   top: 34, width: 62, rotate: -9 },
-  { left: 74,  top: 27, width: 74, rotate: 4 },
-  { left: 158, top: 36, width: 66, rotate: -13 },
-  { left: 232, top: 30, width: 70, rotate: 7 }
+  { left: 85,  top: 41, width: 28, rotate: 9 },
+  { left: 187, top: 39, width: 28, rotate: -8 },
+  { left: 17,  top: 31, width: 66, rotate: -3 },
+  { left: 117, top: 29, width: 66, rotate: 3 },
+  { left: 217, top: 31, width: 66, rotate: -3 }
 ];
 var SCENE_B = [
-  { left: -8,  top: 31, width: 70, rotate: 11 },
-  { left: 66,  top: 38, width: 60, rotate: -6 },
-  { left: 132, top: 28, width: 76, rotate: 3 },
-  { left: 222, top: 35, width: 64, rotate: -10 }
+  { left: 85,  top: 40, width: 28, rotate: -9 },
+  { left: 187, top: 42, width: 28, rotate: 8 },
+  { left: 17,  top: 30, width: 66, rotate: 3 },
+  { left: 117, top: 32, width: 66, rotate: -3 },
+  { left: 217, top: 30, width: 66, rotate: 3 }
 ];
-// Which raw capture each device in a scene shows, in scene order.
-var SCENE_A_SHOTS = ['01', '02', '03', '01'];
-var SCENE_B_SHOTS = ['06', '07', '08', '06'];
+// Which raw capture each device in a scene shows, in scene order. The two
+// supporting devices preview the next frame's hero (the same capture that
+// device shows large one frame later), which is what makes the boundary
+// read as one phone sliding through rather than two unrelated crops.
+var SCENE_A_SHOTS = ['02', '03', '01', '02', '03'];
+var SCENE_B_SHOTS = ['07', '08', '06', '07', '08'];
 
 function device(shot, d) {
   return '<div class="device phone" style="left:' + d.left + 'cqw;top:' + d.top +
