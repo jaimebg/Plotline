@@ -16,13 +16,21 @@
 The listing was `Plotline TV & Movies` through all three rejections. That name
 describes a catalogue browser, in the field Apple weights most heavily and the
 one a reviewer reads before anything else — the same reading §12 of the spec
-warns the *description* must not invite. `Plotline: TV Show Analysis` commits
-to the derived analysis in the same place.
+warns the *description* must not invite. `Plotline: TV & Film Analysis` adds
+the axis without dropping either half of what the app covers.
 
-It costs the `movies` token, which the keyword field buys back. The keyword
-field also stopped paying twice for `tv`, `analysis`, `seasons` and `shows`,
-all of which the name and subtitle now index on their own — eleven characters
-that were buying nothing.
+An intermediate draft, `Plotline: TV Show Analysis`, was uploaded and then
+withdrawn before submission: it bought the analysis axis by deleting films
+from the name entirely, which contradicts jbgsoft.com/plotline — the site
+gives films their own section, and the app has `BoxOfficeView` to back it.
+The store listing must not describe a narrower product than the site it links
+to.
+
+The keyword field carries `movies` while the name carries `Film`. Apple
+indexes the two together, so spelling them differently buys both tokens
+instead of paying twice for one — the site's voice is "films", en-US search
+volume is "movies". The field also stopped paying twice for `tv`, `analysis`
+and `seasons`, which the name and subtitle now index on their own.
 
 ## Why no number of series appears in the store copy
 
