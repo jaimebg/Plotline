@@ -184,7 +184,8 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline \
 # The dataset generator's own suite — xcodebuild never runs these
 cd Tools/DatasetGenerator && swift test
 
-# Everything that has to be true before a release, in nine steps
+# Everything that has to be true before a release, in twelve steps —
+# a barrier when a Fastlane release lane calls it, advisory everywhere else
 ./Scripts/release-preflight.sh
 ```
 
@@ -201,6 +202,10 @@ The store set lives in `screenshots/<version>/` — eight iPhone 6.9" frames and
 ```
 
 Captures are driven by a UI test that finds elements by label rather than tapping coordinates, then all eight marketing frames are laid out in one HTML row and rendered in a single pass — the rating curve and the device scenes run across frame boundaries, and a sheet that is never separated cannot drift. Which is also why the eight frames rejoin seamlessly into the strip above.
+
+## Releases
+
+Releases are automated with [Fastlane](https://fastlane.tools), local-only from a single Mac — no CI. `bundle exec fastlane release` runs the preflight, builds, uploads the store copy and screenshots, submits for review, and auto-releases the moment Apple approves — nobody reads the listing in between; that is a deliberate owner decision, not an oversight. There is no API for the App Store Connect Resolution Center, so the lane prints a reminder to reply there first and continues either way. `fastlane/` itself is gitignored — it holds an upload credential and review-contact details that have no place in a public repo — so `docs/app-review/README.md` is the versioned runbook: every lane, and how to rebuild that directory from nothing.
 
 ## Contributing
 
