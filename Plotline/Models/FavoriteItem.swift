@@ -3,16 +3,27 @@ import SwiftData
 
 /// SwiftData model for storing favorite movies and TV series
 /// Note: Unique constraint removed for CloudKit compatibility - duplicates prevented in FavoritesManager
+///
+/// Every stored property below is optional or carries a default **on its own
+/// declaration**. CloudKit reaches SwiftData through
+/// `NSPersistentCloudKitContainer`, which rejects a schema where a
+/// non-optional attribute has no default — a record arriving from the server
+/// without that field would have nothing to become. The defaults in `init`
+/// below do not satisfy that: the requirement is about the generated schema,
+/// not about how Swift constructs an instance. Getting this wrong does not
+/// fail loudly — `PlotlineApp` catches the throw and silently drops to
+/// local-only storage, so favorites keep saving and simply never sync.
+/// `CloudKitSchemaSourceTests` guards it.
 @Model
 final class FavoriteItem {
     /// TMDB ID of the media item (uniqueness enforced in FavoritesManager)
-    var tmdbId: Int
+    var tmdbId: Int = 0
 
     /// Media type: "movie" or "tv"
-    var mediaType: String
+    var mediaType: String = ""
 
     /// Display title
-    var title: String
+    var title: String = ""
 
     /// Poster path for thumbnail display
     var posterPath: String?
@@ -21,13 +32,16 @@ final class FavoriteItem {
     var backdropPath: String?
 
     /// TMDB vote average at time of favoriting
-    var voteAverage: Double
+    var voteAverage: Double = 0
 
     /// Comma-separated TMDB genre IDs (CloudKit-safe string storage)
     var genreIds: String = ""
 
-    /// Date when the item was favorited
-    var addedAt: Date
+    /// Date when the item was favorited.
+    /// Spelled out rather than `.distantPast`: the `@Model` macro expands the
+    /// default into a context with no contextual type, where implicit member
+    /// syntax resolves against `Any?` and fails to compile.
+    var addedAt: Date = Date.distantPast
 
     /// Parsed genre IDs from the comma-separated string
     var genreIdArray: [Int] {

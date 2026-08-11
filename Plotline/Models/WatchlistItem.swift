@@ -3,16 +3,20 @@ import SwiftData
 
 /// SwiftData model for storing watchlist items (Want to Watch / Watched)
 /// Note: Unique constraint removed for CloudKit compatibility - duplicates prevented in WatchlistManager
+///
+/// See `FavoriteItem` for why every stored property below is optional or
+/// carries a default on its own declaration, and why a default in `init` is
+/// not the same thing. `CloudKitSchemaSourceTests` guards it.
 @Model
 final class WatchlistItem {
     /// TMDB ID of the media item (uniqueness enforced in WatchlistManager)
-    var tmdbId: Int
+    var tmdbId: Int = 0
 
     /// Media type: "movie" or "tv"
-    var mediaType: String
+    var mediaType: String = ""
 
     /// Display title
-    var title: String
+    var title: String = ""
 
     /// Poster path for thumbnail display
     var posterPath: String?
@@ -21,16 +25,17 @@ final class WatchlistItem {
     var backdropPath: String?
 
     /// TMDB vote average at time of adding
-    var voteAverage: Double
+    var voteAverage: Double = 0
 
     /// Comma-separated TMDB genre IDs (CloudKit-safe string storage)
     var genreIds: String = ""
 
     /// Watch status: "want_to_watch" or "watched"
-    var watchStatus: String
+    var watchStatus: String = "want_to_watch"
 
-    /// Date when the item was added to watchlist
-    var addedAt: Date
+    /// Date when the item was added to watchlist.
+    /// Spelled out rather than `.distantPast` — see `FavoriteItem.addedAt`.
+    var addedAt: Date = Date.distantPast
 
     /// Parsed genre IDs from the comma-separated string
     var genreIdArray: [Int] {

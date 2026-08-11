@@ -4,5 +4,16 @@
 <dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- Required for SwiftData's iCloud sync, not for user-facing push. CloudKit
+	     signals a device that another device wrote something by sending a silent
+	     remote notification; without this mode the app never receives it and
+	     favorites and the watchlist only converge when it is next launched.
+	     Apple pairs it with the iCloud capability in Plotline.entitlements as
+	     the two requirements for automatic sync. Guarded by
+	     CloudKitSchemaSourceTests. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
