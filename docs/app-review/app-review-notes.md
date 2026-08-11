@@ -8,4 +8,4 @@
 
 **Why these notes matter.** The reviewer of 1.3.0 wrote that the app "primarily offers content for users to view or use" and that there isn't enough of it. Plotline's original content is computed, not licensed, and it lives one screen in. Reviewers work fast; if they do not know it is there, they will not find it. That is what happened three times. Say where it is.
 
-**Keep this factual.** Every claim below is checkable in under a minute on a fresh install, with no account and no network. Do not add anything that is not.
+**Keep this factual.** Every claim in those notes is checkable in under a minute on a fresh install, with no account and no network. Do not add anything that is not.
