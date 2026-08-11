@@ -26,14 +26,15 @@ anotada en el spec, §10.
 ## Al subir de versión
 
 El paso 5 del preflight busca `MARKETING_VERSION` en cualquier archivo de `docs/app-review/` —
-uno solo le basta para pasar. Pero hay cuatro sitios en esta carpeta que llevan el número
-grabado, y una subida de versión que solo toque `project.pbxproj` deja tres desactualizados sin
-que nada lo detecte:
+uno solo le basta para pasar. Pero hay cinco sitios en esta carpeta que llevan el número
+grabado, y una subida de versión que solo toque `project.pbxproj` deja cuatro desactualizados
+sin que nada lo detecte:
 
 - Este archivo, dos veces: el encabezado (línea 1) y el ejemplo de tag `v1.4.0` en la fila de
   `release` de la tabla de arriba.
 - `app-store-description.md`, línea 1.
 - `app-review-notes.md`, línea 1.
+- `resolution-center-reply.md`, línea 17.
 
 ## Antes de la primera release de una versión
 
@@ -109,8 +110,11 @@ tal cual reproduce el primer borrador con fallos ya conocidos, no la implementac
   desactivada la carga falla en silencio con CERO capturas. El `Deliverfile` real no fija
   `screenshots_path`. En su lugar, el lane privado `stage_screenshots` construye una vista
   desechable de symlinks en `fastlane/screenshots/en-US/` a partir del árbol real por familia de
-  dispositivo, y cada lane que sube o comprueba capturas (`screenshots`, `release_dry_run`,
-  `release`) pasa `screenshots_path: STAGED_SCREENSHOTS` en su propia llamada.
+  dispositivo. `stage_screenshots` corre en los tres lanes (`screenshots`, `release_dry_run`,
+  `release`), y por eso `release_dry_run` sí ejercita el defecto de la Tarea 7 — pero solo
+  `screenshots` y `release` llegan a llamar a `deliver`, y son los únicos dos que pasan
+  `screenshots_path: STAGED_SCREENSHOTS` en su propia llamada. `release_dry_run` termina en
+  `precheck`, que no toma `screenshots_path`.
 - **`release`** (spec `:108`) dice que llama a la acción `precheck`. El lane real en cambio pasa
   `run_precheck_before_submit: true` a `deliver`, que ejecuta precheck como parte de su propio
   envío y sí lee `precheck_include_in_app_purchases(false)` del `Deliverfile`. La acción
