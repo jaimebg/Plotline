@@ -30,8 +30,9 @@ uno solo le basta para pasar. Pero hay cinco sitios en esta carpeta que llevan e
 grabado, y una subida de versión que solo toque `project.pbxproj` deja cuatro desactualizados
 sin que nada lo detecte:
 
-- Este archivo, dos veces: el encabezado (línea 1) y el ejemplo de tag `v1.4.0` en la fila de
-  `release` de la tabla de arriba.
+- Este archivo, dos veces: el encabezado (línea 1) y el ejemplo de tag en la fila de `release`
+  de la tabla de arriba. Esta lista no escribe el número a propósito: si lo hiciera, sería un
+  tercer sitio que actualizar, y quedaría contradiciendo a la tabla en la siguiente subida.
 - `app-store-description.md`, línea 1.
 - `app-review-notes.md`, línea 1.
 - `resolution-center-reply.md`, línea 17.
