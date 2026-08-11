@@ -27,7 +27,7 @@
 
 Every verdict is printed with the episode ratings behind it, so you can disagree with it. And when the data will not support a conclusion, the app says so and says why, instead of inventing a softer verdict.
 
-No account, no sign-up, no subscription. 122 fully analysed series ship inside the binary, so it works on a plane.
+No account, no sign-up, no subscription. A pre-analysed set of series ships inside the binary, so it works on a plane.
 
 ## What the engine works out
 
@@ -77,7 +77,7 @@ The engine also identifies episodes that stand out within their season. That out
 
 ## Works before it can reach the network
 
-`Plotline/Resources/PlotlineDataset.json` ships **122 pre-analysed series and five curated lists**. The app renders them in the first frame and offline.
+`Plotline/Resources/PlotlineDataset.json` ships **a pre-analysed set of series and five curated lists**. The app renders them in the first frame and offline.
 
 It is a seed and a fallback, **never the truth**: a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch can never replace a full analysis with a fragment.
 

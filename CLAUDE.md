@@ -103,7 +103,7 @@ Four files under `Plotline/` are also compiled by the SwiftPM tool in `Tools/Dat
 
 ### The Bundled Dataset
 
-`Resources/PlotlineDataset.json` ships 122 pre-analysed series and five curated lists. It is a **seed and a fallback, never the truth**: the app shows it in the first frame and offline, and a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch cannot replace a full analysis with a fragment.
+`Resources/PlotlineDataset.json` ships a pre-analysed set of series and five curated lists. It is a **seed and a fallback, never the truth**: the app shows it in the first frame and offline, and a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch cannot replace a full analysis with a fragment.
 
 Regenerate with the tool in `Tools/DatasetGenerator/`. It has its own test suite (`swift test`).
 
@@ -262,9 +262,16 @@ The app targets iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`). App Revi
 generator suite, dataset freshness, the coherence between `MARKETING_VERSION`
 and `docs/app-review/`, the absence of OMDb, the shared schemes, the current
 version's screenshot set, that no App Store Connect credential reached version
-control, the ASO character budgets, and that the store description still
-agrees with the dataset's entry count and the five curated shelf names —
+control, the ASO character budgets, and that the store description mentions
+all five curated shelf names while attaching a count to none of them —
 twelve checks. `--for=beta` skips only the screenshot set.
+
+That last check runs the opposite way round from how it started. The
+description used to carry a literal entry count and the check proved it
+matched the dataset; the claim has been removed from the store copy, so the
+check now fails if a number is put back. A count is the one claim in that
+file that goes stale without anyone touching it — regenerating the dataset
+changes it and nothing prompts a reopen of the store listing.
 
 **It is now a barrier, when a lane runs it.** The release lanes in
 `fastlane/Fastfile` call it through `sh()`, and a non-zero exit aborts the

@@ -11,6 +11,36 @@
 
 ---
 
+## Why the app is named for the analysis, not the catalogue
+
+The listing was `Plotline TV & Movies` through all three rejections. That name
+describes a catalogue browser, in the field Apple weights most heavily and the
+one a reviewer reads before anything else — the same reading §12 of the spec
+warns the *description* must not invite. `Plotline: TV Show Analysis` commits
+to the derived analysis in the same place.
+
+It costs the `movies` token, which the keyword field buys back. The keyword
+field also stopped paying twice for `tv`, `analysis`, `seasons` and `shows`,
+all of which the name and subtitle now index on their own — eleven characters
+that were buying nothing.
+
+## Why no number of series appears in the store copy
+
+The description used to open its offline section with a literal entry count,
+and `release-preflight.sh` step 11 proved that count matched
+`PlotlineDataset.json`. Both are gone, and step 11 now asserts the inverse: a
+release fails if a count is put back.
+
+A count is the one claim in that file that goes stale on its own. Every
+dataset regeneration can change it, and nothing about regenerating the dataset
+prompts anyone to reopen the store listing — so the claim decays silently
+while the check that guarded it can only ever be as current as the last person
+who remembered both. Removing the claim removes the decay. The same reasoning
+took the number out of the App Review notes, the Resolution Center reply and
+the README; it survives only in the historical plans and specs under
+`docs/superpowers/`, which are records of what was decided when, not live
+claims.
+
 ## A note on the required attributions
 
 Two are not optional and both must appear where the data is shown:

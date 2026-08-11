@@ -386,15 +386,23 @@ else
 fi
 
 step "11/12  Store copy agrees with the app"
-# Two sources, because the facts live in two places. The series count comes
-# from counting entries in the dataset; the shelf names come from
-# CuratedListCopy.swift and NOT from the dataset, which carries ids and
-# members but never words.
+# The shelf names come from CuratedListCopy.swift and NOT from the dataset,
+# which carries ids and members but never words.
 #
-# render.sh used to make the count check too, for a "122 SERIES" marketing
-# chip on frame 5. That chip and its check have been removed. So this is now
-# the only mechanical verification of that number anywhere in the project,
-# while the claim itself still sits in the public App Store description.
+# This step used to assert the opposite of what it now asserts. The
+# description carried a literal entry count ("122 fully analysed series") and
+# this check proved it matched the dataset — after render.sh's "122 SERIES"
+# marketing chip was dropped, it was the only mechanical verification of that
+# number anywhere in the project. The claim has now been removed from the
+# public description, so there is nothing left to reconcile, and a check that
+# demands a count would fail every release.
+#
+# What replaces it is the inverse guard. A count is the one claim in this
+# description that goes stale on its own: every dataset regeneration can
+# change it, and nothing about editing the dataset prompts anyone to reopen
+# the store copy. Re-adding one is a single plausible-looking edit away, so
+# assert that no number is being attached to a series claim at all, rather
+# than trusting that nobody puts one back.
 DESCRIPTION="fastlane/metadata/en-US/description.txt"
 LIST_COPY="Plotline/Models/CuratedListCopy.swift"
 if [ ! -f "$DESCRIPTION" ]; then
@@ -402,12 +410,8 @@ if [ ! -f "$DESCRIPTION" ]; then
 else
     copy_ok=1
 
-    entries=$(python3 -c "import json;print(len(json.load(open('$DATASET'))['entries']))" 2>/dev/null)
-    if [ -z "$entries" ]; then
-        fail "could not count entries in $DATASET"
-        copy_ok=0
-    elif ! grep -qF -- "$entries fully analysed series" "$DESCRIPTION"; then
-        fail "$DATASET has $entries entries but the description does not say \"$entries fully analysed series\""
+    if counted=$(grep -nEo '[0-9][0-9,]* (fully analysed |pre-analysed |analysed )?series' "$DESCRIPTION"); then
+        fail "the description attaches a count to a series claim, which goes stale on the next dataset regeneration and is verified by nothing: $(printf '%s' "$counted" | tr '\n' ' ')"
         copy_ok=0
     fi
 
@@ -430,7 +434,7 @@ else
     fi
 
     if [ "$copy_ok" -eq 1 ]; then
-        pass "description agrees with $DATASET's $entries entries and all 5 shelf names"
+        pass "description carries no stale series count and mentions all 5 shelf names"
     fi
 fi
 
