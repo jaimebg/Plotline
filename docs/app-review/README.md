@@ -1,45 +1,85 @@
-# Reenvío a App Review — Plotline 1.4.0
+# Runbook de release — Plotline 1.4.0
 
-Todo lo de esta carpeta va **pegado a mano en App Store Connect**. No hay automatización, y no debería haberla: cada texto conviene releerlo antes de enviarlo.
+Las releases están automatizadas con Fastlane, en local, desde un único Mac.
 
-## Qué hay aquí
+**`fastlane/` no está en control de versiones.** Ahí viven una credencial de subida de App
+Store Connect y los datos de contacto de revisión, que no tienen sitio en un repo público. Este
+archivo es, por tanto, el único registro versionado de cómo se ejecuta una release — y de cómo
+reconstruir esa carpeta si esta máquina se pierde.
 
-| Archivo | Dónde va |
+## Los lanes
+
+| Comando | Qué hace |
 |---|---|
-| `resolution-center-reply.md` | El hilo existente del Resolution Center. **Primero esto**, antes de subir el build. |
-| `app-review-notes.md` | App Store Connect → App Review Information → Notes |
-| `app-store-description.md` | Descripción, subtítulo, texto promocional, keywords y novedades |
+| `bundle exec fastlane aso` | Lints del texto de la ficha contra los límites de Apple y el desperdicio de keywords. Sin red, sin build, sin credenciales. |
+| `bundle exec fastlane bootstrap` | Descarga lo que ya está vivo en App Store Connect a `fastlane/metadata/`. Se niega a machacar un `en-US/` que ya tenga texto redactado, salvo que se pase `force:true`. |
+| `bundle exec fastlane beta` | Preflight (modo beta) → build → sube a TestFlight. |
+| `bundle exec fastlane metadata` | Sube solo el texto de la ficha, sin binario ni capturas. Sin build. |
+| `bundle exec fastlane screenshots` | Regenera los dieciséis fotogramas de marketing (`make.sh`) y los sube. Sin build. |
+| `bundle exec fastlane release_dry_run` | Preflight (modo release) → `precheck` → build. No sube ni envía nada. |
+| `bundle exec fastlane release` | Preflight (modo release) → build → `deliver` sube binario, texto y capturas juntos, envía a revisión y publica automáticamente en cuanto Apple aprueba → etiqueta el commit `v1.4.0`. |
 
-Los textos que se pegan están en inglés y marcados entre `## Paste from here` y `## Paste to here`. Lo de fuera de esas marcas es contexto para nosotros.
+`release` envía a revisión **y** publica en cuanto se aprueba, sin que nadie lea la ficha entre
+la aprobación y que los usuarios la vean. Es una decisión explícita del autor, no un descuido —
+anotada en el spec, §10.
 
-## Capturas
+## Antes de la primera release de una versión
 
-En `screenshots/1.4.0/`, con las medidas exactas que acepta App Store Connect — ocho archivos por familia, `01.png` a `08.png`:
+1. `bundle exec fastlane release_dry_run` — prueba el pipeline entero sin tocar la ficha ni el
+   binario publicado.
+2. Responder en el Resolution Center si hay un hilo abierto. **Antes de subir nada.** No existe
+   API para esto y `release` no se detiene a esperarlo — solo lo avisa por pantalla y continúa
+   (spec, §11).
+3. Desplegar el contenedor CloudKit `iCloud.com.jbgsoft.Plotline` a Production.
+4. Leer las dieciséis capturas. Nada comprueba que un titular siga siendo cierto sobre la
+   captura que tiene debajo.
+5. Leer `fastlane/metadata/en-US/release_notes.txt` a mano. El paso 5 del preflight solo
+   comprueba que la versión actual aparece en algún archivo de `docs/app-review/` — nunca abre
+   `release_notes.txt`. Nada, en ningún paso, comprueba que esas notas describan esta versión.
 
-| Carpeta | Archivos | Medida | Dispositivo |
-|---|---|---|---|
-| `screenshots/1.4.0/iphone-69/` | `01.png`–`08.png` | 1320 × 2868 | iPhone 6.9" |
-| `screenshots/1.4.0/ipad-13/` | `01.png`–`08.png` | 2752 × 2064 (apaisado) | iPad 13" |
+## Firma de código
 
-Cada archivo es un fotograma de marketing — titular, pastilla de evidencia y una captura real de la app compuestos en una sola imagen —, no una captura suelta de una pantalla. Las dieciséis muestran lo que pide §12 del spec: **el análisis, no pósters**. Entre las ocho de cada familia: el Plotline Score con sus tres componentes, el veredicto de caída con las cifras que lo sustentan, el gráfico por temporada, la rejilla de episodios, los estantes curados de Discover, Where to Watch, Compare y Decade Battle.
+Dos datos que costaron una hora en esta sesión y que, sin dejarlos escritos, le costarán otra a
+quien venga después:
 
-**Cómo se hicieron:** `Scripts/screenshots/make.sh` (o `capture.sh` seguido de `render.sh` por separado — ver `CLAUDE.md`, sección «App Store Screenshots»). `capture.sh` recorre la app de verdad en el simulador, con datos reales de TMDB, y guarda ocho capturas crudas por familia; `render.sh` las compone con el titular y la evidencia en una sola pasada de Chrome y las corta en los ocho archivos de la tabla de arriba. No hay paso manual ni anclaje de `ScrollView`: ese método, usado para el 1.4.0 original, quedó retirado en este branch junto con las dos capturas que produjo. `Scripts/release-preflight.sh` (paso 8/9) comprueba que las dieciséis existen con su tamaño exacto antes de cualquier release, pero no que el titular de cada una siga siendo cierto sobre lo que la captura muestra — eso se sigue mirando a mano.
+- **El perfil de aprovisionamiento de distribución solo se regenera cuando Xcode firma de
+  verdad para distribución** — es decir, Organizer → Distribute App. Abrir Xcode o simplemente
+  mirar Signing & Capabilities refresca el perfil de DESARROLLO y deja el de distribución
+  obsoleto. La acción obvia no es la que funciona.
+- **El certificado de distribución actual caduca el 2027-02-24.** Cuando rote, el perfil
+  desactualizado fallará de la misma forma silenciosa, y el fallo solo aparece en el paso de
+  exportación — unos 9 minutos dentro de una release, después del preflight y de un archive
+  completo. Diagnóstico rápido: reejecutar `xcodebuild -exportArchive` contra un archive que ya
+  existe, en vez de volver a compilar todo, para confirmarlo sin esperar otro archive entero.
 
-## Paso 0
+## Reconstruir `fastlane/` en una máquina nueva
 
-`./Scripts/release-preflight.sh` antes de nada. No sustituye a la lista de
-abajo —los textos se siguen pegando a mano a propósito— pero comprueba lo que
-sí se puede comprobar, e imprime esa lista al terminar.
+1. `bundle install`
+2. Crear `fastlane/.keys/` y meter ahí el `.p8` de App Store Connect, `chmod 600`. Si se
+   pierde, revocarlo en App Store Connect → Users and Access → Integrations y generar uno
+   nuevo; el archivo se descarga una sola vez y no se puede volver a descargar.
+3. Escribir `fastlane/.env` con `ASC_KEY_ID`, `ASC_ISSUER_ID` y `ASC_KEY_PATH`. El issuer id
+   está en esa misma página de App Store Connect.
+4. Escribir `fastlane/Appfile` con `app_identifier("com.jbgsoft.Plotline")` y
+   `team_id("95PGC3PATF")`.
+5. `bundle exec fastlane bootstrap` para repoblar `fastlane/metadata/`.
+6. `./Scripts/release-preflight.sh --for=release` — el paso 9 confirma que no se ha filtrado
+   ninguna credencial a git, los pasos 10 y 11 confirman que el texto de la ficha está presente
+   y es cierto.
 
-## El orden que importa
+`Fastfile` y `Deliverfile` se recrean a partir del spec,
+`docs/superpowers/specs/2026-08-10-app-store-automation-design.md` §5.
 
-1. **Responder en el Resolution Center antes de subir nada.** Reenviar en silencio es lo que convirtió un rechazo en tres: cada revisor nuevo abría la misma app con la misma primera impresión y ningún motivo para mirar más.
-2. Subir el build 1.4.0 (7).
-3. Actualizar descripción, subtítulo, promocional, keywords y novedades.
-4. Sustituir las capturas.
-5. Pegar las App Review Notes.
-6. **Pedir la llamada** desde el Resolution Center. Con tres 4.2 encadenados, una conversación aclara más que un cuarto envío a ciegas.
+## Dos asuntos abiertos, sin decidir todavía
 
-## Qué NO decir
+- `support_url` y `privacy_url` en la ficha apuntan hoy a la misma URL, la de la política de
+  privacidad. No es un fallo de la automatización — es una decisión de producto pendiente del
+  autor.
+- El linter ASO avisa de que `seasons` y `tv` están comprados dos veces cada uno: aparecen tanto
+  en el subtítulo como en el campo de keywords (95/100 caracteres usados). `bundle exec fastlane
+  aso` lo marca como warning, no como fallo, y nadie lo ha resuelto todavía.
 
-El spec lo avisa y conviene repetirlo: no discutir el criterio. La impresión del revisor era **acertada sobre lo que vio** — la pestaña de Stats se abría vacía en instalación limpia, el gráfico de episodios llevaba desconectado desde `16f6c77`, y la app corría encajonada en su iPad. Lo que cambió es la app, no el argumento.
+## Lo que se sigue pegando a mano
+
+Clasificación por edades, etiquetas de privacidad, categoría, precio, y cualquier mensaje del
+Resolution Center.
