@@ -40,7 +40,7 @@ done
 # is where it was checked: alone among the four chips it had a second, static
 # source of truth in the repo — `entries` in PlotlineDataset.json — so instead
 # of a by-eye warning it got a real comparison, because regenerating the
-# dataset (preflight step 4/9, every ~90 days) moves that count without
+# dataset (preflight step 4/12, every ~90 days) moves that count without
 # touching a hardcoded string in a sheet.
 #
 # The chip is gone, so there is nothing left here to check: every remaining
