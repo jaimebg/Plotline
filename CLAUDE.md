@@ -23,7 +23,7 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — 148 Swift Testing functions, 153 cases (three are parameterised),
+# Run tests — 149 Swift Testing functions, 154 cases (three are parameterised),
 # plus the 7-method cold-start UI suite, which runs starved of a TMDB key
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
@@ -50,6 +50,7 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline clean && rm -rf build
 
 # App Store releases — Fastlane, local-only. fastlane/ is gitignored.
 bundle exec fastlane aso              # lint store copy, no network
+bundle exec fastlane verify_screenshots  # what is live vs. what is staged
 bundle exec fastlane beta             # preflight, build, TestFlight
 bundle exec fastlane release_dry_run  # the whole release, uploading nothing
 bundle exec fastlane release          # build, metadata, screenshots, submit, auto-release
@@ -272,6 +273,25 @@ matched the dataset; the claim has been removed from the store copy, so the
 check now fails if a number is put back. A count is the one claim in that
 file that goes stale without anyone touching it — regenerating the dataset
 changes it and nothing prompts a reopen of the store listing.
+
+**One thing the preflight cannot check is the screenshots that actually
+arrive.** It verifies the sixteen files on disk — count, dimensions, hero
+pixels — and they are routinely correct while the upload is not. `deliver`
+retries a screenshot upload up to five times, and when an image did land but
+the verification pass missed it, the retry uploads it a second time: a
+release went out with ten per device instead of eight, two of them
+byte-identical duplicates. `overwrite_screenshots` does not prevent it, since
+it clears what was there *before* the upload that creates the duplicate.
+
+So `release` no longer lets `deliver` upload and submit in one call. It
+uploads, runs the `verify_uploaded_screenshots` barrier against the live App
+Store Connect state, and only then makes a second, submit-only `deliver`
+call. The barrier deletes duplicate copies (same name, same byte count as
+one already present, so nothing can be lost), asserts each device's set is in
+order, and fails the lane if what is live does not match what was staged.
+Splitting the call is the whole point: screenshots cannot be edited once a
+version is waiting for review, so a check after submission would be too late.
+`bundle exec fastlane verify_screenshots` runs the same barrier on its own.
 
 **It is now a barrier, when a lane runs it.** The release lanes in
 `fastlane/Fastfile` call it through `sh()`, and a non-zero exit aborts the
