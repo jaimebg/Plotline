@@ -47,6 +47,12 @@ cd Tools/DatasetGenerator && swift test
 
 # Clean build
 xcodebuild -project Plotline.xcodeproj -scheme Plotline clean && rm -rf build
+
+# App Store releases — Fastlane, local-only. fastlane/ is gitignored.
+bundle exec fastlane aso              # lint store copy, no network
+bundle exec fastlane beta             # preflight, build, TestFlight
+bundle exec fastlane release_dry_run  # the whole release, uploading nothing
+bundle exec fastlane release          # build, metadata, screenshots, submit, auto-release
 ```
 
 Open in Xcode: `open Plotline.xcodeproj`
@@ -254,8 +260,22 @@ The app targets iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`). App Revi
 
 `Scripts/release-preflight.sh` gathers the two cold-start suite passes, the
 generator suite, dataset freshness, the coherence between `MARKETING_VERSION`
-and `docs/app-review/`, the absence of OMDb, the shared schemes, and that the
-current version's screenshot set has all sixteen files at their required sizes.
+and `docs/app-review/`, the absence of OMDb, the shared schemes, the current
+version's screenshot set, that no App Store Connect credential reached version
+control, the ASO character budgets, and that the store description still
+agrees with the dataset's entry count and the five curated shelf names —
+twelve checks. `--for=beta` skips only the screenshot set.
+
+**It is now a barrier, when a lane runs it.** The release lanes in
+`fastlane/Fastfile` call it through `sh()`, and a non-zero exit aborts the
+lane. It is still also wired to the Archive pre-action, where it only warns —
+a pre-action that returns an error does not reliably abort an archive in
+recent Xcode. Same script, two callers, two strengths.
+
+Releases themselves are automated with Fastlane, local-only from one Mac.
+`fastlane/` is gitignored — it holds an App Store Connect upload credential
+and review-contact details. `docs/app-review/README.md` is the versioned
+runbook and documents how to rebuild that directory from scratch.
 
 The generator suite is in there because `xcodebuild test` **never** runs it,
 and its `ShippedDatasetTests` is the only suite that opens
@@ -271,7 +291,3 @@ of them — plus a copy check with no counterpart in `ShippedDatasetTests`,
 because `CuratedListCopy` is app-side and unreachable from the generator
 package. Neither suite asserts the full set of cross-list invariants or runs
 the secret scan.
-
-It is wired to the Archive pre-action, **and that does not make it a
-barrier**: a pre-action that returns an error does not reliably abort an
-archive in recent Xcode. It warns at the right moment; it does not prevent.
