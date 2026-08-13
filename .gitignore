@@ -45,6 +45,10 @@ screenshots/raw/
 # (phone, email) that have no business in a public repo. The store copy in
 # fastlane/metadata/ is therefore unversioned too — a known, accepted cost,
 # recorded in docs/superpowers/specs/2026-08-10-app-store-automation-design.md.
-# The *recipe* is versioned instead: docs/app-review/README.md documents the
-# lanes and how to rebuild this directory on a new machine.
+# The *recipe* lives in docs/app-review/README.md, and docs/ is gitignored
+# below — local-only by the same reasoning.
 fastlane/
+
+# docs/ — local-only: App Review notes, Resolution Center replies, store copy
+# rationale, plans and specs. Kept on disk, kept out of the public repo.
+docs/

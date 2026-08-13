@@ -301,8 +301,9 @@ recent Xcode. Same script, two callers, two strengths.
 
 Releases themselves are automated with Fastlane, local-only from one Mac.
 `fastlane/` is gitignored — it holds an App Store Connect upload credential
-and review-contact details. `docs/app-review/README.md` is the versioned
-runbook and documents how to rebuild that directory from scratch.
+and review-contact details. `docs/app-review/README.md` — inside the
+gitignored `docs/` directory, which is local-only — is the runbook and
+documents how to rebuild that directory from scratch.
 
 The generator suite is in there because `xcodebuild test` **never** runs it,
 and its `ShippedDatasetTests` is the only suite that opens
