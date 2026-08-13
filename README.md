@@ -126,7 +126,6 @@ Plotline/
 
 Tools/DatasetGenerator/     # SwiftPM tool that regenerates the dataset
 Scripts/                    # Release preflight and the App Store screenshot pipeline
-# (docs/ is gitignored: local-only store copy, review notes, plans and specs)
 ```
 
 Four files — `EpisodeMetric`, `SeriesAnalysis`, `PlotlineDataset` and `SeriesAnalysisEngine` — are compiled by both the app and the dataset generator, via symlinks. **They may import only Foundation.** A reference to SwiftUI or the networking layer in any of them breaks the generator's build.
@@ -205,7 +204,7 @@ Captures are driven by a UI test that finds elements by label rather than tappin
 
 ## Releases
 
-Releases are automated with [Fastlane](https://fastlane.tools), local-only from a single Mac — no CI. `bundle exec fastlane release` runs the preflight, builds, uploads the store copy and screenshots, submits for review, and auto-releases the moment Apple approves — nobody reads the listing in between; that is a deliberate owner decision, not an oversight. There is no API for the App Store Connect Resolution Center, so the lane prints a reminder to reply there first and continues either way. `fastlane/` itself is gitignored — it holds an upload credential and review-contact details that have no place in a public repo — so the runbook — `docs/app-review/README.md`, inside the gitignored `docs/` directory — documents every lane and how to rebuild that directory from nothing.
+Releases are automated with [Fastlane](https://fastlane.tools), local-only from a single Mac — no CI. `bundle exec fastlane release` runs the preflight, builds, uploads the store copy and screenshots, submits for review, and auto-releases the moment Apple approves — nobody reads the listing in between; that is a deliberate owner decision, not an oversight. There is no API for the App Store Connect Resolution Center, so the lane prints a reminder to reply there first and continues either way. `fastlane/` itself is gitignored — it holds an upload credential and review-contact details that have no place in a public repo.
 
 ## Contributing
 
