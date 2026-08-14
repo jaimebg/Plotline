@@ -9,6 +9,13 @@
 </p>
 
 <p align="center">
+  <a href="https://apps.apple.com/us/app/plotline-tv-film-analysis/id6759011313">
+    <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us" alt="Download Plotline on the App Store" height="52">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://apps.apple.com/us/app/plotline-tv-film-analysis/id6759011313"><img src="https://img.shields.io/badge/App%20Store-live-0D96F6?logo=apple&logoColor=white" alt="Live on the App Store"></a>
   <img src="https://img.shields.io/badge/iOS-26%2B-blue" alt="iOS 26+">
   <img src="https://img.shields.io/badge/iPhone%20%26%20iPad-universal-lightgrey" alt="iPhone & iPad">
   <img src="https://img.shields.io/badge/SwiftUI-darkblue" alt="SwiftUI">
@@ -23,11 +30,13 @@
 
 ## About
 
-**Plotline** is an open-source iOS app for exploring movies and TV series. Metadata, images and ratings come from TMDB — but the catalogue is not the product. Plotline's analysis engine derives what TMDB does not publish: **where a series declines, how consistent it is, whether it lands its ending, and a 0–100 Plotline Score.**
+**Plotline** is an open-source iOS app for exploring movies and TV series, [free on the App Store](https://apps.apple.com/us/app/plotline-tv-film-analysis/id6759011313). Metadata, images and ratings come from TMDB — but the catalogue is not the product. Plotline's analysis engine derives what TMDB does not publish: **where a series declines, how consistent it is, whether it lands its ending, and a 0–100 Plotline Score.**
 
 Every verdict is printed with the episode ratings behind it, so you can disagree with it. And when the data will not support a conclusion, the app says so and says why, instead of inventing a softer verdict.
 
 No account, no sign-up, no subscription. A pre-analysed set of series ships inside the binary, so it works on a plane.
+
+This repository is the source of the app on the store — the same code, built and submitted from it. If you would rather build it yourself, [Getting Started](#getting-started) needs nothing but Xcode and a TMDB key.
 
 ## What the engine works out
 
@@ -176,7 +185,7 @@ Four files — `EpisodeMetric`, `SeriesAnalysis`, `PlotlineDataset` and `SeriesA
 ## Testing
 
 ```bash
-# App suites: 146 Swift Testing functions, plus the cold-start UI suite
+# App suites: 149 Swift Testing functions, plus the cold-start UI suite
 xcodebuild -project Plotline.xcodeproj -scheme Plotline \
   -destination 'platform=iOS Simulator,name=iPhone 17' test
 
@@ -203,6 +212,8 @@ The store set lives in `screenshots/<version>/` — eight iPhone 6.9" frames and
 Captures are driven by a UI test that finds elements by label rather than tapping coordinates, then all eight marketing frames are laid out in one HTML row and rendered in a single pass — the rating curve and the device scenes run across frame boundaries, and a sheet that is never separated cannot drift. Which is also why the eight frames rejoin seamlessly into the strip above.
 
 ## Releases
+
+Plotline is live on the App Store as **[Plotline: TV & Film Analysis](https://apps.apple.com/us/app/plotline-tv-film-analysis/id6759011313)** — free, iOS 26+, iPhone and iPad. No version number is quoted here on purpose: it is the one claim in this file that goes stale on its own, with nobody touching the repo.
 
 Releases are automated with [Fastlane](https://fastlane.tools), local-only from a single Mac — no CI. `bundle exec fastlane release` runs the preflight, builds, uploads the store copy and screenshots, submits for review, and auto-releases the moment Apple approves — nobody reads the listing in between; that is a deliberate owner decision, not an oversight. There is no API for the App Store Connect Resolution Center, so the lane prints a reminder to reply there first and continues either way. `fastlane/` itself is gitignored — it holds an upload credential and review-contact details that have no place in a public repo.
 
