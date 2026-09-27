@@ -50,7 +50,7 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — 363 Swift Testing functions (four parameterised), plus the
+# Run tests — 388 Swift Testing functions (four parameterised), plus the
 # 8-method cold-start UI suite, which runs starved of a TMDB key
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
@@ -109,7 +109,8 @@ Episode payloads are cached on disk (`DiskCache`) because a long-running series 
 **Models** (`Models/`)
 - `MediaItem` - Unified model for movies and TV series with computed properties for URLs and display values
 - `EpisodeMetric` - Episode data (sourced from TMDB's season endpoint) for Swift Charts visualization
-- `SeriesAnalysis` - The engine's output: decline point, consistency, standout episodes, opening and ending verdicts, Plotline Score
+- `SeriesAnalysis` - The engine's output: decline point, consistency, standout episodes, opening and ending verdicts, Plotline Score, and `declineTest` — the engine's own record of whether the decline test ran and over which boundaries. Nil in analyses written before it existed; nil licenses no claim about scope
+- `CurrentSeriesStatus` - App-side: TMDB's status as a screen knows it now, or that the details never arrived. `SeriesAnalysis.visibleEndingVerdict(under:)` is the one ending-verdict gate for the detail screen, the share card and Compare
 - `PlotlineDataset` - The contract between the app and the dataset generator
 - `APIResponses/` - TMDB response wrappers with decoding
 
