@@ -28,6 +28,14 @@ struct PlotlineApp: App {
         Task.detached(priority: .utility) {
             await TMDBService.pruneExpiredCaches()
         }
+
+        // Spotlight gets every bundled series, once per dataset. The App
+        // Shortcut phrases that name a series are built from the same
+        // dataset, so they are refreshed alongside.
+        Task.detached(priority: .utility) {
+            await SpotlightIndexer.indexBundledDatasetIfNeeded()
+            PlotlineShortcuts.updateAppShortcutParameters()
+        }
     }
 
     var body: some Scene {
