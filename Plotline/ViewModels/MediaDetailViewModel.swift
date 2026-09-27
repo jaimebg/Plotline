@@ -396,15 +396,22 @@ final class MediaDetailViewModel {
     // MARK: - Private Methods
 
     /// Whether a series detail payload has been merged, so `totalSeasons`
-    /// reflects TMDB rather than the default.
-    private var hasLoadedSeriesDetails = false
+    /// reflects TMDB rather than the default and `media.hasEnded` is TMDB's
+    /// current status rather than whatever a list payload carried.
+    private(set) var hasLoadedSeriesDetails = false
+
+    /// The series' status as this screen currently knows it. The ending
+    /// verdict, on screen and on the share card, is gated on this rather than
+    /// on the status the analysis was computed with.
+    var currentStatus: CurrentSeriesStatus {
+        hasLoadedSeriesDetails ? .reported(hasEnded: media.hasEnded) : .notLoaded
+    }
 
     @MainActor
     private func fetchTMDBDetails() async {
         do {
             let details = try await tmdbService.fetchDetails(for: media)
             applyDetails(details)
-            hasLoadedSeriesDetails = true
         } catch {
             #if DEBUG
             debugPrint("Failed to fetch TMDB details: \(error)")
@@ -462,6 +469,7 @@ final class MediaDetailViewModel {
         if let seasons = details.totalSeasons {
             totalSeasons = seasons
         }
+        hasLoadedSeriesDetails = true
     }
 
     /// Fetch all movie-specific features

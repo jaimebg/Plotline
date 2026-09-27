@@ -20,17 +20,21 @@ nonisolated struct CompareSlotAnalysis: Equatable {
     private(set) var source: Source
     /// Seasons still missing after the last fetch.
     private(set) var failedSeasons: [Int] = []
-    /// TMDB's series status as `SeriesStatus` maps it. `nil` is unknown, which
-    /// is never shown as ended.
-    private(set) var hasEnded: Bool?
+    /// TMDB's series status as this slot knows it, or that the details never
+    /// arrived.
+    private(set) var status: CurrentSeriesStatus
+
+    /// The reported status as `SeriesStatus` maps it. `nil` is unknown or not
+    /// loaded, which is never shown as ended.
+    var hasEnded: Bool? { status.reportedHasEnded }
 
     /// The state before any fetch: the bundled analysis if this series is one
     /// the app ships, otherwise nothing.
-    static func seeded(bundled: SeriesAnalysis?, hasEnded: Bool?) -> CompareSlotAnalysis {
+    static func seeded(bundled: SeriesAnalysis?, status: CurrentSeriesStatus) -> CompareSlotAnalysis {
         CompareSlotAnalysis(
             result: bundled.map(SeriesAnalysisResult.analyzed),
             source: .bundled,
-            hasEnded: hasEnded
+            status: status
         )
     }
 
@@ -40,7 +44,9 @@ nonisolated struct CompareSlotAnalysis: Equatable {
     /// - Parameters:
     ///   - held: the episodes the slot already holds, so a failed retry cannot
     ///     wipe seasons an earlier attempt loaded.
-    ///   - hasEnded: the latest status from TMDB's details.
+    ///   - hasEnded: the latest status from TMDB's details. Seasons are only
+    ///     fetched with the details in hand — the season count comes from
+    ///     them — so a fold always records the status as reported.
     ///   - now: explicit so the result never depends on the clock.
     func folding(
         _ fetched: SeasonFetchResult,
@@ -52,7 +58,7 @@ nonisolated struct CompareSlotAnalysis: Equatable {
 
         var next = self
         next.failedSeasons = merged.failedSeasons
-        next.hasEnded = hasEnded
+        next.status = .reported(hasEnded: hasEnded)
 
         if let fresh = LiveSeriesAnalysis.replacement(
             for: result,
@@ -69,9 +75,9 @@ nonisolated struct CompareSlotAnalysis: Equatable {
     }
 
     /// Records a status learned without a season fetch — a details retry.
-    func updatingStatus(_ hasEnded: Bool?) -> CompareSlotAnalysis {
+    func updatingStatus(_ status: CurrentSeriesStatus) -> CompareSlotAnalysis {
         var next = self
-        next.hasEnded = hasEnded
+        next.status = status
         return next
     }
 }
@@ -126,7 +132,7 @@ struct CompareAnalysisEntry: Equatable {
                 label: label,
                 analysis: result,
                 source: analysis?.source ?? .bundled,
-                hasEnded: analysis?.hasEnded
+                status: analysis?.status ?? .notLoaded
             )
             let isFallback = analysis?.source == .bundled
             return CompareAnalysisEntry(
@@ -170,7 +176,9 @@ struct CompareAnalysisColumn: Equatable {
     let label: String
     let analysis: SeriesAnalysis
     let source: CompareSlotAnalysis.Source
-    let hasEnded: Bool?
+    let status: CurrentSeriesStatus
+
+    var hasEnded: Bool? { status.reportedHasEnded }
 }
 
 // MARK: - The table
@@ -413,19 +421,13 @@ enum CompareAnalysisTable {
         return (value, detail, "\(value). \(SeriesVerdictsView.openingEvidence(opening))")
     }
 
-    /// The ending verdict is shown only for a series TMDB confirms has ended,
-    /// as the engine requires. Unknown status is stated as unknown — never as
-    /// ended, and never as returning either.
+    /// The ending verdict is shown only under the rule the detail screen and
+    /// the share card apply (`SeriesAnalysis.visibleEndingVerdict(under:)`):
+    /// a series TMDB currently reports as ended or, with no details, one the
+    /// analysis itself does not record as ongoing. Unknown status is stated as
+    /// unknown — never as ended, and never as returning either.
     static func ending(_ column: CompareAnalysisColumn) -> (value: String, detail: String?, spoken: String) {
-        switch column.hasEnded {
-        case true?:
-            guard let ending = column.analysis.endingVerdict else {
-                let value = "No ending verdict"
-                let detail = column.source == .live
-                    ? "Too few rated seasons to judge how it finishes"
-                    : "The bundled analysis has none for it"
-                return (value, detail, "\(value). \(detail).")
-            }
+        if let ending = column.analysis.visibleEndingVerdict(under: column.status) {
             let value = SeriesVerdictsView.endingTitle(ending)
             let detail = ending.finalSeason == ending.peakSeason
                 ? String(format: "Final season %d, its highest, %.1f", ending.finalSeason, ending.finalSeasonAverage)
@@ -434,6 +436,15 @@ enum CompareAnalysisTable {
                     ending.finalSeasonAverage, ending.peakSeason, ending.peakSeasonAverage
                 )
             return (value, detail, "\(value). \(SeriesVerdictsView.endingEvidence(ending))")
+        }
+
+        switch column.hasEnded {
+        case true?:
+            let value = "No ending verdict"
+            let detail = column.source == .live
+                ? "Too few rated seasons to judge how it finishes"
+                : "The bundled analysis has none for it"
+            return (value, detail, "\(value). \(detail).")
 
         case false?:
             let value = "No ending to judge"

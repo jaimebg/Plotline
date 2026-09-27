@@ -10,8 +10,9 @@ struct SeriesAnalysisSection: View {
     let result: SeriesAnalysisResult?
     /// Seasons whose fetch failed, named when the engine refused for that reason.
     var failedSeasons: [Int] = []
-    /// TMDB's series status and next scheduled air date, for the run-status row.
-    var hasEnded: Bool?
+    /// TMDB's current series status, for the ending verdict and the run-status
+    /// row, and the next scheduled air date for the latter.
+    var status: CurrentSeriesStatus = .notLoaded
     var nextEpisodeDate: Date?
     /// Offered when the refusal is one a retry can fix.
     var onRetry: (() -> Void)?
@@ -21,7 +22,7 @@ struct SeriesAnalysisSection: View {
         case .analyzed(let analysis):
             VStack(alignment: .leading, spacing: 16) {
                 PlotlineScoreCard(score: analysis.score)
-                SeriesVerdictsView(analysis: analysis, hasEnded: hasEnded, nextEpisodeDate: nextEpisodeDate)
+                SeriesVerdictsView(analysis: analysis, status: status, nextEpisodeDate: nextEpisodeDate)
             }
 
         case .insufficientData(let reason):

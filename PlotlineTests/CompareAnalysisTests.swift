@@ -30,7 +30,7 @@ struct CompareAnalysisTests {
         episodes: [EpisodeMetric],
         hasEnded: Bool? = nil
     ) throws -> CompareAnalysisColumn {
-        let state = CompareSlotAnalysis.seeded(bundled: nil, hasEnded: hasEnded)
+        let state = CompareSlotAnalysis.seeded(bundled: nil, status: .reported(hasEnded: hasEnded))
             .folding(fetch(grouped(episodes)), into: [:], hasEnded: hasEnded, asOf: EpisodeFixtures.now)
             .analysis
         let entry = CompareAnalysisEntry.make(
@@ -59,7 +59,7 @@ struct CompareAnalysisTests {
     @Test("a bundled series is seeded with the bundled analysis")
     func seedsFromBundle() throws {
         let bundled = try #require(bundled, "Breaking Bad should be in the bundled dataset")
-        let state = CompareSlotAnalysis.seeded(bundled: bundled, hasEnded: true)
+        let state = CompareSlotAnalysis.seeded(bundled: bundled, status: .reported(hasEnded: true))
 
         #expect(state.result == .analyzed(bundled))
         #expect(state.source == .bundled)
@@ -71,7 +71,7 @@ struct CompareAnalysisTests {
         let loaded = Array(bundled.seasons.map(\.seasonNumber).dropLast())
         let missing = bundled.seasons.last?.seasonNumber ?? 5
 
-        let folded = CompareSlotAnalysis.seeded(bundled: bundled, hasEnded: true)
+        let folded = CompareSlotAnalysis.seeded(bundled: bundled, status: .reported(hasEnded: true))
             .folding(fetch(bySeason(loaded), failed: [missing]), into: [:], hasEnded: true, asOf: EpisodeFixtures.now)
 
         #expect(folded.analysis.result == .analyzed(bundled))
@@ -93,7 +93,7 @@ struct CompareAnalysisTests {
         let bundled = try #require(bundled)
         let all = bundled.seasons.map(\.seasonNumber)
 
-        let folded = CompareSlotAnalysis.seeded(bundled: bundled, hasEnded: true)
+        let folded = CompareSlotAnalysis.seeded(bundled: bundled, status: .reported(hasEnded: true))
             .folding(fetch(bySeason(all)), into: [:], hasEnded: true, asOf: EpisodeFixtures.now)
 
         #expect(folded.analysis.source == .live)
@@ -106,7 +106,7 @@ struct CompareAnalysisTests {
 
     @Test("a partial fetch with no seed is refused, naming the gap, never shown as a fragment")
     func partialFetchWithoutSeedIsRefused() {
-        let folded = CompareSlotAnalysis.seeded(bundled: nil, hasEnded: nil)
+        let folded = CompareSlotAnalysis.seeded(bundled: nil, status: .reported(hasEnded: nil))
             .folding(fetch(bySeason([1, 2]), failed: [3]), into: [:], hasEnded: nil, asOf: EpisodeFixtures.now)
 
         #expect(folded.analysis.result == .insufficientData(.seasonsNotLoaded))
@@ -122,7 +122,7 @@ struct CompareAnalysisTests {
 
     @Test("a retry that loads the missing season turns the refusal into an analysis")
     func retryRecovers() {
-        let first = CompareSlotAnalysis.seeded(bundled: nil, hasEnded: nil)
+        let first = CompareSlotAnalysis.seeded(bundled: nil, status: .reported(hasEnded: nil))
             .folding(fetch(bySeason([1, 2]), failed: [3]), into: [:], hasEnded: nil, asOf: EpisodeFixtures.now)
         let retried = first.analysis
             .folding(fetch(bySeason([3])), into: first.episodes, hasEnded: false, asOf: EpisodeFixtures.now)
@@ -138,7 +138,7 @@ struct CompareAnalysisTests {
 
     @Test("a retry that fails outright keeps the seasons and the analysis already loaded")
     func failedRetryKeepsWhatLoaded() {
-        let first = CompareSlotAnalysis.seeded(bundled: nil, hasEnded: nil)
+        let first = CompareSlotAnalysis.seeded(bundled: nil, status: .reported(hasEnded: nil))
             .folding(fetch(bySeason([1, 2, 3])), into: [:], hasEnded: nil, asOf: EpisodeFixtures.now)
         let retried = first.analysis
             .folding(fetch([:], failed: [1, 2, 3]), into: first.episodes, hasEnded: nil, asOf: EpisodeFixtures.now)
@@ -162,7 +162,7 @@ struct CompareAnalysisTests {
         ]
 
         let detail = MediaDetailViewModel(media: media)
-        var slot = CompareSlotAnalysis.seeded(bundled: nil, hasEnded: nil)
+        var slot = CompareSlotAnalysis.seeded(bundled: nil, status: .reported(hasEnded: nil))
         var held: [Int: [EpisodeMetric]] = [:]
 
         for fetched in fetches {
@@ -181,7 +181,7 @@ struct CompareAnalysisTests {
 
     @Test("a refusal other than a missing season states its reason and offers no retry")
     func refusalWithoutRetry() {
-        let thin = CompareSlotAnalysis.seeded(bundled: nil, hasEnded: nil)
+        let thin = CompareSlotAnalysis.seeded(bundled: nil, status: .reported(hasEnded: nil))
             .folding(fetch(bySeason([1], ratings: [8.0, 8.1])), into: [:], hasEnded: nil, asOf: EpisodeFixtures.now)
         #expect(thin.analysis.result == .insufficientData(.notEnoughEpisodesToAnalyse))
 
@@ -196,7 +196,7 @@ struct CompareAnalysisTests {
     func nothingLoaded() {
         let entry = CompareAnalysisEntry.make(
             slotIndex: 2, label: "Offline", isSeries: true, isRetrying: false,
-            analysis: .seeded(bundled: nil, hasEnded: nil)
+            analysis: .seeded(bundled: nil, status: .reported(hasEnded: nil))
         )
         #expect(entry.state == .unavailable)
         #expect(entry.canRetry)
@@ -341,7 +341,7 @@ struct CompareAnalysisTests {
     private func bundledColumn(_ analysis: SeriesAnalysis) throws -> CompareAnalysisColumn {
         let entry = CompareAnalysisEntry.make(
             slotIndex: 0, label: "Seed", isSeries: true, isRetrying: false,
-            analysis: .seeded(bundled: analysis, hasEnded: nil)
+            analysis: .seeded(bundled: analysis, status: .reported(hasEnded: nil))
         )
         guard case .analyzed(let column) = entry.state else {
             throw CompareFixtureError.notAnalyzed(String(describing: entry.state))
@@ -406,7 +406,7 @@ struct CompareAnalysisTests {
         }
         let notes: [CompareAnalysisEntry] = [
             .make(slotIndex: 0, label: "M", isSeries: false, isRetrying: false, analysis: nil),
-            .make(slotIndex: 1, label: "S", isSeries: true, isRetrying: false, analysis: .seeded(bundled: nil, hasEnded: nil))
+            .make(slotIndex: 1, label: "S", isSeries: true, isRetrying: false, analysis: .seeded(bundled: nil, status: .reported(hasEnded: nil)))
         ]
         strings += notes.compactMap { $0.note }.flatMap { [$0.title, $0.detail] }
 

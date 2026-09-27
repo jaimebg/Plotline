@@ -7,9 +7,9 @@ import SwiftUI
 /// nothing about how good the show was beforehand, so neither does the copy.
 struct SeriesVerdictsView: View {
     let analysis: SeriesAnalysis
-    /// TMDB's series status as the screen currently knows it: `true` ended,
-    /// `false` returning or in production, `nil` unknown.
-    var hasEnded: Bool?
+    /// TMDB's series status as the screen currently knows it, or that the
+    /// details never arrived. Gates the ending verdict and the run-status row.
+    let status: CurrentSeriesStatus
     /// The earliest future air date known for a main-run episode.
     var nextEpisodeDate: Date?
 
@@ -42,7 +42,9 @@ struct SeriesVerdictsView: View {
                     )
                 }
 
-                if let ending = analysis.endingVerdict {
+                // Under the series' current status, not the one the analysis
+                // was computed with: a revived show's old ending is withheld.
+                if let ending = analysis.visibleEndingVerdict(under: status) {
                     verdict(
                         icon: "flag.checkered",
                         title: Self.endingTitle(ending),
@@ -67,11 +69,11 @@ struct SeriesVerdictsView: View {
                 // Only the positive cases are stated, and only as far as the
                 // evidence goes. An unknown status says nothing here — neither
                 // "ended" nor "returning".
-                if let status = Self.runStatus(hasEnded: hasEnded, nextEpisodeDate: nextEpisodeDate) {
+                if let row = Self.runStatus(hasEnded: status.reportedHasEnded, nextEpisodeDate: nextEpisodeDate) {
                     verdict(
                         icon: "dot.radiowaves.up.forward",
-                        title: status.title,
-                        evidence: status.evidence
+                        title: row.title,
+                        evidence: row.evidence
                     )
                 }
             }

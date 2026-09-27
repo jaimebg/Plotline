@@ -58,7 +58,7 @@ struct MediaDetailView: View {
                         SeriesAnalysisSection(
                             result: viewModel.analysis,
                             failedSeasons: viewModel.failedSeasons,
-                            hasEnded: viewModel.media.hasEnded,
+                            status: viewModel.currentStatus,
                             nextEpisodeDate: viewModel.nextScheduledAirDate(),
                             onRetry: { Task { await viewModel.retryEpisodes() } }
                         )
@@ -192,7 +192,7 @@ struct MediaDetailView: View {
                 title: viewModel.media.displayTitle,
                 analysis: analysis,
                 episodes: viewModel.episodesBySeason.values.flatMap { $0 },
-                hasEnded: viewModel.media.hasEnded,
+                status: viewModel.currentStatus,
                 nextEpisodeDate: viewModel.nextScheduledAirDate()
             )
         )

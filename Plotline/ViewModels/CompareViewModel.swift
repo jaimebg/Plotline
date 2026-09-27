@@ -144,7 +144,7 @@ final class CompareViewModel {
                 // replaces it only when at least as complete.
                 var analysis = CompareSlotAnalysis.seeded(
                     bundled: DatasetStore.shared.entry(forTMDBId: detailed.id)?.analysis,
-                    hasEnded: detailed.hasEnded
+                    status: gotDetails ? .reported(hasEnded: detailed.hasEnded) : .notLoaded
                 )
                 if let fetched {
                     let folded = analysis.folding(fetched, into: [:], hasEnded: detailed.hasEnded, asOf: Date())
@@ -214,9 +214,10 @@ final class CompareViewModel {
                 detailsLoaded.insert(slotIndex)
             }
 
+            let status: CurrentSeriesStatus = gotDetails ? .reported(hasEnded: detailed.hasEnded) : .notLoaded
             let current = slotAnalyses[slotIndex] ?? .seeded(
                 bundled: DatasetStore.shared.entry(forTMDBId: detailed.id)?.analysis,
-                hasEnded: detailed.hasEnded
+                status: status
             )
             if let fetched {
                 let folded = current.folding(
@@ -228,7 +229,7 @@ final class CompareViewModel {
                 slotAnalyses[slotIndex] = folded.analysis
                 episodesData[detailed.id] = folded.episodes
             } else {
-                slotAnalyses[slotIndex] = current.updatingStatus(detailed.hasEnded)
+                slotAnalyses[slotIndex] = current.updatingStatus(status)
             }
 
             retryingSlots.remove(slotIndex)

@@ -50,14 +50,15 @@ extension VerdictCardContent {
     ///   - episodes: whatever episodes are loaded, any season; may be empty
     ///     when the analysis on screen is the bundled one and the network is
     ///     unavailable.
-    ///   - hasEnded / nextEpisodeDate: the same inputs the detail screen's
-    ///     run-status row reads, so the card says exactly what the row says.
+    ///   - status / nextEpisodeDate: the same inputs the detail screen's
+    ///     ending verdict and run-status row read, so the card says exactly
+    ///     what the screen says.
     @MainActor
     init(
         title: String,
         analysis: SeriesAnalysis,
         episodes: [EpisodeMetric],
-        hasEnded: Bool?,
+        status currentStatus: CurrentSeriesStatus,
         nextEpisodeDate: Date?,
         asOf now: Date = Date()
     ) {
@@ -75,7 +76,7 @@ extension VerdictCardContent {
             curveCaption = "Season averages, weighted by votes"
         }
 
-        let status = SeriesVerdictsView.runStatus(hasEnded: hasEnded, nextEpisodeDate: nextEpisodeDate)
+        let status = SeriesVerdictsView.runStatus(hasEnded: currentStatus.reportedHasEnded, nextEpisodeDate: nextEpisodeDate)
 
         self.init(
             title: title,
@@ -85,7 +86,7 @@ extension VerdictCardContent {
             decline: analysis.declinePoint.map {
                 Verdict(title: SeriesVerdictsView.declineTitle($0), evidence: SeriesVerdictsView.declineEvidence($0))
             },
-            ending: analysis.endingVerdict.map {
+            ending: analysis.visibleEndingVerdict(under: currentStatus).map {
                 Verdict(title: SeriesVerdictsView.endingTitle($0), evidence: SeriesVerdictsView.endingEvidence($0))
             },
             status: status.map { Verdict(title: $0.title, evidence: $0.evidence) },

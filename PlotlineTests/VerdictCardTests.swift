@@ -47,7 +47,7 @@ struct VerdictCardTests {
                 title: "Show",
                 analysis: analysis(isOngoing: false),
                 episodes: [],
-                hasEnded: hasEnded,
+                status: .reported(hasEnded: hasEnded),
                 nextEpisodeDate: nil
             )
             #expect(content.status == nil)
@@ -61,7 +61,7 @@ struct VerdictCardTests {
             title: "Show",
             analysis: analysis(isOngoing: true),
             episodes: [],
-            hasEnded: false,
+            status: .reported(hasEnded: false),
             nextEpisodeDate: nil
         )
         let screen = SeriesVerdictsView.runStatus(hasEnded: false, nextEpisodeDate: nil)
@@ -77,7 +77,7 @@ struct VerdictCardTests {
             title: "Show",
             analysis: analysis(decline: decline, ending: ending),
             episodes: [],
-            hasEnded: true,
+            status: .reported(hasEnded: true),
             nextEpisodeDate: nil
         )
         #expect(content.decline?.title == SeriesVerdictsView.declineTitle(decline))
@@ -99,7 +99,7 @@ struct VerdictCardTests {
             title: "Show",
             analysis: analysis(),
             episodes: episodes,
-            hasEnded: nil,
+            status: .reported(hasEnded: nil),
             nextEpisodeDate: nil,
             asOf: EpisodeFixtures.now
         )
@@ -109,14 +109,14 @@ struct VerdictCardTests {
 
     @Test("with no episodes loaded the curve falls back to season averages, and says so")
     func curveFallsBackToSeasons() {
-        let content = VerdictCardContent(title: "Show", analysis: analysis(), episodes: [], hasEnded: nil, nextEpisodeDate: nil)
+        let content = VerdictCardContent(title: "Show", analysis: analysis(), episodes: [], status: .reported(hasEnded: nil), nextEpisodeDate: nil)
         #expect(content.curve == [8.6, 8.4])
         #expect(content.curveCaption.contains("Season averages"))
     }
 
     @Test("the card carries the source credit and no recommendation words")
     func creditAndNoRecommendations() {
-        let content = VerdictCardContent(title: "Show", analysis: analysis(), episodes: [], hasEnded: nil, nextEpisodeDate: nil)
+        let content = VerdictCardContent(title: "Show", analysis: analysis(), episodes: [], status: .reported(hasEnded: nil), nextEpisodeDate: nil)
         let text = content.allText.joined(separator: " ").lowercased()
         #expect(content.allText.contains("Ratings: TMDB · Analysis: Plotline"))
         for banned in ["essential", "must-watch", "must watch", "skip", "stop after"] {
@@ -130,7 +130,7 @@ struct VerdictCardTests {
             title: "Show",
             analysis: analysis(),
             episodes: EpisodeMetric.breakingBadS1,
-            hasEnded: false,
+            status: .reported(hasEnded: false),
             nextEpisodeDate: nil
         )
         let image = try #require(VerdictCardRenderer.image(for: content))
