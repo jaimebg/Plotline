@@ -33,20 +33,56 @@ enum RatingCategory: String, CaseIterable {
 }
 
 /// Grid view showing episode ratings across all seasons
+///
+/// Laid out a season per column so the columns can be lazy: a long-running
+/// series has dozens of seasons, and only the ones scrolled into view are
+/// built. Episode labels sit in a fixed column outside the horizontal scroll,
+/// so they stay put while the seasons move.
 struct EpisodeRatingsGridView: View {
     let episodesBySeason: [Int: [EpisodeMetric]]
     let totalSeasons: Int
 
     private let cellSize: CGFloat = 58
     private let cellSpacing: CGFloat = 6
+    private let cellHeight: CGFloat = 36
+    @ScaledMetric(relativeTo: .caption) private var headerHeight: CGFloat = 20
+    private let labelWidth: CGFloat = 32
 
-    private var maxEpisodes: Int {
-        // Find the highest episode number across all seasons (not array count)
-        episodesBySeason.values.flatMap { $0 }.map { $0.episodeNumber }.max() ?? 0
-    }
+    /// Derived once here rather than on every body pass: the highest episode
+    /// number was a `flatMap` over every episode, and each cell's lookup was
+    /// a linear search of its season.
+    private let lookup: [Int: [Int: EpisodeMetric]]
+    private let maxEpisodes: Int
+    private let seasonNumbers: [Int]
+    private let seasonAverages: [Int: Double]
 
-    private var seasonNumbers: [Int] {
-        Array(1...totalSeasons)
+    /// - Parameter seasonAverages: each season's average as the verdicts
+    ///   define it (see `MediaDetailViewModel.seasonAverages(asOf:)`). When
+    ///   omitted, computed with the engine's own definition, so the AVG row
+    ///   never means something different from the verdicts above it.
+    init(
+        episodesBySeason: [Int: [EpisodeMetric]],
+        totalSeasons: Int,
+        seasonAverages: [Int: Double]? = nil
+    ) {
+        self.episodesBySeason = episodesBySeason
+        self.totalSeasons = totalSeasons
+
+        let lookup = episodesBySeason.mapValues { episodes in
+            // First wins, as the linear `first { }` it replaces did.
+            Dictionary(episodes.map { ($0.episodeNumber, $0) }, uniquingKeysWith: { first, _ in first })
+        }
+        self.lookup = lookup
+        // The highest episode number across all seasons, not the array count.
+        self.maxEpisodes = lookup.values.compactMap { $0.keys.max() }.max() ?? 0
+
+        // `1...0` traps, and a season that loaded is shown even when the
+        // detail payload's count lags behind it.
+        let listed = totalSeasons > 0 ? Array(1...totalSeasons) : []
+        self.seasonNumbers = Set(listed).union(episodesBySeason.keys.filter { $0 > 0 }).sorted()
+
+        self.seasonAverages = seasonAverages
+            ?? episodesBySeason.compactMapValues { SeriesAnalysisEngine.seasonAverage(of: $0) }
     }
 
     var body: some View {
@@ -60,26 +96,26 @@ struct EpisodeRatingsGridView: View {
             legendView
 
             // Grid
-            ScrollView(.horizontal, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: cellSpacing) {
-                    // Header row with season numbers
-                    headerRow
+            HStack(alignment: .top, spacing: cellSpacing) {
+                labelColumn
 
-                    // Episode rows
-                    if maxEpisodes > 0 {
-                        ForEach(1...maxEpisodes, id: \.self) { episodeNum in
-                            episodeRow(episodeNumber: episodeNum)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(alignment: .top, spacing: cellSpacing) {
+                        ForEach(seasonNumbers, id: \.self) { season in
+                            seasonColumn(season)
                         }
                     }
-
-                    // Average row
-                    averageRow
+                    .padding(.horizontal, 4)
                 }
-                .padding(.horizontal, 4)
             }
+
+            Text("AVG. weights each episode by its votes and leaves out episodes with fewer than \(SeriesAnalysisEngine.minimumVotesPerEpisode), as the verdicts above do.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Episode ratings grid, \(totalSeasons) seasons, \(maxEpisodes) episodes per season maximum")
+        .accessibilityLabel("Episode ratings grid, \(seasonNumbers.count) seasons, \(maxEpisodes) episodes per season maximum")
     }
 
     // MARK: - Legend
@@ -101,38 +137,51 @@ struct EpisodeRatingsGridView: View {
         .accessibilityLabel("Rating legend: " + RatingCategory.allCases.map { "\($0.rawValue)" }.joined(separator: ", "))
     }
 
-    // MARK: - Header Row
+    // MARK: - Label Column
 
-    private var headerRow: some View {
-        HStack(spacing: cellSpacing) {
-            // Empty cell for row labels
-            Text("")
-                .frame(width: 32)
+    /// Episode labels and the AVG label, row for row with the season columns.
+    private var labelColumn: some View {
+        VStack(alignment: .leading, spacing: cellSpacing) {
+            Color.clear
+                .frame(width: labelWidth, height: headerHeight)
 
-            // Season headers
-            ForEach(seasonNumbers, id: \.self) { season in
-                Text("S\(season)")
-                    .font(.system(.caption, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: cellSize)
+            if maxEpisodes > 0 {
+                ForEach(1...maxEpisodes, id: \.self) { episodeNumber in
+                    Text("E\(episodeNumber)")
+                        .font(.system(.caption, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .frame(width: labelWidth, height: cellHeight, alignment: .leading)
+                }
             }
+
+            Text("AVG.")
+                .font(.system(.caption, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: labelWidth, height: cellHeight, alignment: .leading)
+                .padding(.top, 4)
         }
+        .padding(.leading, 4)
+        .accessibilityHidden(true)
     }
 
-    // MARK: - Episode Row
+    // MARK: - Season Column
 
-    private func episodeRow(episodeNumber: Int) -> some View {
-        HStack(spacing: cellSpacing) {
-            // Episode label
-            Text("E\(episodeNumber)")
-                .font(.system(.caption, weight: .medium))
+    private func seasonColumn(_ season: Int) -> some View {
+        VStack(spacing: cellSpacing) {
+            Text("S\(season)")
+                .font(.system(.caption, weight: .semibold))
                 .foregroundStyle(.secondary)
-                .frame(width: 32, alignment: .leading)
+                .frame(width: cellSize, height: headerHeight)
 
-            // Rating cells for each season
-            ForEach(seasonNumbers, id: \.self) { season in
-                ratingCell(season: season, episodeNumber: episodeNumber)
+            if maxEpisodes > 0 {
+                ForEach(1...maxEpisodes, id: \.self) { episodeNumber in
+                    ratingCell(season: season, episodeNumber: episodeNumber)
+                }
             }
+
+            averageCell(season: season)
+                .frame(height: cellHeight)
+                .padding(.top, 4)
         }
     }
 
@@ -140,8 +189,8 @@ struct EpisodeRatingsGridView: View {
 
     @ViewBuilder
     private func ratingCell(season: Int, episodeNumber: Int) -> some View {
-        let episodes = episodesBySeason[season]
-        let episode = episodes?.first { $0.episodeNumber == episodeNumber }
+        let episodes = lookup[season]
+        let episode = episodes?[episodeNumber]
 
         if episodes == nil {
             // Season data not loaded yet
@@ -181,32 +230,11 @@ struct EpisodeRatingsGridView: View {
             .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
-    // MARK: - Average Row
-
-    private var averageRow: some View {
-        HStack(spacing: cellSpacing) {
-            // Label
-            Text("AVG.")
-                .font(.system(.caption, weight: .bold))
-                .foregroundStyle(.secondary)
-                .frame(width: 32, alignment: .leading)
-
-            // Average for each season
-            ForEach(seasonNumbers, id: \.self) { season in
-                averageCell(season: season)
-            }
-        }
-        .padding(.top, 4)
-    }
+    // MARK: - Average
 
     @ViewBuilder
     private func averageCell(season: Int) -> some View {
-        let validEpisodes = episodesBySeason[season]?.filter { $0.hasValidRating } ?? []
-
-        if validEpisodes.isEmpty {
-            emptyAverageCell
-        } else {
-            let avg = validEpisodes.reduce(0.0) { $0 + $1.rating } / Double(validEpisodes.count)
+        if let avg = seasonAverages[season] {
             let category = RatingCategory.category(for: avg)
 
             VStack(spacing: 2) {
@@ -224,6 +252,9 @@ struct EpisodeRatingsGridView: View {
             .frame(width: cellSize)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Season \(season) average: \(String(format: "%.1f", avg)), \(category.rawValue)")
+        } else {
+            // No episode in the season has enough votes to average.
+            emptyAverageCell
         }
     }
 
