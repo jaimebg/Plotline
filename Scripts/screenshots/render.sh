@@ -199,7 +199,7 @@ echo "==> $n frames at ${W}x${H} in $OUT"
 # render.sh is the step that turns raw captures into the files that get
 # uploaded, and it runs on every path, so the warning belongs here too.
 printf '\n\033[33mCheck by hand:\033[0m the chip text hardcoded in iphone.html/ipad.html\n'
-printf '(LEVEL 86 · CONSISTENCY 54 · TRAJECTORY 65, BEFORE 8.4 -> AFTER 8.0,\n'
+printf '(LEVEL 86 · CONSISTENCY 54 · TRAJECTORY 65, BEFORE 8.5 -> AFTER 8.0,\n'
 printf 'SEASON 1 · AVG 8.4) was transcribed from a past capture, not this one. This\n'
 printf "run composed from whatever is already sitting in screenshots/raw/$FAMILY —\n"
 printf 'it pulled nothing from TMDB itself. If those raw captures are stale, or the\n'

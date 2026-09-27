@@ -56,6 +56,17 @@ final class ScreenshotCaptureTests: XCTestCase {
         if UIDevice.current.userInterfaceIdiom == .pad {
             XCUIDevice.shared.orientation = .landscapeLeft
             Thread.sleep(forTimeInterval: 2.0)
+            // `.sidebarAdaptable` in landscape may open with the sidebar
+            // expanded, depending on state the system restores per simulator.
+            // The iPad set is composed around the top tab bar, and the sidebar
+            // renders tabs as cells rather than buttons, so collapse it.
+            let hideSidebar = app.buttons.matching(
+                NSPredicate(format: "identifier == %@ AND label == %@", "ToggleSidebar", "Hide Sidebar")
+            ).firstMatch
+            if hideSidebar.waitForExistence(timeout: 3) {
+                hideSidebar.tap()
+                Thread.sleep(forTimeInterval: 1.0)
+            }
         }
     }
 
@@ -392,14 +403,20 @@ final class ScreenshotCaptureTests: XCTestCase {
         // 25-step budget while the screen is still settling right after a
         // push.
         _ = element.waitForExistence(timeout: 3)
-        let topBand = app.windows.firstMatch.frame.height * 0.3
+        // The band starts below the navigation bar, not at the window's top
+        // edge. A heading behind the translucent bar still reports itself
+        // hittable, so a band starting at 0 accepted frames whose subject sat
+        // hidden under the bar — frame 2's decline verdict shipped that way.
+        let navigationBar = app.navigationBars.firstMatch
+        let top = navigationBar.exists ? navigationBar.frame.maxY : 0
+        let bottom = top + app.windows.firstMatch.frame.height * 0.3
         for _ in 0..<25 {
             if element.exists {
                 let y = element.frame.minY
-                if element.isHittable, y >= 0, y <= topBand {
+                if element.isHittable, y >= top, y <= bottom {
                     return
                 }
-                step(up: y > topBand)
+                step(up: y > bottom)
             } else {
                 step(up: true)
             }
@@ -450,8 +467,14 @@ final class ScreenshotCaptureTests: XCTestCase {
     /// two nested elements sharing one label, and resolving that to exactly
     /// one match throws at tap time. Copied from ColdStartUITests, which
     /// learned it on a real iPad.
+    ///
+    /// Cells too: should the sidebar ever be expanded anyway, it lists each
+    /// tab as a cell with the tab's label, not a button.
     private func tabButton(_ name: String) -> XCUIElement {
-        app.buttons.matching(NSPredicate(format: "label == %@", name)).firstMatch
+        let button = app.buttons.matching(NSPredicate(format: "label == %@", name)).firstMatch
+        if button.exists { return button }
+        let cell = app.cells.matching(NSPredicate(format: "label == %@", name)).firstMatch
+        return cell.exists ? cell : button
     }
 
     /// Waits for the screen to be ready, then attaches the capture under a
