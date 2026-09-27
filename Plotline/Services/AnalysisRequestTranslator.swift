@@ -15,7 +15,7 @@ struct AnalysisRequestInterpretation: Equatable {
     var consistencies: [ConsistencyRating] = []
     /// `true` asks for a decline point, `false` for none found, `nil` either.
     var declineFound: Bool?
-    /// `true` asks for still running, `false` for not known to be running.
+    /// `true` asks for listed as returning, `false` for not listed as returning.
     var stillRunning: Bool?
     var genreNames: [String] = []
     var sort: AnalysisSort?

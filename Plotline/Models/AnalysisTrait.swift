@@ -37,7 +37,7 @@ enum TraitCategory: String, CaseIterable, Identifiable, Hashable {
                 SeriesAnalysisEngine.minimumDeclineDrop
             )
         case .status:
-            "Still running: TMDB lists the series as returning or in production, or dates an upcoming episode. Everything else is not known to be running — ended, or status unknown."
+            "Listed as returning: TMDB lists the series as returning or in production, or dates an upcoming episode. Everything else is not listed as returning — ended, or status unknown."
         case .opening, .consistency, .genre:
             nil
         }
@@ -112,9 +112,9 @@ enum AnalysisTrait: Hashable, Identifiable {
         case .noDeclineFound:
             "No decline point found"
         case .stillRunning:
-            "Still running"
+            "Listed as returning"
         case .notKnownToBeRunning:
-            "Not known to be running"
+            "Not listed as returning"
         case .genre(let id):
             GenreLookup.name(for: id) ?? "Genre \(id)"
         }

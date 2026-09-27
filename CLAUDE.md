@@ -31,7 +31,7 @@ Discover · Analysis · Library · Stats · Settings (`.sidebarAdaptable`).
   single predicate over `SeriesAnalysis` (OR within a category, AND across);
   its label is the detail screen's verdict title for the same value or says
   strictly less. Ending chips only ever match series with an ending verdict,
-  and the status pair is "Still running" / "Not known to be running" —
+  and the status pair is "Listed as returning" / "Not listed as returning" —
   `isOngoing == false` never reads as ended. The result count is computed.
 - **Natural-language search** in Analysis uses Apple's on-device Foundation
   Model **only to translate** a sentence into the same chips, through the
