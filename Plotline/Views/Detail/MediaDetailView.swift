@@ -402,8 +402,6 @@ struct MediaDetailView: View {
 
     @ViewBuilder
     private var movieFeaturesSection: some View {
-        // Awards return in Phase 3, sourced from the bundled dataset.
-        // AwardsView stays in the codebase, dormant until then.
 
         // Box Office
         if viewModel.hasBoxOffice, let boxOffice = viewModel.boxOffice {
