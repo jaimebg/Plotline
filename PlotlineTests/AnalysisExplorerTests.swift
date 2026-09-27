@@ -42,6 +42,7 @@ enum ExplorerFixtures {
                 bestSeason: nil,
                 worstSeason: nil,
                 declinePoint: declines ? decline : nil,
+                declineTest: nil,
                 consistency: Consistency(rating: consistency, standardDeviation: 0.4, highestRated: nil, lowestRated: nil),
                 standoutHighs: [],
                 standoutLows: [],

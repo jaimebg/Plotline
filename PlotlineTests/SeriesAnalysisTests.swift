@@ -33,6 +33,7 @@ struct SeriesAnalysisTests {
             bestSeason: 1,
             worstSeason: 1,
             declinePoint: nil,
+            declineTest: nil,
             consistency: Consistency(rating: .steady, standardDeviation: 0.3, highestRated: nil, lowestRated: nil),
             standoutHighs: [],
             standoutLows: [],

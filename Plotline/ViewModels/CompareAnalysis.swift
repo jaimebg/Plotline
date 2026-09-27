@@ -23,10 +23,6 @@ nonisolated struct CompareSlotAnalysis: Equatable {
     /// TMDB's series status as `SeriesStatus` maps it. `nil` is unknown, which
     /// is never shown as ended.
     private(set) var hasEnded: Bool?
-    /// The last main-run season with an aired episode, known only when the
-    /// result on screen was computed here from the held episodes. A bundled
-    /// seed carries no episode list, so for it this stays nil.
-    private(set) var finalAiredSeason: Int?
 
     /// The state before any fetch: the bundled analysis if this series is one
     /// the app ships, otherwise nothing.
@@ -67,11 +63,6 @@ nonisolated struct CompareSlotAnalysis: Equatable {
         ) {
             next.result = fresh
             next.source = .live
-            next.finalAiredSeason = merged.episodesBySeason.values
-                .flatMap { $0 }
-                .filter { $0.seasonNumber > 0 && $0.hasAired(asOf: now) }
-                .map(\.seasonNumber)
-                .max()
         }
 
         return (next, merged.episodesBySeason)
@@ -135,8 +126,7 @@ struct CompareAnalysisEntry: Equatable {
                 label: label,
                 analysis: result,
                 source: analysis?.source ?? .bundled,
-                hasEnded: analysis?.hasEnded,
-                finalAiredSeason: analysis?.finalAiredSeason
+                hasEnded: analysis?.hasEnded
             )
             let isFallback = analysis?.source == .bundled
             return CompareAnalysisEntry(
@@ -181,7 +171,6 @@ struct CompareAnalysisColumn: Equatable {
     let analysis: SeriesAnalysis
     let source: CompareSlotAnalysis.Source
     let hasEnded: Bool?
-    let finalAiredSeason: Int?
 }
 
 // MARK: - The table
@@ -345,42 +334,33 @@ enum CompareAnalysisTable {
         case tooFewSeasons(judgeable: Int)
         /// The run's latest season is too thin to say whether a fall lasts.
         case latestSeasonTooThin(Int)
+        /// No decline point, and the analysis does not record whether the test
+        /// ran — one written before the engine kept that record. Nothing can
+        /// be said about its scope.
+        case notRecorded
     }
 
-    /// Reconstructs whether a missing decline point means "tested and none
-    /// found" or "never tested". The engine returns nil for both, and only the
-    /// first supports "No lasting decline found".
-    ///
-    /// Mirrors the engine's preconditions: only seasons with enough rated
-    /// episodes take part, the final aired season must be one of them, and a
-    /// boundary needs `minimumSeasonsBeforeDecline` judgeable seasons before
-    /// it and `minimumSeasonsAfterDecline` after. The final aired season is
-    /// known exactly for a live result; for a bundled seed the latest summarised
-    /// season stands in, and the copy names that season so the claim states
-    /// its own scope.
+    /// Whether a missing decline point means "tested and none found" or
+    /// "never tested". The engine returns nil for both, and only the first
+    /// supports "No lasting decline found" — so this reads the engine's own
+    /// record of the test rather than rebuilding its preconditions, which
+    /// cannot be done from a bundled analysis: it carries no episode list, so
+    /// its true final aired season is unknown.
     static func declineFinding(_ column: CompareAnalysisColumn) -> DeclineFinding {
         if let decline = column.analysis.declinePoint {
             return .declines(decline)
         }
 
-        let judgeable = column.analysis.seasons
-            .filter { $0.reliableEpisodeCount >= SeriesAnalysisEngine.minimumEpisodesForSeasonVerdict }
-            .map(\.seasonNumber)
-            .sorted()
-        let finalSeason = column.finalAiredSeason ?? column.analysis.seasons.map(\.seasonNumber).max() ?? 0
-
-        guard judgeable.contains(finalSeason) else {
-            return .latestSeasonTooThin(finalSeason)
+        switch column.analysis.declineTest {
+        case .ran(let boundaries, let finalSeason)?:
+            return .noneFound(checkedAfter: boundaries, throughSeason: finalSeason)
+        case .finalSeasonTooThin(let season)?:
+            return .latestSeasonTooThin(season)
+        case .tooFewSeasons(let judgeable)?:
+            return .tooFewSeasons(judgeable: judgeable)
+        case nil:
+            return .notRecorded
         }
-
-        let before = SeriesAnalysisEngine.minimumSeasonsBeforeDecline
-        let after = SeriesAnalysisEngine.minimumSeasonsAfterDecline
-        guard judgeable.count >= before + after else {
-            return .tooFewSeasons(judgeable: judgeable.count)
-        }
-
-        let checked = Array(judgeable[(before - 1)...(judgeable.count - after - 1)])
-        return .noneFound(checkedAfter: checked, throughSeason: finalSeason)
     }
 
     static func decline(_ column: CompareAnalysisColumn) -> (value: String, detail: String?, spoken: String) {
@@ -409,6 +389,12 @@ enum CompareAnalysisTable {
             let value = "Latest season too thin to test"
             let detail = "Season \(season) has too few rated episodes to say whether a fall lasts"
             return (value, detail, "\(value). \(detail).")
+
+        case .notRecorded:
+            // The Analysis tab's chip for the same fact, with no scope: which
+            // seasons were tested is exactly what this analysis doesn't say.
+            let value = AnalysisTrait.noDeclineFound.label
+            return (value, nil, value)
         }
     }
 

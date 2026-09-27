@@ -97,7 +97,6 @@ struct CompareAnalysisTests {
             .folding(fetch(bySeason(all)), into: [:], hasEnded: true, asOf: EpisodeFixtures.now)
 
         #expect(folded.analysis.source == .live)
-        #expect(folded.analysis.finalAiredSeason == all.max())
         guard case .analyzed(let live) = folded.analysis.result else {
             Issue.record("expected a live analysis")
             return
@@ -290,6 +289,81 @@ struct CompareAnalysisTests {
         let thin = try column(2, "Thin End", episodes: thinEnd)
         #expect(CompareAnalysisTable.declineFinding(thin) == .latestSeasonTooThin(5))
         #expect(CompareAnalysisTable.decline(thin).value != "No lasting decline found")
+    }
+
+    /// A bundled seed carries no episodes, so Compare used to take the highest
+    /// summarised season as the final one. A final season with no rated
+    /// episode has no summary, and the copy claimed a test "through season 5"
+    /// that the engine never ran. The engine's own record says otherwise.
+    @Test("a bundled seed whose final aired season has no summary is not called tested")
+    func bundledSeedUsesTheEngineRecord() throws {
+        var episodes = seasons(Array(repeating: [8.0, 8.1, 8.0, 8.1], count: 5))
+        episodes += (1...4).map { EpisodeFixtures.episode(season: 6, number: $0, rating: 8.0, votes: 2) }
+        guard case .analyzed(let analysis) = SeriesAnalysisEngine.analyze(episodes: episodes, asOf: EpisodeFixtures.now) else {
+            Issue.record("expected an analysis")
+            return
+        }
+        #expect(analysis.seasons.map(\.seasonNumber).max() == 5)
+
+        let column = try bundledColumn(analysis)
+        #expect(column.source == .bundled)
+        #expect(CompareAnalysisTable.declineFinding(column) == .latestSeasonTooThin(6))
+        let copy = CompareAnalysisTable.decline(column)
+        #expect(copy.value == "Latest season too thin to test")
+        #expect(!copy.spoken.contains("through season 5"))
+    }
+
+    @Test("an analysis with no record of the decline test claims no scope")
+    func unrecordedDeclineTestClaimsNoScope() throws {
+        let tested = try column(0, "Flat", episodes: seasons(Array(repeating: [8.0, 8.1, 8.0, 8.1], count: 4))).analysis
+        let legacy = Self.replacingDeclineTest(of: tested, with: nil)
+        let column = try bundledColumn(legacy)
+
+        #expect(CompareAnalysisTable.declineFinding(column) == .notRecorded)
+        let copy = CompareAnalysisTable.decline(column)
+        // The Analysis tab's own chip for the same fact.
+        #expect(copy.value == "No decline point found")
+        #expect(copy.value == AnalysisTrait.noDeclineFound.label)
+        #expect(copy.detail == nil)
+        #expect(!copy.spoken.contains("season"))
+    }
+
+    @Test("a bundled seed with the engine's record states the scope the engine tested")
+    func recordedBundledSeedStatesItsScope() throws {
+        let tested = try column(0, "Flat", episodes: seasons(Array(repeating: [8.0, 8.1, 8.0, 8.1], count: 5))).analysis
+        let column = try bundledColumn(tested)
+
+        #expect(CompareAnalysisTable.declineFinding(column) == .noneFound(checkedAfter: [2, 3], throughSeason: 5))
+        #expect(CompareAnalysisTable.decline(column).detail
+                == "None after seasons 2 and 3 fell 0.4 or more and stayed down through season 5")
+    }
+
+    private func bundledColumn(_ analysis: SeriesAnalysis) throws -> CompareAnalysisColumn {
+        let entry = CompareAnalysisEntry.make(
+            slotIndex: 0, label: "Seed", isSeries: true, isRetrying: false,
+            analysis: .seeded(bundled: analysis, hasEnded: nil)
+        )
+        guard case .analyzed(let column) = entry.state else {
+            throw CompareFixtureError.notAnalyzed(String(describing: entry.state))
+        }
+        return column
+    }
+
+    static func replacingDeclineTest(of analysis: SeriesAnalysis, with test: DeclineTest?) -> SeriesAnalysis {
+        SeriesAnalysis(
+            seasons: analysis.seasons,
+            bestSeason: analysis.bestSeason,
+            worstSeason: analysis.worstSeason,
+            declinePoint: analysis.declinePoint,
+            declineTest: test,
+            consistency: analysis.consistency,
+            standoutHighs: analysis.standoutHighs,
+            standoutLows: analysis.standoutLows,
+            openingVerdict: analysis.openingVerdict,
+            endingVerdict: analysis.endingVerdict,
+            score: analysis.score,
+            isOngoing: analysis.isOngoing
+        )
     }
 
     @Test("the ending verdict appears only for a series TMDB confirms has ended")

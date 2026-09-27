@@ -36,6 +36,15 @@ nonisolated struct SeriesAnalysis: Codable, Hashable {
     let bestSeason: Int?
     let worstSeason: Int?
     let declinePoint: DeclinePoint?
+    /// Whether the decline test ran, and over what. A nil `declinePoint` means
+    /// either "tested and none found" or "never tested", and only the first
+    /// supports saying no lasting decline was found; this says which.
+    ///
+    /// Nil in analyses written before the engine recorded it — the bundled
+    /// dataset among them until it is regenerated. Optional so that file keeps
+    /// decoding (synthesized `Decodable` reads an absent key as nil); a nil
+    /// here licenses no claim about what was tested.
+    let declineTest: DeclineTest?
     let consistency: Consistency
     /// Episodes rated well above their own season's vote-weighted average: at
     /// least `standoutZScoreThreshold` standard deviations and
@@ -65,6 +74,7 @@ nonisolated struct SeriesAnalysis: Codable, Hashable {
         case bestSeason
         case worstSeason
         case declinePoint
+        case declineTest
         case consistency
         case standoutHighs = "essentialEpisodes"
         case standoutLows = "skippableEpisodes"
@@ -111,6 +121,25 @@ nonisolated struct DeclinePoint: Codable, Hashable {
     let seasonsAfter: [Int]
 
     var drop: Double { averageBefore - averageAfter }
+}
+
+/// What the engine's decline test covered for one analysis, recorded by the
+/// engine itself so no caller has to reconstruct its preconditions.
+///
+/// Only seasons with at least `minimumEpisodesForSeasonVerdict` rated episodes
+/// take part ("judgeable"), and "still down at the end of the run" is measured
+/// against the final aired season, so the test runs only when that season is
+/// judgeable and enough judgeable seasons sit either side of a boundary.
+nonisolated enum DeclineTest: Codable, Hashable {
+    /// The test ran: every season in `boundaries` was tried as the point the
+    /// fall starts after, with "still down" measured at `finalSeason`. A nil
+    /// `declinePoint` alongside this means none of them qualified.
+    case ran(boundaries: [Int], finalSeason: Int)
+    /// The final aired season has too few rated episodes to say whether a fall
+    /// lasts, so no boundary was tested.
+    case finalSeasonTooThin(season: Int)
+    /// Too few judgeable seasons for any boundary to have enough on both sides.
+    case tooFewSeasons(judgeable: Int)
 }
 
 /// How evenly a series holds its quality.

@@ -138,13 +138,15 @@ nonisolated enum SeriesAnalysisEngine {
         // the season we know least about.
         let comparable = seasons.filter { $0.reliableEpisodeCount >= minimumEpisodesForSeasonVerdict }
         let standouts = standoutEpisodes(from: reliable)
+        let declineFinding = decline(from: reliable, finalAiredSeason: finalAiredSeason)
 
         return .analyzed(
             SeriesAnalysis(
                 seasons: seasons,
                 bestSeason: comparable.max(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
                 worstSeason: comparable.min(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
-                declinePoint: declinePoint(from: reliable, finalAiredSeason: finalAiredSeason),
+                declinePoint: declineFinding.point,
+                declineTest: declineFinding.test,
                 consistency: consistency(from: reliable),
                 standoutHighs: standouts.highs,
                 standoutLows: standouts.lows,
@@ -248,28 +250,42 @@ nonisolated enum SeriesAnalysisEngine {
     ///   when it is too thin to judge there is no decline to report. Measuring
     ///   against the last *judgeable* season instead would call a fall the real
     ///   final season may have recovered from.
-    private static func declinePoint(from reliable: [EpisodeMetric], finalAiredSeason: Int) -> DeclinePoint? {
+    /// - Returns: the decline, if any, and what the test covered — recorded so
+    ///   no caller has to reconstruct these preconditions to tell "tested,
+    ///   none found" from "never tested".
+    private static func decline(
+        from reliable: [EpisodeMetric],
+        finalAiredSeason: Int
+    ) -> (point: DeclinePoint?, test: DeclineTest) {
         // Only seasons we actually know something about may take part. Without
         // this, a season represented by a single surviving episode can serve as
         // the boundary, the baseline, or — worst — the final season the
         // "still down" test measures against, and one unrepresentative episode
         // decides whether the whole series is called a decline.
         let judgeable = judgeableSeasons(in: reliable)
-        guard judgeable.contains(finalAiredSeason) else { return nil }
+        guard judgeable.contains(finalAiredSeason) else {
+            return (nil, .finalSeasonTooThin(season: finalAiredSeason))
+        }
         let reliable = reliable.filter { judgeable.contains($0.seasonNumber) }
 
         let seasons = judgeable.sorted()
-        guard seasons.count > minimumSeasonsAfterDecline else { return nil }
+
+        // A boundary needs `minimumSeasonsAfterDecline` judgeable seasons after
+        // it, and `minimumSeasonsBeforeDecline` up to and including it. A
+        // single season is not a level to fall from: without the second bound,
+        // a three-season show whose last two sit below its first is reported
+        // as "declines after season 1" — a confident claim resting on one
+        // season of baseline, which is ordinary variance in a short run.
+        let firstIndex = minimumSeasonsBeforeDecline - 1
+        let endIndex = seasons.count - minimumSeasonsAfterDecline
+        guard firstIndex < endIndex else {
+            return (nil, .tooFewSeasons(judgeable: seasons.count))
+        }
 
         var best: DeclinePoint?
 
-        for (index, boundary) in seasons.dropLast(minimumSeasonsAfterDecline).enumerated() {
-            // A single season is not a level to fall from. Without this, a
-            // three-season show whose last two sit below its first is reported
-            // as "declines after season 1" — a confident claim resting on one
-            // season of baseline, which is ordinary variance in a short run.
-            guard index + 1 >= minimumSeasonsBeforeDecline else { continue }
-
+        for index in firstIndex..<endIndex {
+            let boundary = seasons[index]
             let before = reliable.filter { $0.seasonNumber <= boundary }
             let after = reliable.filter { $0.seasonNumber > boundary }
 
@@ -303,7 +319,7 @@ nonisolated enum SeriesAnalysisEngine {
             }
         }
 
-        return best
+        return (best, .ran(boundaries: Array(seasons[firstIndex..<endIndex]), finalSeason: finalAiredSeason))
     }
 
     // MARK: - Consistency

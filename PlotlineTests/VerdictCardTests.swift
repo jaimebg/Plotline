@@ -21,6 +21,7 @@ struct VerdictCardTests {
             bestSeason: 1,
             worstSeason: 2,
             declinePoint: decline,
+            declineTest: nil,
             consistency: Consistency(rating: .steady, standardDeviation: 0.4, highestRated: nil, lowestRated: nil),
             standoutHighs: [],
             standoutLows: [],

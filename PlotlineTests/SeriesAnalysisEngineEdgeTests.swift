@@ -306,3 +306,86 @@ struct SeriesAnalysisEngineBoundaryTests {
         #expect(SeriesAnalysisEngine.seasonAverage(of: [episodes[3]], asOf: EpisodeFixtures.now) == nil)
     }
 }
+
+/// The engine records whether its decline test ran, so no caller has to
+/// rebuild its preconditions to tell "tested, none found" from "never tested".
+@Suite("SeriesAnalysisEngine — the decline test record")
+struct SeriesAnalysisEngineDeclineTestTests {
+    private let flat = [8.0, 8.1, 8.0, 8.1]
+
+    private func analysis(_ episodes: [EpisodeMetric]) -> SeriesAnalysis? {
+        guard case .analyzed(let value) = SeriesAnalysisEngine.analyze(episodes: episodes, asOf: EpisodeFixtures.now) else {
+            return nil
+        }
+        return value
+    }
+
+    private func run(_ count: Int) -> [EpisodeMetric] {
+        (1...count).flatMap { EpisodeFixtures.season($0, ratings: flat) }
+    }
+
+    @Test("a flat four-season run was tested at its one eligible boundary and none qualified")
+    func testedNoneFound() {
+        let result = analysis(run(4))
+        #expect(result?.declinePoint == nil)
+        #expect(result?.declineTest == .ran(boundaries: [2], finalSeason: 4))
+    }
+
+    @Test("a decline that is found also records the boundaries tested")
+    func testedAndFound() {
+        let episodes = EpisodeFixtures.season(1, ratings: [9.0, 9.0, 9.1, 9.0])
+            + EpisodeFixtures.season(2, ratings: [9.0, 9.1, 9.0, 9.0])
+            + EpisodeFixtures.season(3, ratings: [7.5, 7.4, 7.5, 7.6])
+            + EpisodeFixtures.season(4, ratings: [7.5, 7.5, 7.4, 7.5])
+            + EpisodeFixtures.season(5, ratings: [7.4, 7.5, 7.5, 7.4])
+        let result = analysis(episodes)
+        #expect(result?.declinePoint?.afterSeason == 2)
+        #expect(result?.declineTest == .ran(boundaries: [2, 3], finalSeason: 5))
+    }
+
+    @Test("three judgeable seasons are too few for any boundary")
+    func tooFewSeasons() {
+        let result = analysis(run(3))
+        #expect(result?.declinePoint == nil)
+        #expect(result?.declineTest == .tooFewSeasons(judgeable: 3))
+    }
+
+    @Test("a thin final aired season means nothing was tested, however many seasons precede it")
+    func thinFinalSeason() {
+        // Five judgeable seasons, then a sixth with a single rated episode.
+        // Compare used to measure "stayed down through" the highest summarised
+        // season instead, which the engine never does.
+        let episodes = run(5) + [EpisodeFixtures.episode(season: 6, number: 1, rating: 8.0)]
+        let result = analysis(episodes)
+        #expect(result?.declinePoint == nil)
+        #expect(result?.declineTest == .finalSeasonTooThin(season: 6))
+    }
+
+    @Test("boundaries are judgeable seasons, skipping a thin one in between")
+    func boundariesSkipThinSeasons() {
+        let episodes = run(3)
+            + [EpisodeFixtures.episode(season: 4, number: 1, rating: 8.0)]
+            + EpisodeFixtures.season(5, ratings: flat)
+            + EpisodeFixtures.season(6, ratings: flat)
+        let result = analysis(episodes)
+        // Judgeable: 1, 2, 3, 5, 6. Two up to the boundary and two after it
+        // leaves 2 and 3.
+        #expect(result?.declineTest == .ran(boundaries: [2, 3], finalSeason: 6))
+    }
+
+    @Test("the record round-trips, and an analysis written before it existed still decodes")
+    func codableCompatibility() throws {
+        let tested = try #require(analysis(run(4)))
+        let data = try JSONEncoder().encode(tested)
+        #expect(try JSONDecoder().decode(SeriesAnalysis.self, from: data) == tested)
+
+        // Strip the key, as in the bundled dataset written before it existed.
+        var object = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        #expect(object["declineTest"] != nil)
+        object["declineTest"] = nil
+        let legacy = try JSONSerialization.data(withJSONObject: object)
+        let decoded = try JSONDecoder().decode(SeriesAnalysis.self, from: legacy)
+        #expect(decoded.declineTest == nil)
+        #expect(decoded.seasons == tested.seasons)
+    }
+}

@@ -35,6 +35,7 @@ enum IntentFixtures {
             bestSeason: 2,
             worstSeason: 4,
             declinePoint: decline,
+            declineTest: nil,
             consistency: Consistency(rating: .steady, standardDeviation: 0.4, highestRated: nil, lowestRated: nil),
             standoutHighs: [],
             standoutLows: [],
