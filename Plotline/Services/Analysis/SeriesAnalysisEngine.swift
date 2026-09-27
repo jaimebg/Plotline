@@ -170,7 +170,10 @@ nonisolated enum SeriesAnalysisEngine {
 
     // MARK: - Reliability
 
-    private static func isReliable(_ episode: EpisodeMetric) -> Bool {
+    /// Whether an episode's rating carries enough votes to count. Internal so
+    /// app-side analyses built on the same episodes (the crew comparison)
+    /// apply exactly this rule rather than a copy of it that could drift.
+    static func isReliable(_ episode: EpisodeMetric) -> Bool {
         episode.hasValidRating && episode.voteCount >= minimumVotesPerEpisode
     }
 

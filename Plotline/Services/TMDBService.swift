@@ -122,7 +122,9 @@ struct TMDBService {
     // MARK: - Seasons
 
     /// Cache version for episode payloads. Bump to invalidate stored data.
-    private static let episodeCacheVersion = "v1"
+    /// v2: episodes carry directors and writers. Older entries would still
+    /// decode — the fields are optional — but would never gain them.
+    private static let episodeCacheVersion = "v2"
 
     /// How long a fully-aired season stays cached: its ratings still move, but
     /// slowly, and a long series burns a lot of requests.

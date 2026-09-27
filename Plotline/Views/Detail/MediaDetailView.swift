@@ -83,6 +83,10 @@ struct MediaDetailView: View {
                                 seasonAverages: seasonAverages,
                                 standouts: standouts
                             )
+
+                            if let crew = viewModel.visibleCrewComparison {
+                                CrewComparisonSection(comparison: crew)
+                            }
                         } else if viewModel.isLoadingAllSeasons {
                             episodeGridLoadingView
                         } else if let message = viewModel.episodesError {

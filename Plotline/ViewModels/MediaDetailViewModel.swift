@@ -210,6 +210,24 @@ final class MediaDetailViewModel {
         syncEpisodesForSelectedSeason()
 
         recomputeAnalysis(asOf: now)
+
+        // Computed once per fetch rather than per body pass: it walks every
+        // episode of every season.
+        let comparison = CrewEffectAnalyzer.compare(episodes: episodesBySeason.values.flatMap { $0 }, asOf: now)
+        crewComparison = comparison.isEmpty ? nil : comparison
+    }
+
+    /// Directors and writers against their seasons, from the loaded episodes.
+    /// Nil when nobody qualifies.
+    private(set) var crewComparison: CrewComparison?
+
+    /// The crew comparison, only when it can stand next to the analysis: with
+    /// a full analysis on screen and every season loaded. A missing season
+    /// would change both the people counted and the averages they are
+    /// measured against.
+    var visibleCrewComparison: CrewComparison? {
+        guard analyzedResult != nil, failedSeasons.isEmpty else { return nil }
+        return crewComparison
     }
 
     // MARK: - Analysis

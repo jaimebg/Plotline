@@ -15,6 +15,15 @@ nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
     let voteCount: Int
     let airDate: String?
     let stillPath: String?
+    /// Who TMDB credits as director of this episode, from the season payload's
+    /// per-episode `crew`. Optional, not empty-by-default: `nil` means the
+    /// payload carried no crew at all (older cache entries, the generator),
+    /// which is not the same fact as "credited to nobody". Decoded with
+    /// `decodeIfPresent`, so payloads written before the field existed still
+    /// read.
+    let directors: [String]?
+    /// Credited writers: jobs "Writer", "Teleplay", "Screenplay" and "Story".
+    let writers: [String]?
 
     // MARK: - Computed Properties
 
@@ -91,7 +100,9 @@ nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
         rating: Double,
         voteCount: Int,
         airDate: String? = nil,
-        stillPath: String? = nil
+        stillPath: String? = nil,
+        directors: [String]? = nil,
+        writers: [String]? = nil
     ) {
         self.id = id ?? (seasonNumber * 1_000 + episodeNumber)
         self.episodeNumber = episodeNumber
@@ -101,6 +112,8 @@ nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
         self.voteCount = voteCount
         self.airDate = airDate
         self.stillPath = stillPath
+        self.directors = directors
+        self.writers = writers
     }
 
     // MARK: - Private
