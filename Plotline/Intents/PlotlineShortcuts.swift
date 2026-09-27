@@ -3,6 +3,23 @@ import AppIntents
 /// Provides Siri Shortcuts for discovery in the Shortcuts app and Siri suggestions
 struct PlotlineShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
+        // A phrase may interpolate only an AppEntity or AppEnum parameter, and
+        // must name the app. The phrases that name a series match the query's
+        // suggested entities — the bundled dataset; the plain phrase lets Siri
+        // ask "Which series?" for anything else.
+        AppShortcut(
+            intent: GetPlotlineVerdictIntent(),
+            phrases: [
+                "How does \(\.$series) hold up in \(.applicationName)",
+                "What's the \(.applicationName) Score of \(\.$series)",
+                "Get the \(.applicationName) verdict on \(\.$series)",
+                "\(.applicationName) verdict for \(\.$series)",
+                "Get a \(.applicationName) verdict",
+            ],
+            shortTitle: "Plotline Verdict",
+            systemImageName: "chart.xyaxis.line"
+        )
+
         AppShortcut(
             intent: WhatShouldIWatchIntent(),
             phrases: [

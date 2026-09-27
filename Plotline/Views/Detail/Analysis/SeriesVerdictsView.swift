@@ -23,13 +23,8 @@ struct SeriesVerdictsView: View {
                 if let decline = analysis.declinePoint {
                     verdict(
                         icon: "arrow.down.right",
-                        title: "Falls off after season \(decline.afterSeason)",
-                        evidence: String(
-                            format: "Averaged %.1f up to then, %.1f across seasons %@.",
-                            decline.averageBefore,
-                            decline.averageAfter,
-                            decline.seasonsAfter.map(String.init).joined(separator: ", ")
-                        )
+                        title: Self.declineTitle(decline),
+                        evidence: Self.declineEvidence(decline)
                     )
                 }
 
@@ -50,7 +45,7 @@ struct SeriesVerdictsView: View {
                 if let ending = analysis.endingVerdict {
                     verdict(
                         icon: "flag.checkered",
-                        title: endingTitle(ending),
+                        title: Self.endingTitle(ending),
                         evidence: Self.endingEvidence(ending)
                     )
                 }
@@ -212,7 +207,23 @@ struct SeriesVerdictsView: View {
         }
     }
 
-    private func endingTitle(_ ending: EndingVerdict) -> String {
+    /// The decline point proves a relative fall that does not recover, and
+    /// nothing about how good the series was before it. Shared with Siri's
+    /// verdict (`VerdictCopy`) so both say exactly this much and no more.
+    static func declineTitle(_ decline: DeclinePoint) -> String {
+        "Falls off after season \(decline.afterSeason)"
+    }
+
+    static func declineEvidence(_ decline: DeclinePoint) -> String {
+        String(
+            format: "Averaged %.1f up to then, %.1f across seasons %@.",
+            decline.averageBefore,
+            decline.averageAfter,
+            decline.seasonsAfter.map(String.init).joined(separator: ", ")
+        )
+    }
+
+    static func endingTitle(_ ending: EndingVerdict) -> String {
         switch ending.kind {
         case .endsStrong: "Ends on a high"
         case .endsSteady: "Holds its level to the end"

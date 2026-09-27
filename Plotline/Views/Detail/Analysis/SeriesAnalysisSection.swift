@@ -34,11 +34,11 @@ struct SeriesAnalysisSection: View {
 
     private func unavailable(reason: InsufficientDataReason) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title(for: reason))
+            Text(Self.title(for: reason))
                 .font(.system(.headline, weight: .semibold))
                 .foregroundStyle(.primary)
 
-            Text(explanation(for: reason))
+            Text(Self.explanation(for: reason, failedSeasons: failedSeasons))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -62,7 +62,10 @@ struct SeriesAnalysisSection: View {
     /// one of them: "nothing has aired" is a different fact from "too few
     /// ratings", and saying the wrong one is exactly the failure this app is
     /// built to avoid.
-    private func title(for reason: InsufficientDataReason) -> String {
+    ///
+    /// Static so Siri's verdict (`VerdictCopy`) states a refusal in exactly the
+    /// words the detail screen uses.
+    static func title(for reason: InsufficientDataReason) -> String {
         switch reason {
         case .noAiredEpisodes: return "Nothing Has Aired Yet"
         case .seasonsNotLoaded: return "Some Seasons Didn't Load"
@@ -70,7 +73,7 @@ struct SeriesAnalysisSection: View {
         }
     }
 
-    private func explanation(for reason: InsufficientDataReason) -> String {
+    static func explanation(for reason: InsufficientDataReason, failedSeasons: [Int]) -> String {
         switch reason {
         case .noAiredEpisodes:
             return "We'll analyse this series once its episodes start airing."

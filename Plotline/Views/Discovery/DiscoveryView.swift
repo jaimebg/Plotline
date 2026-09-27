@@ -64,12 +64,17 @@ struct DiscoveryView: View {
         .onAppear {
             consumePendingSearchQuery()
             refreshPersonalisation()
+            consumePendingDetail()
         }
         .onChange(of: deepLinkManager.pendingSearchQuery) { _, _ in
             consumePendingSearchQuery()
         }
         .onChange(of: favoritesFingerprint) { _, _ in
             refreshPersonalisation()
+        }
+        // Same pattern for a Spotlight result or Siri's "Open in Plotline".
+        .onChange(of: deepLinkManager.pendingDetail) { _, _ in
+            consumePendingDetail()
         }
     }
 
@@ -93,6 +98,13 @@ struct DiscoveryView: View {
             watchlistIds: watchlistManager.watchlistIds,
             topGenreIds: tasteProfileVM.topMovieGenreIds
         )
+    }
+
+    private func consumePendingDetail() {
+        guard let detail = deepLinkManager.pendingDetail else { return }
+        deepLinkManager.pendingDetail = nil
+        let bundled = DatasetStore.shared.entry(forTMDBId: detail.tmdbId)
+        navigationPath.append(detail.mediaItem(bundled: bundled))
     }
 
     private func consumePendingSearchQuery() {
