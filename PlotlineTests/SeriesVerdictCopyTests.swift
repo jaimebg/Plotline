@@ -99,4 +99,87 @@ struct SeriesVerdictCopyTests {
         #expect(copy.contains("averaged"))
         #expect(copy != "Measured across the seasons with enough rated episodes to judge.")
     }
+
+    // MARK: - Opening
+
+    /// The opening run is the first six *reliable* episodes, so "First 6
+    /// episodes" claimed a window the engine never measured whenever an early
+    /// episode was short of votes.
+    @Test("the opening evidence says the episodes were the ones with enough votes")
+    func openingEvidenceIsQualified() {
+        let opening = OpeningVerdict(
+            kind: .slowStart,
+            openingAverage: 7.0,
+            remainderAverage: 8.4,
+            episodesConsidered: (1...6).map { reference(season: 1, episode: $0, rating: 7.0) },
+            improvesAtSeason: nil
+        )
+
+        #expect(
+            SeriesVerdictsView.openingEvidence(opening)
+                == "The first 6 episodes with enough votes averaged 7.0, against 8.4 for the rest."
+        )
+    }
+
+    // MARK: - Run status
+
+    /// TMDB's status proves what TMDB lists, not that anything is coming.
+    @Test("a returning status with nothing dated says only what TMDB lists")
+    func returningWithoutADate() {
+        let status = SeriesVerdictsView.runStatus(hasEnded: false, nextEpisodeDate: nil)
+
+        #expect(status?.title == "Listed as returning")
+        #expect(status?.evidence.contains("TMDB lists") == true)
+        #expect(status?.evidence.contains("on the way") == false)
+    }
+
+    @Test("a dated future episode is the only thing that says more are scheduled")
+    func datedNextEpisode() {
+        let date = EpisodeMetric.parseAirDate("2031-03-14")
+        let status = SeriesVerdictsView.runStatus(hasEnded: false, nextEpisodeDate: date)
+
+        #expect(status?.title == "Next episode scheduled")
+        #expect(status?.evidence.contains("2031") == true)
+        #expect(status?.evidence.contains("14") == true)
+    }
+
+    /// `hasEnded == nil` is unknown: it may render neither "Ended" nor
+    /// "Returning".
+    @Test("an unknown status renders no run-status row")
+    func unknownStatusSaysNothing() {
+        #expect(SeriesVerdictsView.runStatus(hasEnded: nil, nextEpisodeDate: nil) == nil)
+    }
+
+    @Test("a confirmed ending leaves the run-status row to the ending verdict")
+    func endedSaysNothingHere() {
+        #expect(SeriesVerdictsView.runStatus(hasEnded: true, nextEpisodeDate: nil) == nil)
+        #expect(SeriesVerdictsView.runStatus(hasEnded: true, nextEpisodeDate: .distantFuture) == nil)
+    }
+
+    @Test("no run-status copy ever says the series has ended")
+    func neverSaysEnded() {
+        let dates: [Date?] = [nil, EpisodeMetric.parseAirDate("2031-03-14")]
+        for hasEnded in [Bool?.none, false, true] {
+            for date in dates {
+                guard let status = SeriesVerdictsView.runStatus(hasEnded: hasEnded, nextEpisodeDate: date) else { continue }
+                #expect(!status.title.lowercased().contains("ended"))
+                #expect(!status.evidence.lowercased().contains("ended"))
+            }
+        }
+    }
+
+    // MARK: - Seasons not loaded
+
+    @Test("the partial-fetch refusal names the seasons that did not load")
+    func seasonsNotLoadedNamesTheGap() {
+        #expect(
+            SeriesAnalysisSection.seasonsNotLoadedExplanation([3])
+                == "We couldn't load season 3, and an analysis without it would be a guess."
+        )
+        #expect(
+            SeriesAnalysisSection.seasonsNotLoadedExplanation([5, 2, 4])
+                == "We couldn't load seasons 2, 4 and 5, and an analysis without them would be a guess."
+        )
+        #expect(SeriesAnalysisSection.seasonsNotLoadedNotice([2, 3]) == "Seasons 2 and 3 couldn't be loaded.")
+    }
 }

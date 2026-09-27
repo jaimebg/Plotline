@@ -6,6 +6,11 @@ import Accessibility
 struct SeriesGraphView: View {
     let episodes: [EpisodeMetric]
     let seasonNumber: Int
+    /// The season's average as the verdicts define it — vote-weighted, over
+    /// episodes with enough votes — supplied by the caller so the chart, the
+    /// grid and the verdicts show one number. Nil hides the badge and the line
+    /// rather than falling back to a differently defined average.
+    var seasonAverage: Double?
     var showAverage: Bool = true
 
     @State private var selectedEpisode: EpisodeMetric?
@@ -42,8 +47,11 @@ struct SeriesGraphView: View {
         }
         .onChange(of: selectedEpisodeNumber) { _, newValue in
             withAnimation(.easeInOut(duration: 0.2)) {
+                // Only plotted episodes can be selected. Searching every episode
+                // let a drag land on an unrated or unaired one the chart never
+                // drew, and show its em-dash rating as if it were a point.
                 if let num = newValue {
-                    selectedEpisode = episodes.first { $0.episodeNumber == num }
+                    selectedEpisode = validEpisodes.first { $0.episodeNumber == num }
                 } else {
                     selectedEpisode = nil
                 }
@@ -177,7 +185,9 @@ struct SeriesGraphView: View {
                 .background(Color.plotlineCard.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .accessibilityChartDescriptor(SeriesGraphAccessibility(episodes: episodes, seasonNumber: seasonNumber))
+        .accessibilityChartDescriptor(
+            SeriesGraphAccessibility(episodes: episodes, seasonNumber: seasonNumber, seasonAverage: seasonAverage)
+        )
         .accessibilityLabel("Episode ratings chart for season \(seasonNumber)")
     }
 
@@ -235,9 +245,7 @@ struct SeriesGraphView: View {
     }
 
     private var averageRating: Double? {
-        guard !validEpisodes.isEmpty else { return nil }
-        let sum = validEpisodes.reduce(0.0) { $0 + $1.rating }
-        return sum / Double(validEpisodes.count)
+        seasonAverage
     }
 
     private var xDomain: ClosedRange<Int> {
@@ -418,7 +426,10 @@ struct AllSeasonsGraphView: View {
             .rottenGreen,
             .metacriticGreen
         ]
-        return colors[(season - 1) % colors.count]
+        // Season 0 (specials) and anything odd TMDB sends must not index
+        // out of bounds: `(0 - 1) % 5` is -1 in Swift.
+        let index = ((season - 1) % colors.count + colors.count) % colors.count
+        return colors[index]
     }
 }
 
@@ -428,6 +439,7 @@ struct AllSeasonsGraphView: View {
 struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
     let episodes: [EpisodeMetric]
     let seasonNumber: Int
+    var seasonAverage: Double?
 
     func makeChartDescriptor() -> AXChartDescriptor {
         let validEpisodes = episodes.filter { $0.hasValidRating }.sorted { $0.episodeNumber < $1.episodeNumber }
@@ -484,13 +496,13 @@ struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
             return "No episode data available"
         }
 
-        let ratings = episodes.map(\.rating)
-        let average = ratings.reduce(0, +) / Double(ratings.count)
         let highest = episodes.max { $0.rating < $1.rating }
         let lowest = episodes.min { $0.rating < $1.rating }
 
         var summary = "Season \(seasonNumber) has \(episodes.count) episodes. "
-        summary += "Average rating is \(String(format: "%.1f", average)). "
+        if let seasonAverage {
+            summary += "Average rating is \(String(format: "%.1f", seasonAverage)). "
+        }
 
         if let highest = highest {
             summary += "Highest rated: Episode \(highest.episodeNumber) (\(highest.title)) with \(highest.formattedRating). "
@@ -513,7 +525,8 @@ struct AllSeasonsAccessibility: AXChartDescriptorRepresentable {
         let allEpisodes = seasonData.flatMap { $0.episodes.filter(\.hasValidRating) }
         let xAxis = AXNumericDataAxisDescriptor(
             title: "Episode",
-            range: 1...Double(allEpisodes.count),
+            // `1...0` traps; an empty chart still needs a valid range.
+            range: 1...Double(max(allEpisodes.count, 1)),
             gridlinePositions: []
         ) { "Episode \(Int($0))" }
 
@@ -534,10 +547,9 @@ struct AllSeasonsAccessibility: AXChartDescriptorRepresentable {
             allSeries.append(AXDataSeriesDescriptor(name: "Season \(data.season)", isContinuous: true, dataPoints: points))
         }
 
+        // Same definition as the verdicts' season averages.
         let avgRatings = seasonData.compactMap { data -> (Int, Double)? in
-            let valid = data.episodes.filter(\.hasValidRating)
-            guard !valid.isEmpty else { return nil }
-            return (data.season, valid.map(\.rating).reduce(0, +) / Double(valid.count))
+            SeriesAnalysisEngine.seasonAverage(of: data.episodes).map { (data.season, $0) }
         }
         let summary = avgRatings.map { "Season \($0.0): avg \(String(format: "%.1f", $0.1))" }.joined(separator: ". ")
 
@@ -558,7 +570,8 @@ struct AllSeasonsAccessibility: AXChartDescriptorRepresentable {
     VStack {
         SeriesGraphView(
             episodes: EpisodeMetric.breakingBadS5,
-            seasonNumber: 5
+            seasonNumber: 5,
+            seasonAverage: SeriesAnalysisEngine.seasonAverage(of: EpisodeMetric.breakingBadS5)
         )
     }
     .padding()

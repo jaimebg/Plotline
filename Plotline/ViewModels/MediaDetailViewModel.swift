@@ -37,6 +37,13 @@ final class MediaDetailViewModel {
     var analysis: SeriesAnalysisResult?
     private(set) var analysisSource: AnalysisSource = .bundled
 
+    /// Set once a full `loadDetails()` has run to completion. The screen's
+    /// `.task` fires again every time it reappears — popping back from a
+    /// recommendation, say — and a second load refetched everything and
+    /// re-seeded the bundled analysis over the live one, so the verdicts
+    /// flickered. Explicit retries go through `retryEpisodes()` instead.
+    private(set) var hasLoadedDetails = false
+
     // MARK: - Watch Providers State
 
     var watchAvailability: RegionAvailability?
@@ -94,7 +101,13 @@ final class MediaDetailViewModel {
     /// Load all detail data (TMDB details + movie features)
     @MainActor
     func loadDetails() async {
-        loadBundledAnalysis()
+        guard !hasLoadedDetails else { return }
+
+        // Seed from the bundle only while nothing better is on screen. A live
+        // analysis from an earlier, cancelled load must not be swapped back.
+        if analysis == nil {
+            loadBundledAnalysis()
+        }
 
         // First, get TMDB details for season count and movie-specific data
         await fetchTMDBDetails()
@@ -113,6 +126,25 @@ final class MediaDetailViewModel {
             async let watchProvidersTask: () = loadWatchProviders()
             _ = await (movieFeaturesTask, recsTask, watchProvidersTask)
         }
+
+        // A load cut short — the screen was left before it finished, which
+        // cancels `.task` — has not loaded anything worth keeping, so the next
+        // appearance tries again.
+        hasLoadedDetails = !Task.isCancelled
+    }
+
+    /// Explicit retry after some or all seasons failed to load.
+    ///
+    /// Refetches the series details first when they never arrived: without
+    /// them `totalSeasons` is still the default of 1, and a retry would ask for
+    /// season 1 alone and call that complete.
+    @MainActor
+    func retryEpisodes() async {
+        guard media.isTVSeries else { return }
+        if !hasLoadedSeriesDetails {
+            await fetchTMDBDetails()
+        }
+        await fetchAllSeasons()
     }
 
     /// Re-derive `episodes` for the selected season from the already-fetched
@@ -144,8 +176,23 @@ final class MediaDetailViewModel {
             seriesId: media.id,
             totalSeasons: totalSeasons
         )
-        episodesBySeason = fetched.episodesBySeason
-        failedSeasons = fetched.failedSeasons
+        applySeasonFetch(fetched)
+
+        isLoadingAllSeasons = false
+    }
+
+    /// Folds a season fetch into the screen's state and re-runs the analysis.
+    ///
+    /// Split from `fetchAllSeasons()` so the partial-fetch path can be tested
+    /// without a network: `TMDBService` has no seam to stand a double in for.
+    ///
+    /// - Parameter now: explicit so the result never depends on the clock.
+    @MainActor
+    func applySeasonFetch(_ fetched: SeasonFetchResult, asOf now: Date = Date()) {
+        // A retry that fails outright must not wipe seasons an earlier attempt
+        // did load; merge rather than replace.
+        episodesBySeason.merge(fetched.episodesBySeason) { _, fresh in fresh }
+        failedSeasons = fetched.failedSeasons.filter { episodesBySeason[$0] == nil }
 
         // An empty dictionary means "nothing to show": no network, no API key,
         // or a series TMDB has no episode data for.
@@ -161,9 +208,7 @@ final class MediaDetailViewModel {
 
         syncEpisodesForSelectedSeason()
 
-        recomputeAnalysis()
-
-        isLoadingAllSeasons = false
+        recomputeAnalysis(asOf: now)
     }
 
     // MARK: - Analysis
@@ -201,35 +246,87 @@ final class MediaDetailViewModel {
         let episodes = episodesBySeason.values.flatMap { $0 }
         guard !episodes.isEmpty else { return }
 
+        // Seasons that failed go to the engine as well as staying out of the
+        // episode list, so a partial fetch comes back as a refusal naming the
+        // gap rather than as an analysis of whatever happened to load.
         let fresh = SeriesAnalysisEngine.analyze(
             episodes: episodes,
             hasEnded: media.hasEnded,
+            unloadedSeasons: failedSeasons,
             asOf: now
         )
 
-        guard isAtLeastAsComplete(fresh) else { return }
+        guard Self.shouldReplace(analysis, with: fresh, failedSeasons: failedSeasons) else { return }
 
         analysis = fresh
         analysisSource = .live
     }
 
-    /// Whether a freshly-computed analysis may replace the bundled one.
+    /// Whether a freshly computed analysis may replace the one on screen.
     ///
     /// A season that fails is absent from `episodesBySeason` (it is listed in
     /// `failedSeasons`), and a failed detail request leaves `totalSeasons` at
-    /// 1 — so a flaky connection can
-    /// hand back a single cached season for a five-season series. Assigning
-    /// that unconditionally would replace a complete bundled analysis with a
-    /// fragment, or with "Not Enough Ratings Yet" for a series whose full
-    /// analysis is sitting in the app bundle. Fresher data wins, but only when
-    /// it is not less than what we already had.
-    private func isAtLeastAsComplete(_ fresh: SeriesAnalysisResult) -> Bool {
-        guard analysisSource == .bundled, case .analyzed(let bundled) = analysis else {
-            return true
-        }
-        guard case .analyzed(let live) = fresh else { return false }
+    /// 1 — so a flaky connection can hand back a single cached season for a
+    /// five-season series and report no failure at all. Replacing a complete
+    /// analysis with that would show a fragment, or "Not Enough Ratings Yet"
+    /// for a series whose full analysis is sitting in the app bundle.
+    ///
+    /// So an analysis already on screen — bundled or from an earlier live
+    /// load — is only replaced by a fresh one that is itself a full analysis,
+    /// came from a fetch in which no season failed, and covers every season
+    /// the existing one does. Comparing season *counts* was not enough: seasons
+    /// 1, 2, 4 against a bundled 1, 2, 3 is the same count and a different run.
+    ///
+    /// With nothing worth protecting on screen (no analysis, or a refusal),
+    /// the fresh result always goes through — including the engine's own
+    /// refusal for a partial fetch, which is the honest thing to show.
+    ///
+    /// Static and pure so the rule can be tested without a network.
+    static func shouldReplace(
+        _ current: SeriesAnalysisResult?,
+        with fresh: SeriesAnalysisResult,
+        failedSeasons: [Int]
+    ) -> Bool {
+        guard case .analyzed(let existing)? = current else { return true }
+        guard failedSeasons.isEmpty, case .analyzed(let live) = fresh else { return false }
 
-        return live.seasons.count >= bundled.seasons.count
+        let liveSeasons = Set(live.seasons.map(\.seasonNumber))
+        return liveSeasons.isSuperset(of: existing.seasons.map(\.seasonNumber))
+    }
+
+    /// Each loaded season's average, defined exactly as the verdicts define it.
+    ///
+    /// Where the analysis on screen has a summary for the season, its figure is
+    /// used verbatim, so the chart, the grid and the verdicts can never show
+    /// three different numbers for one season. Other seasons fall back to the
+    /// engine's own definition over the loaded episodes — vote-weighted, only
+    /// episodes with enough votes — so the meaning of "average" never changes.
+    func seasonAverages(asOf now: Date = Date()) -> [Int: Double] {
+        var averages: [Int: Double] = [:]
+        for (season, episodes) in episodesBySeason {
+            averages[season] = SeriesAnalysisEngine.seasonAverage(of: episodes, asOf: now)
+        }
+        if case .analyzed(let current)? = analysis {
+            for summary in current.seasons {
+                averages[summary.seasonNumber] = summary.weightedAverage
+            }
+        }
+        return averages
+    }
+
+    /// The earliest future air date known for a main-run episode, from TMDB's
+    /// `next_episode_to_air` or from the loaded seasons. Nil when nothing is
+    /// dated — a missing date is not a schedule.
+    func nextScheduledAirDate(asOf now: Date = Date()) -> Date? {
+        var candidates = episodesBySeason
+            .filter { $0.key > 0 }
+            .values
+            .flatMap { $0 }
+            .compactMap(\.airDateValue)
+        if let announced = media.nextEpisodeAirDate.flatMap(EpisodeMetric.parseAirDate) {
+            candidates.append(announced)
+        }
+        return candidates.filter { $0 > now }.min()
     }
 
     // MARK: - Watch Providers
@@ -287,11 +384,16 @@ final class MediaDetailViewModel {
 
     // MARK: - Private Methods
 
+    /// Whether a series detail payload has been merged, so `totalSeasons`
+    /// reflects TMDB rather than the default.
+    private var hasLoadedSeriesDetails = false
+
     @MainActor
     private func fetchTMDBDetails() async {
         do {
             let details = try await tmdbService.fetchDetails(for: media)
             applyDetails(details)
+            hasLoadedSeriesDetails = true
         } catch {
             #if DEBUG
             debugPrint("Failed to fetch TMDB details: \(error)")
@@ -330,6 +432,10 @@ final class MediaDetailViewModel {
             // it — and it is the sole input that lets the engine judge an
             // ending. Dropping it leaves every live recomputation blind.
             media.hasEnded = details.hasEnded ?? media.hasEnded
+
+            // Taken as-is, nil included: a fresh payload with no next episode
+            // means none is scheduled any more.
+            media.nextEpisodeAirDate = details.nextEpisodeAirDate
 
             if media.overview.isEmpty && !details.overview.isEmpty {
                 media.overview = details.overview
@@ -471,9 +577,10 @@ final class MediaDetailViewModel {
         media.isTVSeries
     }
 
-    /// Array of season numbers for picker
+    /// Array of season numbers for picker. Empty rather than a trap when TMDB
+    /// reports zero seasons.
     var seasonNumbers: [Int] {
-        Array(1...totalSeasons)
+        totalSeasons > 0 ? Array(1...totalSeasons) : []
     }
 
     /// Seasons that actually came back with episodes. Seasons TMDB failed to
@@ -482,13 +589,10 @@ final class MediaDetailViewModel {
         episodesBySeason.keys.sorted()
     }
 
-    /// Average episode rating for current season
+    /// Average episode rating for the current season, defined as the
+    /// verdicts define it (see `seasonAverages(asOf:)`).
     var averageEpisodeRating: Double? {
-        guard !episodes.isEmpty else { return nil }
-        let validEpisodes = episodes.filter { $0.hasValidRating }
-        guard !validEpisodes.isEmpty else { return nil }
-        let sum = validEpisodes.reduce(0.0) { $0 + $1.rating }
-        return sum / Double(validEpisodes.count)
+        seasonAverages()[selectedSeason]
     }
 
     /// Highest rated episode in current season

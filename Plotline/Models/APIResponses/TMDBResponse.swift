@@ -36,6 +36,25 @@ nonisolated struct TMDBDetailResponse: Codable {
     /// Kept raw; the terminal reading lives in `hasEnded` below.
     let status: String?
 
+    /// The next episode TMDB has scheduled, if any. Only its date is kept: it
+    /// is the one thing that lets the detail screen say more episodes are
+    /// actually on the way, rather than inferring it from the status.
+    let nextEpisodeToAir: NextEpisodeToAir?
+
+    nonisolated struct NextEpisodeToAir: Codable {
+        let airDate: String?
+        let seasonNumber: Int?
+    }
+
+    /// The scheduled air date, when it belongs to the main run and is a real
+    /// date. TMDB sends "" for a date it does not have.
+    var nextEpisodeAirDate: String? {
+        guard let next = nextEpisodeToAir,
+              (next.seasonNumber ?? 1) > 0,
+              let date = next.airDate, !date.isEmpty else { return nil }
+        return date
+    }
+
     /// TMDB's status reduced to the one bit the analysis engine needs.
     ///
     /// `nil` means TMDB did not say anything the app can stand behind, which
@@ -66,7 +85,8 @@ nonisolated struct TMDBDetailResponse: Codable {
             revenue: revenue,
             collectionId: belongsToCollection?.id,
             collectionName: belongsToCollection?.name,
-            hasEnded: hasEnded
+            hasEnded: hasEnded,
+            nextEpisodeAirDate: nextEpisodeAirDate
         )
     }
 }

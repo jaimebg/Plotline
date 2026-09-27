@@ -6,7 +6,6 @@ struct MediaDetailView: View {
     @Environment(\.favoritesManager) private var favoritesManager
     @Environment(\.watchlistManager) private var watchlistManager
     @State private var viewModel: MediaDetailViewModel
-    @State private var scrollOffset: CGFloat = 0
     @State private var titleVisible: Bool = false
     @State private var favoriteAnimationTrigger = false
 
@@ -22,14 +21,6 @@ struct MediaDetailView: View {
             VStack(spacing: 0) {
                 // Immersive header (backdrop only)
                 headerSection
-                    .background(
-                        GeometryReader { geo in
-                            Color.clear.preference(
-                                key: ScrollOffsetKey.self,
-                                value: geo.frame(in: .named("scroll")).minY
-                            )
-                        }
-                    )
 
                 // Content
                 VStack(alignment: .leading, spacing: 24) {
@@ -64,14 +55,31 @@ struct MediaDetailView: View {
                         // no network at all, and hiding it behind a fetch would
                         // repeat a mistake this project already had to fix on
                         // Discover.
-                        SeriesAnalysisSection(result: viewModel.analysis)
+                        SeriesAnalysisSection(
+                            result: viewModel.analysis,
+                            failedSeasons: viewModel.failedSeasons,
+                            hasEnded: viewModel.media.hasEnded,
+                            nextEpisodeDate: viewModel.nextScheduledAirDate(),
+                            onRetry: { Task { await viewModel.retryEpisodes() } }
+                        )
 
                         // Interactive quality curve, then the full-season grid
                         if viewModel.shouldShowEpisodeGrid {
-                            seriesGraphSection
+                            let seasonAverages = viewModel.seasonAverages()
+
+                            seriesGraphSection(seasonAverages: seasonAverages)
+
+                            // Not twice: when the analysis above is already the
+                            // refusal for these seasons, it carries the retry.
+                            if !viewModel.failedSeasons.isEmpty,
+                               viewModel.analysis != .insufficientData(.seasonsNotLoaded) {
+                                failedSeasonsNotice
+                            }
+
                             EpisodeRatingsGridView(
                                 episodesBySeason: viewModel.episodesBySeason,
-                                totalSeasons: viewModel.totalSeasons
+                                totalSeasons: viewModel.totalSeasons,
+                                seasonAverages: seasonAverages
                             )
                         } else if viewModel.isLoadingAllSeasons {
                             episodeGridLoadingView
@@ -95,11 +103,14 @@ struct MediaDetailView: View {
                 .readableWidth()
             }
         }
-        .coordinateSpace(name: "scroll")
-        .onPreferenceChange(ScrollOffsetKey.self) { value in
-            scrollOffset = value
+        // Fires only when the answer flips, not on every scrolled frame: the
+        // old preference-key version wrote a state value and opened an
+        // animation transaction per frame for a value nothing read.
+        .onScrollGeometryChange(for: Bool.self) { geometry in
+            geometry.contentOffset.y + geometry.contentInsets.top > titleCollapseThreshold
+        } action: { _, isPastThreshold in
             withAnimation(.easeInOut(duration: 0.2)) {
-                titleVisible = -value > titleCollapseThreshold
+                titleVisible = isPastThreshold
             }
         }
         .background(Color.plotlineBackground)
@@ -253,7 +264,7 @@ struct MediaDetailView: View {
                 }
 
                 if let totalSeasons = viewModel.media.totalSeasons, viewModel.media.isTVSeries {
-                    Label("\(totalSeasons) Seasons", systemImage: "film.stack")
+                    Label(totalSeasons == 1 ? "1 Season" : "\(totalSeasons) Seasons", systemImage: "film.stack")
                         .font(.subheadline)
                         .foregroundStyle(.primary.opacity(0.9))
                 }
@@ -392,7 +403,7 @@ struct MediaDetailView: View {
     /// Interactive per-season quality curve. Hidden when the selected season
     /// came back without episodes, so the chart never renders an empty axis.
     @ViewBuilder
-    private var seriesGraphSection: some View {
+    private func seriesGraphSection(seasonAverages: [Int: Double]) -> some View {
         if !viewModel.episodes.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 if viewModel.availableSeasons.count > 1 {
@@ -409,7 +420,8 @@ struct MediaDetailView: View {
 
                 SeriesGraphView(
                     episodes: viewModel.episodes,
-                    seasonNumber: viewModel.selectedSeason
+                    seasonNumber: viewModel.selectedSeason,
+                    seasonAverage: seasonAverages[viewModel.selectedSeason]
                 )
             }
         }
@@ -423,6 +435,9 @@ struct MediaDetailView: View {
                 .font(.system(.headline, weight: .semibold))
                 .foregroundStyle(.primary)
 
+            // Cells share the width that is actually there. Five fixed 58pt
+            // cells plus the label came to 358pt, wider than a 375pt iPhone
+            // once the screen's own padding is taken off.
             VStack(spacing: 6) {
                 ForEach(0..<8, id: \.self) { _ in
                     HStack(spacing: 6) {
@@ -432,13 +447,44 @@ struct MediaDetailView: View {
                         ForEach(0..<5, id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(Color.plotlineCard)
-                                .frame(width: 58, height: 36)
+                                .frame(maxWidth: 58, minHeight: 36, maxHeight: 36)
                         }
                     }
                     .shimmering()
                 }
             }
+            .accessibilityHidden(true)
         }
+    }
+
+    // MARK: - Failed Seasons
+
+    /// Some seasons loaded and some did not. The grid marks the missing ones
+    /// with "?", but says nothing about why or what to do; this does.
+    private var failedSeasonsNotice: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Label {
+                Text(SeriesAnalysisSection.seasonsNotLoadedNotice(viewModel.failedSeasons))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "exclamationmark.triangle")
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 0)
+
+            Button("Try Again") {
+                Task { await viewModel.retryEpisodes() }
+            }
+            .buttonStyle(.bordered)
+            .disabled(viewModel.isLoadingAllSeasons)
+        }
+        .padding()
+        .background(Color.plotlineCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .contain)
     }
 
     // MARK: - Episode Grid Unavailable
@@ -452,7 +498,7 @@ struct MediaDetailView: View {
             Text(message)
         } actions: {
             Button("Try Again") {
-                Task { await viewModel.fetchAllSeasons() }
+                Task { await viewModel.retryEpisodes() }
             }
             .buttonStyle(.bordered)
         }
@@ -461,15 +507,6 @@ struct MediaDetailView: View {
         // reachable, so the message is not repeated by the container label.
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Episode scores unavailable")
-    }
-}
-
-// MARK: - Scroll Offset Key
-
-struct ScrollOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 

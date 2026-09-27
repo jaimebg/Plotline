@@ -36,6 +36,11 @@ nonisolated struct MediaItem: Identifiable, Codable, Hashable {
     /// and an entry written before this property existed must still decode.
     var hasEnded: Bool?
 
+    /// Air date (`yyyy-MM-dd`) of the next episode TMDB has scheduled, from the
+    /// series detail payload's `next_episode_to_air`. Nil when none is known.
+    /// Optional for the same disk-cache reason as `hasEnded`.
+    var nextEpisodeAirDate: String?
+
     // MARK: - Computed Properties
 
     /// Display title (works for both movies and TV)
@@ -104,6 +109,7 @@ nonisolated struct MediaItem: Identifiable, Codable, Hashable {
         case collectionId
         case collectionName
         case hasEnded
+        case nextEpisodeAirDate
     }
 
     // MARK: - Custom Decoder (handles missing fields from person results)
@@ -129,6 +135,7 @@ nonisolated struct MediaItem: Identifiable, Codable, Hashable {
         collectionId = try container.decodeIfPresent(Int.self, forKey: .collectionId)
         collectionName = try container.decodeIfPresent(String.self, forKey: .collectionName)
         hasEnded = try container.decodeIfPresent(Bool.self, forKey: .hasEnded)
+        nextEpisodeAirDate = try container.decodeIfPresent(String.self, forKey: .nextEpisodeAirDate)
     }
 
     // MARK: - Memberwise Initializer
@@ -151,7 +158,8 @@ nonisolated struct MediaItem: Identifiable, Codable, Hashable {
         revenue: Int? = nil,
         collectionId: Int? = nil,
         collectionName: String? = nil,
-        hasEnded: Bool? = nil
+        hasEnded: Bool? = nil,
+        nextEpisodeAirDate: String? = nil
     ) {
         self.id = id
         self.overview = overview
@@ -171,6 +179,7 @@ nonisolated struct MediaItem: Identifiable, Codable, Hashable {
         self.collectionId = collectionId
         self.collectionName = collectionName
         self.hasEnded = hasEnded
+        self.nextEpisodeAirDate = nextEpisodeAirDate
     }
 }
 

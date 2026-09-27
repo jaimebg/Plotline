@@ -7,6 +7,11 @@ import SwiftUI
 /// nothing about how good the show was beforehand, so neither does the copy.
 struct SeriesVerdictsView: View {
     let analysis: SeriesAnalysis
+    /// TMDB's series status as the screen currently knows it: `true` ended,
+    /// `false` returning or in production, `nil` unknown.
+    var hasEnded: Bool?
+    /// The earliest future air date known for a main-run episode.
+    var nextEpisodeDate: Date?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -38,12 +43,7 @@ struct SeriesVerdictsView: View {
                     verdict(
                         icon: "play.circle",
                         title: openingTitle(opening),
-                        evidence: String(
-                            format: "First %d episodes averaged %.1f against %.1f for the rest.",
-                            opening.episodesConsidered.count,
-                            opening.openingAverage,
-                            opening.remainderAverage
-                        )
+                        evidence: Self.openingEvidence(opening)
                     )
                 }
 
@@ -63,13 +63,14 @@ struct SeriesVerdictsView: View {
                     )
                 }
 
-                // Only the positive case is stated: `isOngoing == false` also
-                // covers "status unknown", which is no evidence of an ending.
-                if analysis.isOngoing {
+                // Only the positive cases are stated, and only as far as the
+                // evidence goes. An unknown status says nothing here — neither
+                // "ended" nor "returning".
+                if let status = Self.runStatus(hasEnded: hasEnded, nextEpisodeDate: nextEpisodeDate) {
                     verdict(
                         icon: "dot.radiowaves.up.forward",
-                        title: "Still running",
-                        evidence: "More episodes are on the way, so there is no ending to judge yet."
+                        title: status.title,
+                        evidence: status.evidence
                     )
                 }
             }
@@ -150,11 +151,58 @@ struct SeriesVerdictsView: View {
         )
     }
 
+    /// The numbers behind the opening verdict.
+    ///
+    /// The opening run is the first six episodes *with enough votes to count*;
+    /// an early episode short of votes is skipped. "First 6 episodes" claimed
+    /// the literal first six, which is not what was measured.
+    static func openingEvidence(_ opening: OpeningVerdict) -> String {
+        String(
+            format: "The first %d episodes with enough votes averaged %.1f, against %.1f for the rest.",
+            opening.episodesConsidered.count,
+            opening.openingAverage,
+            opening.remainderAverage
+        )
+    }
+
+    /// What can honestly be said about whether the run continues.
+    ///
+    /// TMDB's status only establishes that TMDB *lists* the series as returning
+    /// or in production — not that anything is on its way. That is said only
+    /// when an episode actually carries a future air date. A confirmed ending
+    /// is left to the ending verdict, and an unknown status yields no row: it
+    /// is evidence of neither an ending nor a return.
+    static func runStatus(hasEnded: Bool?, nextEpisodeDate: Date?) -> (title: String, evidence: String)? {
+        guard hasEnded != true else { return nil }
+
+        if let nextEpisodeDate {
+            let date = nextEpisodeDate.formatted(
+                Date.FormatStyle(date: .long, time: .omitted, timeZone: TimeZone(identifier: "UTC") ?? .gmt)
+            )
+            return (
+                "Next episode scheduled",
+                "TMDB dates the next episode \(date), so there is no ending to judge yet."
+            )
+        }
+
+        if hasEnded == false {
+            return (
+                "Listed as returning",
+                "TMDB lists this series as returning or in production, so there is no ending to judge yet."
+            )
+        }
+
+        return nil
+    }
+
     private func openingTitle(_ opening: OpeningVerdict) -> String {
         switch opening.kind {
         case .hooksEarly:
             return "Hooks you early"
         case .slowStart:
+            // `improvesAtSeason` is only set when every judgeable season from
+            // it to the end stays above the opening, which is what "better
+            // from" promises.
             if let season = opening.improvesAtSeason {
                 return "Slow start, better from season \(season)"
             }
