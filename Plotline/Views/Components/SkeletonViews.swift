@@ -32,35 +32,6 @@ struct SkeletonCard: View {
     }
 }
 
-// MARK: - Skeleton Featured Card
-
-/// Skeleton placeholder for featured/hero cards
-struct SkeletonFeaturedCard: View {
-    var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Image skeleton
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.plotlineCard)
-                .frame(width: 320, height: 180)
-                .shimmering()
-
-            // Title overlay skeleton
-            VStack(alignment: .leading, spacing: 6) {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.plotlineCardSecondary)
-                    .frame(width: 180, height: 16)
-
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.plotlineCardSecondary)
-                    .frame(width: 120, height: 12)
-            }
-            .padding(12)
-        }
-        .frame(width: 320, height: 180)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-}
-
 // MARK: - Skeleton Section
 
 /// Skeleton placeholder for a media section with title and horizontal scroll
@@ -99,42 +70,6 @@ struct SkeletonSection: View {
     }
 }
 
-// MARK: - Skeleton Featured Section
-
-/// Skeleton placeholder for featured section with large cards
-struct SkeletonFeaturedSection: View {
-    let itemCount: Int
-
-    init(itemCount: Int = 3) {
-        self.itemCount = itemCount
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Section title skeleton
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color.plotlineCard)
-                .frame(width: 140, height: 22)
-                .shimmering()
-                .padding(.horizontal)
-
-            // Horizontal scroll of skeleton featured cards
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 16) {
-                    ForEach(0..<itemCount, id: \.self) { _ in
-                        SkeletonFeaturedCard()
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .disabled(true)
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Loading featured section")
-        .accessibilityAddTraits(.updatesFrequently)
-    }
-}
-
 // MARK: - Discovery Skeleton View
 
 /// Full skeleton view matching DiscoveryView layout
@@ -142,9 +77,6 @@ struct DiscoverySkeletonView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 28) {
-                // Featured section skeleton
-                SkeletonFeaturedSection(itemCount: 3)
-
                 // Trending Movies skeleton
                 SkeletonSection(style: .poster, itemCount: 5)
 
@@ -238,19 +170,6 @@ struct SearchResultsSkeletonView: View {
     }
 }
 
-// MARK: - Color Extension
-
-extension Color {
-    /// Secondary card color for nested skeleton elements
-    static let plotlineCardSecondary = Color(
-        UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark
-                ? UIColor(white: 0.15, alpha: 1)
-                : UIColor(white: 0.85, alpha: 1)
-        }
-    )
-}
-
 // MARK: - Previews
 
 #Preview("Skeleton Card") {
@@ -261,12 +180,6 @@ extension Color {
     }
     .padding()
     .background(Color.plotlineBackground)
-}
-
-#Preview("Skeleton Featured Card") {
-    SkeletonFeaturedCard()
-        .padding()
-        .background(Color.plotlineBackground)
 }
 
 #Preview("Skeleton Section") {

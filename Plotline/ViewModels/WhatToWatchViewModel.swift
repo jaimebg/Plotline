@@ -60,8 +60,7 @@ final class WhatToWatchViewModel {
     @MainActor
     func fetchResults(
         favoriteIds: Set<Int>,
-        watchlistIds: Set<Int>,
-        topGenreIds: [Int]
+        watchlistIds: Set<Int>
     ) async {
         guard !selectedMoods.isEmpty, selectedTime != nil else { return }
 

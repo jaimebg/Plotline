@@ -7,7 +7,7 @@ extension Color {
     static let plotlinePrimary = Color(hex: "C40C0C")
 
     /// Secondary accent - orange
-    static let plotlineSecondaryAccent = Color(hex: "FF6500")
+    nonisolated static let plotlineSecondaryAccent = Color(hex: "FF6500")
 
     /// Tertiary accent - burnt orange
     static let plotlineTertiary = Color(hex: "CC561E")
@@ -30,27 +30,7 @@ extension Color {
     /// sits close enough to `plotlineSecondaryAccent` (#FF6500) that a ramp
     /// between the two collapses to a flat fill. Gradients take this fixed
     /// value instead, so they keep their range in both appearances.
-    static let plotlineAccentDeep = Color(hex: "B33A00")
-
-    // MARK: - Fallback Colors (for programmatic use)
-
-    /// Dark mode background
-    static let plotlineBackgroundDark = Color(hex: "121212")
-
-    /// Light mode background
-    static let plotlineBackgroundLight = Color(hex: "F5F5F5")
-
-    /// Dark mode card
-    static let plotlineCardDark = Color(hex: "1E1E1E")
-
-    /// Light mode card
-    static let plotlineCardLight = Color(hex: "FFFFFF")
-
-    /// Dark mode secondary text
-    static let plotlineSecondaryDark = Color(hex: "A0A0A0")
-
-    /// Light mode secondary text
-    static let plotlineSecondaryLight = Color(hex: "666666")
+    nonisolated static let plotlineAccentDeep = Color(hex: "B33A00")
 
     // MARK: - Rating Colors (Industry Standard)
 
@@ -105,7 +85,7 @@ extension Color {
 
     // MARK: - Hex Initializer
 
-    init(hex: String) {
+    nonisolated init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
@@ -139,20 +119,6 @@ extension LinearGradient {
     /// `plotlineAccentDeep`.
     static let plotlineGradient = LinearGradient(
         colors: [.plotlineAccentDeep, .plotlineSecondaryAccent, .plotlineGold],
-        startPoint: .leading,
-        endPoint: .trailing
-    )
-
-    /// Vertical fade to black (for backdrop overlays)
-    static let fadeToBlack = LinearGradient(
-        colors: [.clear, .black],
-        startPoint: .top,
-        endPoint: .bottom
-    )
-
-    /// Horizontal fade to black (for horizontal images)
-    static let horizontalFadeToBlack = LinearGradient(
-        colors: [.clear, .black.opacity(0.8)],
         startPoint: .leading,
         endPoint: .trailing
     )

@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 
 /// Searches movie collections and shows franchise quality over time
 @Observable

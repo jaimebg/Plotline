@@ -114,11 +114,6 @@ struct CareerProfileView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
 
         // Biography below header card
-        .overlay(alignment: .bottom) {
-            if let bio = viewModel.person?.biography, !bio.isEmpty {
-                EmptyView()
-            }
-        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if let bio = viewModel.person?.biography, !bio.isEmpty {
                 biographyView(bio)

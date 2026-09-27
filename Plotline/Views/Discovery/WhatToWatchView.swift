@@ -146,8 +146,7 @@ struct WhatToWatchView: View {
                     Task {
                         await viewModel.fetchResults(
                             favoriteIds: favoritesManager.favoriteIds,
-                            watchlistIds: watchlistManager.watchlistIds,
-                            topGenreIds: []
+                            watchlistIds: watchlistManager.watchlistIds
                         )
                     }
                 } label: {
