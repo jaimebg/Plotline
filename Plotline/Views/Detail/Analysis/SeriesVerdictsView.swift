@@ -226,7 +226,8 @@ struct SeriesVerdictsView: View {
 
     /// The decline point proves a relative fall that does not recover, and
     /// nothing about how good the series was before it. Shared with Siri's
-    /// verdict (`VerdictCopy`) so both say exactly this much and no more.
+    /// verdict (`VerdictCopy`) and the share card, so all say exactly this much
+    /// and no more.
     static func declineTitle(_ decline: DeclinePoint) -> String {
         "Falls off after season \(decline.afterSeason)"
     }

@@ -128,6 +128,26 @@ struct MediaDetailView: View {
                     .opacity(titleVisible ? 1 : 0)
             }
 
+            // Only a full analysis is worth sharing: a refusal has no verdict
+            // to put on a card, and the card must not say more than this
+            // screen does.
+            if viewModel.isTVSeries, let analysis = viewModel.analyzedResult {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ShareLink(
+                        item: verdictCard(for: analysis),
+                        preview: SharePreview(
+                            "\(viewModel.media.displayTitle) — Plotline analysis",
+                            image: Image(systemName: "chart.xyaxis.line")
+                        )
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
+                    .accessibilityLabel("Share Plotline analysis")
+                }
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 16) {
                     watchlistMenuButton
@@ -151,6 +171,20 @@ struct MediaDetailView: View {
         .task {
             await viewModel.loadDetails()
         }
+    }
+
+    // MARK: - Share
+
+    private func verdictCard(for analysis: SeriesAnalysis) -> VerdictCardImage {
+        VerdictCardImage(
+            content: VerdictCardContent(
+                title: viewModel.media.displayTitle,
+                analysis: analysis,
+                episodes: viewModel.episodesBySeason.values.flatMap { $0 },
+                hasEnded: viewModel.media.hasEnded,
+                nextEpisodeDate: viewModel.nextScheduledAirDate()
+            )
+        )
     }
 
     // MARK: - Watchlist Menu
