@@ -50,8 +50,15 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — 388 Swift Testing functions (four parameterised), plus the
-# 8-method cold-start UI suite, which runs starved of a TMDB key
+# Run tests — 388 Swift Testing functions (four parameterised). Day to day,
+# skip the UI suites: they take ~15 min and are checked by hand during
+# development. They stay in the scheme on purpose — release-preflight.sh runs
+# the 8-method cold-start UI suite (starved of a TMDB key) and capture.sh runs
+# ScreenshotCaptureTests, both via -only-testing, which cannot reach a target
+# the scheme marks skipped.
+xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' -skip-testing:PlotlineUITests test
+
+# The full suite, UI included — what the preflight gathers before a release
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
 # Build for iPad — the device App Review used
