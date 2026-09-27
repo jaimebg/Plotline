@@ -21,6 +21,10 @@ struct MainTabView: View {
                 DiscoveryView()
             }
 
+            Tab("Analysis", systemImage: "chart.line.uptrend.xyaxis", value: .analysis) {
+                AnalysisExplorerView()
+            }
+
             Tab("Library", systemImage: "books.vertical.fill", value: .library) {
                 LibraryView()
             }

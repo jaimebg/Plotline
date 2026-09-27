@@ -20,6 +20,10 @@ enum AccessibilityAnchors {
     static let statsYourStatsEmpty = "plotline.stats.yourStatsEmpty"
     static let settingsRow = "plotline.settings.row"
     static let mediaCard = "plotline.mediaCard"
+    /// The Analysis tab's result count and each result row. The tab reads only
+    /// the bundled dataset, so both must render with no TMDB key at all.
+    static let analysisResultCount = "plotline.analysis.resultCount"
+    static let analysisResultRow = "plotline.analysis.resultRow"
 
     /// The two mutually exclusive outcomes of Discover's TMDB fetch. These are
     /// not part of the rejection guard: they are how the UI suite observes
