@@ -3,13 +3,13 @@ import SwiftUI
 /// Tab selection values for type-safe programmatic navigation
 enum AppTab: Hashable {
     case discover
-    case favorites
-    case watchlist
+    case analysis
+    case library
     case stats
     case settings
 }
 
-/// Main tab view with Discover, Favorites, and Settings tabs using iOS 18+ Tab API
+/// Main tab view: Discover, Analysis, Library, Stats and Settings.
 struct MainTabView: View {
     @Environment(\.themeManager) private var themeManager
     @Environment(\.deepLinkManager) private var deepLinkManager
@@ -21,12 +21,8 @@ struct MainTabView: View {
                 DiscoveryView()
             }
 
-            Tab("Favorites", systemImage: "heart.fill", value: .favorites) {
-                FavoritesView()
-            }
-
-            Tab("Watchlist", systemImage: "eye.fill", value: .watchlist) {
-                WatchlistView()
+            Tab("Library", systemImage: "books.vertical.fill", value: .library) {
+                LibraryView()
             }
 
             Tab("Stats", systemImage: "chart.bar.fill", value: .stats) {

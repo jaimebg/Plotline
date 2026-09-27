@@ -1,18 +1,24 @@
-import StoreKit
-import SwiftData
 import SwiftUI
 
-/// Main view for displaying and managing favorited movies and series
-struct FavoritesView: View {
-    @Environment(\.themeManager) private var themeManager
+/// The pushed value for a favourite's detail screen.
+///
+/// Distinct from a bare `MediaItem` so `LibraryView` can tell a favourite's
+/// detail apart from a watchlist or suggestion one: only a favourite's counts
+/// towards the review prompt.
+struct FavoriteDetailRoute: Hashable {
+    let item: MediaItem
+}
+
+/// The Favorites half of the Library tab: saved titles with a type filter,
+/// sorting and swipe-to-remove, or suggestions from the bundled dataset when
+/// nothing is saved.
+///
+/// Carries no `NavigationStack` of its own; `LibraryView` provides it, along
+/// with the state that has to survive switching segments.
+struct FavoritesSegment: View {
     @Environment(\.favoritesManager) private var favoritesManager
-    @Environment(\.requestReview) private var requestReview
-    @State private var viewModel = FavoritesViewModel()
-    @State private var navigationPath = NavigationPath()
-    /// Favourites whose detail already counted towards the review prompt this
-    /// session. See `handleFavoriteDetailOpened(_:)`.
-    @State private var countedDetailOpens: Set<String> = []
-    @Namespace private var namespace
+    @Bindable var viewModel: FavoritesViewModel
+    let namespace: Namespace.ID
 
     private var filteredFavorites: [FavoriteItem] {
         viewModel.filteredAndSorted(favoritesManager.favorites)
@@ -24,26 +30,14 @@ struct FavoritesView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            favoritesContent
-                .background(Color.plotlineBackground)
-                .navigationTitle("Favorites")
-                .navigationBarTitleDisplayMode(.large)
-                .navigationDestination(for: MediaItem.self) { item in
-                    MediaDetailView(media: item)
-                        .navigationTransition(.zoom(sourceID: item.id, in: namespace))
-                        .onAppear { handleFavoriteDetailOpened(item) }
-                }
-                .toolbar {
-                    if !favoritesManager.favorites.isEmpty {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            sortMenu
-                        }
+        favoritesContent
+            .toolbar {
+                if !favoritesManager.favorites.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        sortMenu
                     }
                 }
-        }
-        .environment(\.navigationNamespace, namespace)
-        .preferredColorScheme(themeManager.colorScheme)
+            }
     }
 
     @ViewBuilder
@@ -103,7 +97,7 @@ struct FavoritesView: View {
     private var favoritesList: some View {
         List {
             ForEach(filteredFavorites, id: \.tmdbId) { favorite in
-                NavigationLink(value: favorite.toMediaItem()) {
+                NavigationLink(value: FavoriteDetailRoute(item: favorite.toMediaItem())) {
                     FavoriteRow(favorite: favorite)
                 }
                 .matchedTransitionSource(id: favorite.tmdbId, in: namespace)
@@ -135,26 +129,6 @@ struct FavoritesView: View {
         )
     }
 
-    /// Counts a favourite's detail screen towards the review prompt once per
-    /// title per session.
-    ///
-    /// `onAppear` also fires when the user pops back to the detail from a
-    /// screen pushed on top of it (a cast member's career, a franchise entry),
-    /// and each of those used to count as another visit.
-    private func handleFavoriteDetailOpened(_ item: MediaItem) {
-        let key = "\(item.isTVSeries ? "tv" : "movie"):\(item.id)"
-        guard countedDetailOpens.insert(key).inserted else { return }
-
-        ReviewManager.recordFavoriteDetailOpened()
-        if ReviewManager.shouldRequestReview() {
-            ReviewManager.markReviewRequested()
-            Task { @MainActor in
-                try? await Task.sleep(for: .seconds(2))
-                requestReview()
-            }
-        }
-    }
-
     private var filteredEmptyStateView: some View {
         ContentUnavailableView(
             "No \(viewModel.filter.rawValue)",
@@ -162,10 +136,4 @@ struct FavoritesView: View {
             description: Text("You haven't added any \(viewModel.filter.rawValue.lowercased()) to your favorites yet")
         )
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    FavoritesView()
 }

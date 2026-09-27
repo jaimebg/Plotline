@@ -16,8 +16,14 @@ struct WhatShouldIWatchIntent: AppIntent {
     @Dependency
     private var modelContainer: ModelContainer
 
+    /// The intent opens the app, and it answers from the watchlist, so that is
+    /// where it lands: the Library tab, on its Watchlist segment.
+    @Dependency
+    private var deepLinkManager: DeepLinkManager
+
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
+        deepLinkManager.openLibrary(.watchlist)
         let context = modelContainer.mainContext
         let allItems = (try? context.fetch(FetchDescriptor<WatchlistItem>())) ?? []
 

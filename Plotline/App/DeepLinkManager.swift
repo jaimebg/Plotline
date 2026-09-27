@@ -14,11 +14,21 @@ final class DeepLinkManager {
     /// A title whose detail screen should open — from a Spotlight result, or
     /// "Open in Plotline" on a Siri verdict. `DiscoveryView` pushes it.
     var pendingDetail: PendingDetail?
+    /// Which half of the Library tab to show. `LibraryView` consumes it.
+    var pendingLibrarySegment: LibrarySegment?
 
     /// Opens a title's detail screen on the Discover tab.
     func openDetail(_ detail: PendingDetail) {
         pendingDetail = detail
         pendingTab = .discover
+    }
+
+    /// Opens the Library tab on the given segment. The segment is set before
+    /// the tab, so `LibraryView` finds it waiting whether it already exists or
+    /// is about to appear for the first time.
+    func openLibrary(_ segment: LibrarySegment) {
+        pendingLibrarySegment = segment
+        pendingTab = .library
     }
 }
 

@@ -7,14 +7,17 @@ enum WatchlistFilter: String, CaseIterable {
     case watched = "Watched"
 }
 
-/// Standalone view for displaying the user's watchlist
-struct WatchlistView: View {
-    @Environment(\.themeManager) private var themeManager
+/// The Watchlist half of the Library tab: saved titles with a watch-status
+/// filter, sorting, a swipe to toggle watched and one to remove, or
+/// suggestions from the bundled dataset when nothing is saved.
+///
+/// Carries no `NavigationStack` of its own; `LibraryView` provides it, and
+/// owns the filter and sort so they survive switching segments.
+struct WatchlistSegment: View {
     @Environment(\.watchlistManager) private var watchlistManager
-    @State private var filter: WatchlistFilter = .all
-    @State private var sort: FavoriteSort = .dateAdded
-    @State private var navigationPath = NavigationPath()
-    @Namespace private var namespace
+    @Binding var filter: WatchlistFilter
+    @Binding var sort: FavoriteSort
+    let namespace: Namespace.ID
 
     private var filteredItems: [WatchlistItem] {
         var result = watchlistManager.watchlistItems
@@ -46,37 +49,26 @@ struct WatchlistView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            VStack(spacing: 0) {
-                filterPicker
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+        VStack(spacing: 0) {
+            filterPicker
+                .padding(.horizontal)
+                .padding(.top, 8)
 
-                if watchlistManager.watchlistItems.isEmpty {
-                    emptyStateView
-                } else if filteredItems.isEmpty {
-                    filteredEmptyStateView
-                } else {
-                    watchlistList
-                }
+            if watchlistManager.watchlistItems.isEmpty {
+                emptyStateView
+            } else if filteredItems.isEmpty {
+                filteredEmptyStateView
+            } else {
+                watchlistList
             }
-            .background(Color.plotlineBackground)
-            .navigationTitle("Watchlist")
-            .navigationBarTitleDisplayMode(.large)
-            .navigationDestination(for: MediaItem.self) { item in
-                MediaDetailView(media: item)
-                    .navigationTransition(.zoom(sourceID: item.id, in: namespace))
-            }
-            .toolbar {
-                if !watchlistManager.watchlistItems.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        sortMenu
-                    }
+        }
+        .toolbar {
+            if !watchlistManager.watchlistItems.isEmpty {
+                ToolbarItem(placement: .topBarTrailing) {
+                    sortMenu
                 }
             }
         }
-        .environment(\.navigationNamespace, namespace)
-        .preferredColorScheme(themeManager.colorScheme)
     }
 
     private var filterPicker: some View {
