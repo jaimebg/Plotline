@@ -223,14 +223,12 @@ struct SeriesAnalysisEngineBoundaryTests {
         #expect(analysis(episodes)?.standoutHighs.map(\.shortCode) == ["S1E4"])
     }
 
-    /// Recorded rather than endorsed. On paper this z-score is exactly 1.5 —
-    /// three episodes carrying 900 votes against one carrying 400, so
-    /// z = √(900/400) — and the threshold is inclusive. In floating point it
-    /// computes as 1.4999999999999987 and misses. The engine adds no epsilon,
-    /// so a paper-exact tie on the z-score does not count. If that ever
-    /// changes, this test is the one to update.
-    @Test("a z-score of 1.5 on paper computes just under and does not count")
-    func standoutZScoreTieFallsUnder() {
+    /// On paper this z-score is exactly 1.5 — three episodes carrying 900
+    /// votes against one carrying 400, so z = √(900/400) — and the threshold
+    /// is inclusive. In floating point it computes as 1.4999999999999987; the
+    /// engine's `thresholdTolerance` keeps the inclusive threshold inclusive.
+    @Test("a z-score of exactly 1.5 on paper counts")
+    func standoutZScoreTieCounts() {
         let episodes = [
             EpisodeFixtures.episode(season: 1, number: 1, rating: 8.0, votes: 300),
             EpisodeFixtures.episode(season: 1, number: 2, rating: 8.0, votes: 300),
@@ -238,7 +236,7 @@ struct SeriesAnalysisEngineBoundaryTests {
             EpisodeFixtures.episode(season: 1, number: 4, rating: 9.0, votes: 400)
         ]
 
-        #expect(analysis(episodes)?.standoutHighs.isEmpty == true)
+        #expect(analysis(episodes)?.standoutHighs.map(\.shortCode) == ["S1E4"])
     }
 
     @Test("clearing both the z-score and the 0.4 floor by a hair counts")

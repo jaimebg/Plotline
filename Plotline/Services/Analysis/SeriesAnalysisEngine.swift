@@ -55,6 +55,11 @@ nonisolated enum SeriesAnalysisEngine {
     /// 0.1-point wobble clears the z-score threshold while meaning nothing.
     static let minimumStandoutDelta = 0.4
 
+    /// Slack for comparing a computed statistic against an inclusive threshold.
+    /// A z-score that is exactly 1.5 on paper can compute as 1.4999999999999987;
+    /// without this, an inclusive threshold would silently become exclusive.
+    static let thresholdTolerance = 1e-9
+
     /// How many opening episodes the opening verdict weighs.
     static let openingEpisodeCount = 6
 
@@ -354,13 +359,13 @@ nonisolated enum SeriesAnalysisEngine {
 
             for episode in episodes.sorted(by: { $0.episodeNumber < $1.episodeNumber }) {
                 let delta = episode.rating - mean
-                guard abs(delta) >= minimumStandoutDelta else { continue }
+                guard abs(delta) >= minimumStandoutDelta - thresholdTolerance else { continue }
 
                 let zScore = delta / deviation
 
-                if zScore >= standoutZScoreThreshold {
+                if zScore >= standoutZScoreThreshold - thresholdTolerance {
                     highs.append(reference(episode))
-                } else if zScore <= -standoutZScoreThreshold {
+                } else if zScore <= -(standoutZScoreThreshold - thresholdTolerance) {
                     lows.append(reference(episode))
                 }
             }
