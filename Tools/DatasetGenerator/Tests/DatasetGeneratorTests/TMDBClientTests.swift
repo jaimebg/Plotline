@@ -69,13 +69,32 @@ struct TMDBClientTests {
         #expect(details.id == 1396)
         #expect(details.name == "Breaking Bad")
         #expect(details.seasonCount == 5)
-        #expect(details.hasEnded)
+        #expect(details.hasEnded == true)
     }
 
     @Test("treats a returning series as not ended")
     func detectsReturningSeries() throws {
         let json = #"{"id": 1, "name": "X", "number_of_seasons": 2, "status": "Returning Series", "poster_path": null}"#
         #expect(try TMDBClient.decodeDetails(Data(json.utf8)).hasEnded == false)
+    }
+
+    @Test("treats a series in production as not ended")
+    func detectsInProductionSeries() throws {
+        let json = #"{"id": 1, "name": "X", "number_of_seasons": 2, "status": "In Production", "poster_path": null}"#
+        #expect(try TMDBClient.decodeDetails(Data(json.utf8)).hasEnded == false)
+    }
+
+    /// The app reads these as unknown (`SeriesStatus`). The generator used to
+    /// read them as "not ended", so the bundle could call a pilot ongoing
+    /// while the live recomputation of the same series said nothing.
+    @Test("leaves Pilot, Planned, an unrecognised and an absent status unknown", arguments: [
+        #"{"id": 1, "name": "X", "status": "Pilot", "poster_path": null}"#,
+        #"{"id": 1, "name": "X", "status": "Planned", "poster_path": null}"#,
+        #"{"id": 1, "name": "X", "status": "Something New", "poster_path": null}"#,
+        #"{"id": 1, "name": "X", "poster_path": null}"#
+    ])
+    func unknownStatusIsNil(json: String) throws {
+        #expect(try TMDBClient.decodeDetails(Data(json.utf8)).hasEnded == nil)
     }
 
     @Test("defaults the season count to zero when TMDB omits the field entirely")

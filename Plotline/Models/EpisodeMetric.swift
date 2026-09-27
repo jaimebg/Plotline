@@ -67,6 +67,17 @@ nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
         return aired > date
     }
 
+    /// The air date as a `Date`, or nil when TMDB gave none or it does not parse.
+    var airDateValue: Date? {
+        airDate.flatMap(Self.parseAirDate)
+    }
+
+    /// Parses a TMDB `yyyy-MM-dd` air date as midnight UTC — the same reading
+    /// `hasAired(asOf:)` uses, so a date shown and a date judged never disagree.
+    static func parseAirDate(_ string: String) -> Date? {
+        airDateFormatter.date(from: string)
+    }
+
     // MARK: - Initializers
 
     /// - Parameter id: TMDB's episode id. When omitted (preview and test data) a

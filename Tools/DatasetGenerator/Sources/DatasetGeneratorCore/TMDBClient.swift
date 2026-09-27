@@ -5,9 +5,12 @@ struct TMDBSeriesDetails {
     let name: String
     let seasonCount: Int
     /// TMDB's series-level status, reduced to the one bit the analysis engine
-    /// needs. Anything other than a terminal status counts as not ended, so an
-    /// ending verdict is never claimed about a show still in production.
-    let hasEnded: Bool
+    /// needs: `true` for a confirmed ending, `false` for a confirmed running
+    /// series, `nil` for anything else. Same mapping as the app's
+    /// `SeriesStatus`, so the bundle and a live recomputation read one status
+    /// the same way. An unknown status is not "still running" — flattening it
+    /// to `false` would mark a pilot or a planned series as ongoing.
+    let hasEnded: Bool?
     let overview: String
     let posterPath: String?
     let backdropPath: String?
@@ -76,10 +79,6 @@ struct TMDBClient {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let raw = try decoder.decode(RawDetails.self, from: data)
 
-        // TMDB uses "Ended" and "Canceled" for finished runs; everything else
-        // ("Returning Series", "In Production", "Planned") means still going.
-        let terminal: Set<String> = ["Ended", "Canceled", "Cancelled"]
-
         // TMDB returns "" rather than null for a date it does not have, and an
         // empty string would read as a real value downstream.
         let firstAirDate = raw.firstAirDate.flatMap { $0.isEmpty ? nil : $0 }
@@ -88,7 +87,7 @@ struct TMDBClient {
             id: raw.id,
             name: raw.name,
             seasonCount: raw.numberOfSeasons ?? 0,
-            hasEnded: terminal.contains(raw.status ?? ""),
+            hasEnded: hasEnded(forTMDBStatus: raw.status),
             overview: raw.overview ?? "",
             posterPath: raw.posterPath,
             backdropPath: raw.backdropPath,
@@ -96,6 +95,24 @@ struct TMDBClient {
             genreIds: raw.genres?.map(\.id) ?? [],
             firstAirDate: firstAirDate
         )
+    }
+
+    /// Statuses that confirm the run is over. Both spellings of "cancelled"
+    /// are deliberate — TMDB returns each.
+    static let endedStatuses: Set<String> = ["Ended", "Canceled", "Cancelled"]
+
+    /// Statuses that confirm the series is still being made.
+    static let runningStatuses: Set<String> = ["Returning Series", "In Production"]
+
+    /// Mirrors the app's `SeriesStatus.hasEnded(forTMDBStatus:)`, which this
+    /// package cannot import (it lives outside the four shared files). Keep
+    /// the two in step: "Pilot", "Planned", an absent status and anything TMDB
+    /// adds later are all unknown.
+    static func hasEnded(forTMDBStatus status: String?) -> Bool? {
+        guard let status else { return nil }
+        if endedStatuses.contains(status) { return true }
+        if runningStatuses.contains(status) { return false }
+        return nil
     }
 
     static func decodeSeason(_ data: Data) throws -> [EpisodeMetric] {

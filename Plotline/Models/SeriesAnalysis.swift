@@ -22,6 +22,11 @@ nonisolated enum InsufficientDataReason: String, Codable, Hashable {
     /// A ratio cannot see sample size: one reliable episode out of one aired
     /// clears every share test and still supports no verdict at all.
     case notEnoughEpisodesToAnalyse
+    /// At least one season of the main run could not be loaded. Whatever the
+    /// rest says, the missing season could overturn it, so a partial run is
+    /// never presented as a whole one. Only the app produces this — the dataset
+    /// generator aborts a series whose seasons fail rather than analysing it.
+    case seasonsNotLoaded
 }
 
 /// Derived analysis of a series. Every verdict carries the data that supports
@@ -109,8 +114,13 @@ nonisolated struct OpeningVerdict: Codable, Hashable {
     let kind: Kind
     let openingAverage: Double
     let remainderAverage: Double
+    /// The first reliable episodes in broadcast order — an early episode with
+    /// too few votes is skipped, so these are not necessarily E1 to E6.
     let episodesConsidered: [EpisodeReference]
-    /// For `slowStart`, the first season that clears the opening average by the threshold.
+    /// For `slowStart`, the season from which every judgeable season through
+    /// the final aired one clears the opening average by the threshold — an
+    /// improvement that holds, not a single good season. Nil when there is no
+    /// such season, or the final season is too thin to say.
     let improvesAtSeason: Int?
 }
 

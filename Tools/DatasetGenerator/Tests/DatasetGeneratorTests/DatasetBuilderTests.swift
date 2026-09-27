@@ -273,6 +273,7 @@ struct DatasetBuilderTests {
             InsufficientDataReason.noReliableEpisodes.rawValue,
             InsufficientDataReason.tooFewReliableEpisodes.rawValue,
             InsufficientDataReason.notEnoughEpisodesToAnalyse.rawValue,
+            InsufficientDataReason.seasonsNotLoaded.rawValue,
             SkippedSeries.fetchFailedKind
         ]
 

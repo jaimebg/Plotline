@@ -5,7 +5,12 @@ import Foundation
 /// A pure function of its inputs: no networking, no UI, no stored state, and no
 /// reliance on the current clock. That keeps it directly testable and lets the
 /// Phase 3 dataset generator run the very same code the app runs.
-enum SeriesAnalysisEngine {
+///
+/// `nonisolated` because it is pure Foundation code with no state: the app
+/// target defaults to main-actor isolation, and without this every helper the
+/// engine hands to `filter` or `map` would be a main-actor call from a
+/// nonisolated closure.
+nonisolated enum SeriesAnalysisEngine {
 
     // MARK: - Thresholds
     //
@@ -72,13 +77,25 @@ enum SeriesAnalysisEngine {
     ///     one waiting between seasons, so an unknown status earns no ending
     ///     verdict. Kept as a parameter rather than fetched, so the engine stays
     ///     a pure function of its inputs.
+    ///   - unloadedSeasons: main-run seasons the caller knows exist but could
+    ///     not load. Any at all and the engine refuses to judge: every verdict
+    ///     here is a claim about the whole run, and the missing season could be
+    ///     the one that decides it. The generator never passes any — it aborts
+    ///     a series on a failed season instead.
     ///   - now: the reference date, explicit so the result never depends on the
     ///     clock.
     static func analyze(
         episodes: [EpisodeMetric],
         hasEnded: Bool? = nil,
+        unloadedSeasons: [Int] = [],
         asOf now: Date = Date()
     ) -> SeriesAnalysisResult {
+        // Specials (season 0) never enter the analysis, so a missing specials
+        // bucket costs it nothing.
+        guard unloadedSeasons.allSatisfy({ $0 <= 0 }) else {
+            return .insufficientData(.seasonsNotLoaded)
+        }
+
         // Season 0 is TMDB's specials bucket. Specials are not part of the main
         // run and would distort every average, so they never enter the analysis.
         let mainRun = episodes.filter { $0.seasonNumber > 0 }
@@ -106,6 +123,11 @@ enum SeriesAnalysisEngine {
         }
 
         let seasons = seasonSummaries(reliable: reliable, aired: aired)
+        // The season the run actually ends on, as far as has aired. Not the
+        // last entry in `seasons`: a season with no reliable episode has no
+        // summary at all, so `seasons.last` would silently hand the ending of
+        // a three-season show to its second season.
+        let finalAiredSeason = aired.map(\.seasonNumber).max() ?? 0
         // Only seasons with enough reliable episodes may be named. A season
         // carried by a single episode is not the series' best or worst; it is
         // the season we know least about.
@@ -117,12 +139,12 @@ enum SeriesAnalysisEngine {
                 seasons: seasons,
                 bestSeason: comparable.max(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
                 worstSeason: comparable.min(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
-                declinePoint: declinePoint(from: reliable),
+                declinePoint: declinePoint(from: reliable, finalAiredSeason: finalAiredSeason),
                 consistency: consistency(from: reliable),
                 essentialEpisodes: standouts.essential,
                 skippableEpisodes: standouts.skippable,
-                openingVerdict: openingVerdict(from: reliable),
-                endingVerdict: endingVerdict(from: seasons, hasEnded: hasEnded),
+                openingVerdict: openingVerdict(from: reliable, finalAiredSeason: finalAiredSeason),
+                endingVerdict: endingVerdict(from: seasons, finalAiredSeason: finalAiredSeason, hasEnded: hasEnded),
                 score: plotlineScore(from: reliable),
                 isOngoing: isOngoing(mainRun, hasEnded: hasEnded, asOf: now)
             )
@@ -150,6 +172,27 @@ enum SeriesAnalysisEngine {
 
     private static func isReliable(_ episode: EpisodeMetric) -> Bool {
         episode.hasValidRating && episode.voteCount >= minimumVotesPerEpisode
+    }
+
+    /// A season's average exactly as the verdicts compute it: vote-weighted,
+    /// over aired episodes with enough votes to count. Nil when none qualify.
+    ///
+    /// Exposed so every average on the detail screen — chart, grid, verdicts —
+    /// is the same number. Three definitions of "the season average" on one
+    /// screen read as three contradicting claims.
+    static func seasonAverage(of episodes: [EpisodeMetric], asOf now: Date = Date()) -> Double? {
+        let reliable = episodes.filter { $0.seasonNumber > 0 && $0.hasAired(asOf: now) && isReliable($0) }
+        guard !reliable.isEmpty else { return nil }
+        return weightedMean(reliable)
+    }
+
+    /// The seasons a verdict may lean on: those with enough reliable episodes.
+    private static func judgeableSeasons(in reliable: [EpisodeMetric]) -> Set<Int> {
+        Set(
+            Dictionary(grouping: reliable, by: \.seasonNumber)
+                .filter { $0.value.count >= minimumEpisodesForSeasonVerdict }
+                .keys
+        )
     }
 
     // MARK: - Season Summaries
@@ -191,17 +234,20 @@ enum SeriesAnalysisEngine {
     ///
     /// Deliberately simple: the result has to be explainable to a user in one
     /// sentence ("it falls off after season 5"), which rules out fitting curves.
-    private static func declinePoint(from reliable: [EpisodeMetric]) -> DeclinePoint? {
+    ///
+    /// - Parameter finalAiredSeason: the last season that has aired at all.
+    ///   "Still down at the end of the run" is a claim about that season, so
+    ///   when it is too thin to judge there is no decline to report. Measuring
+    ///   against the last *judgeable* season instead would call a fall the real
+    ///   final season may have recovered from.
+    private static func declinePoint(from reliable: [EpisodeMetric], finalAiredSeason: Int) -> DeclinePoint? {
         // Only seasons we actually know something about may take part. Without
         // this, a season represented by a single surviving episode can serve as
         // the boundary, the baseline, or — worst — the final season the
         // "still down" test measures against, and one unrepresentative episode
         // decides whether the whole series is called a decline.
-        let judgeable = Set(
-            Dictionary(grouping: reliable, by: \.seasonNumber)
-                .filter { $0.value.count >= minimumEpisodesForSeasonVerdict }
-                .keys
-        )
+        let judgeable = judgeableSeasons(in: reliable)
+        guard judgeable.contains(finalAiredSeason) else { return nil }
         let reliable = reliable.filter { judgeable.contains($0.seasonNumber) }
 
         let seasons = judgeable.sorted()
@@ -232,8 +278,9 @@ enum SeriesAnalysisEngine {
             guard averageBefore - weightedMean(nextSeason) >= minimumDeclineDrop else { continue }
 
             // ...and it must still be down at the end of the run, or a series
-            // that dips and recovers reports a decline covering its own best season.
-            let finalSeason = reliable.filter { $0.seasonNumber == seasons[seasons.count - 1] }
+            // that dips and recovers reports a decline covering its own best
+            // season. The guard at the top makes this the real final season.
+            let finalSeason = reliable.filter { $0.seasonNumber == finalAiredSeason }
             guard averageBefore - weightedMean(finalSeason) >= minimumDeclineDrop else { continue }
 
             let candidate = DeclinePoint(
@@ -321,7 +368,11 @@ enum SeriesAnalysisEngine {
 
     /// Compares the opening run against everything after it, which is the
     /// question a viewer actually asks: is it worth pushing through the start?
-    private static func openingVerdict(from reliable: [EpisodeMetric]) -> OpeningVerdict? {
+    ///
+    /// The opening run is the first `openingEpisodeCount` *reliable* episodes:
+    /// an early episode with too few votes is skipped, not counted, and the
+    /// copy has to say so.
+    private static func openingVerdict(from reliable: [EpisodeMetric], finalAiredSeason: Int) -> OpeningVerdict? {
         let ordered = reliable.sorted {
             ($0.seasonNumber, $0.episodeNumber) < ($1.seasonNumber, $1.episodeNumber)
         }
@@ -348,7 +399,12 @@ enum SeriesAnalysisEngine {
             // picks up. The opening's own season is the one just called weak,
             // and it stays in `remainder` whenever it runs longer than the
             // opening — the common case for a 10-episode first season.
-            improvesAtSeason = firstSeasonClearing(openingAverage, after: openingSeason, in: remainder)
+            improvesAtSeason = sustainedImprovementStart(
+                clearing: openingAverage,
+                after: openingSeason,
+                finalAiredSeason: finalAiredSeason,
+                in: reliable
+            )
         } else {
             kind = .even
         }
@@ -362,19 +418,36 @@ enum SeriesAnalysisEngine {
         )
     }
 
-    /// The first season after `openingSeason` whose average clears `baseline` by
-    /// the opening threshold. Nil when the series never gets there — including
-    /// when it has no season after the opening at all.
-    private static func firstSeasonClearing(
-        _ baseline: Double,
+    /// The season from which the series is better than its opening *and stays
+    /// that way*: every judgeable season from it through the final aired one
+    /// clears `baseline` by the opening threshold. That is what "better from
+    /// season N" says on screen; one good season followed by a relapse is not.
+    ///
+    /// Only judgeable seasons count — a season carried by one or two surviving
+    /// episodes can neither be the turning point nor break the run — and the
+    /// final aired season must itself be judgeable, or "from N onward" would
+    /// cover a season nothing is known about. Nil when no season qualifies,
+    /// including when nothing follows the opening season at all.
+    private static func sustainedImprovementStart(
+        clearing baseline: Double,
         after openingSeason: Int,
-        in episodes: [EpisodeMetric]
+        finalAiredSeason: Int,
+        in reliable: [EpisodeMetric]
     ) -> Int? {
-        let bySeason = Dictionary(grouping: episodes, by: \.seasonNumber)
-        return bySeason.keys.sorted().first { season in
-            season > openingSeason
-                && weightedMean(bySeason[season] ?? []) - baseline >= openingVerdictThreshold
+        let judgeable = judgeableSeasons(in: reliable)
+        guard judgeable.contains(finalAiredSeason) else { return nil }
+
+        let bySeason = Dictionary(grouping: reliable, by: \.seasonNumber)
+        let candidates = judgeable.filter { $0 > openingSeason }.sorted()
+
+        // Walk back from the end: the answer is where the unbroken run of
+        // clearing seasons that reaches the final one begins.
+        var start: Int?
+        for season in candidates.reversed() {
+            guard weightedMean(bySeason[season] ?? []) - baseline >= openingVerdictThreshold else { break }
+            start = season
         }
+        return start
     }
 
     // MARK: - Ending
@@ -383,10 +456,18 @@ enum SeriesAnalysisEngine {
     /// carries enough reliable episodes to judge and has at least one other
     /// judgeable season to be measured against.
     ///
+    /// "Final season" means the last season that aired, whether or not it has a
+    /// summary. When that season is too thin to judge, the verdict is withheld
+    /// rather than handed to whichever earlier season happens to be judgeable.
+    ///
     /// `hasEnded == nil` — an unknown status — is not good enough: an ending
     /// verdict is a claim about a completed work, and a series between seasons
     /// is indistinguishable from a finished one by its episode list alone.
-    private static func endingVerdict(from seasons: [SeasonSummary], hasEnded: Bool?) -> EndingVerdict? {
+    private static func endingVerdict(
+        from seasons: [SeasonSummary],
+        finalAiredSeason: Int,
+        hasEnded: Bool?
+    ) -> EndingVerdict? {
         guard hasEnded == true else { return nil }
 
         // A season the analysis cannot speak for cannot be the peak either, and
@@ -394,7 +475,7 @@ enum SeriesAnalysisEngine {
         // high" measured against nothing.
         let comparable = seasons.filter { $0.reliableEpisodeCount >= minimumEpisodesForSeasonVerdict }
         guard comparable.count > 1,
-              let final = seasons.last,
+              let final = seasons.first(where: { $0.seasonNumber == finalAiredSeason }),
               final.reliableEpisodeCount >= minimumEpisodesForSeasonVerdict,
               let peak = comparable.max(by: { $0.weightedAverage < $1.weightedAverage }) else {
             return nil
