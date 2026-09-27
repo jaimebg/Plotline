@@ -21,6 +21,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.4684574012019109
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 3,
           "finalSeasonAverage" : 8.442692724458205,
@@ -258,7 +263,12 @@
             "title" : "All Singing, All Dancing"
           },
           "rating" : "uneven",
-          "standardDeviation" : 0.657347345857899
+          "standardDeviation" : 0.6579227908722979
+        },
+        "declineTest" : {
+          "finalSeasonTooThin" : {
+            "season" : 38
+          }
         },
         "essentialEpisodes" : [
           {
@@ -278,7 +288,7 @@
           {
             "episodeNumber" : 10,
             "id" : 62275,
-            "rating" : 8.052,
+            "rating" : 8.1,
             "seasonNumber" : 3,
             "title" : "Flaming Moe's"
           },
@@ -327,35 +337,35 @@
           {
             "episodeNumber" : 2,
             "id" : 62434,
-            "rating" : 7.789,
+            "rating" : 7.8,
             "seasonNumber" : 10,
             "title" : "The Wizard of Evergreen Terrace"
           },
           {
             "episodeNumber" : 23,
             "id" : 62437,
-            "rating" : 7.676,
+            "rating" : 7.7,
             "seasonNumber" : 10,
             "title" : "Thirty Minutes Over Tokyo"
           },
           {
             "episodeNumber" : 21,
             "id" : 62456,
-            "rating" : 7.406,
+            "rating" : 7.4,
             "seasonNumber" : 11,
             "title" : "It's a Mad, Mad, Mad, Mad Marge"
           },
           {
             "episodeNumber" : 6,
             "id" : 62481,
-            "rating" : 7.667,
+            "rating" : 7.7,
             "seasonNumber" : 12,
             "title" : "The Computer Wore Menace Shoes"
           },
           {
             "episodeNumber" : 18,
             "id" : 62483,
-            "rating" : 7.721,
+            "rating" : 7.7,
             "seasonNumber" : 12,
             "title" : "Trilogy of Error"
           },
@@ -376,7 +386,7 @@
           {
             "episodeNumber" : 9,
             "id" : 62559,
-            "rating" : 7.182,
+            "rating" : 7.2,
             "seasonNumber" : 15,
             "title" : "I, (Annoyed Grunt)-Bot"
           },
@@ -397,7 +407,7 @@
           {
             "episodeNumber" : 13,
             "id" : 62583,
-            "rating" : 7.269,
+            "rating" : 7.3,
             "seasonNumber" : 17,
             "title" : "The Seemingly Never-Ending Story"
           },
@@ -611,7 +621,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 6.928590529247911,
-          "remainderAverage" : 6.988691211794918
+          "remainderAverage" : 6.988488652364784
         },
         "score" : {
           "consistency" : 34,
@@ -667,18 +677,18 @@
             "bestEpisode" : {
               "episodeNumber" : 10,
               "id" : 62275,
-              "rating" : 8.052,
+              "rating" : 8.1,
               "seasonNumber" : 3,
               "title" : "Flaming Moe's"
             },
             "reliableEpisodeCount" : 24,
             "seasonNumber" : 3,
-            "standardDeviation" : 0.32337052164832764,
-            "weightedAverage" : 7.549841423948221,
+            "standardDeviation" : 0.33702242686741535,
+            "weightedAverage" : 7.549838187702264,
             "worstEpisode" : {
               "episodeNumber" : 23,
               "id" : 62283,
-              "rating" : 6.843,
+              "rating" : 6.8,
               "seasonNumber" : 3,
               "title" : "Bart's Friend Falls in Love"
             }
@@ -814,18 +824,18 @@
             "bestEpisode" : {
               "episodeNumber" : 2,
               "id" : 62434,
-              "rating" : 7.789,
+              "rating" : 7.8,
               "seasonNumber" : 10,
               "title" : "The Wizard of Evergreen Terrace"
             },
             "reliableEpisodeCount" : 23,
             "seasonNumber" : 10,
-            "standardDeviation" : 0.3435179624551617,
-            "weightedAverage" : 7.153665859564163,
+            "standardDeviation" : 0.35317067113459,
+            "weightedAverage" : 7.145278450363198,
             "worstEpisode" : {
               "episodeNumber" : 12,
               "id" : 62429,
-              "rating" : 6.342,
+              "rating" : 6.3,
               "seasonNumber" : 10,
               "title" : "Sunday, Cruddy Sunday"
             }
@@ -835,18 +845,18 @@
             "bestEpisode" : {
               "episodeNumber" : 21,
               "id" : 62456,
-              "rating" : 7.406,
+              "rating" : 7.4,
               "seasonNumber" : 11,
               "title" : "It's a Mad, Mad, Mad, Mad Marge"
             },
             "reliableEpisodeCount" : 22,
             "seasonNumber" : 11,
-            "standardDeviation" : 0.3184866188189333,
-            "weightedAverage" : 6.879850828729281,
+            "standardDeviation" : 0.3237270588979846,
+            "weightedAverage" : 6.886325966850828,
             "worstEpisode" : {
               "episodeNumber" : 7,
               "id" : 62463,
-              "rating" : 6.212,
+              "rating" : 6.2,
               "seasonNumber" : 11,
               "title" : "Eight Misbehavin'"
             }
@@ -854,20 +864,20 @@
           {
             "airedEpisodeCount" : 21,
             "bestEpisode" : {
-              "episodeNumber" : 18,
-              "id" : 62483,
-              "rating" : 7.721,
+              "episodeNumber" : 6,
+              "id" : 62481,
+              "rating" : 7.7,
               "seasonNumber" : 12,
-              "title" : "Trilogy of Error"
+              "title" : "The Computer Wore Menace Shoes"
             },
             "reliableEpisodeCount" : 21,
             "seasonNumber" : 12,
-            "standardDeviation" : 0.44440290610270883,
-            "weightedAverage" : 6.971355421686746,
+            "standardDeviation" : 0.44960547858047134,
+            "weightedAverage" : 6.966265060240963,
             "worstEpisode" : {
               "episodeNumber" : 21,
               "id" : 62480,
-              "rating" : 6.047,
+              "rating" : 6,
               "seasonNumber" : 12,
               "title" : "Simpsons Tall Tales"
             }
@@ -919,20 +929,20 @@
             "bestEpisode" : {
               "episodeNumber" : 9,
               "id" : 62559,
-              "rating" : 7.182,
+              "rating" : 7.2,
               "seasonNumber" : 15,
               "title" : "I, (Annoyed Grunt)-Bot"
             },
             "reliableEpisodeCount" : 22,
             "seasonNumber" : 15,
-            "standardDeviation" : 0.34406816651129934,
-            "weightedAverage" : 6.66226851851852,
+            "standardDeviation" : 0.34378584182211724,
+            "weightedAverage" : 6.659104938271604,
             "worstEpisode" : {
-              "episodeNumber" : 15,
-              "id" : 62546,
-              "rating" : 6.115,
+              "episodeNumber" : 14,
+              "id" : 62560,
+              "rating" : 6.1,
               "seasonNumber" : 15,
-              "title" : "Co-Dependent's Day"
+              "title" : "The Ziff Who Came to Dinner"
             }
           },
           {
@@ -961,14 +971,14 @@
             "bestEpisode" : {
               "episodeNumber" : 13,
               "id" : 62583,
-              "rating" : 7.269,
+              "rating" : 7.3,
               "seasonNumber" : 17,
               "title" : "The Seemingly Never-Ending Story"
             },
             "reliableEpisodeCount" : 22,
             "seasonNumber" : 17,
-            "standardDeviation" : 0.30507159847978316,
-            "weightedAverage" : 6.658644760213144,
+            "standardDeviation" : 0.30596077134478855,
+            "weightedAverage" : 6.663587921847247,
             "worstEpisode" : {
               "episodeNumber" : 15,
               "id" : 62587,
@@ -1423,21 +1433,21 @@
           {
             "episodeNumber" : 19,
             "id" : 62269,
-            "rating" : 7.043,
+            "rating" : 7,
             "seasonNumber" : 3,
             "title" : "Dog of Death"
           },
           {
             "episodeNumber" : 22,
             "id" : 62271,
-            "rating" : 6.864,
+            "rating" : 6.9,
             "seasonNumber" : 3,
             "title" : "The Otto Show"
           },
           {
             "episodeNumber" : 23,
             "id" : 62283,
-            "rating" : 6.843,
+            "rating" : 6.8,
             "seasonNumber" : 3,
             "title" : "Bart's Friend Falls in Love"
           },
@@ -1507,35 +1517,42 @@
           {
             "episodeNumber" : 5,
             "id" : 62442,
-            "rating" : 6.421,
+            "rating" : 6.4,
             "seasonNumber" : 10,
             "title" : "When You Dish Upon a Star"
           },
           {
             "episodeNumber" : 12,
             "id" : 62429,
-            "rating" : 6.342,
+            "rating" : 6.3,
             "seasonNumber" : 10,
             "title" : "Sunday, Cruddy Sunday"
           },
           {
             "episodeNumber" : 7,
             "id" : 62463,
-            "rating" : 6.212,
+            "rating" : 6.2,
             "seasonNumber" : 11,
             "title" : "Eight Misbehavin'"
           },
           {
+            "episodeNumber" : 8,
+            "id" : 62461,
+            "rating" : 6.4,
+            "seasonNumber" : 11,
+            "title" : "Take My Wife, Sleaze"
+          },
+          {
             "episodeNumber" : 10,
             "id" : 62464,
-            "rating" : 6.394,
+            "rating" : 6.4,
             "seasonNumber" : 11,
             "title" : "Little Big Mom"
           },
           {
             "episodeNumber" : 21,
             "id" : 62480,
-            "rating" : 6.047,
+            "rating" : 6,
             "seasonNumber" : 12,
             "title" : "Simpsons Tall Tales"
           },
@@ -1563,14 +1580,14 @@
           {
             "episodeNumber" : 14,
             "id" : 62560,
-            "rating" : 6.143,
+            "rating" : 6.1,
             "seasonNumber" : 15,
             "title" : "The Ziff Who Came to Dinner"
           },
           {
             "episodeNumber" : 15,
             "id" : 62546,
-            "rating" : 6.115,
+            "rating" : 6.1,
             "seasonNumber" : 15,
             "title" : "Co-Dependent's Day"
           },
@@ -1827,6 +1844,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5522091054362168
+        },
+        "declineTest" : {
+          "finalSeasonTooThin" : {
+            "season" : 25
+          }
         },
         "essentialEpisodes" : [
           {
@@ -2860,6 +2882,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.3730089677176082
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 16,
@@ -3006,6 +3033,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.1371621204666528
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -3128,6 +3160,15 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.45804477905087937
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 5,
@@ -3410,6 +3451,16 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.3920391315536237
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4
+            ],
+            "finalSeason" : 6
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 6,
@@ -3749,6 +3800,18 @@
           },
           "rating" : "rollercoaster",
           "standardDeviation" : 0.9336957356063659
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "finalSeason" : 8
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 8,
@@ -4090,6 +4153,21 @@
             10,
             11
           ]
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "finalSeason" : 11
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 11,
@@ -4573,6 +4651,18 @@
           "rating" : "steady",
           "standardDeviation" : 0.37765684173648423
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "finalSeason" : 8
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 8,
           "finalSeasonAverage" : 7.8254046822742485,
@@ -4994,6 +5084,32 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.4928390185497251
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20
+            ],
+            "finalSeason" : 22
+          }
         },
         "essentialEpisodes" : [
           {
@@ -5873,6 +5989,22 @@
           "rating" : "uneven",
           "standardDeviation" : 0.7454714022273426
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ],
+            "finalSeason" : 12
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 12,
           "finalSeasonAverage" : 8.639967339922649,
@@ -6360,6 +6492,14 @@
           "rating" : "steady",
           "standardDeviation" : 0.3622973406356353
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 4,
           "finalSeasonAverage" : 8.639048735348549,
@@ -6645,6 +6785,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.18932213261244452
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -6767,6 +6912,15 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.3548156296170624
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 5,
@@ -7038,6 +7192,25 @@
             14,
             15
           ]
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "finalSeason" : 15
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 15,
@@ -7743,6 +7916,20 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.32262272956941435
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "finalSeason" : 10
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 10,
           "finalSeasonAverage" : 8.420240875912409,
@@ -8245,6 +8432,14 @@
           "rating" : "steady",
           "standardDeviation" : 0.41069859464278213
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 4,
           "finalSeasonAverage" : 7.370930232558139,
@@ -8515,6 +8710,19 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.4413706118066847
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "finalSeason" : 9
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 9,
@@ -8965,6 +9173,11 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.8110826147555552
+        },
+        "declineTest" : {
+          "finalSeasonTooThin" : {
+            "season" : 27
+          }
         },
         "essentialEpisodes" : [
           {
@@ -9964,6 +10177,14 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.18317880108051504
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 4,
           "finalSeasonAverage" : 9.11642228739003,
@@ -10185,6 +10406,11 @@
           "rating" : "rollercoaster",
           "standardDeviation" : 0.9404920637387407
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 5.289213270142181,
@@ -10366,6 +10592,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.28478091761319074
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 9,
@@ -10495,6 +10726,33 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5694039543029785
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "finalSeason" : 23
+          }
         },
         "essentialEpisodes" : [
           {
@@ -11452,6 +11710,17 @@
           "rating" : "steady",
           "standardDeviation" : 0.43229468741024374
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5
+            ],
+            "finalSeason" : 7
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 7,
           "finalSeasonAverage" : 7.8306249999999995,
@@ -11855,6 +12124,15 @@
           "rating" : "uneven",
           "standardDeviation" : 0.6452991054533529
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 5,
           "finalSeasonAverage" : 7.022636363636364,
@@ -12209,6 +12487,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.44391446765695436
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 7,
@@ -12366,6 +12649,20 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5680718743888478
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "finalSeason" : 10
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 10,
@@ -12897,6 +13194,14 @@
           "rating" : "steady",
           "standardDeviation" : 0.45881036475712256
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 4,
           "finalSeasonAverage" : 7.607106951871659,
@@ -13106,6 +13411,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.46712073575084756
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 29,
@@ -13270,7 +13580,12 @@
             "title" : "Stray Dog Strut"
           },
           "rating" : "verySteady",
-          "standardDeviation" : 0.3370296028062546
+          "standardDeviation" : 0.33741617717770594
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -13336,7 +13651,7 @@
           ],
           "kind" : "even",
           "openingAverage" : 7.587534482758621,
-          "remainderAverage" : 7.934921086675292
+          "remainderAverage" : 7.934157826649418
         },
         "score" : {
           "consistency" : 66,
@@ -13356,8 +13671,8 @@
             },
             "reliableEpisodeCount" : 26,
             "seasonNumber" : 1,
-            "standardDeviation" : 0.3370296028062546,
-            "weightedAverage" : 7.840149576669804,
+            "standardDeviation" : 0.33741617717770594,
+            "weightedAverage" : 7.839594543744122,
             "worstEpisode" : {
               "episodeNumber" : 1,
               "id" : 750947,
@@ -13410,6 +13725,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5965258978101025
+        },
+        "declineTest" : {
+          "finalSeasonTooThin" : {
+            "season" : 8
+          }
         },
         "essentialEpisodes" : [
           {
@@ -13864,6 +14184,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.4209884929022524
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 40,
@@ -14046,6 +14371,17 @@
             6,
             7
           ]
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5
+            ],
+            "finalSeason" : 7
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 7,
@@ -14435,6 +14771,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.40867407541442125
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 10,
@@ -14592,6 +14933,16 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.6796875751265693
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4
+            ],
+            "finalSeason" : 6
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 6,
@@ -14968,6 +15319,33 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.6336505132185597
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "finalSeason" : 23
+          }
         },
         "essentialEpisodes" : [
           {
@@ -16590,6 +16968,11 @@
           "rating" : "uneven",
           "standardDeviation" : 0.6737662494719763
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 8.398110831234256,
@@ -16780,6 +17163,11 @@
           "rating" : "uneven",
           "standardDeviation" : 0.654670697779427
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 46,
@@ -16950,6 +17338,11 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.7665353238681982
+        },
+        "declineTest" : {
+          "finalSeasonTooThin" : {
+            "season" : 6
+          }
         },
         "essentialEpisodes" : [
           {
@@ -17312,6 +17705,14 @@
           "rating" : "steady",
           "standardDeviation" : 0.5213623839284474
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 4,
           "finalSeasonAverage" : 7.121250000000001,
@@ -17548,6 +17949,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.5114648778428749
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 3,
           "finalSeasonAverage" : 8.090972027972027,
@@ -17782,6 +18188,15 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.37913944950402617
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 5,
@@ -18074,6 +18489,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.2417010887464747
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 8.071186440677968,
@@ -18230,6 +18650,16 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.40452888754062466
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4
+            ],
+            "finalSeason" : 6
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 6,
@@ -18501,6 +18931,16 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.25019218911176094
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4
+            ],
+            "finalSeason" : 6
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 6,
           "finalSeasonAverage" : 8.093514905149053,
@@ -18751,6 +19191,19 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.6292069454276098
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "finalSeason" : 9
+          }
         },
         "essentialEpisodes" : [
           {
@@ -19122,6 +19575,14 @@
           "rating" : "steady",
           "standardDeviation" : 0.5913567891370407
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 4,
           "finalSeasonAverage" : 8.083438888888889,
@@ -19391,6 +19852,16 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.6288984500507656
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4
+            ],
+            "finalSeason" : 6
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 6,
@@ -19684,6 +20155,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.4741901594655718
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 10,
@@ -19816,6 +20292,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.48504215594200967
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -19960,6 +20441,18 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.4556890151808391
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "finalSeason" : 8
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 8,
@@ -20307,6 +20800,16 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.3240247226974993
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4
+            ],
+            "finalSeason" : 6
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 6,
           "finalSeasonAverage" : 7.846385542168675,
@@ -20631,6 +21134,16 @@
           },
           "rating" : "rollercoaster",
           "standardDeviation" : 1.0093074850796533
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4
+            ],
+            "finalSeason" : 6
+          }
         },
         "essentialEpisodes" : [
           {
@@ -21002,6 +21515,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.3571360498090732
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 10,
@@ -21188,6 +21706,18 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5618138497523211
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "finalSeason" : 8
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 8,
@@ -21622,6 +22152,15 @@
           "rating" : "steady",
           "standardDeviation" : 0.5184978075819661
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 5,
           "finalSeasonAverage" : 7.575920609884333,
@@ -21864,6 +22403,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.5246069700699324
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 3,
           "finalSeasonAverage" : 8.160917391304348,
@@ -22066,6 +22610,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.23351851462861786
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 12,
@@ -22203,6 +22752,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.2046108609910937
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -22277,6 +22831,11 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.699554799086882
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 3,
@@ -22469,6 +23028,17 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.43648057616632246
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5
+            ],
+            "finalSeason" : 7
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 7,
@@ -22851,6 +23421,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.20524458781756572
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -22974,6 +23549,11 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.6861695828295795
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -23112,6 +23692,11 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.75486990336841
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -23273,6 +23858,15 @@
             4,
             5
           ]
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 5,
@@ -23517,6 +24111,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.4784618337478561
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -23652,6 +24251,18 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.6430764122214293
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "finalSeason" : 8
+          }
         },
         "essentialEpisodes" : [
           {
@@ -23993,6 +24604,11 @@
           "rating" : "uneven",
           "standardDeviation" : 0.7564142594411712
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 11,
@@ -24272,6 +24888,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.5595711151859191
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 3,
           "finalSeasonAverage" : 7.255628008752735,
@@ -24465,6 +25086,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.49900389420450775
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 6,
@@ -24621,6 +25247,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.35565851698291306
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 3,
@@ -24821,6 +25452,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.583994284488044
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 7.913461538461539,
@@ -24980,6 +25616,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.12960067461427374
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 8.282926829268293,
@@ -25131,6 +25772,15 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5133849115002402
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
         },
         "essentialEpisodes" : [
           {
@@ -25360,6 +26010,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.337392357784959
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -25490,6 +26145,15 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5769661661988669
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2,
+              3
+            ],
+            "finalSeason" : 5
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 5,
@@ -25747,6 +26411,14 @@
           "rating" : "steady",
           "standardDeviation" : 0.5791506437460213
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 4,
           "finalSeasonAverage" : 8.447827956989247,
@@ -25990,6 +26662,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.19843777369866628
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -26077,6 +26754,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.4357748727181037
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
         },
         "essentialEpisodes" : [
           {
@@ -26244,6 +26926,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5669020983964836
+        },
+        "declineTest" : {
+          "finalSeasonTooThin" : {
+            "season" : 3
+          }
         },
         "essentialEpisodes" : [
 
@@ -26424,6 +27111,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.4089854289580498
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -26554,6 +27246,11 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.8036982712358702
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 3,
@@ -26750,6 +27447,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.4694946892411864
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 7.995350877192982,
@@ -26916,6 +27618,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.2905114373858778
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 13,
@@ -27051,6 +27758,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5216433572246938
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
         },
         "essentialEpisodes" : [
 
@@ -27204,6 +27916,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.48628096175220176
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "essentialEpisodes" : [
           {
@@ -27397,6 +28114,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5749393333394082
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -27597,6 +28319,14 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5686576831001814
+        },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
         },
         "essentialEpisodes" : [
 
@@ -27807,6 +28537,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.5151926835989143
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -27938,6 +28673,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.5393506778096203
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 3,
@@ -28132,6 +28872,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.18153786078380194
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -28255,6 +29000,11 @@
           },
           "rating" : "verySteady",
           "standardDeviation" : 0.33709518132924216
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -28387,6 +29137,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.1878665313235402
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -28511,6 +29266,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.3730036441776151
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -28643,6 +29403,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.3662871122796733
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 3,
@@ -28865,6 +29630,14 @@
           "rating" : "steady",
           "standardDeviation" : 0.45706221236328365
         },
+        "declineTest" : {
+          "ran" : {
+            "boundaries" : [
+              2
+            ],
+            "finalSeason" : 4
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 1,
@@ -29079,6 +29852,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.2961163819723802
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 3,
           "finalSeasonAverage" : 8.070941935483871,
@@ -29270,6 +30048,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.5853258215282705
         },
+        "declineTest" : {
+          "finalSeasonTooThin" : {
+            "season" : 3
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 2,
@@ -29446,6 +30229,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.47226421313151923
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "essentialEpisodes" : [
           {
@@ -29645,6 +30433,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.4694235864077216
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 3
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 3,
@@ -29853,6 +30646,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.3928528304413472
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
+        },
         "endingVerdict" : {
           "finalSeason" : 2,
           "finalSeasonAverage" : 8.464130434782607,
@@ -30033,6 +30831,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.48291478022282613
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 18,
@@ -30176,6 +30979,11 @@
           },
           "rating" : "uneven",
           "standardDeviation" : 0.6303082299578551
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
         },
         "essentialEpisodes" : [
           {
@@ -30342,6 +31150,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.300301755432575
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -30470,6 +31283,11 @@
           },
           "rating" : "verySteady",
           "standardDeviation" : 0.2701828932220803
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
         },
         "endingVerdict" : {
           "finalSeason" : 2,
@@ -30643,6 +31461,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.30062129735445714
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 12,
@@ -30785,6 +31608,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.42406289792424734
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -30959,6 +31787,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.25917159323967
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 16,
@@ -31087,6 +31920,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.4600817538730628
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -31267,6 +32105,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.24079815688638587
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -31397,6 +32240,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.3596256683021598
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -31526,6 +32374,11 @@
           },
           "rating" : "verySteady",
           "standardDeviation" : 0.29321838928263055
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -31671,6 +32524,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.35514490599042303
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 2
+          }
         },
         "essentialEpisodes" : [
           {
@@ -31851,6 +32709,11 @@
           "rating" : "steady",
           "standardDeviation" : 0.40108728327856547
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 21,
@@ -31996,6 +32859,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.1729373782600366
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 4,
@@ -32126,6 +32994,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.464781278952216
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -32259,6 +33132,11 @@
           "rating" : "uneven",
           "standardDeviation" : 0.6913425828611888
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 9,
@@ -32372,7 +33250,7 @@
       "overview" : "When the intimidating Rintaro meets the open-minded Kaoruko, the unlikely duo grows closer. The issue? Their neighboring high schools hate each other.",
       "posterPath" : "/g1sYAQt0OeCxzyfagSEqxUlsLnt.jpg",
       "tmdbId" : 271607,
-      "voteAverage" : 8.708
+      "voteAverage" : 8.7
     },
     {
       "analysis" : {
@@ -32394,6 +33272,11 @@
           },
           "rating" : "steady",
           "standardDeviation" : 0.37813529914097765
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
 
@@ -32523,6 +33406,11 @@
           },
           "rating" : "verySteady",
           "standardDeviation" : 0.2503125600377764
+        },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
         },
         "essentialEpisodes" : [
           {
@@ -32655,6 +33543,11 @@
           "rating" : "uneven",
           "standardDeviation" : 0.6211047871027809
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 10,
@@ -32786,6 +33679,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.19818609171420512
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
 
         ],
@@ -32910,6 +33808,11 @@
           "rating" : "verySteady",
           "standardDeviation" : 0.3488347045556119
         },
+        "declineTest" : {
+          "tooFewSeasons" : {
+            "judgeable" : 1
+          }
+        },
         "essentialEpisodes" : [
           {
             "episodeNumber" : 6,
@@ -32970,13 +33873,11 @@
       "voteAverage" : 8.7
     }
   ],
-  "generatedAt" : "2026-09-27T13:04:18Z",
+  "generatedAt" : "2026-09-27T14:30:19Z",
   "lists" : [
     {
       "id" : "never-decline",
       "tmdbIds" : [
-        246,
-        549,
         1396,
         1398,
         1408,
@@ -32988,23 +33889,14 @@
         4614,
         5920,
         15260,
-        31132,
-        46298,
         46896,
         60059,
         60574,
         63174,
         65930,
-        67075,
         71712,
-        83121,
         85077,
-        86031,
-        89901,
-        120089,
-        125910,
-        125988,
-        126506
+        86031
       ]
     },
     {

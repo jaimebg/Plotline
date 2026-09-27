@@ -4,8 +4,14 @@ import Testing
 
 @Suite("Dataset builder")
 struct DatasetBuilderTests {
-    /// Holds its level for three seasons and ends at its peak.
-    private static let steadyRatings = [[8.5, 8.6, 8.4, 8.5], [8.5, 8.6, 8.5, 8.6], [8.6, 8.5, 8.6, 8.5]]
+    /// Holds its level for four seasons and ends at its peak. Four, because
+    /// the decline test needs two judgeable seasons either side of a boundary
+    /// before "never slips" rests on a test that actually ran.
+    private static let steadyRatings = [[8.5, 8.6, 8.4, 8.5], [8.5, 8.6, 8.5, 8.6], [8.6, 8.5, 8.6, 8.5], [8.6, 8.5, 8.6, 8.6]]
+
+    /// Just as steady, but three seasons are too few for the decline test to
+    /// run, so a missing decline point proves nothing.
+    private static let shortSteadyRatings = [[8.5, 8.6, 8.4, 8.5], [8.5, 8.6, 8.5, 8.6], [8.6, 8.5, 8.6, 8.5]]
 
     /// Falls off after season two and never comes back.
     private static let fallerRatings = [[8.8, 8.9, 8.7, 8.8], [8.9, 8.8, 8.9, 8.8], [7.2, 7.1, 7.3, 7.2], [7.0, 7.1, 6.9, 7.0]]
@@ -75,6 +81,15 @@ struct DatasetBuilderTests {
         let dataset = DatasetBuilder.build(entries: steady + fallers, generatedAt: "2026-01-01T00:00:00Z")
         let list = try #require(dataset.lists.first { $0.id == "never-decline" })
         #expect(list.tmdbIds == [1, 2, 3])
+    }
+
+    @Test("leaves out steady series whose decline test never ran")
+    func neverDeclineRequiresARanTest() throws {
+        let short = try entries(ids: [1, 2, 3], ratings: Self.shortSteadyRatings)
+        #expect(short.allSatisfy { !$0.analysis.declineTestRan })
+
+        let dataset = DatasetBuilder.build(entries: short, generatedAt: "2026-01-01T00:00:00Z")
+        #expect(dataset.lists.first { $0.id == "never-decline" } == nil)
     }
 
     @Test("collects series that fall off")

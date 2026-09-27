@@ -52,11 +52,17 @@ enum DatasetBuilder {
                 // spread alone, from an engine that just declined to name a
                 // single judgeable season. Three seasons of two reliable
                 // episodes clears every earlier gate and lands exactly there.
+                //
+                // `declineTestRan` for the same reason: a nil `declinePoint`
+                // also comes back when the engine never tested for one — a
+                // final season too thin to judge — and "never slip" must rest
+                // on a test that ran and found nothing.
                 "never-decline",
                 { entry in
                     let analysis = entry.analysis
                     return analysis.seasons.count >= 3
                         && analysis.declinePoint == nil
+                        && analysis.declineTestRan
                         && analysis.endingVerdict?.kind != .fadesOut
                         && (analysis.consistency.rating == .verySteady || analysis.consistency.rating == .steady)
                         && analysis.worstSeason != nil

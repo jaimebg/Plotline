@@ -142,6 +142,16 @@ nonisolated enum DeclineTest: Codable, Hashable {
     case tooFewSeasons(judgeable: Int)
 }
 
+extension SeriesAnalysis {
+    /// Whether the engine actually tested for a decline. A nil `declinePoint`
+    /// means "none found" only when this is true; otherwise it means the test
+    /// never ran — or, for data written before `declineTest` existed, unknown.
+    nonisolated var declineTestRan: Bool {
+        if case .ran = declineTest { return true }
+        return false
+    }
+}
+
 /// How evenly a series holds its quality.
 nonisolated struct Consistency: Codable, Hashable {
     let rating: ConsistencyRating
