@@ -58,15 +58,20 @@ final class ColdStartUITests: XCTestCase {
     /// A run that skipped the uninstall would otherwise pass green while
     /// testing a state no reviewer ever sees.
     func testContainerIsClean() {
-        openTab("Favorites")
+        openTab("Library")
+        openLibrarySegment("Favorites")
 
         // Zero is what a clean container looks like — and also what a screen
-        // that has not drawn yet looks like. Wait for the tab to be on screen
-        // first, so the count below is a count of the Favorites tab rather
-        // than of nothing.
+        // that has not drawn yet looks like. Wait for the Favorites segment
+        // to be on screen first, so the count below is a count of saved
+        // favorites rather than of nothing.
         XCTAssertTrue(
-            app.navigationBars["Favorites"].waitForExistence(timeout: 10),
-            "the Favorites tab never drew, so the row count below would say nothing about the container"
+            app.navigationBars["Library"].waitForExistence(timeout: 10),
+            "the Library tab never drew, so the row count below would say nothing about the container"
+        )
+        XCTAssertTrue(
+            librarySegment("Favorites").isSelected,
+            "the Favorites segment is not the one on screen, so the row count below would say nothing about saved favorites"
         )
 
         let savedRows = app.descendants(matching: .any)
@@ -87,8 +92,9 @@ final class ColdStartUITests: XCTestCase {
     }
 
     func testFavoritesOffersSuggestionsWithNothingSaved() {
-        openTab("Favorites")
-        assertShelf(UITestAnchors.favoritesSuggestions, tab: "Favorites")
+        openTab("Library")
+        openLibrarySegment("Favorites")
+        assertShelf(UITestAnchors.favoritesSuggestions, tab: "Library's Favorites")
     }
 
     func testDiscoverShowsCuratedShelves() {
@@ -108,8 +114,39 @@ final class ColdStartUITests: XCTestCase {
     }
 
     func testWatchlistOffersSuggestionsWithNothingSaved() {
-        openTab("Watchlist")
-        assertShelf(UITestAnchors.watchlistSuggestions, tab: "Watchlist")
+        openTab("Library")
+        openLibrarySegment("Watchlist")
+        assertShelf(UITestAnchors.watchlistSuggestions, tab: "Library's Watchlist")
+    }
+
+    /// The Analysis tab reads nothing but the bundled dataset, so it must be
+    /// full with no TMDB key: a count of matching series, drawn from the data
+    /// rather than written in, and rows to go with it.
+    func testAnalysisShowsBundledSeriesWithoutNetwork() {
+        openTab("Analysis")
+
+        let count = app.staticTexts[UITestAnchors.analysisResultCount]
+        XCTAssertTrue(
+            count.waitForExistence(timeout: 10),
+            "the Analysis tab never drew its result count"
+        )
+
+        // "123 of 123 analysed series" with nothing selected. The numbers are
+        // the dataset's, so only their shape and agreement are asserted here;
+        // ColdStartTests owns the dataset's size.
+        let label = count.label
+        let numbers = label.split(separator: " ").compactMap { Int($0) }
+        XCTAssertTrue(label.hasSuffix("analysed series"), "unexpected result count \"\(label)\"")
+        XCTAssertEqual(numbers.count, 2, "unexpected result count \"\(label)\"")
+        XCTAssertGreaterThan(numbers.first ?? 0, 0, "the Analysis tab matched no series with no filter set")
+        XCTAssertEqual(numbers.first, numbers.last, "with no filter set every analysed series should match")
+
+        let rows = app.descendants(matching: .any)
+            .matching(identifier: UITestAnchors.analysisResultRow)
+        XCTAssertTrue(
+            rows.firstMatch.waitForExistence(timeout: 10),
+            "the Analysis tab counted series but rendered no rows"
+        )
     }
 
     /// Two assertions, not one, and that is the whole point.
@@ -228,6 +265,22 @@ final class ColdStartUITests: XCTestCase {
             "no way to reach the \(name) tab"
         )
         button.tap()
+    }
+
+    /// Picks one half of the Library tab by its segment label.
+    private func openLibrarySegment(_ name: String) {
+        let segment = librarySegment(name)
+        XCTAssertTrue(
+            segment.waitForExistence(timeout: 10),
+            "the Library tab has no \(name) segment"
+        )
+        segment.tap()
+    }
+
+    /// The Library's own control is the first segmented control on screen;
+    /// each segment's filter picker sits below it.
+    private func librarySegment(_ name: String) -> XCUIElement {
+        app.segmentedControls.firstMatch.buttons[name]
     }
 
     /// `.firstMatch`, not the bare `app.buttons[name]` subscript: on iPad the

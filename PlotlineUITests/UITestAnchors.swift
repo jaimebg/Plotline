@@ -19,6 +19,8 @@ enum UITestAnchors {
     static let statsYourStatsEmpty = "plotline.stats.yourStatsEmpty"
     static let settingsRow = "plotline.settings.row"
     static let mediaCard = "plotline.mediaCard"
+    static let analysisResultCount = "plotline.analysis.resultCount"
+    static let analysisResultRow = "plotline.analysis.resultRow"
 
     /// The two mutually exclusive outcomes of Discover's TMDB fetch. These are
     /// not part of the rejection guard: they are how this suite observes which
