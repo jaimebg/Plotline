@@ -191,7 +191,7 @@ Four files — `EpisodeMetric`, `SeriesAnalysis`, `PlotlineDataset` and `SeriesA
 ## Testing
 
 ```bash
-# App suites: 149 Swift Testing functions, plus the cold-start UI suite
+# App suites: 363 Swift Testing functions, plus the cold-start UI suite
 xcodebuild -project Plotline.xcodeproj -scheme Plotline \
   -destination 'platform=iOS Simulator,name=iPhone 17' test
 
