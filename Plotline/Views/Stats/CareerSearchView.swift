@@ -1,39 +1,42 @@
 import SwiftUI
 
 /// Search screen for finding people and viewing their career profiles
+///
+/// Pushed onto the Stats tab's stack, which already registers the
+/// `MediaItem` destination every profile's links rely on. It carries neither a
+/// stack nor a destination of its own: the nested stack and the three repeated
+/// registrations competed with the parent's.
 struct CareerSearchView: View {
     @State private var searchText = ""
     @State private var results: [TMDBPersonSearchResult] = []
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
-
-    private var recentProfiles: [RecentCareerProfile] {
-        CareerProfileViewModel.loadRecentProfiles()
-    }
+    /// Read from UserDefaults on appear rather than on every body pass, and
+    /// re-read each time this screen comes back into view, so a profile just
+    /// visited shows up in Recent without leaving the screen first.
+    @State private var recentProfiles: [RecentCareerProfile] = []
 
     var body: some View {
-        NavigationStack {
-            List {
-                if searchText.isEmpty {
-                    recentSection
-                } else if isSearching {
-                    searchingIndicator
-                } else if results.isEmpty && !searchText.isEmpty {
-                    emptyResults
-                } else {
-                    searchResultsSection
-                }
+        List {
+            if searchText.isEmpty {
+                recentSection
+            } else if isSearching {
+                searchingIndicator
+            } else if results.isEmpty && !searchText.isEmpty {
+                emptyResults
+            } else {
+                searchResultsSection
             }
-            .listStyle(.plain)
-            .navigationTitle("Career Profiles")
-            .navigationBarTitleDisplayMode(.large)
-            .searchable(text: $searchText, prompt: "Search actors and directors")
-            .onChange(of: searchText) { _, newValue in
-                performSearch(query: newValue)
-            }
-            .navigationDestination(for: MediaItem.self) { item in
-                MediaDetailView(media: item)
-            }
+        }
+        .listStyle(.plain)
+        .navigationTitle("Career Profiles")
+        .navigationBarTitleDisplayMode(.large)
+        .searchable(text: $searchText, prompt: "Search actors and directors")
+        .onChange(of: searchText) { _, newValue in
+            performSearch(query: newValue)
+        }
+        .onAppear {
+            recentProfiles = CareerProfileViewModel.loadRecentProfiles()
         }
     }
 
@@ -46,9 +49,6 @@ struct CareerSearchView: View {
                 ForEach(recentProfiles) { profile in
                     NavigationLink {
                         CareerProfileView(personId: profile.id, personName: profile.name)
-                            .navigationDestination(for: MediaItem.self) { item in
-                                MediaDetailView(media: item)
-                            }
                     } label: {
                         personRow(
                             name: profile.name,
@@ -78,9 +78,6 @@ struct CareerSearchView: View {
             ForEach(results) { person in
                 NavigationLink {
                     CareerProfileView(personId: person.id, personName: person.name)
-                        .navigationDestination(for: MediaItem.self) { item in
-                            MediaDetailView(media: item)
-                        }
                 } label: {
                     personRow(
                         name: person.name,
@@ -173,5 +170,7 @@ struct CareerSearchView: View {
 }
 
 #Preview {
-    CareerSearchView()
+    NavigationStack {
+        CareerSearchView()
+    }
 }

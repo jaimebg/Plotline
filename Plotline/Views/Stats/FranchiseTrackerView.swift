@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import SwiftUI
 
@@ -152,6 +153,12 @@ struct FranchiseTrackerView: View {
                         .foregroundStyle(Color(.secondaryLabel))
                 }
             }
+            .accessibilityChartDescriptor(
+                FranchiseQualityAccessibility(
+                    collectionName: viewModel.selectedCollection?.name ?? "Franchise",
+                    movies: ratedMovies.map { (title: $0.title, year: $0.yearInt ?? 0, rating: $0.voteAverage) }
+                )
+            )
         }
         .padding()
         .background(Color.plotlineCard)
@@ -224,5 +231,54 @@ struct FranchiseTrackerView: View {
 #Preview {
     NavigationStack {
         FranchiseTrackerView()
+    }
+}
+
+// MARK: - Chart Accessibility
+
+/// VoiceOver's Audio Graph for "Quality Over Time": each film's TMDB rating
+/// by release year, in release order.
+struct FranchiseQualityAccessibility: AXChartDescriptorRepresentable {
+    let collectionName: String
+    let movies: [(title: String, year: Int, rating: Double)]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let years = movies.map(\.year)
+        let lower = Double(years.min() ?? 0)
+        let upper = Double(years.max() ?? 0)
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Release year",
+            range: lower...max(upper, lower + 1),
+            gridlinePositions: []
+        ) { String(Int($0)) }
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Rating",
+            range: 0...10,
+            gridlinePositions: [0, 2, 4, 6, 8, 10]
+        ) { String(format: "%.1f", $0) }
+
+        let best = movies.max { $0.rating < $1.rating }
+        let worst = movies.min { $0.rating < $1.rating }
+        var summary = "\(movies.count) rated films"
+        if let best, let worst {
+            summary += ". Highest: \(best.title), \(String(format: "%.1f", best.rating)). Lowest: \(worst.title), \(String(format: "%.1f", worst.rating))"
+        }
+
+        return AXChartDescriptor(
+            title: "\(collectionName) quality over time",
+            summary: summary,
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [
+                AXDataSeriesDescriptor(
+                    name: "Rating",
+                    isContinuous: true,
+                    dataPoints: movies.map { movie in
+                        AXDataPoint(x: Double(movie.year), y: movie.rating, label: "\(movie.title), \(movie.year)")
+                    }
+                )
+            ]
+        )
     }
 }

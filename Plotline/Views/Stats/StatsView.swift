@@ -168,6 +168,7 @@ struct StatsView: View {
                 .accessibilityIdentifier(AccessibilityAnchors.statsTrends)
             }
             .padding()
+            .readableWidth()
         }
         .background(Color.plotlineBackground)
     }

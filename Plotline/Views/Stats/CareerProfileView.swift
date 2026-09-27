@@ -52,6 +52,7 @@ struct CareerProfileView: View {
                 filmographySection
             }
             .padding()
+            .readableWidth()
         }
     }
 
@@ -276,21 +277,22 @@ struct CareerProfileView: View {
 
     private var filmographySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Filmography", systemImage: "film.stack")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+            // Stacked rather than side by side: a fixed 200pt picker next to
+            // the header truncated its segments at larger Dynamic Type sizes.
+            // The picker now takes the card's full width and has a real label
+            // for VoiceOver, hidden visually because the header says it.
+            Label("Filmography", systemImage: "film.stack")
+                .font(.headline)
+                .foregroundStyle(.primary)
 
-                Spacer()
-
-                Picker("", selection: $viewModel.filmographyFilter) {
-                    ForEach(CareerProfileViewModel.FilmographyFilter.allCases, id: \.self) { filter in
-                        Text(filter.rawValue).tag(filter)
-                    }
+            Picker("Filter filmography", selection: $viewModel.filmographyFilter) {
+                ForEach(CareerProfileViewModel.FilmographyFilter.allCases, id: \.self) { filter in
+                    Text(filter.rawValue).tag(filter)
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 200)
             }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(maxWidth: .infinity)
 
             ForEach(viewModel.filteredFilmography, id: \.decade) { group in
                 VStack(alignment: .leading, spacing: 8) {

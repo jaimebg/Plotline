@@ -15,6 +15,7 @@ struct TasteProfileView: View {
                 moviesVsSeriesSection
             }
             .padding()
+            .readableWidth()
         }
         .background(Color.plotlineBackground)
         .navigationTitle("Taste Profile")

@@ -37,11 +37,10 @@ struct TrendsView: View {
         color: Color,
         destination: Destination
     ) -> some View {
+        // No `navigationDestination` here: `StatsView`'s stack registers the
+        // `MediaItem` destination once for everything pushed onto it.
         NavigationLink {
             destination
-                .navigationDestination(for: MediaItem.self) { item in
-                    MediaDetailView(media: item)
-                }
         } label: {
             VStack(spacing: 10) {
                 Image(systemName: icon)

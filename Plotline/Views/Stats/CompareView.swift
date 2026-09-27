@@ -1,35 +1,39 @@
-import SwiftUI
+import Accessibility
 import Charts
+import SwiftUI
 
 /// Main comparison screen for side-by-side movie and series analysis
+///
+/// Pushed onto the Stats tab's navigation stack, so it has no stack of its
+/// own: a nested `NavigationStack` gave it a second, disconnected navigation
+/// context under the first.
 struct CompareView: View {
     @State private var viewModel = CompareViewModel()
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    slotsRow
-                    if viewModel.canCompare {
-                        ratingsSection
-                        if viewModel.hasAnyMovie {
-                            boxOfficeSection
-                        }
-                        if viewModel.hasAnySeries {
-                            episodeOverlaySection
-                        }
-                        metadataSection
-                    } else {
-                        emptyPrompt
+        ScrollView {
+            VStack(spacing: 24) {
+                slotsRow
+                if viewModel.canCompare {
+                    ratingsSection
+                    if viewModel.hasAnyMovie {
+                        boxOfficeSection
                     }
+                    if viewModel.hasAnySeries {
+                        episodeOverlaySection
+                    }
+                    metadataSection
+                } else {
+                    emptyPrompt
                 }
-                .padding()
             }
-            .background(Color.plotlineBackground)
-            .navigationTitle("Compare")
-            .sheet(isPresented: $viewModel.showSearch) {
-                searchSheet
-            }
+            .padding()
+            .readableWidth()
+        }
+        .background(Color.plotlineBackground)
+        .navigationTitle("Compare")
+        .sheet(isPresented: $viewModel.showSearch) {
+            searchSheet
         }
     }
 
@@ -126,6 +130,13 @@ struct CompareView: View {
                     }
                     .chartLegend(.visible)
                     .frame(height: CGFloat(max(movieSlots.count, 1)) * 80 + 40)
+                    .accessibilityChartDescriptor(
+                        BoxOfficeComparisonAccessibility(
+                            entries: movieSlots.compactMap { index, item in
+                                item.boxOffice.map { (label: viewModel.chartLabel(forSlot: index), budget: $0.budget, revenue: $0.revenue) }
+                            }
+                        )
+                    )
                 }
                 .padding()
                 .background(Color.plotlineCard)
@@ -185,6 +196,18 @@ struct CompareView: View {
                     }
                     .chartLegend(.visible)
                     .frame(height: 220)
+                    .accessibilityChartDescriptor(
+                        EpisodeOverlayAccessibility(
+                            series: seriesSlots.map { index, item in
+                                (
+                                    label: viewModel.chartLabel(forSlot: index),
+                                    ratings: viewModel.allEpisodesFlat(for: item.id)
+                                        .filter(\.hasValidRating)
+                                        .map(\.rating)
+                                )
+                            }
+                        )
+                    )
                 }
                 .padding()
                 .background(Color.plotlineCard)
@@ -379,10 +402,95 @@ struct CompareView: View {
     }
 }
 
-// MARK: - Flow Layout
+// MARK: - Chart Accessibility
+
+/// VoiceOver's Audio Graph for the box office chart: budget and revenue per
+/// title, in dollars.
+struct BoxOfficeComparisonAccessibility: AXChartDescriptorRepresentable {
+    typealias Entry = (label: String, budget: Int, revenue: Int)
+
+    let entries: [Entry]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let titles = entries.map(\.label)
+        let maxAmount = Double(entries.map { max($0.budget, $0.revenue) }.max() ?? 1)
+        let xAxis = AXCategoricalDataAxisDescriptor(title: "Title", categoryOrder: titles)
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Amount in US dollars",
+            range: 0...max(maxAmount, 1),
+            gridlinePositions: []
+        ) { $0.formatted(.currency(code: "USD").precision(.fractionLength(0))) }
+
+        func series(_ name: String, _ value: (Entry) -> Int) -> AXDataSeriesDescriptor {
+            AXDataSeriesDescriptor(
+                name: name,
+                isContinuous: false,
+                dataPoints: entries.compactMap { entry in
+                    let amount = value(entry)
+                    return amount > 0 ? AXDataPoint(x: entry.label, y: Double(amount)) : nil
+                }
+            )
+        }
+
+        return AXChartDescriptor(
+            title: "Box Office",
+            summary: "Budget and worldwide revenue for \(titles.formatted(.list(type: .and)))",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [series("Budget") { $0.budget }, series("Revenue") { $0.revenue }]
+        )
+    }
+}
+
+/// VoiceOver's Audio Graph for the episode overlay: one series per title,
+/// each episode's TMDB rating in broadcast order.
+struct EpisodeOverlayAccessibility: AXChartDescriptorRepresentable {
+    let series: [(label: String, ratings: [Double])]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let longest = series.map(\.ratings.count).max() ?? 0
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Episode",
+            range: 1...Double(max(longest, 2)),
+            gridlinePositions: []
+        ) { "Episode \(Int($0))" }
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Rating",
+            range: 0...10,
+            gridlinePositions: [0, 2, 4, 6, 8, 10]
+        ) { String(format: "%.1f", $0) }
+
+        let summary = series.map { entry -> String in
+            guard !entry.ratings.isEmpty else { return "\(entry.label): no rated episodes" }
+            let average = entry.ratings.reduce(0, +) / Double(entry.ratings.count)
+            return "\(entry.label): \(entry.ratings.count) rated episodes, average \(String(format: "%.1f", average))"
+        }
+        .joined(separator: ". ")
+
+        return AXChartDescriptor(
+            title: "Episode Ratings",
+            summary: summary,
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: series.map { entry in
+                AXDataSeriesDescriptor(
+                    name: entry.label,
+                    isContinuous: true,
+                    dataPoints: entry.ratings.enumerated().map { index, rating in
+                        AXDataPoint(x: Double(index + 1), y: rating)
+                    }
+                )
+            }
+        )
+    }
+}
 
 // MARK: - Preview
 
 #Preview {
-    CompareView()
+    NavigationStack {
+        CompareView()
+    }
 }

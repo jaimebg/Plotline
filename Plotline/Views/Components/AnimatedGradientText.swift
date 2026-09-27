@@ -17,23 +17,39 @@ struct AnimatedGradientText: View {
         .plotlineAccentDeep
     ]
 
-    var body: some View {
-        TimelineView(.animation) { timeline in
-            let phase = calculatePhase(from: timeline.date)
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-            Text(text)
-                .font(font)
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: gradientColors,
-                        // Gradient is 2 units wide, moves 3 units total
-                        // Starts off-screen left (text shows deep orange), gold
-                        // sweeps through, ends off-screen right (deep orange again)
-                        startPoint: UnitPoint(x: -2 + phase * 3, y: 0.5),
-                        endPoint: UnitPoint(x: 0 + phase * 3, y: 0.5)
-                    )
-                )
+    /// A six-second sweep does not need the display's full refresh rate: 30
+    /// frames a second is visually identical and halves the redraws on a
+    /// 60Hz screen (a quarter of them on ProMotion) for as long as Discover is
+    /// on screen.
+    private static let frameInterval: TimeInterval = 1.0 / 30.0
+
+    var body: some View {
+        if reduceMotion {
+            // Static: the gold sits in the middle of the word, where the sweep
+            // would pass through, and nothing moves.
+            gradientText(phase: 0.5)
+        } else {
+            TimelineView(.animation(minimumInterval: Self.frameInterval)) { timeline in
+                gradientText(phase: calculatePhase(from: timeline.date))
+            }
         }
+    }
+
+    private func gradientText(phase: Double) -> some View {
+        Text(text)
+            .font(font)
+            .foregroundStyle(
+                LinearGradient(
+                    colors: gradientColors,
+                    // Gradient is 2 units wide, moves 3 units total
+                    // Starts off-screen left (text shows deep orange), gold
+                    // sweeps through, ends off-screen right (deep orange again)
+                    startPoint: UnitPoint(x: -2 + phase * 3, y: 0.5),
+                    endPoint: UnitPoint(x: 0 + phase * 3, y: 0.5)
+                )
+            )
     }
 
     private func calculatePhase(from date: Date) -> Double {
