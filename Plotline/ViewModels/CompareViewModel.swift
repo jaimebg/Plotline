@@ -81,7 +81,7 @@ final class CompareViewModel {
                 episodesData[detailed.id] = await TMDBService.shared.fetchAllSeasons(
                     seriesId: detailed.id,
                     totalSeasons: totalSeasons
-                )
+                ).episodesBySeason
             }
         } catch {
             // On failure, still set the basic item so the slot is not empty

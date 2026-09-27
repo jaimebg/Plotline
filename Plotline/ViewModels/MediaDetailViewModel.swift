@@ -21,6 +21,11 @@ final class MediaDetailViewModel {
     var isLoadingAllSeasons = false
     var episodesError: String?
 
+    /// Season numbers whose fetch failed on the last `fetchAllSeasons()` —
+    /// after `NetworkManager`'s own 429 retries. Distinct from a season that
+    /// loaded empty; a non-empty list means `episodesBySeason` is incomplete.
+    private(set) var failedSeasons: [Int] = []
+
     /// Where the analysis on screen came from. The bundled copy appears
     /// instantly and offline; a live recomputation replaces it as soon as
     /// TMDB's episodes arrive.
@@ -135,14 +140,15 @@ final class MediaDetailViewModel {
         isLoadingAllSeasons = true
         episodesError = nil
 
-        episodesBySeason = await tmdbService.fetchAllSeasons(
+        let fetched = await tmdbService.fetchAllSeasons(
             seriesId: media.id,
             totalSeasons: totalSeasons
         )
+        episodesBySeason = fetched.episodesBySeason
+        failedSeasons = fetched.failedSeasons
 
-        // `TMDBService.fetchAllSeasons` swallows per-season failures, so an empty
-        // dictionary is the only signal available for "nothing to show": no network,
-        // no API key, or a series TMDB has no episode data for.
+        // An empty dictionary means "nothing to show": no network, no API key,
+        // or a series TMDB has no episode data for.
         if episodesBySeason.isEmpty {
             episodesError = "We couldn't load episode scores for this series. It may not have episode data yet."
         }
@@ -209,8 +215,9 @@ final class MediaDetailViewModel {
 
     /// Whether a freshly-computed analysis may replace the bundled one.
     ///
-    /// `TMDBService.fetchAllSeasons` swallows per-season failures, and a failed
-    /// detail request leaves `totalSeasons` at 1 — so a flaky connection can
+    /// A season that fails is absent from `episodesBySeason` (it is listed in
+    /// `failedSeasons`), and a failed detail request leaves `totalSeasons` at
+    /// 1 — so a flaky connection can
     /// hand back a single cached season for a five-season series. Assigning
     /// that unconditionally would replace a complete bundled analysis with a
     /// fragment, or with "Not Enough Ratings Yet" for a series whose full

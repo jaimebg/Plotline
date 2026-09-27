@@ -23,8 +23,22 @@ actor ImageCache {
 
     /// Store image in cache
     func setImage(_ image: UIImage, for url: URL) {
-        let cost = image.jpegData(compressionQuality: 1.0)?.count ?? 0
-        cache.setObject(image, forKey: url.absoluteString as NSString, cost: cost)
+        cache.setObject(image, forKey: url.absoluteString as NSString, cost: Self.cost(of: image))
+    }
+
+    /// Decoded size in bytes: four bytes per pixel at the image's scale.
+    ///
+    /// What the cache actually holds is the decoded bitmap, so that is what
+    /// `totalCostLimit` should count — and re-encoding every image as a
+    /// full-quality JPEG just to measure it cost more than the load itself.
+    static func cost(of image: UIImage) -> Int {
+        cost(width: image.size.width, height: image.size.height, scale: image.scale)
+    }
+
+    static func cost(width: CGFloat, height: CGFloat, scale: CGFloat) -> Int {
+        let pixels = (width * scale) * (height * scale)
+        guard pixels.isFinite, pixels > 0 else { return 0 }
+        return Int(pixels) * 4
     }
 
     /// Load image from URL with caching
@@ -76,50 +90,118 @@ actor ImageCache {
 
 // MARK: - Cached Async Image View
 
-/// A wrapper around AsyncImage that uses our cache
-struct CachedAsyncImage<Content: View, Placeholder: View>: View {
+/// A wrapper around AsyncImage that uses our cache.
+///
+/// Keyed on `url`: when a reused cell is handed a different URL, the previous
+/// image is dropped and the new one loaded, rather than the old poster staying
+/// on screen. A failed load shows `failure` instead of leaving the
+/// placeholder's spinner running forever, and is retried the next time the
+/// view appears.
+struct CachedAsyncImage<Content: View, Placeholder: View, Failure: View>: View {
     let url: URL?
     let content: (Image) -> Content
     let placeholder: () -> Placeholder
+    let failure: () -> Failure
 
-    @State private var image: UIImage?
-    @State private var isLoading = false
+    @State private var loaded: LoadedImage?
+    @State private var failedURL: URL?
+
+    private struct LoadedImage {
+        let url: URL
+        let image: UIImage
+    }
 
     init(
         url: URL?,
         @ViewBuilder content: @escaping (Image) -> Content,
-        @ViewBuilder placeholder: @escaping () -> Placeholder
+        @ViewBuilder placeholder: @escaping () -> Placeholder,
+        @ViewBuilder failure: @escaping () -> Failure
     ) {
         self.url = url
         self.content = content
         self.placeholder = placeholder
+        self.failure = failure
     }
 
     var body: some View {
         Group {
-            if let image = image {
-                content(Image(uiImage: image))
+            if let loaded, loaded.url == url {
+                content(Image(uiImage: loaded.image))
+            } else if let failedURL, failedURL == url {
+                failure()
             } else {
                 placeholder()
-                    .task {
-                        await loadImage()
-                    }
             }
+        }
+        .task(id: url) {
+            await loadImage()
         }
     }
 
     private func loadImage() async {
-        guard let url = url, !isLoading else { return }
+        guard let url else {
+            loaded = nil
+            failedURL = nil
+            return
+        }
+        if let loaded, loaded.url == url { return }
 
-        isLoading = true
-        image = await ImageCache.shared.loadImage(from: url)
-        isLoading = false
+        loaded = nil
+        failedURL = nil
+
+        let image = await ImageCache.shared.loadImage(from: url)
+
+        // Cancelled means the view went away or its URL changed; whichever
+        // task replaces this one owns the state now.
+        guard !Task.isCancelled else { return }
+
+        if let image {
+            loaded = LoadedImage(url: url, image: image)
+        } else {
+            failedURL = url
+        }
+    }
+}
+
+// MARK: - Failure View
+
+/// Shown in place of a placeholder whose load failed. Laid over the caller's
+/// own placeholder so it takes exactly the placeholder's size and shape, and
+/// hides the spinner that placeholder would otherwise keep running.
+struct ImageLoadFailureOverlay<Placeholder: View>: View {
+    let placeholder: Placeholder
+
+    var body: some View {
+        placeholder
+            .overlay {
+                Rectangle()
+                    .fill(Color.plotlineCard)
+                    .overlay {
+                        Image(systemName: "photo")
+                            .foregroundStyle(.secondary)
+                    }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Image unavailable")
     }
 }
 
 // MARK: - Convenience Initializers
 
-extension CachedAsyncImage where Placeholder == ProgressView<EmptyView, EmptyView> {
+extension CachedAsyncImage where Failure == ImageLoadFailureOverlay<Placeholder> {
+    init(
+        url: URL?,
+        @ViewBuilder content: @escaping (Image) -> Content,
+        @ViewBuilder placeholder: @escaping () -> Placeholder
+    ) {
+        self.init(url: url, content: content, placeholder: placeholder) {
+            ImageLoadFailureOverlay(placeholder: placeholder())
+        }
+    }
+}
+
+extension CachedAsyncImage
+where Placeholder == ProgressView<EmptyView, EmptyView>, Failure == ImageLoadFailureOverlay<Placeholder> {
     init(url: URL?, @ViewBuilder content: @escaping (Image) -> Content) {
         self.init(url: url, content: content) {
             ProgressView()
@@ -127,7 +209,8 @@ extension CachedAsyncImage where Placeholder == ProgressView<EmptyView, EmptyVie
     }
 }
 
-extension CachedAsyncImage where Content == Image, Placeholder == ProgressView<EmptyView, EmptyView> {
+extension CachedAsyncImage
+where Content == Image, Placeholder == ProgressView<EmptyView, EmptyView>, Failure == ImageLoadFailureOverlay<Placeholder> {
     init(url: URL?) {
         self.init(url: url) { image in
             image.resizable()

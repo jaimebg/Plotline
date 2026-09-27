@@ -124,6 +124,29 @@ struct TMDBService {
     /// Cache version for episode payloads. Bump to invalidate stored data.
     private static let episodeCacheVersion = "v1"
 
+    /// How long a fully-aired season stays cached: its ratings still move, but
+    /// slowly, and a long series burns a lot of requests.
+    nonisolated static let settledSeasonMaxAge: TimeInterval = 7 * 24 * 3600
+
+    /// How long a season still airing (or only just finished) stays cached.
+    /// Its newest episodes sit at zero votes on the day they air and fill in
+    /// over the following days; a week-long cache froze them at zero.
+    nonisolated static let airingSeasonMaxAge: TimeInterval = 12 * 3600
+
+    /// Episodes that aired this recently are still collecting their first votes.
+    nonisolated static let recentAirWindow: TimeInterval = 14 * 24 * 3600
+
+    /// How long a season payload may be served from `DiskCache`.
+    ///
+    /// Short when any episode is undated, not yet aired, or aired within the
+    /// last `recentAirWindow` — its numbers are still arriving. Long only once
+    /// every episode is dated and settled.
+    nonisolated static func seasonCacheMaxAge(for episodes: [EpisodeMetric], now: Date = Date()) -> TimeInterval {
+        let settledBefore = now.addingTimeInterval(-recentAirWindow)
+        let isSettled = episodes.allSatisfy { $0.hasAired(asOf: settledBefore) }
+        return isSettled ? settledSeasonMaxAge : airingSeasonMaxAge
+    }
+
     /// Fetch episode metrics for a single season.
     /// Results are cached on disk because a long-running series burns a lot of
     /// requests against TMDB's ~40 requests / 10 seconds budget.
@@ -137,9 +160,12 @@ struct TMDBService {
             throw NetworkError.invalidURL
         }
 
+        // `DiskCache` owns this payload's freshness; URLCache must not hand
+        // back an older copy underneath it.
         let response: TMDBSeasonResponse = try await networkManager.fetch(
             TMDBSeasonResponse.self,
-            from: url
+            from: url,
+            cachePolicy: .reloadIgnoringLocalCacheData
         )
         let episodes = response.toEpisodeMetrics()
 
@@ -147,56 +173,79 @@ struct TMDBService {
         // seasons before populating them, and caching `[]` would hide the episodes
         // for a week once they land.
         if !episodes.isEmpty {
-            await DiskCache.shared.set(episodes, for: cacheKey)
+            await DiskCache.shared.set(
+                episodes,
+                for: cacheKey,
+                maxAge: Self.seasonCacheMaxAge(for: episodes)
+            )
         }
 
         return episodes
     }
 
-    /// Fetch every season of a series, keyed by season number.
+    /// Fetch every season of a series, keyed by season number, and report the
+    /// seasons that could not be fetched.
     ///
     /// Season 0 (TMDB specials) is deliberately excluded: specials are not part
     /// of the main run and would distort the analysis engine.
     /// Concurrency is capped so a 20-season show cannot exhaust the rate limit
-    /// in one burst. Seasons that fail are simply absent from the result.
+    /// in one burst; `NetworkManager` retries a 429 with backoff before a
+    /// season counts as failed. A season that loads but has no episodes yet is
+    /// absent from `episodesBySeason` without being a failure.
     func fetchAllSeasons(
         seriesId: Int,
         totalSeasons: Int,
-        maxConcurrent: Int = 5
-    ) async -> [Int: [EpisodeMetric]] {
-        guard totalSeasons > 0 else { return [:] }
+        maxConcurrent: Int = 4
+    ) async -> SeasonFetchResult {
+        guard totalSeasons > 0 else { return SeasonFetchResult() }
 
-        var result: [Int: [EpisodeMetric]] = [:]
+        var result = SeasonFetchResult()
 
-        await withTaskGroup(of: (Int, [EpisodeMetric]).self) { group in
+        await withTaskGroup(of: (Int, [EpisodeMetric]?).self) { group in
             var nextSeason = 1
 
             func addTask(for season: Int) {
                 group.addTask {
-                    let episodes = (try? await self.fetchSeasonEpisodes(
-                        seriesId: seriesId,
-                        season: season
-                    )) ?? []
-                    return (season, episodes)
+                    do {
+                        let episodes = try await self.fetchSeasonEpisodes(
+                            seriesId: seriesId,
+                            season: season
+                        )
+                        return (season, episodes)
+                    } catch {
+                        return (season, nil)
+                    }
                 }
             }
 
-            for _ in 0..<min(maxConcurrent, totalSeasons) {
+            for _ in 0..<min(max(maxConcurrent, 1), totalSeasons) {
                 addTask(for: nextSeason)
                 nextSeason += 1
             }
 
             while let (season, episodes) = await group.next() {
-                if !episodes.isEmpty {
-                    result[season] = episodes
+                if let episodes {
+                    if !episodes.isEmpty {
+                        result.episodesBySeason[season] = episodes
+                    }
+                } else {
+                    result.failedSeasons.append(season)
                 }
-                if nextSeason <= totalSeasons {
+
+                if nextSeason <= totalSeasons, !Task.isCancelled {
                     addTask(for: nextSeason)
                     nextSeason += 1
                 }
             }
+
+            // Seasons never started because the caller went away are not
+            // loaded either; say so rather than let them look empty.
+            if nextSeason <= totalSeasons {
+                result.failedSeasons.append(contentsOf: nextSeason...totalSeasons)
+            }
         }
 
+        result.failedSeasons.sort()
         return result
     }
 
@@ -205,7 +254,7 @@ struct TMDBService {
     /// Own cache for watch-provider payloads, separate from the shared
     /// episode cache: availability moves, but not by the hour, so a day is
     /// long enough before a region's data is considered stale.
-    private static let watchProvidersCache = DiskCache(name: "watch-providers", maxAge: 60 * 60 * 24)
+    nonisolated static let watchProvidersCache = DiskCache(name: "watch-providers", maxAge: 60 * 60 * 24)
 
     /// Where a title can be watched, by region.
     ///
@@ -226,7 +275,11 @@ struct TMDBService {
             throw NetworkError.invalidURL
         }
 
-        let response: WatchProvidersResponse = try await networkManager.fetch(WatchProvidersResponse.self, from: url)
+        let response: WatchProvidersResponse = try await networkManager.fetch(
+            WatchProvidersResponse.self,
+            from: url,
+            cachePolicy: .reloadIgnoringLocalCacheData
+        )
         await Self.watchProvidersCache.set(response, for: cacheKey)
         return response.results
     }
@@ -525,42 +578,71 @@ struct TMDBService {
     }
 }
 
+// MARK: - Season Fetch Result
+
+/// Every season of a series that could be fetched, plus the ones that could not.
+///
+/// A failed season is not the same as an empty one: a 429 that outlived its
+/// retries or a dropped connection leaves a hole the analysis must not mistake
+/// for the series having fewer seasons.
+nonisolated struct SeasonFetchResult: Sendable, Equatable {
+    /// Seasons that loaded with at least one episode, keyed by season number.
+    var episodesBySeason: [Int: [EpisodeMetric]] = [:]
+    /// Season numbers whose request failed, ascending.
+    var failedSeasons: [Int] = []
+
+    /// True when no season failed. Seasons that loaded empty still count as
+    /// complete: TMDB simply has nothing for them yet.
+    var isComplete: Bool { failedSeasons.isEmpty }
+}
+
+// MARK: - Cache Maintenance
+
+extension TMDBService {
+    /// Deletes expired files from every on-disk cache this service owns.
+    /// Runs on each cache's own actor, never on the main thread.
+    nonisolated static func pruneExpiredCaches() async {
+        await DiskCache.shared.pruneExpired()
+        await watchProvidersCache.pruneExpired()
+    }
+}
+
 // MARK: - Image URL Helpers
 
 extension TMDBService {
-    enum PosterSize: String {
+    nonisolated enum PosterSize: String {
         case small = "w185"
         case medium = "w342"
         case large = "w500"
         case xLarge = "w780"
     }
 
-    enum BackdropSize: String {
+    nonisolated enum BackdropSize: String {
         case small = "w300"
         case medium = "w780"
         case large = "w1280"
         case original = "original"
     }
 
-    enum ProfileSize: String {
+    nonisolated enum ProfileSize: String {
         case small = "w45"
         case medium = "w185"
         case large = "h632"
     }
 
-    static let imageBaseURL = "https://image.tmdb.org/t/p/"
+    nonisolated static let imageBaseURL = "https://image.tmdb.org/t/p/"
 
-    static func posterURL(path: String?, size: PosterSize = .large) -> URL? {
+    nonisolated static func posterURL(path: String?, size: PosterSize = .large) -> URL? {
         guard let path = path else { return nil }
         return URL(string: imageBaseURL + size.rawValue + path)
     }
 
-    static func backdropURL(path: String?, size: BackdropSize = .original) -> URL? {
+    nonisolated static func backdropURL(path: String?, size: BackdropSize = .original) -> URL? {
         guard let path = path else { return nil }
         return URL(string: imageBaseURL + size.rawValue + path)
     }
 
-    static func profileURL(path: String?, size: ProfileSize = .medium) -> URL? {
+    nonisolated static func profileURL(path: String?, size: ProfileSize = .medium) -> URL? {
         guard let path = path else { return nil }
         return URL(string: imageBaseURL + size.rawValue + path)
     }
