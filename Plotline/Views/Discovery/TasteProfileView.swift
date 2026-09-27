@@ -33,7 +33,7 @@ struct TasteProfileView: View {
                 ForEach(viewModel.tasteTags) { tag in
                     Text(tag.label)
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Color.plotlineGold)
+                        .foregroundStyle(Color.plotlineGoldText)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                         .background(Color.plotlineGold.opacity(0.15))
@@ -196,7 +196,7 @@ struct TasteProfileView: View {
 
                     Text(String(format: "%.1f – %.1f", viewModel.ratingSweetSpot.low, viewModel.ratingSweetSpot.high))
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.plotlineGold)
+                        .foregroundStyle(Color.plotlineGoldText)
 
                     Spacer()
 
@@ -258,7 +258,7 @@ struct TasteProfileView: View {
             VStack(spacing: 4) {
                 Text("\(viewModel.seriesCount)")
                     .font(.system(.largeTitle, weight: .bold))
-                    .foregroundStyle(Color.plotlineGold)
+                    .foregroundStyle(Color.plotlineGoldText)
 
                 Text("Series")
                     .font(.subheadline)

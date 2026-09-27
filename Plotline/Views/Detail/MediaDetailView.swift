@@ -239,7 +239,7 @@ struct MediaDetailView: View {
             Text(viewModel.media.isTVSeries ? "TV SERIES" : "MOVIE")
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color.plotlineGold)
+                .foregroundStyle(Color.plotlineGoldText)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(Color.plotlineCard.opacity(0.8))

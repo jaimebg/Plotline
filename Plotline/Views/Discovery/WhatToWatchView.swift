@@ -182,7 +182,7 @@ struct WhatToWatchView: View {
             HStack(spacing: 16) {
                 Image(systemName: choice.icon)
                     .font(.title2)
-                    .foregroundStyle(isSelected ? Color.plotlineGold : .secondary)
+                    .foregroundStyle(isSelected ? Color.plotlineGoldText : .secondary)
                     .frame(width: 32)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -200,7 +200,7 @@ struct WhatToWatchView: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
-                        .foregroundStyle(Color.plotlineGold)
+                        .foregroundStyle(Color.plotlineGoldText)
                 }
             }
             .padding(20)
@@ -279,7 +279,7 @@ struct WhatToWatchView: View {
             } label: {
                 Text("Start Over")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.plotlineGold)
+                    .foregroundStyle(Color.plotlineGoldText)
             }
             .padding(.top, 8)
 

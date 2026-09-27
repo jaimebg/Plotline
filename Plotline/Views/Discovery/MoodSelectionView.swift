@@ -33,7 +33,7 @@ private struct MoodChip: View {
             HStack(spacing: 10) {
                 Image(systemName: mood.icon)
                     .font(.title3)
-                    .foregroundStyle(isSelected ? Color.plotlineGold : .secondary)
+                    .foregroundStyle(isSelected ? Color.plotlineGoldText : .secondary)
 
                 Text(mood.label)
                     .font(.system(.subheadline, weight: .semibold))

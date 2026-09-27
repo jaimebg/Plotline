@@ -223,6 +223,8 @@ The star feature uses Swift Charts to visualize episode ratings:
   - `Color.plotlineCard` - white / dark gray (#1E1E1E)
   - `Color.plotlineSecondary` - adapts for both modes
 - `.plotlineGold` and `.plotlineTertiary` remain constant. `.plotlinePrimary`, the old brand red, appears in no view — it survives only as the value behind `chartLow`.
+- **`.plotlineGold` is for fills, strokes and chart marks, never text.** As text on a light background it measures about 1.5:1. Text and SF Symbol glyphs in gold use `.plotlineGoldText`, asset-catalog generated and adaptive: #7D5A00 in light mode (at least 5.4:1 on white, #F5F5F5 and a 20% gold tint) and the brand gold #F6CE71 in dark mode.
+- Labels drawn on a coloured fill (episode grid cells, genre cards) pick black or white per fill, whichever clears 4.5:1 — white on a light fill such as #8BC34A or #F9A825 is about 2:1.
 - `.plotlineAccent` is the brand accent, and it is adaptive by design: asset-catalog generated, #B33A00 in light mode / #FF7A33 in dark. `.plotlineAccentDeep` is a fixed #B33A00 (never adapts), used only as a gradient start point where the adaptive `plotlineAccent` would collapse against `plotlineSecondaryAccent` in dark mode.
 
 ### All Changes Must Support Light Mode

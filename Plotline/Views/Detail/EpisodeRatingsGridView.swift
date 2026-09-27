@@ -201,7 +201,7 @@ struct EpisodeRatingsGridView: View {
             let category = RatingCategory.category(for: episode.rating)
             Text(episode.formattedRating)
                 .font(.system(.subheadline, design: .monospaced, weight: .bold))
-                .foregroundStyle(category == .good ? .black : .white)
+                .foregroundStyle(category == .garbage ? .white : .black)
                 .frame(width: cellSize, height: 36)
                 .background(category.color)
                 .clipShape(RoundedRectangle(cornerRadius: 6))

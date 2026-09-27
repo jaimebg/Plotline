@@ -217,7 +217,7 @@ struct CompareView: View {
                                     ? Color.plotlineGold.opacity(0.2)
                                     : Color.plotlineCard
                             )
-                            .foregroundStyle(isShared ? Color.plotlineGold : .secondary)
+                            .foregroundStyle(isShared ? Color.plotlineGoldText : .secondary)
                             .clipShape(Capsule())
                             .overlay(
                                 Capsule()
@@ -343,7 +343,7 @@ struct CompareView: View {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.plotlineGold.opacity(0.2))
-                            .foregroundStyle(Color.plotlineGold)
+                            .foregroundStyle(Color.plotlineGoldText)
                             .clipShape(Capsule())
                     }
                     if alreadyAdded {
@@ -360,7 +360,7 @@ struct CompareView: View {
                 Text(item.formattedRating)
                     .font(.caption)
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color.plotlineGold)
+                    .foregroundStyle(Color.plotlineGoldText)
             }
         }
     }

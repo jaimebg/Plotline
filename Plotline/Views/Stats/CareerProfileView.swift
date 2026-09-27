@@ -99,7 +99,7 @@ struct CareerProfileView: View {
                 if let department = viewModel.person?.knownForDepartment {
                     Text(department)
                         .font(.caption)
-                        .foregroundStyle(Color.plotlineGold)
+                        .foregroundStyle(Color.plotlineGoldText)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(Color.plotlineGold.opacity(0.15))
@@ -154,7 +154,7 @@ struct CareerProfileView: View {
             VStack(spacing: 4) {
                 Text(String(format: "%.1f", viewModel.careerScore))
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    .foregroundStyle(Color.plotlineGold)
+                    .foregroundStyle(Color.plotlineGoldText)
                 Text("Career Score")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -224,7 +224,7 @@ struct CareerProfileView: View {
                     icon: "tag.fill",
                     title: "Top Genre",
                     value: viewModel.mostFrequentGenre ?? "--",
-                    color: .plotlineGold
+                    color: .plotlineGoldText
                 )
                 quickStatItem(
                     icon: "arrow.up.circle.fill",
@@ -301,7 +301,7 @@ struct CareerProfileView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(group.decade)
                         .font(.subheadline.bold())
-                        .foregroundStyle(Color.plotlineGold)
+                        .foregroundStyle(Color.plotlineGoldText)
                         .padding(.top, 4)
 
                     ForEach(group.items) { item in
@@ -351,7 +351,7 @@ struct CareerProfileView: View {
                     if item.isTVSeries {
                         Text("TV")
                             .font(.caption2)
-                            .foregroundStyle(Color.plotlineGold)
+                            .foregroundStyle(Color.plotlineGoldText)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
                             .background(Color.plotlineGold.opacity(0.15))

@@ -82,7 +82,7 @@ struct FranchiseTrackerView: View {
                 } label: {
                     Label("Search Another", systemImage: "magnifyingglass")
                         .font(.body.weight(.medium))
-                        .foregroundStyle(Color.plotlineGold)
+                        .foregroundStyle(Color.plotlineGoldText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(Color.plotlineCard)
@@ -189,7 +189,7 @@ struct FranchiseTrackerView: View {
                         if movie.voteAverage > 0 {
                             Text(movie.formattedRating)
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(Color.plotlineGold)
+                                .foregroundStyle(Color.plotlineGoldText)
                         }
                     }
                     .padding(.vertical, 6)

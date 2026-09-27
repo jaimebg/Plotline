@@ -185,7 +185,7 @@ struct DiscoveryView: View {
                     }
                     .padding()
                     .background(Color.plotlineCard)
-                    .foregroundStyle(Color.plotlineGold)
+                    .foregroundStyle(Color.plotlineGoldText)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .buttonStyle(.plain)

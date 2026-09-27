@@ -25,7 +25,7 @@ enum AppTheme: String, CaseIterable {
     var iconColor: Color {
         switch self {
         case .system: return .secondary
-        case .light: return .plotlineGold
+        case .light: return .plotlineGoldText
         case .dark: return .plotlineAccent
         }
     }

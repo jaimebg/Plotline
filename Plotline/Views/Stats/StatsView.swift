@@ -190,7 +190,7 @@ struct StatsView: View {
                 icon: "percent",
                 value: String(format: "%.0f%%", viewModel.completionRate),
                 label: "Completion",
-                color: .plotlineGold
+                color: .plotlineGoldText
             )
         }
     }

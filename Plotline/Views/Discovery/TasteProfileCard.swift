@@ -13,7 +13,7 @@ struct TasteProfileCard: View {
                 HStack {
                     Image(systemName: "person.crop.circle.badge.checkmark")
                         .font(.title3)
-                        .foregroundStyle(Color.plotlineGold)
+                        .foregroundStyle(Color.plotlineGoldText)
 
                     Text("Your Taste Profile")
                         .font(.system(.headline, weight: .bold))
@@ -32,7 +32,7 @@ struct TasteProfileCard: View {
                     ForEach(Array(tasteTags.prefix(3))) { tag in
                         Text(tag.label)
                             .font(.caption.weight(.medium))
-                            .foregroundStyle(Color.plotlineGold)
+                            .foregroundStyle(Color.plotlineGoldText)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
                             .background(Color.plotlineGold.opacity(0.15))

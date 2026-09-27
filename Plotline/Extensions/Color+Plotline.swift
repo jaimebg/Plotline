@@ -12,12 +12,17 @@ extension Color {
     /// Tertiary accent - burnt orange
     static let plotlineTertiary = Color(hex: "CC561E")
 
-    /// Highlight - golden yellow
-    static let plotlineGold = Color(hex: "F6CE71")
+    /// Highlight - golden yellow. A fill and stroke colour only: as text on a
+    /// light background it measures about 1.5:1. Text and glyphs take the
+    /// adaptive `plotlineGoldText` instead.
+    nonisolated static let plotlineGold = Color(hex: "F6CE71")
 
     // MARK: - Adaptive Colors
     // Note: plotlineAccent, plotlineBackground, plotlineBlack, plotlineCard,
-    // plotlineSecondary are auto-generated from Asset Catalog color sets
+    // plotlineSecondary and plotlineGoldText are auto-generated from Asset
+    // Catalog color sets. plotlineGoldText is #7D5A00 in light mode (at least
+    // 5.4:1 on white, #F5F5F5 and a 20% gold tint) and the brand gold #F6CE71
+    // in dark mode.
 
     /// Fixed deep orange for gradients that used to start at `plotlinePrimary`.
     ///

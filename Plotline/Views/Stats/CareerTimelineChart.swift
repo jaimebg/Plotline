@@ -62,7 +62,7 @@ struct CareerTimelineChart: View {
                         Spacer()
                         Text(String(format: "%.1f avg", point.avgRating))
                             .font(.subheadline)
-                            .foregroundStyle(Color.plotlineGold)
+                            .foregroundStyle(Color.plotlineGoldText)
                     }
 
                     Text(point.titles.joined(separator: ", "))

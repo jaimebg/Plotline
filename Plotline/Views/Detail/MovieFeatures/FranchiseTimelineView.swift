@@ -137,7 +137,7 @@ struct FranchiseMovieCard: View {
             Text(movie.title)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundStyle(isCurrent ? Color.plotlineGold : .primary)
+                .foregroundStyle(isCurrent ? Color.plotlineGoldText : .primary)
                 .lineLimit(2)
                 .frame(width: 100, alignment: .leading)
 
