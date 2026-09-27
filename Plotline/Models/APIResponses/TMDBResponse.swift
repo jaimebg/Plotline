@@ -38,17 +38,12 @@ nonisolated struct TMDBDetailResponse: Codable {
 
     /// TMDB's status reduced to the one bit the analysis engine needs.
     ///
-    /// `nil` means TMDB did not say, which is not the same as still running:
-    /// the engine refuses to judge an ending without a confirmed one, and an
-    /// absent status must not be flattened into `false`.
-    ///
-    /// The terminal set matches the dataset generator's exactly
-    /// (`Tools/DatasetGenerator/…/TMDBClient.swift`) so the same series cannot
-    /// get one verdict from the bundle and another from the network. Both
-    /// spellings of "cancelled" are deliberate — TMDB returns each.
+    /// `nil` means TMDB did not say anything the app can stand behind, which
+    /// is not the same as still running: the engine refuses to judge an ending
+    /// without a confirmed one, and an unknown status must not be flattened
+    /// into `false`. See `SeriesStatus.hasEnded(forTMDBStatus:)`.
     var hasEnded: Bool? {
-        guard let status else { return nil }
-        return ["Ended", "Canceled", "Cancelled"].contains(status)
+        SeriesStatus.hasEnded(forTMDBStatus: status)
     }
 
     /// Converts to MediaItem for unified handling
@@ -73,6 +68,32 @@ nonisolated struct TMDBDetailResponse: Codable {
             collectionName: belongsToCollection?.name,
             hasEnded: hasEnded
         )
+    }
+}
+
+/// How TMDB's free-text series status maps onto "has this series ended?".
+nonisolated enum SeriesStatus {
+    /// Statuses that confirm the run is over. Both spellings of "cancelled"
+    /// are deliberate — TMDB returns each. This set matches the dataset
+    /// generator's (`Tools/DatasetGenerator/…/TMDBClient.swift`) exactly, so
+    /// the same series cannot get one ending verdict from the bundle and
+    /// another from the network.
+    static let ended: Set<String> = ["Ended", "Canceled", "Cancelled"]
+
+    /// Statuses that confirm the series is still being made.
+    static let running: Set<String> = ["Returning Series", "In Production"]
+
+    /// `true` for a confirmed ending, `false` for a confirmed running series,
+    /// `nil` for everything else.
+    ///
+    /// "Pilot" and "Planned" are not evidence of a running series — a pilot
+    /// may never be picked up and a planned series may never air — so they
+    /// stay unknown, along with any status TMDB adds later and an absent one.
+    static func hasEnded(forTMDBStatus status: String?) -> Bool? {
+        guard let status else { return nil }
+        if ended.contains(status) { return true }
+        if running.contains(status) { return false }
+        return nil
     }
 }
 
