@@ -63,8 +63,8 @@ struct SeriesAnalysisSection: View {
     /// ratings", and saying the wrong one is exactly the failure this app is
     /// built to avoid.
     ///
-    /// Static so Siri's verdict (`VerdictCopy`) states a refusal in exactly the
-    /// words the detail screen uses.
+    /// Static so Siri's verdict (`VerdictCopy`) and Compare state a refusal in
+    /// exactly the words the detail screen uses.
     static func title(for reason: InsufficientDataReason) -> String {
         switch reason {
         case .noAiredEpisodes: return "Nothing Has Aired Yet"
@@ -84,7 +84,7 @@ struct SeriesAnalysisSection: View {
         case .notEnoughEpisodesToAnalyse:
             return "There are too few rated episodes here to draw any conclusion from."
         case .seasonsNotLoaded:
-            return Self.seasonsNotLoadedExplanation(failedSeasons)
+            return seasonsNotLoadedExplanation(failedSeasons)
         }
     }
 

@@ -14,6 +14,16 @@ final class CompareViewModel {
     var episodesData: [Int: [Int: [EpisodeMetric]]] = [:] // mediaId -> seasonNum -> episodes
     var isLoadingSlot: [Int: Bool] = [:]
 
+    /// The engine's analysis per series slot, keyed by slot index. Seeded from
+    /// the bundle and replaced by a live result only under the detail screen's
+    /// completeness rule — see `CompareSlotAnalysis`.
+    private(set) var slotAnalyses: [Int: CompareSlotAnalysis] = [:]
+    /// Slots whose analysis is being retried.
+    private(set) var retryingSlots: Set<Int> = []
+    /// Slots whose TMDB details arrived. Without them the season count and
+    /// the series status are unknown, so a retry fetches them first.
+    private var detailsLoaded: Set<Int> = []
+
     // MARK: - Search Sheet State
 
     var showSearch = false
@@ -98,23 +108,26 @@ final class CompareViewModel {
         let previous = slots[slotIndex]
         pendingItems[slotIndex] = item
         isLoadingSlot[slotIndex] = true
+        retryingSlots.remove(slotIndex)
 
         selectionTasks[slotIndex] = Task { [weak self] in
             guard let self else { return }
             let isCurrent = { !Task.isCancelled && self.selectionTokens[slotIndex] == token }
 
             var detailed = item
-            var episodes: [Int: [EpisodeMetric]]?
+            var gotDetails = false
+            var fetched: SeasonFetchResult?
             do {
                 // Fetch full TMDB details
                 detailed = try await TMDBService.shared.fetchDetails(for: item)
+                gotDetails = true
 
                 // Episode metrics come from TMDB, keyed by the series' TMDB id.
                 if detailed.isTVSeries, let totalSeasons = detailed.totalSeasons, totalSeasons > 0 {
-                    episodes = await TMDBService.shared.fetchAllSeasons(
+                    fetched = await TMDBService.shared.fetchAllSeasons(
                         seriesId: detailed.id,
                         totalSeasons: totalSeasons
-                    ).episodesBySeason
+                    )
                 }
             } catch {
                 // On failure, still set the basic item so the slot is not empty
@@ -123,10 +136,25 @@ final class CompareViewModel {
 
             guard isCurrent() else { return }
             slots[slotIndex] = detailed
-            if let episodes {
-                episodesData[detailed.id] = episodes
-            }
             if let previous { releaseEpisodesIfUnused(previous) }
+            if gotDetails { detailsLoaded.insert(slotIndex) } else { detailsLoaded.remove(slotIndex) }
+
+            if detailed.isTVSeries {
+                // The bundled analysis is the instant seed; the live fetch
+                // replaces it only when at least as complete.
+                var analysis = CompareSlotAnalysis.seeded(
+                    bundled: DatasetStore.shared.entry(forTMDBId: detailed.id)?.analysis,
+                    hasEnded: detailed.hasEnded
+                )
+                if let fetched {
+                    let folded = analysis.folding(fetched, into: [:], hasEnded: detailed.hasEnded, asOf: Date())
+                    analysis = folded.analysis
+                    episodesData[detailed.id] = folded.episodes
+                }
+                slotAnalyses[slotIndex] = analysis
+            } else {
+                slotAnalyses[slotIndex] = nil
+            }
             isLoadingSlot[slotIndex] = false
             pendingItems[slotIndex] = nil
             selectionTasks[slotIndex] = nil
@@ -141,9 +169,84 @@ final class CompareViewModel {
         selectionTokens[index] = nil
         pendingItems[index] = nil
         isLoadingSlot[index] = false
+        retryingSlots.remove(index)
+        detailsLoaded.remove(index)
+        slotAnalyses[index] = nil
         let removed = slots[index]
         slots[index] = nil
         if let removed { releaseEpisodesIfUnused(removed) }
+    }
+
+    /// Refetches a series slot's episodes after some or all of them failed.
+    ///
+    /// Fetches the details first when they never arrived: without them the
+    /// season count is unknown, and a retry would ask for nothing and call
+    /// that complete. What already loaded is kept — the fetch is merged in.
+    func retryAnalysis(forSlot slotIndex: Int) {
+        guard slotIndex >= 0, slotIndex < slots.count,
+              let item = slots[slotIndex], item.isTVSeries,
+              selectionTasks[slotIndex] == nil else { return }
+
+        let token = UUID()
+        selectionTokens[slotIndex] = token
+        retryingSlots.insert(slotIndex)
+        let needsDetails = !detailsLoaded.contains(slotIndex)
+
+        selectionTasks[slotIndex] = Task { [weak self] in
+            guard let self else { return }
+            let isCurrent = { !Task.isCancelled && self.selectionTokens[slotIndex] == token }
+
+            var detailed = item
+            var gotDetails = !needsDetails
+            if needsDetails, let fresh = try? await TMDBService.shared.fetchDetails(for: item) {
+                detailed = fresh
+                gotDetails = true
+            }
+
+            var fetched: SeasonFetchResult?
+            if gotDetails, let totalSeasons = detailed.totalSeasons, totalSeasons > 0 {
+                fetched = await TMDBService.shared.fetchAllSeasons(seriesId: detailed.id, totalSeasons: totalSeasons)
+            }
+
+            guard isCurrent() else { return }
+            if gotDetails {
+                slots[slotIndex] = detailed
+                detailsLoaded.insert(slotIndex)
+            }
+
+            let current = slotAnalyses[slotIndex] ?? .seeded(
+                bundled: DatasetStore.shared.entry(forTMDBId: detailed.id)?.analysis,
+                hasEnded: detailed.hasEnded
+            )
+            if let fetched {
+                let folded = current.folding(
+                    fetched,
+                    into: episodesData[detailed.id] ?? [:],
+                    hasEnded: detailed.hasEnded,
+                    asOf: Date()
+                )
+                slotAnalyses[slotIndex] = folded.analysis
+                episodesData[detailed.id] = folded.episodes
+            } else {
+                slotAnalyses[slotIndex] = current.updatingStatus(detailed.hasEnded)
+            }
+
+            retryingSlots.remove(slotIndex)
+            selectionTasks[slotIndex] = nil
+        }
+    }
+
+    /// The Plotline Analysis section's view of every filled slot, in order.
+    var analysisEntries: [CompareAnalysisEntry] {
+        filledSlots.map { index, item in
+            CompareAnalysisEntry.make(
+                slotIndex: index,
+                label: chartLabel(forSlot: index),
+                isSeries: item.isTVSeries,
+                isRetrying: retryingSlots.contains(index),
+                analysis: slotAnalyses[index]
+            )
+        }
     }
 
     /// Drops a series' episode data once no slot shows it any more.

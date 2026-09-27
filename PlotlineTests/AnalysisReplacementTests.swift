@@ -45,7 +45,7 @@ struct AnalysisReplacementTests {
         let current = analyzed(seasons: [1, 2, 3])
         let fresh = analyzed(seasons: [1, 2, 4])
 
-        #expect(!MediaDetailViewModel.shouldReplace(current, with: fresh, failedSeasons: []))
+        #expect(!LiveSeriesAnalysis.shouldReplace(current, with: fresh, failedSeasons: []))
     }
 
     @Test("a superset of the seasons with no failures replaces")
@@ -53,7 +53,7 @@ struct AnalysisReplacementTests {
         let current = analyzed(seasons: [1, 2, 3])
         let fresh = analyzed(seasons: [1, 2, 3, 4])
 
-        #expect(MediaDetailViewModel.shouldReplace(current, with: fresh, failedSeasons: []))
+        #expect(LiveSeriesAnalysis.shouldReplace(current, with: fresh, failedSeasons: []))
     }
 
     @Test("a fetch with a failed season never replaces a full analysis")
@@ -62,12 +62,12 @@ struct AnalysisReplacementTests {
         // Even a result that covers every season the current one does.
         let fresh = analyzed(seasons: [1, 2, 3])
 
-        #expect(!MediaDetailViewModel.shouldReplace(current, with: fresh, failedSeasons: [4]))
+        #expect(!LiveSeriesAnalysis.shouldReplace(current, with: fresh, failedSeasons: [4]))
     }
 
     @Test("a refusal never replaces a full analysis")
     func refusalNeverReplaces() {
-        #expect(!MediaDetailViewModel.shouldReplace(
+        #expect(!LiveSeriesAnalysis.shouldReplace(
             analyzed(seasons: [1, 2]),
             with: .insufficientData(.seasonsNotLoaded),
             failedSeasons: [3]
@@ -76,8 +76,8 @@ struct AnalysisReplacementTests {
 
     @Test("with nothing worth protecting, any fresh result goes through")
     func nothingToProtect() {
-        #expect(MediaDetailViewModel.shouldReplace(nil, with: .insufficientData(.seasonsNotLoaded), failedSeasons: [2]))
-        #expect(MediaDetailViewModel.shouldReplace(
+        #expect(LiveSeriesAnalysis.shouldReplace(nil, with: .insufficientData(.seasonsNotLoaded), failedSeasons: [2]))
+        #expect(LiveSeriesAnalysis.shouldReplace(
             .insufficientData(.seasonsNotLoaded),
             with: analyzed(seasons: [1, 2]),
             failedSeasons: []

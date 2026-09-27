@@ -190,9 +190,10 @@ final class MediaDetailViewModel {
     @MainActor
     func applySeasonFetch(_ fetched: SeasonFetchResult, asOf now: Date = Date()) {
         // A retry that fails outright must not wipe seasons an earlier attempt
-        // did load; merge rather than replace.
-        episodesBySeason.merge(fetched.episodesBySeason) { _, fresh in fresh }
-        failedSeasons = fetched.failedSeasons.filter { episodesBySeason[$0] == nil }
+        // did load; merge rather than replace. The rule is shared with Compare.
+        let merged = LiveSeriesAnalysis.merge(fetched, into: episodesBySeason)
+        episodesBySeason = merged.episodesBySeason
+        failedSeasons = merged.failedSeasons
 
         // An empty dictionary means "nothing to show": no network, no API key,
         // or a series TMDB has no episode data for.
@@ -243,55 +244,18 @@ final class MediaDetailViewModel {
     func recomputeAnalysis(asOf now: Date = Date()) {
         guard media.isTVSeries else { return }
 
-        let episodes = episodesBySeason.values.flatMap { $0 }
-        guard !episodes.isEmpty else { return }
-
-        // Seasons that failed go to the engine as well as staying out of the
-        // episode list, so a partial fetch comes back as a refusal naming the
-        // gap rather than as an analysis of whatever happened to load.
-        let fresh = SeriesAnalysisEngine.analyze(
-            episodes: episodes,
+        // Shared with Compare, so the two screens can never disagree about
+        // when a live result may replace the one on screen.
+        guard let fresh = LiveSeriesAnalysis.replacement(
+            for: analysis,
+            episodesBySeason: episodesBySeason,
+            failedSeasons: failedSeasons,
             hasEnded: media.hasEnded,
-            unloadedSeasons: failedSeasons,
             asOf: now
-        )
-
-        guard Self.shouldReplace(analysis, with: fresh, failedSeasons: failedSeasons) else { return }
+        ) else { return }
 
         analysis = fresh
         analysisSource = .live
-    }
-
-    /// Whether a freshly computed analysis may replace the one on screen.
-    ///
-    /// A season that fails is absent from `episodesBySeason` (it is listed in
-    /// `failedSeasons`), and a failed detail request leaves `totalSeasons` at
-    /// 1 — so a flaky connection can hand back a single cached season for a
-    /// five-season series and report no failure at all. Replacing a complete
-    /// analysis with that would show a fragment, or "Not Enough Ratings Yet"
-    /// for a series whose full analysis is sitting in the app bundle.
-    ///
-    /// So an analysis already on screen — bundled or from an earlier live
-    /// load — is only replaced by a fresh one that is itself a full analysis,
-    /// came from a fetch in which no season failed, and covers every season
-    /// the existing one does. Comparing season *counts* was not enough: seasons
-    /// 1, 2, 4 against a bundled 1, 2, 3 is the same count and a different run.
-    ///
-    /// With nothing worth protecting on screen (no analysis, or a refusal),
-    /// the fresh result always goes through — including the engine's own
-    /// refusal for a partial fetch, which is the honest thing to show.
-    ///
-    /// Static and pure so the rule can be tested without a network.
-    static func shouldReplace(
-        _ current: SeriesAnalysisResult?,
-        with fresh: SeriesAnalysisResult,
-        failedSeasons: [Int]
-    ) -> Bool {
-        guard case .analyzed(let existing)? = current else { return true }
-        guard failedSeasons.isEmpty, case .analyzed(let live) = fresh else { return false }
-
-        let liveSeasons = Set(live.seasons.map(\.seasonNumber))
-        return liveSeasons.isSuperset(of: existing.seasons.map(\.seasonNumber))
     }
 
     /// Each loaded season's average, defined exactly as the verdicts define it.

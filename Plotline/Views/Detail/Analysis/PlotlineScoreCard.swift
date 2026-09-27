@@ -8,6 +8,12 @@ import SwiftUI
 struct PlotlineScoreCard: View {
     let score: PlotlineScore
 
+    /// What each component measures. Shared with Compare, so a component
+    /// never means one thing on the detail screen and another beside it.
+    static let levelCaption = "How highly its episodes rate"
+    static let consistencyCaption = "How evenly it holds that level"
+    static let trajectoryCaption = "Whether it climbs or slides"
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -26,9 +32,9 @@ struct PlotlineScoreCard: View {
             }
 
             VStack(spacing: 10) {
-                component("Level", value: score.level, caption: "How highly its episodes rate")
-                component("Consistency", value: score.consistency, caption: "How evenly it holds that level")
-                component("Trajectory", value: score.trajectory, caption: "Whether it climbs or slides")
+                component("Level", value: score.level, caption: Self.levelCaption)
+                component("Consistency", value: score.consistency, caption: Self.consistencyCaption)
+                component("Trajectory", value: score.trajectory, caption: Self.trajectoryCaption)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

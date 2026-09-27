@@ -30,14 +30,14 @@ struct SeriesVerdictsView: View {
 
                 verdict(
                     icon: consistencyIcon,
-                    title: consistencyTitle,
+                    title: Self.consistencyTitle(analysis.consistency.rating),
                     evidence: consistencyEvidence
                 )
 
                 if let opening = analysis.openingVerdict {
                     verdict(
                         icon: "play.circle",
-                        title: openingTitle(opening),
+                        title: Self.openingTitle(opening),
                         evidence: Self.openingEvidence(opening)
                     )
                 }
@@ -111,8 +111,9 @@ struct SeriesVerdictsView: View {
         }
     }
 
-    private var consistencyTitle: String {
-        switch analysis.consistency.rating {
+    /// Shared with Compare, so a rating reads the same on both screens.
+    static func consistencyTitle(_ rating: ConsistencyRating) -> String {
+        switch rating {
         case .verySteady: "Remarkably even"
         case .steady: "Holds a steady level"
         case .uneven: "Uneven episode to episode"
@@ -122,6 +123,16 @@ struct SeriesVerdictsView: View {
 
     private var consistencyEvidence: String {
         Self.consistencyEvidence(analysis.consistency)
+    }
+
+    /// The numbers behind the decline point. Shared with Compare and Siri.
+    static func declineEvidence(_ decline: DeclinePoint) -> String {
+        String(
+            format: "Averaged %.1f up to then, %.1f across seasons %@.",
+            decline.averageBefore,
+            decline.averageAfter,
+            decline.seasonsAfter.map(String.init).joined(separator: ", ")
+        )
     }
 
     /// The spread behind the consistency rating.
@@ -190,7 +201,7 @@ struct SeriesVerdictsView: View {
         return nil
     }
 
-    private func openingTitle(_ opening: OpeningVerdict) -> String {
+    static func openingTitle(_ opening: OpeningVerdict) -> String {
         switch opening.kind {
         case .hooksEarly:
             return "Hooks you early"
@@ -212,15 +223,6 @@ struct SeriesVerdictsView: View {
     /// verdict (`VerdictCopy`) so both say exactly this much and no more.
     static func declineTitle(_ decline: DeclinePoint) -> String {
         "Falls off after season \(decline.afterSeason)"
-    }
-
-    static func declineEvidence(_ decline: DeclinePoint) -> String {
-        String(
-            format: "Averaged %.1f up to then, %.1f across seasons %@.",
-            decline.averageBefore,
-            decline.averageAfter,
-            decline.seasonsAfter.map(String.init).joined(separator: ", ")
-        )
     }
 
     static func endingTitle(_ ending: EndingVerdict) -> String {

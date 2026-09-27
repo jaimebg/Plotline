@@ -16,6 +16,14 @@ struct CompareView: View {
                 slotsRow
                 if viewModel.canCompare {
                     ratingsSection
+                    // Only when there is a series to analyse: a section of
+                    // nothing but "applies to series" notes says nothing.
+                    if viewModel.hasAnySeries {
+                        CompareAnalysisSection(
+                            entries: viewModel.analysisEntries,
+                            onRetry: { viewModel.retryAnalysis(forSlot: $0) }
+                        )
+                    }
                     if viewModel.hasAnyMovie {
                         boxOfficeSection
                     }
