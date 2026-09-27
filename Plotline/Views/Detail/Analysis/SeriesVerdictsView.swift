@@ -58,6 +58,12 @@ struct SeriesVerdictsView: View {
                     )
                 }
 
+                // Episodes far from their own season's average, with the
+                // distance and the average they are measured against.
+                if !analysis.standoutHighs.isEmpty || !analysis.standoutLows.isEmpty {
+                    SeasonStandoutsView(analysis: analysis)
+                }
+
                 // Only the positive cases are stated, and only as far as the
                 // evidence goes. An unknown status says nothing here — neither
                 // "ended" nor "returning".

@@ -278,6 +278,17 @@ final class MediaDetailViewModel {
         return averages
     }
 
+    /// The analysis on screen, when it is a full one.
+    var analyzedResult: SeriesAnalysis? {
+        if case .analyzed(let value)? = analysis { return value }
+        return nil
+    }
+
+    /// The analysis's season highs and lows, indexed for the chart and grid.
+    var standoutIndex: StandoutIndex {
+        StandoutIndex(analysis: analyzedResult)
+    }
+
     /// The earliest future air date known for a main-run episode, from TMDB's
     /// `next_episode_to_air` or from the loaded seasons. Nil when nothing is
     /// dated — a missing date is not a schedule.

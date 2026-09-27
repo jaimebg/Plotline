@@ -66,8 +66,9 @@ struct MediaDetailView: View {
                         // Interactive quality curve, then the full-season grid
                         if viewModel.shouldShowEpisodeGrid {
                             let seasonAverages = viewModel.seasonAverages()
+                            let standouts = viewModel.standoutIndex
 
-                            seriesGraphSection(seasonAverages: seasonAverages)
+                            seriesGraphSection(seasonAverages: seasonAverages, standouts: standouts)
 
                             // Not twice: when the analysis above is already the
                             // refusal for these seasons, it carries the retry.
@@ -79,7 +80,8 @@ struct MediaDetailView: View {
                             EpisodeRatingsGridView(
                                 episodesBySeason: viewModel.episodesBySeason,
                                 totalSeasons: viewModel.totalSeasons,
-                                seasonAverages: seasonAverages
+                                seasonAverages: seasonAverages,
+                                standouts: standouts
                             )
                         } else if viewModel.isLoadingAllSeasons {
                             episodeGridLoadingView
@@ -403,7 +405,7 @@ struct MediaDetailView: View {
     /// Interactive per-season quality curve. Hidden when the selected season
     /// came back without episodes, so the chart never renders an empty axis.
     @ViewBuilder
-    private func seriesGraphSection(seasonAverages: [Int: Double]) -> some View {
+    private func seriesGraphSection(seasonAverages: [Int: Double], standouts: StandoutIndex) -> some View {
         if !viewModel.episodes.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 if viewModel.availableSeasons.count > 1 {
@@ -421,7 +423,8 @@ struct MediaDetailView: View {
                 SeriesGraphView(
                     episodes: viewModel.episodes,
                     seasonNumber: viewModel.selectedSeason,
-                    seasonAverage: seasonAverages[viewModel.selectedSeason]
+                    seasonAverage: seasonAverages[viewModel.selectedSeason],
+                    standouts: standouts.directions(inSeason: viewModel.selectedSeason)
                 )
             }
         }

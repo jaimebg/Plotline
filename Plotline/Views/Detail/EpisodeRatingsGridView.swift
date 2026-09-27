@@ -55,7 +55,10 @@ struct EpisodeRatingsGridView: View {
     private let maxEpisodes: Int
     private let seasonNumbers: [Int]
     private let seasonAverages: [Int: Double]
+    private let standouts: StandoutIndex
 
+    /// - Parameter standouts: the analysis's season highs and lows, outlined
+    ///   in the grid so they match the list in "What the Numbers Say".
     /// - Parameter seasonAverages: each season's average as the verdicts
     ///   define it (see `MediaDetailViewModel.seasonAverages(asOf:)`). When
     ///   omitted, computed with the engine's own definition, so the AVG row
@@ -63,10 +66,12 @@ struct EpisodeRatingsGridView: View {
     init(
         episodesBySeason: [Int: [EpisodeMetric]],
         totalSeasons: Int,
-        seasonAverages: [Int: Double]? = nil
+        seasonAverages: [Int: Double]? = nil,
+        standouts: StandoutIndex = .empty
     ) {
         self.episodesBySeason = episodesBySeason
         self.totalSeasons = totalSeasons
+        self.standouts = standouts
 
         let lookup = episodesBySeason.mapValues { episodes in
             // First wins, as the linear `first { }` it replaces did.
@@ -94,6 +99,10 @@ struct EpisodeRatingsGridView: View {
 
             // Legend
             legendView
+
+            if !standouts.isEmpty {
+                StandoutLegend()
+            }
 
             // Grid
             HStack(alignment: .top, spacing: cellSpacing) {
@@ -205,7 +214,8 @@ struct EpisodeRatingsGridView: View {
                 .frame(width: cellSize, height: 36)
                 .background(category.color)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
-                .accessibilityLabel("Season \(season), Episode \(episodeNumber), rating \(episode.formattedRating), \(category.rawValue)")
+                .overlay { standoutMarker(season: season, episodeNumber: episodeNumber) }
+                .accessibilityLabel(ratingCellLabel(season: season, episodeNumber: episodeNumber, episode: episode, category: category))
         } else if let episode, !episode.hasValidRating {
             // Episode exists but has N/A rating
             placeholderCell(text: "N/A", font: .caption2)
@@ -214,6 +224,40 @@ struct EpisodeRatingsGridView: View {
             // Episode number doesn't exist for this season (shorter season)
             emptyCell
         }
+    }
+
+    /// Outline plus a corner glyph on a season high or low. The glyph carries
+    /// the direction so the marker never depends on colour alone, and sits on
+    /// a card-coloured badge so it reads over every rating colour in both
+    /// appearances.
+    @ViewBuilder
+    private func standoutMarker(season: Int, episodeNumber: Int) -> some View {
+        if let direction = standouts.direction(season: season, episode: episodeNumber) {
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(Color.primary, lineWidth: 2)
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: direction.symbolName)
+                        .font(.system(size: 6, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 12, height: 12)
+                        .background(Circle().fill(Color.plotlineCard))
+                        .offset(x: 3, y: -3)
+                }
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func ratingCellLabel(
+        season: Int,
+        episodeNumber: Int,
+        episode: EpisodeMetric,
+        category: RatingCategory
+    ) -> String {
+        var label = "Season \(season), Episode \(episodeNumber), rating \(episode.formattedRating), \(category.rawValue)"
+        if let direction = standouts.direction(season: season, episode: episodeNumber) {
+            label += ", \(direction.accessibilityPhrase)"
+        }
+        return label
     }
 
     private var emptyCell: some View {

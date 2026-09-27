@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Plotline is an iOS app for exploring movies and TV series. It sources all metadata and ratings from TMDB, and its own analysis engine derives things TMDB does not publish: where a series declines, how consistent it is, and a 0-100 Plotline Score. Every displayed verdict is shown with the numbers behind it. The engine also computes which episodes stand out within their season, but that output is not currently surfaced in the UI.
+Plotline is an iOS app for exploring movies and TV series. It sources all metadata and ratings from TMDB, and its own analysis engine derives things TMDB does not publish: where a series declines, how consistent it is, and a 0-100 Plotline Score. Every displayed verdict is shown with the numbers behind it. The engine also computes which episodes stand out within their season (`standoutHighs` / `standoutLows`, still stored under the dataset's older `essentialEpisodes` / `skippableEpisodes` JSON keys); they are marked on the episode chart and grid and listed under "What the Numbers Say" as a distance from the season's weighted average, never as a recommendation.
 
 That distinction matters when working here. The app is not a TMDB catalogue browser; the derived analysis is the product, and it is the standing answer to three App Store rejections under Guideline 4.2. Changes that bury it, or that state more than the engine can support, undo the point.
 

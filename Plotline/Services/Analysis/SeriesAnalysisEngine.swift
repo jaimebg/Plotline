@@ -141,8 +141,8 @@ nonisolated enum SeriesAnalysisEngine {
                 worstSeason: comparable.min(by: { $0.weightedAverage < $1.weightedAverage })?.seasonNumber,
                 declinePoint: declinePoint(from: reliable, finalAiredSeason: finalAiredSeason),
                 consistency: consistency(from: reliable),
-                essentialEpisodes: standouts.essential,
-                skippableEpisodes: standouts.skippable,
+                standoutHighs: standouts.highs,
+                standoutLows: standouts.lows,
                 openingVerdict: openingVerdict(from: reliable, finalAiredSeason: finalAiredSeason),
                 endingVerdict: endingVerdict(from: seasons, finalAiredSeason: finalAiredSeason, hasEnded: hasEnded),
                 score: plotlineScore(from: reliable),
@@ -330,12 +330,14 @@ nonisolated enum SeriesAnalysisEngine {
     /// Episodes that sit far from their own season's mean.
     ///
     /// Judged per season rather than across the series, so a strong episode of a
-    /// weak season still registers instead of being averaged away.
+    /// weak season still registers instead of being averaged away. What this
+    /// proves is a numeric relation to the season's average and nothing more:
+    /// a low standout is not "safe to skip", a high one is not "essential".
     private static func standoutEpisodes(
         from reliable: [EpisodeMetric]
-    ) -> (essential: [EpisodeReference], skippable: [EpisodeReference]) {
-        var essential: [EpisodeReference] = []
-        var skippable: [EpisodeReference] = []
+    ) -> (highs: [EpisodeReference], lows: [EpisodeReference]) {
+        var highs: [EpisodeReference] = []
+        var lows: [EpisodeReference] = []
 
         let bySeason = Dictionary(grouping: reliable, by: \.seasonNumber)
 
@@ -354,14 +356,14 @@ nonisolated enum SeriesAnalysisEngine {
                 let zScore = delta / deviation
 
                 if zScore >= standoutZScoreThreshold {
-                    essential.append(reference(episode))
+                    highs.append(reference(episode))
                 } else if zScore <= -standoutZScoreThreshold {
-                    skippable.append(reference(episode))
+                    lows.append(reference(episode))
                 }
             }
         }
 
-        return (essential, skippable)
+        return (highs, lows)
     }
 
     // MARK: - Opening

@@ -388,8 +388,8 @@ struct SeriesAnalysisEngineStandoutTests {
         return value
     }
 
-    @Test("an episode far above its season is essential")
-    func findsEssentialEpisode() {
+    @Test("an episode far above its season is a standout high")
+    func findsStandoutHigh() {
         let episodes = [
             EpisodeFixtures.episode(season: 1, number: 1, rating: 8.0),
             EpisodeFixtures.episode(season: 1, number: 2, rating: 8.1),
@@ -398,11 +398,11 @@ struct SeriesAnalysisEngineStandoutTests {
             EpisodeFixtures.episode(season: 1, number: 5, rating: 9.9, title: "Ozymandias"),
             EpisodeFixtures.episode(season: 1, number: 6, rating: 8.1)
         ]
-        #expect(analysis(episodes)?.essentialEpisodes.map(\.title) == ["Ozymandias"])
+        #expect(analysis(episodes)?.standoutHighs.map(\.title) == ["Ozymandias"])
     }
 
-    @Test("an episode far below its season is skippable")
-    func findsSkippableEpisode() {
+    @Test("an episode far below its season is a standout low")
+    func findsStandoutLow() {
         let episodes = [
             EpisodeFixtures.episode(season: 1, number: 1, rating: 8.0),
             EpisodeFixtures.episode(season: 1, number: 2, rating: 8.1),
@@ -411,15 +411,15 @@ struct SeriesAnalysisEngineStandoutTests {
             EpisodeFixtures.episode(season: 1, number: 5, rating: 5.5, title: "Filler"),
             EpisodeFixtures.episode(season: 1, number: 6, rating: 8.1)
         ]
-        #expect(analysis(episodes)?.skippableEpisodes.map(\.title) == ["Filler"])
+        #expect(analysis(episodes)?.standoutLows.map(\.title) == ["Filler"])
     }
 
-    @Test("a flat season has neither essential nor skippable episodes")
+    @Test("a flat season has no standouts in either direction")
     func flatSeasonHasNoStandouts() {
         let episodes = EpisodeFixtures.season(1, ratings: [8.0, 8.0, 8.1, 8.0, 7.9, 8.0])
         let result = analysis(episodes)
-        #expect(result?.essentialEpisodes.isEmpty == true)
-        #expect(result?.skippableEpisodes.isEmpty == true)
+        #expect(result?.standoutHighs.isEmpty == true)
+        #expect(result?.standoutLows.isEmpty == true)
     }
 
     @Test("standouts are judged within their own season, not across the series")
@@ -434,8 +434,8 @@ struct SeriesAnalysisEngineStandoutTests {
             EpisodeFixtures.episode(season: 2, number: 5, rating: 7.6, title: "Local Peak"),
             EpisodeFixtures.episode(season: 2, number: 6, rating: 6.1)
         ]
-        let essential = analysis(episodes)?.essentialEpisodes.map(\.title) ?? []
-        #expect(essential.contains("Local Peak"))
+        let highs = analysis(episodes)?.standoutHighs.map(\.title) ?? []
+        #expect(highs.contains("Local Peak"))
     }
 
     @Test("a season too short for a meaningful z-score yields no standouts")
@@ -445,7 +445,7 @@ struct SeriesAnalysisEngineStandoutTests {
             EpisodeFixtures.episode(season: 2, number: 1, rating: 9.9),
             EpisodeFixtures.episode(season: 2, number: 2, rating: 5.0)
         ]
-        let standouts = (analysis(episodes)?.essentialEpisodes ?? []) + (analysis(episodes)?.skippableEpisodes ?? [])
+        let standouts = (analysis(episodes)?.standoutHighs ?? []) + (analysis(episodes)?.standoutLows ?? [])
         #expect(standouts.allSatisfy { $0.seasonNumber != 2 })
     }
 
@@ -456,7 +456,7 @@ struct SeriesAnalysisEngineStandoutTests {
         episodes += EpisodeFixtures.season(2, ratings: [8.0, 8.0, 8.0, 8.0, 8.0])
         episodes.append(EpisodeFixtures.episode(season: 2, number: 6, rating: 9.8, title: "S2 peak"))
 
-        #expect(analysis(episodes)?.essentialEpisodes.map(\.title) == ["S1 peak", "S2 peak"])
+        #expect(analysis(episodes)?.standoutHighs.map(\.title) == ["S1 peak", "S2 peak"])
     }
 }
 

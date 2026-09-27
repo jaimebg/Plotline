@@ -220,7 +220,7 @@ struct SeriesAnalysisEngineBoundaryTests {
             EpisodeFixtures.episode(season: 1, number: 4, rating: 8.5, votes: 300)
         ]
 
-        #expect(analysis(episodes)?.essentialEpisodes.map(\.shortCode) == ["S1E4"])
+        #expect(analysis(episodes)?.standoutHighs.map(\.shortCode) == ["S1E4"])
     }
 
     /// Recorded rather than endorsed. On paper this z-score is exactly 1.5 —
@@ -238,7 +238,7 @@ struct SeriesAnalysisEngineBoundaryTests {
             EpisodeFixtures.episode(season: 1, number: 4, rating: 9.0, votes: 400)
         ]
 
-        #expect(analysis(episodes)?.essentialEpisodes.isEmpty == true)
+        #expect(analysis(episodes)?.standoutHighs.isEmpty == true)
     }
 
     @Test("clearing both the z-score and the 0.4 floor by a hair counts")
@@ -251,7 +251,7 @@ struct SeriesAnalysisEngineBoundaryTests {
             EpisodeFixtures.episode(season: 1, number: 4, rating: 8.578125, votes: 400)
         ]
 
-        #expect(analysis(episodes)?.essentialEpisodes.map(\.shortCode) == ["S1E4"])
+        #expect(analysis(episodes)?.standoutHighs.map(\.shortCode) == ["S1E4"])
     }
 
     @Test("an episode airing on the reference date has aired, and is not upcoming")

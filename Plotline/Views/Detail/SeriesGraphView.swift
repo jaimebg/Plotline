@@ -12,6 +12,9 @@ struct SeriesGraphView: View {
     /// rather than falling back to a differently defined average.
     var seasonAverage: Double?
     var showAverage: Bool = true
+    /// Episode number → which side of the season's average it stands out on,
+    /// from the analysis on screen. Empty marks nothing.
+    var standouts: [Int: StandoutDirection] = [:]
 
     @State private var selectedEpisode: EpisodeMetric?
     @State private var selectedEpisodeNumber: Int?
@@ -25,6 +28,12 @@ struct SeriesGraphView: View {
             // Chart
             chartView
                 .frame(height: 200)
+
+            // Only the directions this season actually has, so the legend
+            // never explains a marker that is not on screen.
+            if !plottedStandoutDirections.isEmpty {
+                StandoutLegend(directions: plottedStandoutDirections)
+            }
 
             // Selected episode detail
             if let episode = selectedEpisode {
@@ -150,6 +159,30 @@ struct SeriesGraphView: View {
                     }
                 }
             }
+
+            // Standout rings, drawn last so they sit over the points. The
+            // glyph above or below says which side of the average, so the
+            // marker does not rely on colour alone.
+            ForEach(validEpisodes.filter { standouts[$0.episodeNumber] != nil }) { episode in
+                let direction = standouts[episode.episodeNumber] ?? .high
+                PointMark(
+                    x: .value("Episode", episode.episodeNumber),
+                    y: .value("Rating", animateChart ? episode.rating : ratingYDomain.lowerBound)
+                )
+                .symbol {
+                    Circle()
+                        .strokeBorder(Color.primary, lineWidth: 1.5)
+                        .frame(width: 16, height: 16)
+                }
+                .annotation(position: direction == .high ? .top : .bottom, spacing: 2) {
+                    if selectedEpisodeNumber != episode.episodeNumber {
+                        Image(systemName: direction.symbolName)
+                            .font(.system(size: 8))
+                            .foregroundStyle(.primary)
+                    }
+                }
+                .accessibilityHidden(true)
+            }
         }
         .chartXScale(domain: xDomain)
         .chartYScale(domain: ratingYDomain)
@@ -186,7 +219,12 @@ struct SeriesGraphView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .accessibilityChartDescriptor(
-            SeriesGraphAccessibility(episodes: episodes, seasonNumber: seasonNumber, seasonAverage: seasonAverage)
+            SeriesGraphAccessibility(
+                episodes: episodes,
+                seasonNumber: seasonNumber,
+                seasonAverage: seasonAverage,
+                standouts: standouts
+            )
         )
         .accessibilityLabel("Episode ratings chart for season \(seasonNumber)")
     }
@@ -211,6 +249,13 @@ struct SeriesGraphView: View {
                 Text(episode.fullCode)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                if let direction = standouts[episode.episodeNumber] {
+                    Label(direction.legend, systemImage: direction.symbolName)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .labelStyle(.titleAndIcon)
+                }
             }
 
             Spacer()
@@ -246,6 +291,12 @@ struct SeriesGraphView: View {
 
     private var averageRating: Double? {
         seasonAverage
+    }
+
+    /// The standout directions that have a plotted point this season.
+    private var plottedStandoutDirections: [StandoutDirection] {
+        let plotted = Set(validEpisodes.compactMap { standouts[$0.episodeNumber] })
+        return [StandoutDirection.high, .low].filter(plotted.contains)
     }
 
     private var xDomain: ClosedRange<Int> {
@@ -440,6 +491,7 @@ struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
     let episodes: [EpisodeMetric]
     let seasonNumber: Int
     var seasonAverage: Double?
+    var standouts: [Int: StandoutDirection] = [:]
 
     func makeChartDescriptor() -> AXChartDescriptor {
         let validEpisodes = episodes.filter { $0.hasValidRating }.sorted { $0.episodeNumber < $1.episodeNumber }
@@ -468,10 +520,14 @@ struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
 
         // Data series
         let dataPoints = validEpisodes.map { episode in
-            AXDataPoint(
+            var label = "\(episode.title): \(episode.formattedRating)"
+            if let direction = standouts[episode.episodeNumber] {
+                label += ", \(direction.accessibilityPhrase)"
+            }
+            return AXDataPoint(
                 x: Double(episode.episodeNumber),
                 y: episode.rating,
-                label: "\(episode.title): \(episode.formattedRating)"
+                label: label
             )
         }
 
@@ -510,6 +566,13 @@ struct SeriesGraphAccessibility: AXChartDescriptorRepresentable {
 
         if let lowest = lowest {
             summary += "Lowest rated: Episode \(lowest.episodeNumber) (\(lowest.title)) with \(lowest.formattedRating)."
+        }
+
+        for direction in [StandoutDirection.high, .low] {
+            let marked = episodes.filter { standouts[$0.episodeNumber] == direction }.map { "episode \($0.episodeNumber)" }
+            if !marked.isEmpty {
+                summary += " Marked \(direction.accessibilityPhrase): \(marked.joined(separator: ", "))."
+            }
         }
 
         return summary

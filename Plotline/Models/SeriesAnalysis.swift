@@ -37,8 +37,15 @@ nonisolated struct SeriesAnalysis: Codable, Hashable {
     let worstSeason: Int?
     let declinePoint: DeclinePoint?
     let consistency: Consistency
-    let essentialEpisodes: [EpisodeReference]
-    let skippableEpisodes: [EpisodeReference]
+    /// Episodes rated well above their own season's vote-weighted average: at
+    /// least `standoutZScoreThreshold` standard deviations and
+    /// `minimumStandoutDelta` points above it. That numeric relation is all
+    /// this proves — nothing about whether an episode is worth watching.
+    let standoutHighs: [EpisodeReference]
+    /// The mirror image: well *below* their season's average. Not "skippable";
+    /// a low rating relative to its season says nothing about what the episode
+    /// carries for the story.
+    let standoutLows: [EpisodeReference]
     let openingVerdict: OpeningVerdict?
     let endingVerdict: EndingVerdict?
     let score: PlotlineScore
@@ -48,6 +55,24 @@ nonisolated struct SeriesAnalysis: Codable, Hashable {
     /// can mean "unknown and nothing scheduled", which is not proof of an
     /// ending; the verdict requires a series *known* to have finished.
     let isOngoing: Bool
+
+    /// The two standout lists were once named `essentialEpisodes` and
+    /// `skippableEpisodes` — names that claimed more than the predicate
+    /// establishes. The Swift names changed; the JSON keys did not, so the
+    /// bundled dataset and every analysis already written keep decoding.
+    private enum CodingKeys: String, CodingKey {
+        case seasons
+        case bestSeason
+        case worstSeason
+        case declinePoint
+        case consistency
+        case standoutHighs = "essentialEpisodes"
+        case standoutLows = "skippableEpisodes"
+        case openingVerdict
+        case endingVerdict
+        case score
+        case isOngoing
+    }
 }
 
 /// Per-season roll-up.
