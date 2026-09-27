@@ -17,8 +17,16 @@ struct StatsView: View {
                 }
         }
         .onAppear { updateStats() }
-        .onChange(of: favoritesManager.favorites.count) { updateStats() }
-        .onChange(of: watchlistManager.watchlistItems.count) { updateStats() }
+        .onChange(of: statsInputs) { updateStats() }
+    }
+
+    /// Everything the stats are computed from. Counts alone missed a title
+    /// marked watched from a pushed detail screen: the watchlist stayed the
+    /// same size, so Watched and Completion stayed stale. Reading each item's
+    /// status here also subscribes this view to it.
+    private var statsInputs: [String] {
+        favoritesManager.favorites.map { "f:\($0.mediaType):\($0.tmdbId)" }
+            + watchlistManager.watchlistItems.map { "w:\($0.mediaType):\($0.tmdbId):\($0.watchStatus)" }
     }
 
     private func updateStats() {

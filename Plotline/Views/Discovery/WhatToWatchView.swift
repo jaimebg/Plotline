@@ -5,6 +5,7 @@ struct WhatToWatchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.favoritesManager) private var favoritesManager
     @Environment(\.watchlistManager) private var watchlistManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel = WhatToWatchViewModel()
 
     var body: some View {
@@ -15,23 +16,25 @@ struct WhatToWatchView: View {
                     .padding(.top, 16)
                     .padding(.bottom, 24)
 
-                // Step content
-                TabView(selection: $viewModel.currentStep) {
-                    moodStep
-                        .tag(1)
-
-                    timeStep
-                        .tag(2)
-
-                    resultsStep
-                        .tag(3)
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.easeInOut(duration: 0.3), value: viewModel.currentStep)
+                // Step content. Driven by the step buttons alone: a paged
+                // TabView let a swipe reach the results step with no mood or
+                // format chosen, which could only ever say "No matches found".
+                currentStepView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: viewModel.currentStep)
             }
             .background(Color.plotlineBackground)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                if viewModel.currentStep > 1 {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            viewModel.goBack()
+                        } label: {
+                            Label("Back", systemImage: "chevron.left")
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         dismiss()
@@ -48,6 +51,30 @@ struct WhatToWatchView: View {
                 MediaDetailView(media: item)
             }
         }
+    }
+
+    // MARK: - Current Step
+
+    @ViewBuilder
+    private var currentStepView: some View {
+        switch viewModel.currentStep {
+        case 1:
+            moodStep
+                .transition(stepTransition)
+        case 2:
+            timeStep
+                .transition(stepTransition)
+        default:
+            resultsStep
+                .transition(stepTransition)
+        }
+    }
+
+    private var stepTransition: AnyTransition {
+        reduceMotion ? .opacity : .asymmetric(
+            insertion: .move(edge: .trailing).combined(with: .opacity),
+            removal: .opacity
+        )
     }
 
     // MARK: - Step Indicator
@@ -112,6 +139,7 @@ struct WhatToWatchView: View {
                 .padding(.top, 8)
             }
             .padding(.bottom, 32)
+            .readableWidth()
         }
         .scrollIndicators(.hidden)
     }
@@ -168,6 +196,7 @@ struct WhatToWatchView: View {
                 .padding(.top, 8)
             }
             .padding(.bottom, 32)
+            .readableWidth()
         }
         .scrollIndicators(.hidden)
     }
@@ -233,6 +262,7 @@ struct WhatToWatchView: View {
                 }
             }
             .padding(.bottom, 32)
+            .readableWidth()
         }
         .scrollIndicators(.hidden)
     }

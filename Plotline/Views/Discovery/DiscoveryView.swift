@@ -288,11 +288,22 @@ struct DiscoveryView: View {
         } else if !viewModel.hasSearched {
             // Waiting for debounce delay - show nothing while user types
             Color.clear
+        } else if let error = viewModel.searchErrorMessage {
+            ContentUnavailableView {
+                Label("Search Unavailable", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text(error)
+            } actions: {
+                Button("Try Again") {
+                    viewModel.search()
+                }
+                .buttonStyle(.bordered)
+            }
         } else if viewModel.searchResults.isEmpty {
             ContentUnavailableView(
                 "No Results",
                 systemImage: "magnifyingglass",
-                description: Text("No movies or series found for \"\(viewModel.searchText)\"")
+                description: Text("No movies or series found for \"\(viewModel.resultsQuery)\"")
             )
         } else {
             ScrollView {

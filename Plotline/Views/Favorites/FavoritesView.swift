@@ -9,6 +9,9 @@ struct FavoritesView: View {
     @Environment(\.requestReview) private var requestReview
     @State private var viewModel = FavoritesViewModel()
     @State private var navigationPath = NavigationPath()
+    /// Favourites whose detail already counted towards the review prompt this
+    /// session. See `handleFavoriteDetailOpened(_:)`.
+    @State private var countedDetailOpens: Set<String> = []
     @Namespace private var namespace
 
     private var filteredFavorites: [FavoriteItem] {
@@ -29,7 +32,7 @@ struct FavoritesView: View {
                 .navigationDestination(for: MediaItem.self) { item in
                     MediaDetailView(media: item)
                         .navigationTransition(.zoom(sourceID: item.id, in: namespace))
-                        .onAppear { handleFavoriteDetailOpened() }
+                        .onAppear { handleFavoriteDetailOpened(item) }
                 }
                 .toolbar {
                     if !favoritesManager.favorites.isEmpty {
@@ -132,11 +135,21 @@ struct FavoritesView: View {
         )
     }
 
-    private func handleFavoriteDetailOpened() {
+    /// Counts a favourite's detail screen towards the review prompt once per
+    /// title per session.
+    ///
+    /// `onAppear` also fires when the user pops back to the detail from a
+    /// screen pushed on top of it (a cast member's career, a franchise entry),
+    /// and each of those used to count as another visit.
+    private func handleFavoriteDetailOpened(_ item: MediaItem) {
+        let key = "\(item.isTVSeries ? "tv" : "movie"):\(item.id)"
+        guard countedDetailOpens.insert(key).inserted else { return }
+
         ReviewManager.recordFavoriteDetailOpened()
         if ReviewManager.shouldRequestReview() {
             ReviewManager.markReviewRequested()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2))
                 requestReview()
             }
         }

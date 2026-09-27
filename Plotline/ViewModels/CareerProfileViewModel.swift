@@ -32,7 +32,9 @@ final class CareerProfileViewModel {
 
     // MARK: - State
 
-    var isLoading = false
+    /// Starts true: the screen exists to show a profile it is about to load,
+    /// and starting false flashed "Profile Unavailable" for the first frame.
+    var isLoading = true
 
     var isDirector: Bool {
         person?.knownForDepartment?.lowercased() == "directing"

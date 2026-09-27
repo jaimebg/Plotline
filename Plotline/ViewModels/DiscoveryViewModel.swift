@@ -13,6 +13,12 @@ final class DiscoveryViewModel {
 
     var searchResults: [MediaItem] = []
     var searchText: String = ""
+    /// The query `searchResults` (or `searchErrorMessage`) answers. It lags
+    /// `searchText` while the user is typing and the debounce is pending.
+    private(set) var resultsQuery: String = ""
+    /// Set when the last search failed, so the screen can say so instead of
+    /// showing "No Results" or an older query's results.
+    private(set) var searchErrorMessage: String?
 
     let genres: [CuratedGenre] = CuratedGenre.all
 
@@ -63,12 +69,6 @@ final class DiscoveryViewModel {
         isLoading = false
     }
 
-    /// Refresh all content
-    @MainActor
-    func refresh() async {
-        await loadContent()
-    }
-
     /// Loads the feeds unless they are already on screen.
     ///
     /// Discover's `.task` runs on every appearance of the tab, and used to
@@ -80,15 +80,30 @@ final class DiscoveryViewModel {
         await loadContent()
     }
 
+    /// Refresh all content
+    @MainActor
+    func refresh() async {
+        await loadContent()
+    }
+
+    /// How long typing has to pause before a search is sent.
+    private static let searchDebounce: Duration = .milliseconds(350)
+
     /// Search for content with debouncing
     @MainActor
     func search() {
-        // Cancel previous search task
+        // Cancel previous search task. Everything below runs on the main
+        // actor, so a cancelled task can never write after this line: its
+        // cancellation checks follow every suspension point.
         searchTask?.cancel()
 
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+
         // Clear results if search is empty
-        guard !searchText.isEmpty else {
+        guard !query.isEmpty else {
             searchResults = []
+            resultsQuery = ""
+            searchErrorMessage = nil
             isSearching = false
             hasSearched = false
             return
@@ -96,8 +111,7 @@ final class DiscoveryViewModel {
 
         // Debounce search - delay showing loading state until user stops typing
         searchTask = Task {
-            // Wait 1 second before searching
-            try? await Task.sleep(for: .milliseconds(1000))
+            try? await Task.sleep(for: Self.searchDebounce)
 
             guard !Task.isCancelled else { return }
 
@@ -106,16 +120,22 @@ final class DiscoveryViewModel {
             hasSearched = true
 
             do {
-                let results = try await tmdbService.searchMulti(query: searchText)
+                let results = try await tmdbService.searchMulti(query: query)
                 guard !Task.isCancelled else { return }
-                self.searchResults = results
+                searchResults = results
+                searchErrorMessage = nil
             } catch {
                 guard !Task.isCancelled else { return }
                 #if DEBUG
                 print("Search error: \(error)")
                 #endif
+                // Never leave the previous query's results under this one.
+                searchResults = []
+                searchErrorMessage = (error as? NetworkError)?.errorDescription
+                    ?? "Couldn't search right now. Check your connection and try again."
             }
 
+            resultsQuery = query
             isSearching = false
         }
     }
@@ -125,6 +145,8 @@ final class DiscoveryViewModel {
     func clearSearch() {
         searchText = ""
         searchResults = []
+        resultsQuery = ""
+        searchErrorMessage = nil
         searchTask?.cancel()
         isSearching = false
         hasSearched = false

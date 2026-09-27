@@ -29,6 +29,13 @@ final class WhatToWatchViewModel {
     var canProceedFromStep1: Bool { !selectedMoods.isEmpty }
     var canProceedFromStep2: Bool { selectedTime != nil }
 
+    /// Steps only move through the buttons, never by swiping, so the flow
+    /// cannot reach results with nothing chosen. Going back is always allowed.
+    func goBack() {
+        guard currentStep > 1 else { return }
+        currentStep -= 1
+    }
+
     // MARK: - Mood Selection
 
     /// Add or remove a mood (max 2 selected)

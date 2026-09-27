@@ -15,7 +15,9 @@ final class DecadeBattleViewModel {
     // MARK: - State
 
     var decades: [DecadeData] = []
-    var isLoading = false
+    /// Starts true so the first frame shows the spinner rather than "No Data"
+    /// before `loadDecades()` has had a chance to run.
+    var isLoading = true
 
     // MARK: - Private
 
@@ -40,7 +42,10 @@ final class DecadeBattleViewModel {
 
     @MainActor
     func loadDecades() async {
-        guard decades.isEmpty else { return }
+        guard decades.isEmpty else {
+            isLoading = false
+            return
+        }
 
         isLoading = true
 
