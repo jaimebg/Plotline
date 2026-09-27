@@ -2,9 +2,11 @@ import SwiftUI
 
 /// Carries pending navigation from Siri App Intents into the view hierarchy.
 ///
-/// `SearchPlotlineIntent` and friends run outside the view tree, so they hand
-/// their result over through the shared app group; `PlotlineApp` picks it up on
-/// activation and publishes it here for `MainTabView` and `DiscoveryView`.
+/// `PlotlineApp.init()` registers the app's single instance as an App Intents
+/// dependency, so `SearchPlotlineIntent` writes to it directly. `MainTabView`
+/// and `DiscoveryView` consume a pending value both when it changes and when
+/// they first appear, because on a cold launch the intent can run before
+/// either view exists.
 @Observable
 final class DeepLinkManager {
     var pendingTab: AppTab?

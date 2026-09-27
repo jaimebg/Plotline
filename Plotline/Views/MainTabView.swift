@@ -40,12 +40,19 @@ struct MainTabView: View {
         .tabViewStyle(.sidebarAdaptable)
         .tint(Color.plotlineAccent)
         .preferredColorScheme(themeManager.colorScheme)
-        .onChange(of: deepLinkManager.pendingTab) { _, newTab in
-            if let tab = newTab {
-                selectedTab = tab
-                deepLinkManager.pendingTab = nil
-            }
+        // Also on appear: a tab requested before this view exists would
+        // otherwise stay pending, and the next identical request would then
+        // produce no change to react to.
+        .onAppear { consumePendingTab() }
+        .onChange(of: deepLinkManager.pendingTab) { _, _ in
+            consumePendingTab()
         }
+    }
+
+    private func consumePendingTab() {
+        guard let tab = deepLinkManager.pendingTab else { return }
+        selectedTab = tab
+        deepLinkManager.pendingTab = nil
     }
 }
 

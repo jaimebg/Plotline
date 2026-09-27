@@ -7,20 +7,33 @@ struct ShowMyStatsIntent: AppIntent {
     static var description = IntentDescription("See a summary of your Plotline collection")
     static var openAppWhenRun = false
 
+    /// The app's shared container, registered in `PlotlineApp.init()`.
+    ///
+    /// Building a container here with default settings opened a second
+    /// CloudKit mirror on the same store.
+    @Dependency
+    private var modelContainer: ModelContainer
+
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard let container = try? ModelContainer(for: FavoriteItem.self, WatchlistItem.self) else {
-            return .result(dialog: "No stats available yet. Open Plotline and add some favorites!")
+        let context = modelContainer.mainContext
+
+        let allFavorites = (try? context.fetch(FetchDescriptor<FavoriteItem>())) ?? []
+        let allWatchlist = (try? context.fetch(FetchDescriptor<WatchlistItem>())) ?? []
+
+        // CloudKit can hold several records for one title until the app next
+        // collapses them; count titles, not records. Same survivor and merge
+        // rule as the managers, without writing anything from Siri.
+        let favorites = DuplicateResolver.group(allFavorites, id: \.tmdbId, addedAt: \.addedAt)
+            .map(\.keeper)
+        let watchlistGroups = DuplicateResolver.group(allWatchlist, id: \.tmdbId, addedAt: \.addedAt)
+        let watchlistStatuses = watchlistGroups.map { group in
+            DuplicateResolver.mostAdvancedWatchStatus(([group.keeper] + group.duplicates).map(\.watchStatus))
         }
 
-        let context = container.mainContext
-
-        let favorites = (try? context.fetch(FetchDescriptor<FavoriteItem>())) ?? []
-        let watchlist = (try? context.fetch(FetchDescriptor<WatchlistItem>())) ?? []
-
         let totalFavorites = favorites.count
-        let totalWatchlist = watchlist.count
-        let watchedCount = watchlist.filter { $0.watchStatus == "watched" }.count
+        let totalWatchlist = watchlistStatuses.count
+        let watchedCount = watchlistStatuses.filter { $0 == "watched" }.count
         let moviesCount = favorites.filter { $0.mediaType == "movie" }.count
         let seriesCount = favorites.filter { $0.mediaType == "tv" }.count
         let averageRating = favorites.isEmpty ? 0.0 : favorites.map(\.voteAverage).reduce(0, +) / Double(favorites.count)

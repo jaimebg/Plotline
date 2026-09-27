@@ -73,13 +73,19 @@ struct DiscoveryView: View {
         .sheet(isPresented: $showWhatToWatch) {
             WhatToWatchView()
         }
-        .onChange(of: deepLinkManager.pendingSearchQuery) { _, newQuery in
-            if let query = newQuery {
-                viewModel.searchText = query
-                viewModel.search()
-                deepLinkManager.pendingSearchQuery = nil
-            }
+        // Both: a query set before this view exists (Siri on a cold launch)
+        // never produces a change for `onChange` to see.
+        .onAppear { consumePendingSearchQuery() }
+        .onChange(of: deepLinkManager.pendingSearchQuery) { _, _ in
+            consumePendingSearchQuery()
         }
+    }
+
+    private func consumePendingSearchQuery() {
+        guard let query = deepLinkManager.pendingSearchQuery else { return }
+        viewModel.searchText = query
+        viewModel.search()
+        deepLinkManager.pendingSearchQuery = nil
     }
 
     // MARK: - Content

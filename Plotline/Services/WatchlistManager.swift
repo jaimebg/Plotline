@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 import SwiftData
 import SwiftUI
@@ -9,11 +10,26 @@ final class WatchlistManager {
     private(set) var watchlistItems: [WatchlistItem] = []
     private(set) var watchlistIds: Set<Int> = []
 
+    @ObservationIgnored private var remoteChangeTask: Task<Void, Never>?
+
     init() {}
 
     func configure(with context: ModelContext) {
         self.modelContext = context
         fetchWatchlist()
+        observeRemoteChanges()
+    }
+
+    /// Re-fetches whenever CloudKit imports changes from another device —
+    /// see `FavoritesManager.observeRemoteChanges()`.
+    private func observeRemoteChanges() {
+        guard remoteChangeTask == nil else { return }
+        remoteChangeTask = Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: .NSPersistentStoreRemoteChange) {
+                guard let self else { return }
+                self.fetchWatchlist()
+            }
+        }
     }
 
     func isOnWatchlist(_ media: MediaItem) -> Bool {
@@ -102,43 +118,45 @@ final class WatchlistManager {
     private func fetchWatchlist() {
         guard let context = modelContext else { return }
 
-        let descriptor = FetchDescriptor<WatchlistItem>(
-            sortBy: [SortDescriptor(\.addedAt, order: .reverse)]
-        )
-
         do {
-            let allItems = try context.fetch(descriptor)
+            let allItems = try context.fetch(FetchDescriptor<WatchlistItem>())
 
-            // Deduplicate by tmdbId (keep earliest added, remove later duplicates from CloudKit sync)
-            var seenIds = Set<Int>()
-            var uniqueItems: [WatchlistItem] = []
-            var duplicatesToDelete: [WatchlistItem] = []
+            // CloudKit cannot enforce uniqueness, so two devices adding the same
+            // title leave two records. Keep the earliest-added on every device,
+            // fold in anything only a later copy knows — a title marked watched
+            // on the other device must stay watched — then delete the rest.
+            let groups = DuplicateResolver.group(allItems, id: \.tmdbId, addedAt: \.addedAt)
 
-            for item in allItems {
-                if seenIds.contains(item.tmdbId) {
-                    duplicatesToDelete.append(item)
-                } else {
-                    seenIds.insert(item.tmdbId)
-                    uniqueItems.append(item)
+            var removedDuplicates = false
+            for group in groups where !group.duplicates.isEmpty {
+                merge(group.duplicates, into: group.keeper)
+                for duplicate in group.duplicates {
+                    context.delete(duplicate)
                 }
+                removedDuplicates = true
             }
-
-            // Clean up any duplicates that arrived via CloudKit
-            for duplicate in duplicatesToDelete {
-                context.delete(duplicate)
-            }
-            if !duplicatesToDelete.isEmpty {
+            if removedDuplicates {
                 try context.save()
             }
 
-            watchlistItems = uniqueItems
-            watchlistIds = seenIds
+            watchlistItems = groups.map(\.keeper)
+            watchlistIds = Set(watchlistItems.map(\.tmdbId))
         } catch {
             #if DEBUG
             print("Failed to fetch watchlist: \(error)")
             #endif
             watchlistItems = []
             watchlistIds = []
+        }
+    }
+
+    private func merge(_ duplicates: [WatchlistItem], into keeper: WatchlistItem) {
+        let all = [keeper] + duplicates
+        keeper.watchStatus = DuplicateResolver.mostAdvancedWatchStatus(all.map(\.watchStatus))
+        keeper.posterPath = DuplicateResolver.firstPresent(all.map(\.posterPath))
+        keeper.backdropPath = DuplicateResolver.firstPresent(all.map(\.backdropPath))
+        if keeper.genreIds.isEmpty, let genres = duplicates.first(where: { !$0.genreIds.isEmpty })?.genreIds {
+            keeper.genreIds = genres
         }
     }
 }

@@ -7,40 +7,28 @@ struct PlotlineApp: App {
     @State private var themeManager = ThemeManager.shared
     @State private var favoritesManager = FavoritesManager()
     @State private var watchlistManager = WatchlistManager()
-    @State private var deepLinkManager = DeepLinkManager()
-    @Environment(\.scenePhase) private var scenePhase
+    @State private var deepLinkManager: DeepLinkManager
 
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([FavoriteItem.self, WatchlistItem.self])
-        let cloudConfig = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            cloudKitDatabase: .automatic
-        )
+    let sharedModelContainer: ModelContainer
 
-        do {
-            return try ModelContainer(for: schema, configurations: [cloudConfig])
-        } catch {
-            #if DEBUG
-            print("CloudKit unavailable, using local storage: \(error.localizedDescription)")
-            #endif
-            let localConfig = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                cloudKitDatabase: .none
-            )
-            do {
-                return try ModelContainer(for: schema, configurations: [localConfig])
-            } catch {
-                #if DEBUG
-                print("Schema migration failed, creating fresh store: \(error.localizedDescription)")
-                #endif
-                let storeURL = URL.applicationSupportDirectory.appending(path: "default.store")
-                try? FileManager.default.removeItem(at: storeURL)
-                return try! ModelContainer(for: schema, configurations: [localConfig])
-            }
+    init() {
+        let container = SharedModelContainer.make()
+        let deepLinks = DeepLinkManager()
+        sharedModelContainer = container
+        _deepLinkManager = State(initialValue: deepLinks)
+
+        // Registered here, not when the window appears: an App Intent run on a
+        // cold launch can execute before any scene exists, and resolving an
+        // unregistered `@Dependency` is fatal.
+        AppDependencyManager.shared.add(dependency: container)
+        AppDependencyManager.shared.add(dependency: deepLinks)
+
+        // Expired cache files are otherwise only removed when their exact key is
+        // read again. Runs on the caches' own actors, off the main thread.
+        Task.detached(priority: .utility) {
+            await TMDBService.pruneExpiredCaches()
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -52,23 +40,8 @@ struct PlotlineApp: App {
                 .onAppear {
                     favoritesManager.configure(with: sharedModelContainer.mainContext)
                     watchlistManager.configure(with: sharedModelContainer.mainContext)
-                    AppDependencyManager.shared.add(dependency: sharedModelContainer)
-                }
-                .onChange(of: scenePhase) { _, newPhase in
-                    if newPhase == .active {
-                        handleSiriSearchQuery()
-                    }
                 }
         }
         .modelContainer(sharedModelContainer)
-    }
-
-    private func handleSiriSearchQuery() {
-        let sharedDefaults = UserDefaults(suiteName: "group.com.jbgsoft.Plotline")
-        if let query = sharedDefaults?.string(forKey: "siri_search_query"), !query.isEmpty {
-            sharedDefaults?.removeObject(forKey: "siri_search_query")
-            deepLinkManager.pendingSearchQuery = query
-            deepLinkManager.pendingTab = .discover
-        }
     }
 }
