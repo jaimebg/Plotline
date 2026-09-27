@@ -32,10 +32,12 @@ struct BoxOfficeView: View {
                     )
                 }
 
-                // ROI indicator
+                // Gross as a multiple of budget. Not labelled a "return": the
+                // budget leaves out marketing and the gross is not what the
+                // studio keeps.
                 if let roi = boxOffice.formattedROI {
                     HStack {
-                        Text("Return")
+                        Text("Gross vs. budget")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
@@ -52,16 +54,17 @@ struct BoxOfficeView: View {
                     }
                 }
 
-                // Profit/Loss summary
-                if boxOffice.budget > 0 && boxOffice.revenue > 0 {
+                // Gross minus budget. Called what it is: "Profit" and "Loss"
+                // claimed a bottom line these two numbers cannot establish.
+                if let difference = boxOffice.formattedProfit {
                     HStack {
-                        Text(boxOffice.isProfitable ? "Profit" : "Loss")
+                        Text("Gross minus budget")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
                         Spacer()
 
-                        Text(boxOffice.formattedProfit)
+                        Text(difference)
                             .font(.system(.subheadline, weight: .semibold))
                             .foregroundStyle(boxOffice.isProfitable ? Color.rottenGreen : .primary)
                     }

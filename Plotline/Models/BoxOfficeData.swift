@@ -1,6 +1,10 @@
 import Foundation
 
 /// Box office data for movies (budget and revenue)
+///
+/// TMDB stores an unknown figure as `0`, so zero is "not known", never "none".
+/// Every derived figure that needs both numbers is nil unless both are known:
+/// a film with no reported gross is not a film that lost 100% of its budget.
 nonisolated struct BoxOfficeData: Codable, Hashable {
     let budget: Int
     let revenue: Int
@@ -12,19 +16,27 @@ nonisolated struct BoxOfficeData: Codable, Hashable {
         budget > 0 || revenue > 0
     }
 
-    /// Whether the movie is profitable
+    /// Whether both figures are known, so they can be compared at all.
+    var hasBothFigures: Bool {
+        budget > 0 && revenue > 0
+    }
+
+    /// Whether the gross exceeds the budget. Not the same as profit: TMDB's
+    /// revenue is the box-office gross, and the budget leaves out marketing.
     var isProfitable: Bool {
-        revenue > budget && budget > 0
+        hasBothFigures && revenue > budget
     }
 
-    /// Profit (revenue - budget)
-    var profit: Int {
-        revenue - budget
+    /// Gross minus budget. Nil unless both are known.
+    var profit: Int? {
+        guard hasBothFigures else { return nil }
+        return revenue - budget
     }
 
-    /// Return on investment as a ratio (e.g., 2.5 means 250% return)
+    /// Gross as a multiple of budget (e.g., 2.5). Nil unless both are known —
+    /// an unknown gross read as zero would come out as a "-100%" return.
     var roi: Double? {
-        guard budget > 0 else { return nil }
+        guard hasBothFigures else { return nil }
         return Double(revenue) / Double(budget)
     }
 
@@ -52,10 +64,15 @@ nonisolated struct BoxOfficeData: Codable, Hashable {
         formatCurrency(revenue)
     }
 
-    /// Formatted profit string (e.g., "+$850M" or "-$50M")
-    var formattedProfit: String {
+    /// Formatted gross-minus-budget string (e.g., "+$850M" or "-$50M").
+    ///
+    /// `formatCurrency` already writes the minus sign for a negative value;
+    /// passing it `abs(profit)` threw the sign away and printed a loss as a
+    /// bare "$50M".
+    var formattedProfit: String? {
+        guard let profit else { return nil }
         let prefix = profit >= 0 ? "+" : ""
-        return prefix + formatCurrency(abs(profit))
+        return prefix + formatCurrency(profit)
     }
 
     /// Formatted ROI string (e.g., "8.5x" or "+750%")
