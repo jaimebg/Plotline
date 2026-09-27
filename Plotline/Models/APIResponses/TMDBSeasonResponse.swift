@@ -22,7 +22,8 @@ nonisolated struct TMDBSeasonResponse: Codable {
                 airDate: episode.airDate,
                 stillPath: episode.stillPath,
                 directors: episode.crew.map { TMDBEpisodeCrewMember.names(in: $0, jobs: TMDBEpisodeCrewMember.directorJobs) },
-                writers: episode.crew.map { TMDBEpisodeCrewMember.names(in: $0, jobs: TMDBEpisodeCrewMember.writerJobs) }
+                writers: episode.crew.map { TMDBEpisodeCrewMember.names(in: $0, jobs: TMDBEpisodeCrewMember.writerJobs) },
+                runtime: episode.runtime
             )
         }
     }

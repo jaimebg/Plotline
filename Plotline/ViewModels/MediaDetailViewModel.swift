@@ -213,8 +213,26 @@ final class MediaDetailViewModel {
 
         // Computed once per fetch rather than per body pass: it walks every
         // episode of every season.
-        let comparison = CrewEffectAnalyzer.compare(episodes: episodesBySeason.values.flatMap { $0 }, asOf: now)
+        let allEpisodes = episodesBySeason.values.flatMap { $0 }
+        let comparison = CrewEffectAnalyzer.compare(episodes: allEpisodes, asOf: now)
         crewComparison = comparison.isEmpty ? nil : comparison
+
+        // After `recomputeAnalysis`, so the split uses the decline on screen.
+        watchTimePlan = WatchTimePlanner.plan(
+            episodes: allEpisodes,
+            declinePoint: analyzedResult?.declinePoint,
+            asOf: now
+        )
+    }
+
+    /// Runtime totals for the aired run. Nil when too few runtimes are known.
+    private(set) var watchTimePlan: WatchTimePlan?
+
+    /// The watch-time plan, only when every season loaded: a missing season
+    /// would make the total quietly short.
+    var visibleWatchTimePlan: WatchTimePlan? {
+        guard failedSeasons.isEmpty else { return nil }
+        return watchTimePlan
     }
 
     /// Directors and writers against their seasons, from the loaded episodes.

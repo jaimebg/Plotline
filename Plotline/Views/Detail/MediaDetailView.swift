@@ -84,6 +84,10 @@ struct MediaDetailView: View {
                                 standouts: standouts
                             )
 
+                            if let plan = viewModel.visibleWatchTimePlan {
+                                WatchTimeSection(plan: plan)
+                            }
+
                             if let crew = viewModel.visibleCrewComparison {
                                 CrewComparisonSection(comparison: crew)
                             }
@@ -148,6 +152,9 @@ struct MediaDetailView: View {
                             .font(.body.weight(.semibold))
                             .foregroundStyle(.primary)
                     }
+                    // ShareLink tints its label with the accent; match the
+                    // neighbouring toolbar buttons instead.
+                    .tint(.primary)
                     .accessibilityLabel("Share Plotline analysis")
                 }
             }

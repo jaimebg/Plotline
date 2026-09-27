@@ -24,6 +24,10 @@ nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
     let directors: [String]?
     /// Credited writers: jobs "Writer", "Teleplay", "Screenplay" and "Story".
     let writers: [String]?
+    /// Length in minutes, as TMDB lists it. Nil when TMDB has none — common
+    /// for older and unaired episodes — and for payloads cached before it was
+    /// carried through.
+    let runtime: Int?
 
     // MARK: - Computed Properties
 
@@ -102,7 +106,8 @@ nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
         airDate: String? = nil,
         stillPath: String? = nil,
         directors: [String]? = nil,
-        writers: [String]? = nil
+        writers: [String]? = nil,
+        runtime: Int? = nil
     ) {
         self.id = id ?? (seasonNumber * 1_000 + episodeNumber)
         self.episodeNumber = episodeNumber
@@ -114,6 +119,7 @@ nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
         self.stillPath = stillPath
         self.directors = directors
         self.writers = writers
+        self.runtime = runtime
     }
 
     // MARK: - Private
