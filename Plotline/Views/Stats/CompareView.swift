@@ -89,19 +89,20 @@ struct CompareView: View {
                         .foregroundStyle(.primary)
 
                     Chart {
-                        ForEach(movieSlots, id: \.item.id) { index, item in
+                        ForEach(movieSlots, id: \.index) { index, item in
+                            let label = viewModel.chartLabel(forSlot: index)
                             if let boxOffice = item.boxOffice {
                                 if boxOffice.budget > 0 {
                                     BarMark(
                                         x: .value("Amount", Double(boxOffice.budget)),
-                                        y: .value("Title", item.displayTitle)
+                                        y: .value("Title", label)
                                     )
                                     .foregroundStyle(by: .value("Type", "Budget"))
                                 }
                                 if boxOffice.revenue > 0 {
                                     BarMark(
                                         x: .value("Amount", Double(boxOffice.revenue)),
-                                        y: .value("Title", item.displayTitle)
+                                        y: .value("Title", label)
                                     )
                                     .foregroundStyle(by: .value("Type", "Revenue"))
                                 }
@@ -147,7 +148,8 @@ struct CompareView: View {
                         .foregroundStyle(.primary)
 
                     Chart {
-                        ForEach(seriesSlots, id: \.item.id) { index, item in
+                        ForEach(seriesSlots, id: \.index) { index, item in
+                            let label = viewModel.chartLabel(forSlot: index)
                             let episodes = viewModel.allEpisodesFlat(for: item.id)
                                 .filter { $0.hasValidRating }
 
@@ -156,23 +158,23 @@ struct CompareView: View {
                                     x: .value("Episode", epIndex + 1),
                                     y: .value("Rating", episode.rating)
                                 )
-                                .foregroundStyle(by: .value("Series", item.displayTitle))
+                                .foregroundStyle(by: .value("Series", label))
                                 .interpolationMethod(.catmullRom)
 
                                 PointMark(
                                     x: .value("Episode", epIndex + 1),
                                     y: .value("Rating", episode.rating)
                                 )
-                                .foregroundStyle(by: .value("Series", item.displayTitle))
+                                .foregroundStyle(by: .value("Series", label))
                                 .symbolSize(20)
                             }
                         }
                     }
+                    // Coloured by slot, the same as the ratings bars above, so
+                    // a title keeps one colour across the whole screen.
                     .chartForegroundStyleScale(
-                        domain: seriesSlots.map(\.item.displayTitle),
-                        range: seriesSlots.enumerated().map { idx, _ in
-                            lineColors[idx % lineColors.count]
-                        }
+                        domain: seriesSlots.map { viewModel.chartLabel(forSlot: $0.index) },
+                        range: seriesSlots.map { lineColors[$0.index % lineColors.count] }
                     )
                     .chartYScale(domain: 0...10)
                     .chartYAxis {
@@ -254,14 +256,14 @@ struct CompareView: View {
         NavigationStack {
             List {
                 ForEach(viewModel.searchResults) { item in
+                    let alreadyAdded = viewModel.isInAnotherSlot(item, excluding: viewModel.searchSlotIndex)
                     Button {
                         viewModel.showSearch = false
-                        Task {
-                            await viewModel.selectItem(item, for: viewModel.searchSlotIndex)
-                        }
+                        viewModel.selectItem(item, for: viewModel.searchSlotIndex)
                     } label: {
-                        searchResultRow(item: item)
+                        searchResultRow(item: item, alreadyAdded: alreadyAdded)
                     }
+                    .disabled(alreadyAdded)
                 }
             }
             .listStyle(.plain)
@@ -292,7 +294,7 @@ struct CompareView: View {
 
     // MARK: - Search Result Row
 
-    private func searchResultRow(item: MediaItem) -> some View {
+    private func searchResultRow(item: MediaItem, alreadyAdded: Bool) -> some View {
         HStack(spacing: 12) {
             AsyncImage(url: item.posterURL) { phase in
                 switch phase {
@@ -343,6 +345,11 @@ struct CompareView: View {
                             .background(Color.plotlineGold.opacity(0.2))
                             .foregroundStyle(Color.plotlineGold)
                             .clipShape(Capsule())
+                    }
+                    if alreadyAdded {
+                        Text("Already added")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }

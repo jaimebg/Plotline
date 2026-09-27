@@ -15,10 +15,7 @@ struct GenreResultsView: View {
                 // Media type toggle
                 Picker("Type", selection: Binding(
                     get: { viewModel.selectedMediaType },
-                    set: { newType in
-                        viewModel.selectedMediaType = newType
-                        Task { await viewModel.loadResults(genre: genre) }
-                    }
+                    set: { viewModel.selectMediaType($0, genre: genre) }
                 )) {
                     ForEach(GenreMediaType.allCases, id: \.self) { type in
                         Text(type.rawValue).tag(type)
@@ -36,7 +33,7 @@ struct GenreResultsView: View {
                         Text(viewModel.errorMessage ?? "")
                     } actions: {
                         Button("Try Again") {
-                            Task { await viewModel.loadResults(genre: genre) }
+                            viewModel.reload(genre: genre)
                         }
                         .buttonStyle(.bordered)
                     }
@@ -58,7 +55,7 @@ struct GenreResultsView: View {
                             .buttonStyle(.plain)
                             .onAppear {
                                 if item.id == viewModel.results.last?.id && viewModel.canLoadMore {
-                                    Task { await viewModel.loadMore(genre: genre) }
+                                    viewModel.loadMore(genre: genre)
                                 }
                             }
                         }
@@ -82,10 +79,8 @@ struct GenreResultsView: View {
                 sortMenu
             }
         }
-        .task {
-            if viewModel.results.isEmpty {
-                await viewModel.loadResults(genre: genre)
-            }
+        .onAppear {
+            viewModel.loadIfNeeded(genre: genre)
         }
     }
 
@@ -93,8 +88,7 @@ struct GenreResultsView: View {
         Menu {
             ForEach(GenreSort.allCases, id: \.self) { sort in
                 Button {
-                    viewModel.selectedSort = sort
-                    Task { await viewModel.loadResults(genre: genre) }
+                    viewModel.selectSort(sort, genre: genre)
                 } label: {
                     Label(sort.rawValue, systemImage: sort.icon)
                 }

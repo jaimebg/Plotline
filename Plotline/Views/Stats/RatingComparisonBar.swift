@@ -17,7 +17,7 @@ struct RatingComparisonBar: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.primary)
 
-            ForEach(items, id: \.item.id) { index, item in
+            ForEach(items, id: \.index) { index, item in
                 HStack(spacing: 8) {
                     // Title label
                     Text(item.displayTitle)
