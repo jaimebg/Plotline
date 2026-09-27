@@ -82,6 +82,59 @@ struct WatchTimePlannerTests {
         #expect(split.minutesAfter == 1050)
         #expect(WatchTimePlanner.splitLine(split)
                 == "Seasons 1–2: 20 h, weighted avg 8.4 · After: seasons 3–4, 18 h, weighted avg 7.1")
+        #expect(split.averagedSeasonsAfter == [3, 4])
+    }
+
+    /// The time after the boundary counts every aired season; the verdict's
+    /// average counts only the judgeable ones. Labelling that average with
+    /// the whole range claimed a season it never included.
+    @Test("the after-average names the seasons it covers when a thin season sits in the range")
+    func afterAverageNamesItsSeasons() throws {
+        let episodes = season(4, count: 10, runtime: 60) + season(5, count: 10, runtime: 60)
+            + season(6, count: 2, runtime: 60) + season(7, count: 10, runtime: 60)
+            + season(1, count: 10, runtime: 60) + season(2, count: 10, runtime: 60) + season(3, count: 10, runtime: 60)
+        let decline = DeclinePoint(afterSeason: 3, averageBefore: 8.4, averageAfter: 7.1, seasonsAfter: [4, 5, 7])
+        let split = try #require(plan(episodes, decline: decline)?.split)
+
+        #expect(split.seasonsAfter == [4, 5, 6, 7])
+        #expect(split.averagedSeasonsAfter == [4, 5, 7])
+        #expect(WatchTimePlanner.splitLine(split)
+                == "Seasons 1–3: 30 h, weighted avg 8.4 · After: seasons 4–7, 32 h, weighted avg 7.1 across seasons 4, 5, 7")
+    }
+
+    /// End to end: the engine leaves a thin season out of its decline, and the
+    /// line says so rather than borrowing the planner's wider range.
+    @Test("with the engine's own decline, a thin season past the boundary is named as left out of the average")
+    func afterAverageFromTheEngine() throws {
+        func rated(_ season: Int, _ ratings: [Double]) -> [EpisodeMetric] {
+            ratings.enumerated().map { index, rating in
+                EpisodeMetric(
+                    episodeNumber: index + 1, seasonNumber: season, title: "S\(season)E\(index + 1)",
+                    rating: rating, voteCount: 100, airDate: EpisodeFixtures.pastAirDate, runtime: 45
+                )
+            }
+        }
+        let high = [9.0, 9.1, 9.0, 9.1]
+        let low = [7.0, 7.1, 7.0, 7.1]
+        let episodes = rated(1, high) + rated(2, high) + rated(3, low) + rated(4, low)
+            + rated(5, [7.0, 7.1]) + rated(6, low)
+
+        guard case .analyzed(let analysis) = SeriesAnalysisEngine.analyze(episodes: episodes, asOf: EpisodeFixtures.now),
+              let decline = analysis.declinePoint else {
+            Issue.record("expected the engine to find a decline after season 2")
+            return
+        }
+        #expect(decline.seasonsAfter == [3, 4, 6])
+
+        let split = try #require(plan(episodes, decline: decline)?.split)
+        #expect(split.seasonsAfter == [3, 4, 5, 6])
+        #expect(WatchTimePlanner.splitLine(split).hasSuffix("across seasons 3, 4, 6"))
+    }
+
+    @Test("a single averaged season is named in the singular")
+    func singleAveragedSeason() {
+        #expect(WatchTimePlanner.seasonList([4]) == "season 4")
+        #expect(WatchTimePlanner.seasonList([4, 5, 7]) == "seasons 4, 5, 7")
     }
 
     @Test("no decline, no split")

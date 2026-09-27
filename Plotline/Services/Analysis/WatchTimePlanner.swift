@@ -21,6 +21,12 @@ nonisolated struct WatchTimePlan: Hashable, Sendable {
         let seasonsAfter: [Int]
         let minutesAfter: Int
         let averageAfter: Double
+        /// The seasons `averageAfter` is computed over: the decline verdict's
+        /// own `seasonsAfter`, which counts only seasons with enough rated
+        /// episodes. It can be a subset of `seasonsAfter` above — every aired
+        /// season past the boundary — so the average is labelled with these
+        /// rather than with that range.
+        let averagedSeasonsAfter: [Int]
     }
 
     let totalMinutes: Int
@@ -79,7 +85,8 @@ nonisolated enum WatchTimePlanner {
                 averageBefore: decline.averageBefore,
                 seasonsAfter: after.map(\.seasonNumber),
                 minutesAfter: after.reduce(0) { $0 + $1.minutes },
-                averageAfter: decline.averageAfter
+                averageAfter: decline.averageAfter,
+                averagedSeasonsAfter: decline.seasonsAfter
             )
         }
 
@@ -135,8 +142,14 @@ nonisolated enum WatchTimePlanner {
     ///
     /// States where the time goes on each side of the decline and nothing
     /// else — no "stop after", no "worth it".
+    ///
+    /// The time after the boundary covers every aired season past it; the
+    /// verdict's average covers only the seasons it could judge. When the two
+    /// differ the average names its own seasons — "weighted avg 7.1 across
+    /// seasons 4, 5, 7" — so a thin season inside the range is never presented
+    /// as part of a figure it did not contribute to.
     static func splitLine(_ split: WatchTimePlan.Split) -> String {
-        String(
+        var line = String(
             format: "%@: %@, weighted avg %.1f · After: %@, %@, weighted avg %.1f",
             seasonRange(split.seasonsBefore, capitalized: true),
             duration(minutes: split.minutesBefore),
@@ -145,6 +158,19 @@ nonisolated enum WatchTimePlanner {
             duration(minutes: split.minutesAfter),
             split.averageAfter
         )
+        let averaged = split.averagedSeasonsAfter.sorted()
+        if !averaged.isEmpty, averaged != split.seasonsAfter.sorted() {
+            line += " across \(seasonList(averaged))"
+        }
+        return line
+    }
+
+    /// "season 4", "seasons 4, 5, 7": every season named, joined as the
+    /// decline verdict's own evidence joins them.
+    static func seasonList(_ seasons: [Int]) -> String {
+        seasons.count == 1
+            ? "season \(seasons[0])"
+            : "seasons \(seasons.map(String.init).joined(separator: ", "))"
     }
 
     /// "Season 4", "Seasons 1–3": the first and last aired season on one side
