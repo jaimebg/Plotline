@@ -42,6 +42,10 @@ final class MediaDetailViewModel {
     /// recommendation, say — and a second load refetched everything and
     /// re-seeded the bundled analysis over the live one, so the verdicts
     /// flickered. Explicit retries go through `retryEpisodes()` instead.
+    ///
+    /// A series load that never learned its season count is not complete:
+    /// it fetched no seasons at all, so the next appearance tries again rather
+    /// than leaving the screen stuck on what the bundle had.
     private(set) var hasLoadedDetails = false
 
     // MARK: - Watch Providers State
@@ -115,7 +119,9 @@ final class MediaDetailViewModel {
         if media.isTVSeries {
             // `fetchAllSeasons()` already covers season 1, and `episodes` is derived
             // from its result — fetching the selected season separately would issue a
-            // duplicate request for the same payload on every series open.
+            // duplicate request for the same payload on every series open. It
+            // fetches nothing when the details above failed: without their
+            // season count it cannot tell a whole run from a part of one.
             async let allSeasonsTask: () = fetchAllSeasons()
             async let recsTask: () = fetchRecommendations()
             async let watchProvidersTask: () = loadWatchProviders()
@@ -129,19 +135,23 @@ final class MediaDetailViewModel {
 
         // A load cut short — the screen was left before it finished, which
         // cancels `.task` — has not loaded anything worth keeping, so the next
-        // appearance tries again.
-        hasLoadedDetails = !Task.isCancelled
+        // appearance tries again. So has a series load with no season count.
+        hasLoadedDetails = !Task.isCancelled && (!media.isTVSeries || knowsSeasonCount)
     }
 
-    /// Explicit retry after some or all seasons failed to load.
+    /// Explicit retry after some or all seasons failed to load, or after the
+    /// details never arrived.
     ///
-    /// Refetches the series details first when they never arrived: without
-    /// them `totalSeasons` is still the default of 1, and a retry would ask for
-    /// season 1 alone and call that complete.
+    /// Refetches the series details first when their season count is missing:
+    /// without it `totalSeasons` is still the default of 1, and a retry would
+    /// ask for season 1 alone and call that complete. Deliberately not gated
+    /// on `hasLoadedDetails`.
     @MainActor
     func retryEpisodes() async {
         guard media.isTVSeries else { return }
-        if !hasLoadedSeriesDetails {
+        if !knowsSeasonCount {
+            isLoadingAllSeasons = true
+            episodesError = nil
             await fetchTMDBDetails()
         }
         await fetchAllSeasons()
@@ -164,10 +174,23 @@ final class MediaDetailViewModel {
         syncEpisodesForSelectedSeason()
     }
 
-    /// Fetch all seasons' episodes for the grid view
+    /// Fetch all seasons' episodes for the grid view.
+    ///
+    /// Fetches nothing until the series details have supplied the season
+    /// count. List payloads and bundled entries never carry one, so without
+    /// the details `totalSeasons` is the default of 1: the fetch would return
+    /// season 1 with no failure to report, and a five-season series would be
+    /// analysed, timed and shared as a one-season run. Compare and Siri refuse
+    /// the same way.
     @MainActor
     func fetchAllSeasons() async {
         guard media.isTVSeries else { return }
+
+        guard knowsSeasonCount else {
+            applyMissingSeasonCount()
+            isLoadingAllSeasons = false
+            return
+        }
 
         isLoadingAllSeasons = true
         episodesError = nil
@@ -179,6 +202,25 @@ final class MediaDetailViewModel {
         applySeasonFetch(fetched)
 
         isLoadingAllSeasons = false
+    }
+
+    /// Shown in place of the episode grid when the details, and with them the
+    /// season count, never arrived.
+    static let seasonCountUnavailableMessage =
+        "We couldn't load this series' details, so we can't tell how many seasons it has. "
+        + "Rather than show part of the run as the whole, we haven't loaded any."
+
+    /// The state for a series whose season count is unknown: nothing fetched,
+    /// a reason, and a retry. Whatever analysis is on screen stays — the
+    /// bundled one is still true of the seasons it covers — but nothing is
+    /// derived from episodes that were never asked for.
+    ///
+    /// Split out, like `applySeasonFetch`, so it can be tested without a
+    /// network.
+    @MainActor
+    func applyMissingSeasonCount() {
+        guard episodesBySeason.isEmpty else { return }
+        episodesError = Self.seasonCountUnavailableMessage
     }
 
     /// Folds a season fetch into the screen's state and re-runs the analysis.
@@ -228,10 +270,11 @@ final class MediaDetailViewModel {
     /// Runtime totals for the aired run. Nil when too few runtimes are known.
     private(set) var watchTimePlan: WatchTimePlan?
 
-    /// The watch-time plan, only when every season loaded: a missing season
-    /// would make the total quietly short.
+    /// The watch-time plan, only when every season loaded — and "every" is
+    /// only known once the details supplied the season count: a missing
+    /// season would make the total quietly short.
     var visibleWatchTimePlan: WatchTimePlan? {
-        guard failedSeasons.isEmpty else { return nil }
+        guard knowsSeasonCount, failedSeasons.isEmpty else { return nil }
         return watchTimePlan
     }
 
@@ -244,8 +287,21 @@ final class MediaDetailViewModel {
     /// would change both the people counted and the averages they are
     /// measured against.
     var visibleCrewComparison: CrewComparison? {
-        guard analyzedResult != nil, failedSeasons.isEmpty else { return nil }
+        guard knowsSeasonCount, analyzedResult != nil, failedSeasons.isEmpty else { return nil }
         return crewComparison
+    }
+
+    /// The episodes the share card may plot, or none — in which case it plots
+    /// the analysis's own season averages.
+    ///
+    /// Episodes only when they are exactly what the analysis on screen was
+    /// computed from: a live result, from a fetch that knew the season count
+    /// and lost no season. With the bundled analysis kept over a partial
+    /// fetch, the loaded episodes are a fragment of the run the card's
+    /// "across N seasons" describes.
+    var shareCardEpisodes: [EpisodeMetric] {
+        guard analysisSource == .live, knowsSeasonCount, failedSeasons.isEmpty else { return [] }
+        return episodesBySeason.values.flatMap { $0 }
     }
 
     // MARK: - Analysis
@@ -400,6 +456,11 @@ final class MediaDetailViewModel {
     /// current status rather than whatever a list payload carried.
     private(set) var hasLoadedSeriesDetails = false
 
+    /// Whether TMDB's details have supplied the season count, so
+    /// `totalSeasons` is a fact rather than the default of 1. Nothing season
+    /// by season is fetched, or derived, until it is.
+    private(set) var knowsSeasonCount = false
+
     /// The series' status as this screen currently knows it. The ending
     /// verdict, on screen and on the share card, is gated on this rather than
     /// on the status the analysis was computed with.
@@ -468,6 +529,7 @@ final class MediaDetailViewModel {
 
         if let seasons = details.totalSeasons {
             totalSeasons = seasons
+            knowsSeasonCount = true
         }
         hasLoadedSeriesDetails = true
     }
@@ -695,6 +757,7 @@ extension MediaDetailViewModel {
             5: EpisodeMetric.breakingBadS5
         ]
         vm.totalSeasons = 5
+        vm.knowsSeasonCount = true
         return vm
     }
 

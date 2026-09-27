@@ -19,7 +19,7 @@ nonisolated struct VerdictCardContent: Hashable, Sendable {
     let title: String
     let score: PlotlineScore
     /// Ratings to draw, in order: every rated, aired main-run episode in
-    /// broadcast order, or each season's average when no episodes are loaded.
+    /// broadcast order, or each season's average when no episodes are given.
     let curve: [Double]
     let curveCaption: String
     let decline: Verdict?
@@ -47,9 +47,12 @@ nonisolated struct VerdictCardContent: Hashable, Sendable {
 
 extension VerdictCardContent {
     /// - Parameters:
-    ///   - episodes: whatever episodes are loaded, any season; may be empty
-    ///     when the analysis on screen is the bundled one and the network is
-    ///     unavailable.
+    ///   - episodes: the episodes `analysis` was computed from, or none. Pass
+    ///     none whenever they might be only part of that run — the bundled
+    ///     analysis kept over a partial fetch, a failed season, an unknown
+    ///     season count — and the card plots the analysis's own season
+    ///     averages instead, which always describe the seasons its basis
+    ///     line counts. `MediaDetailViewModel.shareCardEpisodes` decides.
     ///   - status / nextEpisodeDate: the same inputs the detail screen's
     ///     ending verdict and run-status row read, so the card says exactly
     ///     what the screen says.

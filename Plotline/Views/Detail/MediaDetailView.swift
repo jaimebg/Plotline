@@ -191,7 +191,7 @@ struct MediaDetailView: View {
             content: VerdictCardContent(
                 title: viewModel.media.displayTitle,
                 analysis: analysis,
-                episodes: viewModel.episodesBySeason.values.flatMap { $0 },
+                episodes: viewModel.shareCardEpisodes,
                 status: viewModel.currentStatus,
                 nextEpisodeDate: viewModel.nextScheduledAirDate()
             )

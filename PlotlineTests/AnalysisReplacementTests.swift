@@ -228,4 +228,152 @@ struct AnalysisReplacementTests {
         viewModel.episodesBySeason = bySeason([1])
         #expect(viewModel.nextScheduledAirDate(asOf: EpisodeFixtures.now) == nil)
     }
+
+    // MARK: - No season count, no seasons
+
+    private func details(id: Int, seasons: Int, hasEnded: Bool? = nil) -> MediaItem {
+        var item = series(id: id)
+        item.totalSeasons = seasons
+        item.hasEnded = hasEnded
+        return item
+    }
+
+    /// One season with runtimes and crew, so every episode-derived section
+    /// has something to show once it is allowed to.
+    private var timedSeason: [EpisodeMetric] {
+        [8.0, 8.0, 8.0, 9.0, 9.0, 9.0].enumerated().map { index, rating in
+            EpisodeMetric(
+                episodeNumber: index + 1, seasonNumber: 1, title: "S1E\(index + 1)",
+                rating: rating, voteCount: 100, airDate: EpisodeFixtures.pastAirDate,
+                directors: [index < 3 ? "Low" : "High"], writers: ["Solo"], runtime: 45
+            )
+        }
+    }
+
+    /// List payloads and bundled entries carry no season count, so a failed
+    /// detail request left `totalSeasons` at 1: season 1 alone came back with
+    /// no failure to report and was analysed as the whole run.
+    @Test("without the details' season count no season is fetched, and the gap is stated with a retry")
+    func noSeasonCountFetchesNothing() async {
+        let viewModel = MediaDetailViewModel(media: series(id: -1))
+        #expect(!viewModel.knowsSeasonCount)
+
+        // Returns before any request: the guard is the first thing it checks.
+        await viewModel.fetchAllSeasons()
+
+        #expect(viewModel.episodesBySeason.isEmpty)
+        #expect(viewModel.analysis == nil)
+        #expect(viewModel.failedSeasons.isEmpty)
+        #expect(!viewModel.isLoadingAllSeasons)
+        // The grid's "unavailable" state, which carries Try Again.
+        #expect(viewModel.episodesError == MediaDetailViewModel.seasonCountUnavailableMessage)
+        #expect(!viewModel.shouldShowEpisodeGrid)
+    }
+
+    @Test("a bundled series with no details keeps its bundled analysis and derives nothing from season 1")
+    func noSeasonCountKeepsTheBundle() async throws {
+        let viewModel = MediaDetailViewModel(media: series(id: bundledSeriesId))
+        viewModel.loadBundledAnalysis()
+        let bundled = try #require(viewModel.analyzedResult, "Breaking Bad should be in the bundled dataset")
+
+        await viewModel.fetchAllSeasons()
+
+        #expect(viewModel.analysis == .analyzed(bundled))
+        #expect(viewModel.analysisSource == .bundled)
+        #expect(viewModel.episodesError == MediaDetailViewModel.seasonCountUnavailableMessage)
+        #expect(viewModel.visibleWatchTimePlan == nil)
+        #expect(viewModel.visibleCrewComparison == nil)
+        #expect(viewModel.shareCardEpisodes.isEmpty)
+        #expect(viewModel.currentStatus == .notLoaded)
+    }
+
+    @Test("watch time, crew and the share card's episode curve wait for the season count")
+    func derivedSectionsNeedTheSeasonCount() {
+        let viewModel = MediaDetailViewModel(media: series(id: -1))
+        viewModel.applySeasonFetch(
+            SeasonFetchResult(episodesBySeason: [1: timedSeason], failedSeasons: []),
+            asOf: EpisodeFixtures.now
+        )
+        #expect(viewModel.analyzedResult != nil)
+        #expect(viewModel.visibleWatchTimePlan == nil)
+        #expect(viewModel.visibleCrewComparison == nil)
+        #expect(viewModel.shareCardEpisodes.isEmpty)
+
+        viewModel.applyDetails(details(id: -1, seasons: 1))
+
+        #expect(viewModel.knowsSeasonCount)
+        #expect(viewModel.visibleWatchTimePlan != nil)
+        #expect(viewModel.visibleCrewComparison != nil)
+        #expect(viewModel.shareCardEpisodes.count == timedSeason.count)
+    }
+
+    @Test("a detail payload without a season count does not count as knowing it")
+    func detailsWithoutASeasonCount() {
+        let viewModel = MediaDetailViewModel(media: series(id: -1))
+        viewModel.applyDetails(series(id: -1))
+
+        #expect(!viewModel.knowsSeasonCount)
+        #expect(viewModel.totalSeasons == 1)
+    }
+
+    // MARK: - The share card's curve
+
+    @Test("with the bundled analysis kept over a partial fetch, the card plots the analysis's season averages")
+    func cardOverPartialFetchUsesSeasonAverages() throws {
+        let viewModel = MediaDetailViewModel(media: series(id: bundledSeriesId))
+        viewModel.loadBundledAnalysis()
+        let bundled = try #require(viewModel.analyzedResult)
+        let all = bundled.seasons.map(\.seasonNumber)
+        viewModel.applyDetails(details(id: bundledSeriesId, seasons: all.count, hasEnded: true))
+
+        viewModel.applySeasonFetch(
+            SeasonFetchResult(episodesBySeason: bySeason(Array(all.dropLast())), failedSeasons: [all.last ?? 5]),
+            asOf: EpisodeFixtures.now
+        )
+        #expect(viewModel.analysisSource == .bundled)
+        #expect(viewModel.shareCardEpisodes.isEmpty)
+
+        let card = VerdictCardContent(
+            title: "Breaking Bad",
+            analysis: bundled,
+            episodes: viewModel.shareCardEpisodes,
+            status: viewModel.currentStatus,
+            nextEpisodeDate: nil,
+            asOf: EpisodeFixtures.now
+        )
+        #expect(card.curve == bundled.seasons.map(\.weightedAverage))
+        #expect(card.curveCaption == "Season averages, weighted by votes")
+        #expect(card.basis.hasSuffix("across \(bundled.seasons.count) seasons."))
+    }
+
+    @Test("a bundled analysis kept over a complete fetch still plots season averages")
+    func cardOverKeptBundleUsesSeasonAverages() throws {
+        let viewModel = MediaDetailViewModel(media: series(id: bundledSeriesId))
+        viewModel.loadBundledAnalysis()
+        let bundled = try #require(viewModel.analyzedResult)
+        let shifted = bundled.seasons.map { $0.seasonNumber + 1 }
+        viewModel.applyDetails(details(id: bundledSeriesId, seasons: shifted.count + 1))
+
+        viewModel.applySeasonFetch(SeasonFetchResult(episodesBySeason: bySeason(shifted), failedSeasons: []), asOf: EpisodeFixtures.now)
+
+        #expect(viewModel.analysisSource == .bundled)
+        #expect(viewModel.failedSeasons.isEmpty)
+        #expect(viewModel.shareCardEpisodes.isEmpty)
+    }
+
+    @Test("a live analysis with a season missing from a later fetch plots season averages")
+    func cardWithFailedSeasonUsesSeasonAverages() {
+        let viewModel = MediaDetailViewModel(media: series(id: -1))
+        viewModel.applyDetails(details(id: -1, seasons: 3))
+        viewModel.applySeasonFetch(SeasonFetchResult(episodesBySeason: bySeason([1, 2, 3]), failedSeasons: []), asOf: EpisodeFixtures.now)
+        #expect(viewModel.analysisSource == .live)
+        #expect(viewModel.shareCardEpisodes.count == 18)
+
+        // A fourth season appeared and failed: the live three-season analysis
+        // stays, and its episodes are no longer the whole run.
+        viewModel.applySeasonFetch(SeasonFetchResult(episodesBySeason: [:], failedSeasons: [4]), asOf: EpisodeFixtures.now)
+        #expect(viewModel.failedSeasons == [4])
+        #expect(viewModel.analysisSource == .live)
+        #expect(viewModel.shareCardEpisodes.isEmpty)
+    }
 }
