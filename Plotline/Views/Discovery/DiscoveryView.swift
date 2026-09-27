@@ -39,6 +39,8 @@ struct DiscoveryView: View {
                     GenreResultsView(genre: genre)
                 }
                 .refreshable {
+                    smartListsVM.invalidate()
+                    refreshPersonalisation()
                     await viewModel.refresh()
                 }
                 .toolbar {
@@ -49,36 +51,48 @@ struct DiscoveryView: View {
         }
         .environment(\.navigationNamespace, namespace)
         .preferredColorScheme(themeManager.colorScheme)
+        // Runs on every appearance of the tab; the load is skipped when the
+        // feeds are already there.
         .task {
-            await viewModel.loadContent()
-        }
-        .task {
-            await tasteProfileVM.computeProfile(
-                favorites: favoritesManager.favorites,
-                watchlistItems: watchlistManager.watchlistItems
-            )
-        }
-        .task(id: tasteProfileVM.hasEnoughData) {
-            guard tasteProfileVM.hasEnoughData else { return }
-            let genreIds = tasteProfileVM.topGenres.compactMap { genre -> Int? in
-                GenreLookup.genres.first(where: { $0.value == genre.genre })?.key
-            }
-            await smartListsVM.loadLists(
-                favorites: favoritesManager.favorites,
-                favoriteIds: favoritesManager.favoriteIds,
-                watchlistIds: watchlistManager.watchlistIds,
-                topGenreIds: genreIds
-            )
+            await viewModel.loadContentIfNeeded()
         }
         .sheet(isPresented: $showWhatToWatch) {
             WhatToWatchView()
         }
         // Both: a query set before this view exists (Siri on a cold launch)
         // never produces a change for `onChange` to see.
-        .onAppear { consumePendingSearchQuery() }
+        .onAppear {
+            consumePendingSearchQuery()
+            refreshPersonalisation()
+        }
         .onChange(of: deepLinkManager.pendingSearchQuery) { _, _ in
             consumePendingSearchQuery()
         }
+        .onChange(of: favoritesFingerprint) { _, _ in
+            refreshPersonalisation()
+        }
+    }
+
+    // MARK: - Personalisation
+
+    /// Which favourites the taste profile and smart lists describe.
+    private var favoritesFingerprint: String {
+        TasteProfileViewModel.fingerprint(of: favoritesManager.favorites)
+    }
+
+    /// Brings the taste profile and smart lists up to date with the
+    /// favourites. Both view models remember which favourites set they last
+    /// built for and return at once when it has not changed, so calling this
+    /// on every appearance costs nothing and fires no requests.
+    private func refreshPersonalisation() {
+        let favorites = favoritesManager.favorites
+        tasteProfileVM.update(favorites: favorites)
+        smartListsVM.update(
+            favorites: favorites,
+            favoriteIds: favoritesManager.favoriteIds,
+            watchlistIds: watchlistManager.watchlistIds,
+            topGenreIds: tasteProfileVM.topMovieGenreIds
+        )
     }
 
     private func consumePendingSearchQuery() {

@@ -69,6 +69,17 @@ final class DiscoveryViewModel {
         await loadContent()
     }
 
+    /// Loads the feeds unless they are already on screen.
+    ///
+    /// Discover's `.task` runs on every appearance of the tab, and used to
+    /// refetch all four feeds each time the user came back to it. A failed
+    /// load leaves no content, so returning to the tab still retries.
+    @MainActor
+    func loadContentIfNeeded() async {
+        guard !hasContent else { return }
+        await loadContent()
+    }
+
     /// Search for content with debouncing
     @MainActor
     func search() {
