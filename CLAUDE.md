@@ -15,6 +15,33 @@ That distinction matters when working here. The app is not a TMDB catalogue brow
 - **Symbol effects** - `.symbolEffect(.pulse)`, `.symbolEffect(.bounce)`, `.symbolEffect(.rotate)`
 - **Type-safe tab selection** - `AppTab` enum with `TabView(selection:)`
 
+### Tabs
+
+Discover · Analysis · Library · Stats · Settings (`.sidebarAdaptable`).
+
+- **Library** holds the Watchlist and Favorites behind one segmented control
+  (`LibrarySegment`, remembered per viewer with `@AppStorage`). `LibraryView`
+  owns the navigation stack and every piece of state that must survive a
+  segment switch; `WatchlistSegment`/`FavoritesSegment` carry the old tabs'
+  behaviour unchanged. Deep-link to a segment with
+  `DeepLinkManager.openLibrary(_:)`; `WhatShouldIWatchIntent` lands on the
+  Watchlist that way.
+- **Analysis** filters the **bundled dataset only** — offline, no TMDB key, no
+  network — by the engine's own output. Each chip is one `AnalysisTrait`, a
+  single predicate over `SeriesAnalysis` (OR within a category, AND across);
+  its label is the detail screen's verdict title for the same value or says
+  strictly less. Ending chips only ever match series with an ending verdict,
+  and the status pair is "Still running" / "Not known to be running" —
+  `isOngoing == false` never reads as ended. The result count is computed.
+- **Natural-language search** in Analysis uses Apple's on-device Foundation
+  Model **only to translate** a sentence into the same chips, through the
+  `@Generable` `GeneratedAnalysisFilter` — a fixed slot per category and a
+  `mentioned` gate that drops any slot the sentence did not ask for. It has no
+  field for a verdict, a description or a title, and must never gain one. When
+  `SystemLanguageModel.default` is unavailable the field is replaced by a
+  one-line reason and the chips keep working. The model sits behind
+  `AnalysisRequestTranslating`, so tests use a fake.
+
 ## Build Commands
 
 ```bash
@@ -23,8 +50,8 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — 149 Swift Testing functions, 154 cases (three are parameterised),
-# plus the 7-method cold-start UI suite, which runs starved of a TMDB key
+# Run tests — 302 Swift Testing functions (four parameterised), plus the
+# 8-method cold-start UI suite, which runs starved of a TMDB key
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' test
 
 # Build for iPad — the device App Review used

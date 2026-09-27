@@ -62,6 +62,11 @@ The engine also identifies episodes that stand out within their season. That out
 - **What Should I Watch?** — pick a mood and a format, get a match
 - **Taste profile & smart lists** — built from your own favorites and watchlist
 
+### Analysis
+- **Filter every bundled series by the engine's own verdicts** — how it opens, how it ends, how consistent it is, whether a decline point was found, whether it is still running — plus genre. Each chip is one engine predicate; chips in one group combine with OR, groups with AND. Works offline
+- **Sort** by Plotline Score or any of its three components, with the count of matching series computed live
+- **Describe what you're in the mood for** — on devices with Apple Intelligence, the on-device model turns the sentence into those same chips, which you can then edit. It never writes a verdict itself
+
 ### On a title
 - **Plotline Score** with its three components and the "What the Numbers Say" verdicts
 - **Episode ratings chart** per season — Swift Charts, smooth interpolation, touch selection
@@ -69,8 +74,8 @@ The engine also identifies episodes that stand out within their season. That out
 - **Where to watch** by streaming service with a region picker. *Streaming data provided by JustWatch*
 - **Box office** for movies (budget, revenue, ROI), **franchise timelines**, cast **filmographies**, and *You Might Also Like*
 
-### Collections
-- **Favorites** and **Watchlist** with swipe actions, filtering and status toggling
+### Library
+- **Watchlist** and **Favorites** in one tab, with swipe actions, filtering and status toggling
 - **iCloud sync** — SwiftData backed by CloudKit, with a graceful fall back to local storage when iCloud is unavailable
 
 ### Stats
@@ -126,7 +131,8 @@ Plotline/
 │   ├── Detail/             # Title screen, chart, episode grid, where to watch
 │   │   └── Analysis/       # Plotline Score card and verdicts
 │   ├── Stats/              # Compare, careers, decade battle, franchise tracker
-│   ├── Favorites/          # Favorites and watchlist
+│   ├── Analysis/           # Trait filters over the bundled analysis
+│   ├── Library/            # Watchlist and favorites
 │   └── Settings/           # Appearance and app info
 ├── Services/               # Networking, TMDB, caches, stores
 │   └── Analysis/           # SeriesAnalysisEngine — Foundation only
