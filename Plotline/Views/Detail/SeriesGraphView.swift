@@ -170,16 +170,23 @@ struct SeriesGraphView: View {
                     y: .value("Rating", animateChart ? episode.rating : ratingYDomain.lowerBound)
                 )
                 .symbol {
+                    // The glyph is part of the symbol rather than an
+                    // annotation: Charts drops annotations that collide with
+                    // neighbouring marks, and a marker that only sometimes
+                    // shows its direction would rely on the ring alone.
                     Circle()
                         .strokeBorder(Color.primary, lineWidth: 1.5)
                         .frame(width: 16, height: 16)
-                }
-                .annotation(position: direction == .high ? .top : .bottom, spacing: 2) {
-                    if selectedEpisodeNumber != episode.episodeNumber {
-                        Image(systemName: direction.symbolName)
-                            .font(.system(size: 8))
-                            .foregroundStyle(.primary)
-                    }
+                        .overlay {
+                            Image(systemName: direction.symbolName)
+                                .font(.system(size: 8, weight: .bold))
+                                // `Color.primary`, not the `.primary` style:
+                                // inside a chart symbol that resolves to the
+                                // mark's own colour.
+                                .foregroundStyle(Color.primary)
+                                .offset(y: direction == .high ? -14 : 14)
+                                .opacity(selectedEpisodeNumber == episode.episodeNumber ? 0 : 1)
+                        }
                 }
                 .accessibilityHidden(true)
             }

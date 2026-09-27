@@ -200,21 +200,29 @@ struct StandoutLegend: View {
     var directions: [StandoutDirection] = [.high, .low]
 
     var body: some View {
-        HStack(spacing: 14) {
-            ForEach(directions, id: \.self) { direction in
-                HStack(spacing: 4) {
-                    Image(systemName: direction.symbolName)
-                        .font(.system(size: 8))
-                        .foregroundStyle(.primary)
-                    Text(direction.legend)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
+        // One line when it fits, otherwise one item per line — never an item
+        // squeezed into wrapping mid-phrase.
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 14) { items }
+            VStack(alignment: .leading, spacing: 4) { items }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             "Marked episodes: " + directions.map(\.legend).joined(separator: "; ")
         )
+    }
+
+    private var items: some View {
+        ForEach(directions, id: \.self) { direction in
+            HStack(spacing: 4) {
+                Image(systemName: direction.symbolName)
+                    .font(.system(size: 8))
+                    .foregroundStyle(.primary)
+                Text(direction.legend)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize()
+            }
+        }
     }
 }
