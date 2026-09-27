@@ -1,7 +1,7 @@
 import Foundation
 
 /// Unified model representing both movies and TV series from TMDB
-struct MediaItem: Identifiable, Codable, Hashable {
+nonisolated struct MediaItem: Identifiable, Codable, Hashable {
     let id: Int
     var overview: String
     var posterPath: String?
@@ -176,7 +176,7 @@ struct MediaItem: Identifiable, Codable, Hashable {
 
 // MARK: - Media Type
 
-enum MediaType: String, Codable, Hashable {
+nonisolated enum MediaType: String, Codable, Hashable {
     case movie
     case tv
     case person  // Returned by multi-search, filtered out in app

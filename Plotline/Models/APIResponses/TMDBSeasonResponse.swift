@@ -1,7 +1,7 @@
 import Foundation
 
 /// Response for /tv/{series_id}/season/{season_number}
-struct TMDBSeasonResponse: Codable {
+nonisolated struct TMDBSeasonResponse: Codable {
     let id: Int
     let name: String?
     let seasonNumber: Int
@@ -26,7 +26,7 @@ struct TMDBSeasonResponse: Codable {
     }
 }
 
-struct TMDBEpisode: Codable {
+nonisolated struct TMDBEpisode: Codable {
     let id: Int
     let name: String?
     let episodeNumber: Int

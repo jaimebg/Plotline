@@ -1,7 +1,7 @@
 import Foundation
 
 /// Box office data for movies (budget and revenue)
-struct BoxOfficeData: Codable, Hashable {
+nonisolated struct BoxOfficeData: Codable, Hashable {
     let budget: Int
     let revenue: Int
 

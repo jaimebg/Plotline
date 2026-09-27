@@ -8,7 +8,7 @@ import Foundation
 /// The bundled dataset is a **seed and a fallback, never the truth**: when the
 /// network is available, freshly fetched data wins. That keeps the app useful
 /// offline and on first launch without ever asserting something stale.
-struct PlotlineDataset: Codable, Hashable {
+nonisolated struct PlotlineDataset: Codable, Hashable {
     /// Bumped when the shape changes, so the app can refuse a file it cannot read.
     let version: Int
     let entries: [DatasetEntry]
@@ -37,7 +37,7 @@ struct PlotlineDataset: Codable, Hashable {
 }
 
 /// A seed id that did not make it into `entries`, and why.
-struct SkippedSeries: Codable, Hashable {
+nonisolated struct SkippedSeries: Codable, Hashable {
     let tmdbId: Int
     /// Absent when the series failed before its name was known, i.e. the
     /// details fetch itself failed.
@@ -57,7 +57,7 @@ struct SkippedSeries: Codable, Hashable {
     static let fetchFailedKind = "fetchFailed"
 }
 
-struct DatasetEntry: Codable, Hashable, Identifiable {
+nonisolated struct DatasetEntry: Codable, Hashable, Identifiable {
     var id: Int { tmdbId }
 
     let tmdbId: Int
@@ -86,7 +86,7 @@ struct DatasetEntry: Codable, Hashable, Identifiable {
 /// data file are strings the app cannot translate, cannot restyle, and cannot
 /// keep in one language with the rest of its UI. The app owns the copy, keyed
 /// by `id`; the dataset owns only the membership it can prove.
-struct CuratedList: Codable, Hashable, Identifiable {
+nonisolated struct CuratedList: Codable, Hashable, Identifiable {
     let id: String
     let tmdbIds: [Int]
 }

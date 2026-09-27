@@ -4,14 +4,14 @@ import Foundation
 ///
 /// The engine never emits a verdict it cannot support, so callers must handle
 /// `insufficientData` explicitly rather than reading a half-filled analysis.
-enum SeriesAnalysisResult: Codable, Hashable {
+nonisolated enum SeriesAnalysisResult: Codable, Hashable {
     case analyzed(SeriesAnalysis)
     case insufficientData(InsufficientDataReason)
 }
 
 /// Why a series could not be analysed. Surfaced so the UI can say something
 /// truthful instead of showing an empty panel.
-enum InsufficientDataReason: String, Codable, Hashable {
+nonisolated enum InsufficientDataReason: String, Codable, Hashable {
     /// Nothing has aired yet.
     case noAiredEpisodes
     /// Episodes aired, but none carries enough votes to trust.
@@ -26,7 +26,7 @@ enum InsufficientDataReason: String, Codable, Hashable {
 
 /// Derived analysis of a series. Every verdict carries the data that supports
 /// it, so the UI can show its reasoning rather than an unexplained badge.
-struct SeriesAnalysis: Codable, Hashable {
+nonisolated struct SeriesAnalysis: Codable, Hashable {
     let seasons: [SeasonSummary]
     let bestSeason: Int?
     let worstSeason: Int?
@@ -46,7 +46,7 @@ struct SeriesAnalysis: Codable, Hashable {
 }
 
 /// Per-season roll-up.
-struct SeasonSummary: Codable, Hashable, Identifiable {
+nonisolated struct SeasonSummary: Codable, Hashable, Identifiable {
     var id: Int { seasonNumber }
 
     let seasonNumber: Int
@@ -62,7 +62,7 @@ struct SeasonSummary: Codable, Hashable, Identifiable {
 }
 
 /// A pointer back to a specific episode, so a verdict can name its evidence.
-struct EpisodeReference: Codable, Hashable, Identifiable {
+nonisolated struct EpisodeReference: Codable, Hashable, Identifiable {
     let id: Int
     let seasonNumber: Int
     let episodeNumber: Int
@@ -73,7 +73,7 @@ struct EpisodeReference: Codable, Hashable, Identifiable {
 }
 
 /// The season boundary after which quality drops and stays down.
-struct DeclinePoint: Codable, Hashable {
+nonisolated struct DeclinePoint: Codable, Hashable {
     /// Quality falls from the season after this one onward.
     let afterSeason: Int
     let averageBefore: Double
@@ -84,14 +84,14 @@ struct DeclinePoint: Codable, Hashable {
 }
 
 /// How evenly a series holds its quality.
-struct Consistency: Codable, Hashable {
+nonisolated struct Consistency: Codable, Hashable {
     let rating: ConsistencyRating
     let standardDeviation: Double
     let highestRated: EpisodeReference?
     let lowestRated: EpisodeReference?
 }
 
-enum ConsistencyRating: String, Codable, Hashable {
+nonisolated enum ConsistencyRating: String, Codable, Hashable {
     case verySteady
     case steady
     case uneven
@@ -99,7 +99,7 @@ enum ConsistencyRating: String, Codable, Hashable {
 }
 
 /// Whether the series grabs you immediately or takes a while.
-struct OpeningVerdict: Codable, Hashable {
+nonisolated struct OpeningVerdict: Codable, Hashable {
     enum Kind: String, Codable, Hashable {
         case hooksEarly
         case slowStart
@@ -115,7 +115,7 @@ struct OpeningVerdict: Codable, Hashable {
 }
 
 /// Whether the series lands its final season or limps out.
-struct EndingVerdict: Codable, Hashable {
+nonisolated struct EndingVerdict: Codable, Hashable {
     enum Kind: String, Codable, Hashable {
         case endsStrong
         case endsSteady
@@ -131,7 +131,7 @@ struct EndingVerdict: Codable, Hashable {
 
 /// Plotline's own 0-100 score, with its three components exposed so the UI can
 /// show the breakdown instead of an opaque number.
-struct PlotlineScore: Codable, Hashable {
+nonisolated struct PlotlineScore: Codable, Hashable {
     let value: Int
     let level: Int
     let consistency: Int

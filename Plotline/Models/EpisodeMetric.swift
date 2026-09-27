@@ -4,7 +4,7 @@ import Foundation
 ///
 /// Ratings come from TMDB's season endpoint. `voteCount` is kept because the
 /// analysis engine weights episodes by how many votes back them up.
-struct EpisodeMetric: Identifiable, Codable, Hashable {
+nonisolated struct EpisodeMetric: Identifiable, Codable, Hashable {
     /// TMDB's stable episode id. Kept verbatim so an episode keeps the same
     /// `Identifiable` id whether it came from the network or from `DiskCache`.
     let id: Int

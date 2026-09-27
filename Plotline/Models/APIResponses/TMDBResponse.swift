@@ -1,7 +1,7 @@
 import Foundation
 
 /// Response wrapper for TMDB API list endpoints
-struct TMDBResponse: Codable {
+nonisolated struct TMDBResponse: Codable {
     let page: Int
     let results: [MediaItem]
     let totalPages: Int
@@ -9,7 +9,7 @@ struct TMDBResponse: Codable {
 }
 
 /// Response for TMDB movie/tv detail with external IDs
-struct TMDBDetailResponse: Codable {
+nonisolated struct TMDBDetailResponse: Codable {
     let id: Int
     let overview: String?
     let posterPath: String?
@@ -77,20 +77,20 @@ struct TMDBDetailResponse: Codable {
 }
 
 /// Genre model from TMDB
-struct Genre: Codable, Identifiable, Hashable {
+nonisolated struct Genre: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
 }
 
 /// Response for TMDB credits endpoint
-struct TMDBCreditsResponse: Codable {
+nonisolated struct TMDBCreditsResponse: Codable {
     let id: Int
     let cast: [CastMember]
     let crew: [CrewMember]
 }
 
 /// Cast member from TMDB
-struct CastMember: Codable, Identifiable, Hashable {
+nonisolated struct CastMember: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let character: String
@@ -104,7 +104,7 @@ struct CastMember: Codable, Identifiable, Hashable {
 }
 
 /// Crew member from TMDB
-struct CrewMember: Codable, Identifiable, Hashable {
+nonisolated struct CrewMember: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let job: String
@@ -115,7 +115,7 @@ struct CrewMember: Codable, Identifiable, Hashable {
 // MARK: - Collection Models
 
 /// Movie collection reference from detail response
-struct MovieCollection: Codable, Identifiable, Hashable {
+nonisolated struct MovieCollection: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let posterPath: String?
@@ -133,7 +133,7 @@ struct MovieCollection: Codable, Identifiable, Hashable {
 }
 
 /// Full collection response from TMDB /collection/{id}
-struct TMDBCollectionResponse: Codable, Identifiable {
+nonisolated struct TMDBCollectionResponse: Codable, Identifiable {
     let id: Int
     let name: String
     let overview: String?
@@ -143,7 +143,7 @@ struct TMDBCollectionResponse: Codable, Identifiable {
 }
 
 /// Movie within a collection
-struct CollectionMovie: Codable, Identifiable, Hashable {
+nonisolated struct CollectionMovie: Codable, Identifiable, Hashable {
     let id: Int
     let title: String
     let overview: String?
@@ -196,14 +196,14 @@ struct CollectionMovie: Codable, Identifiable, Hashable {
 // MARK: - Person Credits Models
 
 /// Response for TMDB /person/{id}/movie_credits
-struct TMDBPersonCreditsResponse: Codable {
+nonisolated struct TMDBPersonCreditsResponse: Codable {
     let id: Int
     let cast: [PersonCastCredit]
     let crew: [PersonCrewCredit]
 }
 
 /// Cast credit for a person (movies they acted in)
-struct PersonCastCredit: Codable, Identifiable, Hashable {
+nonisolated struct PersonCastCredit: Codable, Identifiable, Hashable {
     let id: Int
     let title: String?
     let character: String?
@@ -250,7 +250,7 @@ struct PersonCastCredit: Codable, Identifiable, Hashable {
 }
 
 /// Crew credit for a person (movies they worked on)
-struct PersonCrewCredit: Codable, Identifiable, Hashable {
+nonisolated struct PersonCrewCredit: Codable, Identifiable, Hashable {
     let id: Int
     let title: String?
     let job: String?
@@ -305,7 +305,7 @@ struct PersonCrewCredit: Codable, Identifiable, Hashable {
 // MARK: - Person Detail Models
 
 /// Response for TMDB /person/{id}
-struct TMDBPersonResponse: Codable, Identifiable {
+nonisolated struct TMDBPersonResponse: Codable, Identifiable {
     let id: Int
     let name: String
     let biography: String?
@@ -339,14 +339,14 @@ struct TMDBPersonResponse: Codable, Identifiable {
 // MARK: - Person Combined Credits Models
 
 /// Response for TMDB /person/{id}/combined_credits
-struct TMDBPersonCombinedCreditsResponse: Codable {
+nonisolated struct TMDBPersonCombinedCreditsResponse: Codable {
     let id: Int
     let cast: [PersonCombinedCastCredit]
     let crew: [PersonCombinedCrewCredit]
 }
 
 /// Cast credit from combined credits (movies + TV)
-struct PersonCombinedCastCredit: Codable, Identifiable, Hashable {
+nonisolated struct PersonCombinedCastCredit: Codable, Identifiable, Hashable {
     let id: Int
     let mediaType: MediaType?
     let title: String?
@@ -395,7 +395,7 @@ struct PersonCombinedCastCredit: Codable, Identifiable, Hashable {
 }
 
 /// Crew credit from combined credits (movies + TV)
-struct PersonCombinedCrewCredit: Codable, Identifiable, Hashable {
+nonisolated struct PersonCombinedCrewCredit: Codable, Identifiable, Hashable {
     let id: Int
     let mediaType: MediaType?
     let title: String?
@@ -451,7 +451,7 @@ struct PersonCombinedCrewCredit: Codable, Identifiable, Hashable {
 // MARK: - Person Search Models
 
 /// Response for TMDB /search/person
-struct TMDBPersonSearchResponse: Codable {
+nonisolated struct TMDBPersonSearchResponse: Codable {
     let page: Int
     let results: [TMDBPersonSearchResult]
     let totalPages: Int
@@ -459,7 +459,7 @@ struct TMDBPersonSearchResponse: Codable {
 }
 
 /// Individual person search result
-struct TMDBPersonSearchResult: Codable, Identifiable, Hashable {
+nonisolated struct TMDBPersonSearchResult: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let profilePath: String?
@@ -472,14 +472,14 @@ struct TMDBPersonSearchResult: Codable, Identifiable, Hashable {
 
 // MARK: - Collection Search
 
-struct TMDBCollectionSearchResponse: Codable {
+nonisolated struct TMDBCollectionSearchResponse: Codable {
     let page: Int
     let results: [TMDBCollectionSearchResult]
     let totalPages: Int
     let totalResults: Int
 }
 
-struct TMDBCollectionSearchResult: Codable, Identifiable, Hashable {
+nonisolated struct TMDBCollectionSearchResult: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let posterPath: String?
