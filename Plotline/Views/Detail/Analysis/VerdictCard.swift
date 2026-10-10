@@ -31,6 +31,9 @@ nonisolated struct VerdictCardContent: Hashable, Sendable {
 
     static let credit = "Ratings: TMDB · Analysis: Plotline"
 
+    /// Shared with Discover's featured series, which draws the same fallback.
+    static let seasonAveragesCaption = "Season averages, weighted by votes"
+
     /// Every line of text on the card, for tests.
     var allText: [String] {
         var lines = [
@@ -76,7 +79,7 @@ extension VerdictCardContent {
             curveCaption = "Episode ratings in broadcast order"
         } else {
             curve = analysis.seasons.map(\.weightedAverage)
-            curveCaption = "Season averages, weighted by votes"
+            curveCaption = Self.seasonAveragesCaption
         }
 
         let status = SeriesVerdictsView.runStatus(hasEnded: currentStatus.reportedHasEnded, nextEpisodeDate: nextEpisodeDate)
