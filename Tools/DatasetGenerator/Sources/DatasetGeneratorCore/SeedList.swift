@@ -248,7 +248,6 @@ enum SeedList {
         73375,  // Tom Clancy's Jack Ryan
         1415,  // Elementary
         1973,  // 24
-        96815,  // Sex, Explained
         63401,  // We Bare Bears
         1972,  // Battlestar Galactica
         655,  // Star Trek: The Next Generation
@@ -396,7 +395,6 @@ enum SeedList {
         83100,  // Dororo
         105009,  // Tokyo Revengers
         90937,  // BEASTARS
-        94667,  // De viaje con los Derbez
         74016,  // The Resident
         2352,  // The Nanny
         82739,  // Rascal Does Not Dream of Bunny Girl Senpai
@@ -678,7 +676,6 @@ enum SeedList {
         39358,  // Revenge
         91275,  // Unbelievable
         86850,  // Dracula
-        110290,  // Mums Make Porn
         98387,  // Rubi
         926,  // Scooby-Doo, Where Are You!
         4608,  // 30 Rock
@@ -987,34 +984,39 @@ enum SeedList {
         36,  // Medium
         135340,  // Happiness
         14929,  // Heartland
+        32605,  // The Looney Tunes Show
+        155,  // 3rd Rock from the Sun
+        286801,  // Monster: The Ed Gein Story
         69998,  // Hugo Chávez, El Comandante
         61929,  // The Jinx
         95171,  // Prehistoric Planet
-        129035,  // The Walking Dead: Origins
         83880,  // Our Planet
         1430,  // Cosmos: A Personal Voyage
         103506,  // Jeffrey Epstein: Filthy Rich
         99626,  // The Trials of Gabriel Fernandez
-        127700,  // Welcome to Earth
         128876,  // The Beatles: Get Back
         16946,  // Life
         13579,  // The Blue Planet
         85833,  // Conversations with a Killer: The Ted Bundy Tapes
         116989,  // Crime Scene: The Vanishing at the Cecil Hotel
-        66185,  // The Story of God with Morgan Freeman
         114705,  // Night Stalker: The Hunt for a Serial Killer
         74313,  // Blue Planet II
         111119,  // Súbete a mi moto
         96481,  // Rise of Empires: Ottoman
-        105177,  // Unsolved Mysteries
-        58957,  // Nathan for You
         103847,  // MATARIFE
         8724,  // Frozen Planet
         77601,  // Wild Wild Country
         103026,  // Undertaker: The Last Ride
-        105288,  // Down to Earth with Zac Efron
-        83247,  // Haunted
         93736,  // Age of Samurai: Battle for Japan
+        209167,  // Conversations with a Killer: The Jeffrey Dahmer Tapes
+        61314,  // Apocalypse: World War I
+        153519,  // Neymar: The Perfect Chaos
+        79126,  // Evil Genius
+        42154,  // World War II in Colour
+        204284,  // The Rehearsal
+        106754,  // High Score
+        226135,  // Arnold
+        132719,  // Money Heist: From Tokyo to Berlin
         17035,  // Generation Kill
         2947,  // Veep
         66871,  // SIX
@@ -1033,8 +1035,6 @@ enum SeedList {
         95603,  // Kuruluş Osman
         93256,  // Cautious Hero: The Hero Is Overpowered but Overly Cautious
         70215,  // The White Princess
-        82744,  // Catch-22
-        61314,  // Apocalypse: World War I
         365,  // Jericho
         215866,  // American Primeval
         1018,  // Bonanza

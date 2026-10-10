@@ -46,5 +46,18 @@ enum SeedCuration {
         1428,  // MythBusters — standalone experiments, no episode arc
         15826,  // 1000 Ways to Die — unconnected anthology of deaths
         32608,  // Ancient Aliens — hundreds of standalone talking-head episodes
+        96815,  // Sex, Explained — standalone-topic explainer docuseries, no episode arc
+        105288,  // Down to Earth with Zac Efron — standalone travel docuseries
+        127700,  // Welcome to Earth — standalone adventure docuseries
+        58957,  // Nathan for You — reality-format standalone segments
+        94667,  // De viaje con los Derbez — travel reality
+        83247,  // Haunted — anthology of unconnected true stories
+        105177,  // Unsolved Mysteries — anthology of unrelated cases
+        110290,  // Mums Make Porn — reality
+        66185,  // The Story of God with Morgan Freeman — topic-per-episode docuseries
+        129035,  // The Walking Dead: Origins — recap series
+        90,  // Mayday — standalone air-disaster investigations, no episode arc
+        34014,  // An Idiot Abroad — travel reality, standalone trips
+        113178,  // Alien Worlds — standalone speculative-nature episodes
     ]
 }
