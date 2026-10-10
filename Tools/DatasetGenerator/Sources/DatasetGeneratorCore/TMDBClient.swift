@@ -27,13 +27,25 @@ enum TMDBClientError: Error {
 }
 
 struct TMDBClient {
+    typealias Sleep = @Sendable (_ seconds: Double) async throws -> Void
+
+    /// One first try and two retries. Enough to ride out a rate-limit window
+    /// or a brief 5xx, few enough that a dead endpoint fails the run quickly.
+    static let maxAttempts = 3
+
     private let apiKey: String
     private let session: URLSession
+    private let sleep: Sleep
     private let baseURL = "https://api.themoviedb.org/3"
 
-    init(apiKey: String, session: URLSession = .shared) {
+    init(
+        apiKey: String,
+        session: URLSession = .shared,
+        sleep: @escaping Sleep = { try await Task.sleep(nanoseconds: UInt64($0 * 1_000_000_000)) }
+    ) {
         self.apiKey = apiKey
         self.session = session
+        self.sleep = sleep
     }
 
     // MARK: - Requests
@@ -58,18 +70,51 @@ struct TMDBClient {
         return all
     }
 
-    private func get(_ path: String) async throws -> Data {
+    /// How long to wait before attempt `attempt + 1`, or nil to stop.
+    ///
+    /// Only 429 and 5xx are worth another try. At ~8,000 requests a run, a
+    /// single unretried blip used to drop a series into `skipped` as a fetch
+    /// failure — silently thinning the dataset. `Retry-After` is honoured when
+    /// it is a number of seconds (capped, so a hostile header cannot stall the
+    /// run); an HTTP-date or junk falls back to 2 s, then 4 s.
+    static func retryDelay(status: Int, retryAfter: String?, attempt: Int) -> Double? {
+        guard attempt < maxAttempts else { return nil }
+        guard status == 429 || (500...599).contains(status) else { return nil }
+
+        if let retryAfter,
+           let seconds = Double(retryAfter.trimmingCharacters(in: .whitespaces)),
+           seconds >= 0 {
+            return min(seconds, 60)
+        }
+        return pow(2, Double(attempt))
+    }
+
+    private func get(_ path: String, query: [URLQueryItem] = []) async throws -> Data {
         var components = URLComponents(string: baseURL + path)!
         components.queryItems = [
             URLQueryItem(name: "api_key", value: apiKey),
             URLQueryItem(name: "language", value: "en-US")
-        ]
+        ] + query
+        let url = components.url!
 
-        let (data, response) = try await session.data(from: components.url!)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw TMDBClientError.badStatus((response as? HTTPURLResponse)?.statusCode ?? -1)
+        var attempt = 1
+        while true {
+            let (data, response) = try await session.data(from: url)
+            let http = response as? HTTPURLResponse
+            let status = http?.statusCode ?? -1
+            if (200...299).contains(status) { return data }
+
+            // Only the status code leaves this scope — see `FetchFailure`.
+            guard let delay = Self.retryDelay(
+                status: status,
+                retryAfter: http?.value(forHTTPHeaderField: "Retry-After"),
+                attempt: attempt
+            ) else {
+                throw TMDBClientError.badStatus(status)
+            }
+            try await sleep(delay)
+            attempt += 1
         }
-        return data
     }
 
     // MARK: - Decoding
