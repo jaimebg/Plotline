@@ -50,10 +50,10 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — 388 Swift Testing functions (four parameterised). Day to day,
+# Run tests — 445 passing test cases (a parameterised function counts once per argument). Day to day,
 # skip the UI suites: they take ~15 min and are checked by hand during
 # development. They stay in the scheme on purpose — release-preflight.sh runs
-# the 8-method cold-start UI suite (starved of a TMDB key) and capture.sh runs
+# the 9-method cold-start UI suite (starved of a TMDB key) and capture.sh runs
 # ScreenshotCaptureTests, both via -only-testing, which cannot reach a target
 # the scheme marks skipped.
 xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=iOS Simulator,name=iPhone 17' -skip-testing:PlotlineUITests test
@@ -111,6 +111,7 @@ Episode payloads are cached on disk (`DiskCache`) because a long-running series 
 - `DiskCache` - Generic on-disk cache used to avoid redundant network calls
 - `Analysis/SeriesAnalysisEngine` - Pure function over episode ratings. Foundation only, no networking, no I/O
 - `DatasetStore` - Reads the bundled dataset. `@MainActor`, deliberately not `@Observable`
+- `DiscoverRotation` - Which series Discover features and which genre shelves it shows, by day. Pure, date injected, so a test can pin any day; neighbouring genre shelves come from different base shelves
 - `WatchRegionStore` - Which region's streaming availability to show. `@MainActor`, same shape as `DatasetStore`
 
 **Models** (`Models/`)
@@ -139,7 +140,7 @@ Four files under `Plotline/` are also compiled by the SwiftPM tool in `Tools/Dat
 
 ### The Bundled Dataset
 
-`Resources/PlotlineDataset.json` ships a pre-analysed set of series and five curated lists. It is a **seed and a fallback, never the truth**: the app shows it in the first frame and offline, and a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch cannot replace a full analysis with a fragment.
+`Resources/PlotlineDataset.json` ships a pre-analysed set of series, five curated shelves, plus the same shelves narrowed to a genre. It is a **seed and a fallback, never the truth**: the app shows it in the first frame and offline, and a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch cannot replace a full analysis with a fragment.
 
 Regenerate with the tool in `Tools/DatasetGenerator/`. It has its own test suite (`swift test`).
 

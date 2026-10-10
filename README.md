@@ -56,7 +56,9 @@ The engine also identifies episodes that stand out within their season. That out
 ## Features
 
 ### Discover
+- **Featured series** — one analysed series a day at the top of Discover, with its season curve and verdict
 - **Analysis-derived shelves** — *Shows That Never Slip*, *Knows When It Peaked*, *Worth the Wait*, *They Stick the Landing*, *Brilliant and Baffling*. Not genres; groups derived by analysing every episode, each with its measurement spelled out
+- **See all** — every shelf opens as a full list, each series with the verdict that put it there
 - **Trending & popular** from TMDB, and search across movies and series
 - **Browse by genre** with a media-type toggle and sort options
 - **What Should I Watch?** — pick a mood and a format, get a match
@@ -91,7 +93,7 @@ The engine also identifies episodes that stand out within their season. That out
 
 ## Works before it can reach the network
 
-`Plotline/Resources/PlotlineDataset.json` ships **a pre-analysed set of series and five curated lists**. The app renders them in the first frame and offline.
+`Plotline/Resources/PlotlineDataset.json` ships **a pre-analysed set of series, five curated shelves, plus the same shelves narrowed to a genre**. The app renders them in the first frame and offline.
 
 It is a seed and a fallback, **never the truth**: a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch can never replace a full analysis with a fragment.
 
@@ -191,7 +193,7 @@ Four files — `EpisodeMetric`, `SeriesAnalysis`, `PlotlineDataset` and `SeriesA
 ## Testing
 
 ```bash
-# App suites: 388 Swift Testing functions, plus the cold-start UI suite
+# App suites: 445 passing test cases (parameterised arguments counted separately), plus the cold-start UI suite
 xcodebuild -project Plotline.xcodeproj -scheme Plotline \
   -destination 'platform=iOS Simulator,name=iPhone 17' test
 
