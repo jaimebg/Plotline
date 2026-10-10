@@ -28,8 +28,10 @@ nonisolated enum DiscoverRotation {
 
     /// Up to `count` genre shelves, each from a different genre: genres in
     /// ascending id, starting at the day's index and wrapping; within a genre,
-    /// its shelves in the order given (the generator's shelf order), also by
-    /// the day's index.
+    /// its shelves in the order given (the generator's shelf order), at the
+    /// day's index plus the genre's position in the sorted ids. The offset
+    /// keeps neighbouring genres on different base shelves, and each genre
+    /// still advances one shelf a day.
     static func genreShelves(
         from lists: [CuratedList], on date: Date, calendar: Calendar, count: Int = genreShelfCount
     ) -> [CuratedList] {
@@ -44,8 +46,9 @@ nonisolated enum DiscoverRotation {
         let day = dayIndex(of: date, calendar: calendar)
         let start = wrapped(day, genres.count)
         return (0..<min(count, genres.count)).compactMap { offset in
-            guard let shelves = byGenre[genres[(start + offset) % genres.count]] else { return nil }
-            return shelves[wrapped(day, shelves.count)]
+            let position = (start + offset) % genres.count
+            guard let shelves = byGenre[genres[position]] else { return nil }
+            return shelves[wrapped(day + position, shelves.count)]
         }
     }
 

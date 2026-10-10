@@ -104,7 +104,21 @@ struct DiscoverRotationTests {
                 .first { CuratedListID($0.id)?.genreId == 18 }?.id
         }
         // Drama's lists in input order: never-decline, falls-off, perfect-ending.
-        #expect(drama == ["never-decline/18", "falls-off/18", "perfect-ending/18", "never-decline/18"])
+        // Drama is genre position 1 of 4, so its index is day + 1: it starts
+        // one shelf in and advances one shelf a day.
+        #expect(drama == ["falls-off/18", "perfect-ending/18", "never-decline/18", "falls-off/18"])
+    }
+
+    @Test("a day's genre shelves come from three different base shelves")
+    func neighboursDiffer() {
+        let bases = ["never-decline", "falls-off", "slow-burn", "perfect-ending", "rollercoaster"]
+        let lists = [16, 18, 35].flatMap { genre in bases.map { list("\($0)/\(genre)") } }
+        for day in 1...10 {
+            let shelves = DiscoverRotation.genreShelves(from: lists, on: date(2026, 1, day), calendar: Self.calendar)
+            let picked = shelves.compactMap { CuratedListID($0.id)?.base }
+            #expect(picked.count == 3)
+            #expect(Set(picked).count == 3, "day \(day): \(picked)")
+        }
     }
 
     @Test("fewer genres than slots shows each once; none shows none; main and malformed ids are ignored")
