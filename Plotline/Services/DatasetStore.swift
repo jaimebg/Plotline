@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// Reads the analysis dataset that ships inside the app bundle.
 ///
@@ -23,6 +24,10 @@ final class DatasetStore {
     private var didAttemptLoad = false
     private var index: [Int: DatasetEntry] = [:]
 
+    /// Brackets the decode in Instruments' Points of Interest. A static name
+    /// and no payload, so it carries nothing worth hiding in a release build.
+    private static let signposter = OSSignposter(subsystem: "com.jbgsoft.Plotline", category: .pointsOfInterest)
+
     private init() {}
 
     /// Decodes the bundled dataset, once. Returns nil when the file is missing
@@ -32,6 +37,8 @@ final class DatasetStore {
     func load() -> PlotlineDataset? {
         if didAttemptLoad { return cached }
         didAttemptLoad = true
+        let signpost = Self.signposter.beginInterval("DatasetStore.load")
+        defer { Self.signposter.endInterval("DatasetStore.load", signpost) }
 
         guard let url = Bundle.main.url(forResource: "PlotlineDataset", withExtension: "json"),
               let data = try? Data(contentsOf: url),
