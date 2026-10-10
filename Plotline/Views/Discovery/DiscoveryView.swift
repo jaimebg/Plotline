@@ -15,6 +15,10 @@ struct DiscoveryView: View {
     /// field; the query itself still decides everything below that.
     @State private var isSearchPresented = false
     @State private var navigationPath = NavigationPath()
+    /// Today's picks. Recomputed on appearance and pull-to-refresh, so a day
+    /// rolling over while the app sits in the background is picked up.
+    @State private var featured: DatasetEntry?
+    @State private var genreShelves: [CuratedList] = []
     @Namespace private var namespace
 
     var body: some View {
@@ -42,6 +46,7 @@ struct DiscoveryView: View {
                     GenreResultsView(genre: genre)
                 }
                 .refreshable {
+                    refreshRotation()
                     smartListsVM.invalidate()
                     refreshPersonalisation()
                     await viewModel.refresh()
@@ -65,6 +70,7 @@ struct DiscoveryView: View {
         // Both: a query set before this view exists (Siri on a cold launch)
         // never produces a change for `onChange` to see.
         .onAppear {
+            refreshRotation()
             consumePendingSearchQuery()
             refreshPersonalisation()
             consumePendingDetail()
@@ -82,6 +88,12 @@ struct DiscoveryView: View {
     }
 
     // MARK: - Personalisation
+
+    private func refreshRotation(now: Date = .now) {
+        let store = DatasetStore.shared
+        featured = DiscoverRotation.featured(from: store.entries, on: now, calendar: .current)
+        genreShelves = DiscoverRotation.genreShelves(from: store.genreLists, on: now, calendar: .current)
+    }
 
     /// Which favourites the taste profile and smart lists describe.
     private var favoritesFingerprint: String {
@@ -143,13 +155,32 @@ struct DiscoveryView: View {
     private var mainContentView: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 28) {
+                featuredSeries
+
                 curatedShelves
+
+                ForEach(genreShelves) { list in
+                    curatedShelf(list)
+                }
 
                 networkSections
             }
             .padding(.vertical)
         }
         .scrollIndicators(.hidden)
+    }
+
+    @ViewBuilder
+    private var featuredSeries: some View {
+        if let entry = featured {
+            NavigationLink(value: entry.asMediaItem) {
+                FeaturedSeriesCard(entry: entry)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal)
+            .readableWidth()
+            .accessibilityIdentifier(AccessibilityAnchors.discoverFeatured)
+        }
     }
 
     /// Everything that depends on TMDB, with its own loading and failure

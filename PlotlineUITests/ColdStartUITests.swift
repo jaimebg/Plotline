@@ -113,6 +113,16 @@ final class ColdStartUITests: XCTestCase {
         )
     }
 
+    func testDiscoverShowsFeaturedSeries() {
+        openTab("Discover")
+        let featured = app.descendants(matching: .any)
+            .matching(identifier: UITestAnchors.discoverFeatured).firstMatch
+        XCTAssertTrue(
+            featured.waitForExistence(timeout: 10),
+            "Discover rendered no featured series on a clean install"
+        )
+    }
+
     func testWatchlistOffersSuggestionsWithNothingSaved() {
         openTab("Library")
         openLibrarySegment("Watchlist")

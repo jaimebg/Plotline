@@ -10,6 +10,9 @@ import Foundation
 /// `PlotlineUITests/UITestAnchors.swift` carries the same literals. The copy is
 /// deliberate — see the comment there.
 enum AccessibilityAnchors {
+    /// Discover's featured series. Bundled data only, so it renders with no
+    /// TMDB key on a clean install.
+    static let discoverFeatured = "plotline.discover.featured"
     static let discoverShelf = "plotline.discover.shelf"
     static let favoritesSuggestions = "plotline.favorites.suggestions"
     static let favoritesSavedRow = "plotline.favorites.savedRow"

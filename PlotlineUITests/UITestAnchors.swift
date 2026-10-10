@@ -9,6 +9,7 @@ import Foundation
 /// that disappears from the app show up red here, which is the whole point of
 /// this suite.
 enum UITestAnchors {
+    static let discoverFeatured = "plotline.discover.featured"
     static let discoverShelf = "plotline.discover.shelf"
     static let favoritesSuggestions = "plotline.favorites.suggestions"
     static let favoritesSavedRow = "plotline.favorites.savedRow"
