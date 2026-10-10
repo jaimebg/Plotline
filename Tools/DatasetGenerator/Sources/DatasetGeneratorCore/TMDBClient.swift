@@ -21,6 +21,18 @@ struct TMDBSeriesDetails {
     let firstAirDate: String?
 }
 
+/// One row of `/discover/tv`: just enough to choose seeds and name them.
+struct SeedCandidate: Equatable {
+    let id: Int
+    let name: String
+    let genreIds: [Int]
+}
+
+struct DiscoverPage {
+    let candidates: [SeedCandidate]
+    let totalPages: Int
+}
+
 enum TMDBClientError: Error {
     case badStatus(Int)
     case missingAPIKey
@@ -68,6 +80,20 @@ struct TMDBClient {
             try await Task.sleep(nanoseconds: 120_000_000)
         }
         return all
+    }
+
+    /// One page of TMDB's series listing, most-voted first. Votes are what the
+    /// engine's reliability check needs, so this order fails it least often.
+    func discoverSeries(page: Int, genreId: Int?, excludingGenres excluded: Set<Int>) async throws -> DiscoverPage {
+        var query = [
+            URLQueryItem(name: "sort_by", value: "vote_count.desc"),
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "without_genres", value: excluded.sorted().map(String.init).joined(separator: "|")),
+        ]
+        if let genreId {
+            query.append(URLQueryItem(name: "with_genres", value: String(genreId)))
+        }
+        return try Self.decodeDiscover(try await get("/discover/tv", query: query))
     }
 
     /// How long to wait before attempt `attempt + 1`, or nil to stop.
@@ -178,6 +204,29 @@ struct TMDBClient {
                 stillPath: episode.stillPath
             )
         }
+    }
+
+    static func decodeDiscover(_ data: Data) throws -> DiscoverPage {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let raw = try decoder.decode(RawDiscover.self, from: data)
+        return DiscoverPage(
+            candidates: raw.results.map {
+                SeedCandidate(id: $0.id, name: $0.name ?? "", genreIds: $0.genreIds ?? [])
+            },
+            totalPages: raw.totalPages ?? 1
+        )
+    }
+
+    private struct RawDiscover: Decodable {
+        let results: [RawDiscoverResult]
+        let totalPages: Int?
+    }
+
+    private struct RawDiscoverResult: Decodable {
+        let id: Int
+        let name: String?
+        let genreIds: [Int]?
     }
 
     private struct RawDetails: Decodable {

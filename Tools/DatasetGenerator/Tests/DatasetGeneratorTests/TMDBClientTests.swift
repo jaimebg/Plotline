@@ -135,4 +135,20 @@ struct TMDBClientTests {
         #expect(SeedList.seriesIds.count >= 20)
         #expect(Set(SeedList.seriesIds).count == SeedList.seriesIds.count)
     }
+
+    @Test("reads a discover page's candidates and page count")
+    func decodesDiscover() throws {
+        let json = """
+        {"page": 1, "total_pages": 7, "results": [
+          {"id": 1396, "name": "Breaking Bad", "genre_ids": [18, 80]},
+          {"id": 2, "genre_ids": null}
+        ]}
+        """
+        let page = try TMDBClient.decodeDiscover(Data(json.utf8))
+        #expect(page.totalPages == 7)
+        #expect(page.candidates == [
+            SeedCandidate(id: 1396, name: "Breaking Bad", genreIds: [18, 80]),
+            SeedCandidate(id: 2, name: "", genreIds: []),
+        ])
+    }
 }
