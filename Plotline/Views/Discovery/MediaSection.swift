@@ -6,6 +6,8 @@ struct MediaSection: View {
     let subtitle: String?
     let items: [MediaItem]
     let style: MediaCard.CardStyle
+    let eyebrow: String?
+    let seeAll: CuratedList?
 
     @Environment(\.navigationNamespace) private var namespace
 
@@ -13,12 +15,16 @@ struct MediaSection: View {
         title: String,
         subtitle: String? = nil,
         items: [MediaItem],
-        style: MediaCard.CardStyle = .poster
+        style: MediaCard.CardStyle = .poster,
+        eyebrow: String? = nil,
+        seeAll: CuratedList? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
         self.items = items
         self.style = style
+        self.eyebrow = eyebrow
+        self.seeAll = seeAll
     }
 
     var body: some View {
@@ -27,9 +33,27 @@ struct MediaSection: View {
             // above the shelf. It used to sit under the poster row, where the
             // explanation arrived after the thing being explained.
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(.title2, weight: .bold))
-                    .foregroundStyle(.primary)
+                if let eyebrow {
+                    Text(eyebrow)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.plotlineGoldText)
+                }
+
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(title)
+                        .font(.system(.title2, weight: .bold))
+                        .foregroundStyle(.primary)
+
+                    Spacer(minLength: 8)
+
+                    if let seeAll {
+                        NavigationLink(value: seeAll) {
+                            Text("See all")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .accessibilityLabel("See all, \(accessibleTitle)")
+                    }
+                }
 
                 if let subtitle {
                     Text(subtitle)
@@ -61,7 +85,13 @@ struct MediaSection: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("\(title) section")
+        .accessibilityLabel("\(accessibleTitle) section")
+    }
+
+    /// A genre shelf shares its title with a main shelf; the genre tells
+    /// VoiceOver users which is which.
+    private var accessibleTitle: String {
+        eyebrow.map { "\($0.capitalized), \(title)" } ?? title
     }
 
     // MARK: - Placeholder

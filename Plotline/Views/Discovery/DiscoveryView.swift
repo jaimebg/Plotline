@@ -35,6 +35,9 @@ struct DiscoveryView: View {
                     MediaDetailView(media: item)
                         .navigationTransition(.zoom(sourceID: item.id, in: namespace))
                 }
+                .navigationDestination(for: CuratedList.self) { list in
+                    CuratedListView(list: list)
+                }
                 .navigationDestination(for: CuratedGenre.self) { genre in
                     GenreResultsView(genre: genre)
                 }
@@ -229,19 +232,29 @@ struct DiscoveryView: View {
     @ViewBuilder
     private var curatedShelves: some View {
         ForEach(DatasetStore.shared.mainLists) { list in
-            if let title = CuratedListCopy.title(for: list.id) {
-                VStack(alignment: .leading, spacing: 0) {
-                    MediaSection(
-                        title: title,
-                        subtitle: CuratedListCopy.subtitle(for: list.id),
-                        items: DatasetStore.shared.entries(for: list).map(\.asMediaItem)
-                    )
-                }
-                .accessibilityElement(children: .contain)
-                .accessibilityLabel(title)
-                .accessibilityHint(CuratedListCopy.subtitle(for: list.id) ?? "")
-                .accessibilityIdentifier(AccessibilityAnchors.discoverShelf)
+            curatedShelf(list)
+        }
+    }
+
+    /// One curated shelf, main or genre. Shared so both carry the same anchor,
+    /// copy rules and "See all".
+    @ViewBuilder
+    private func curatedShelf(_ list: CuratedList) -> some View {
+        if let title = CuratedListCopy.title(for: list.id) {
+            let eyebrow = CuratedListCopy.eyebrow(for: list.id)
+            VStack(alignment: .leading, spacing: 0) {
+                MediaSection(
+                    title: title,
+                    subtitle: CuratedListCopy.subtitle(for: list.id),
+                    items: DatasetStore.shared.entries(for: list).map(\.asMediaItem),
+                    eyebrow: eyebrow,
+                    seeAll: list
+                )
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(eyebrow.map { "\($0.capitalized), \(title)" } ?? title)
+            .accessibilityHint(CuratedListCopy.subtitle(for: list.id) ?? "")
+            .accessibilityIdentifier(AccessibilityAnchors.discoverShelf)
         }
     }
 
