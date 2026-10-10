@@ -48,6 +48,15 @@ struct DatasetStoreTests {
         #expect(DatasetStore.shared.entry(forTMDBId: -1) == nil)
     }
 
+    @Test("the main lists are the five shelves, and genre lists never mix in")
+    func mainListsAreTheFiveShelves() {
+        let store = DatasetStore.shared
+        #expect(store.mainLists.map(\.id).allSatisfy { !$0.contains("/") })
+        #expect(store.genreLists.allSatisfy { CuratedListID($0.id)?.genreId != nil })
+        #expect(store.genreLists.allSatisfy { CuratedListCopy.title(for: $0.id) != nil })
+        #expect(store.mainLists.count + store.genreLists.count <= store.lists.count)
+    }
+
     @Test("entry ids are unique, so the lookup index cannot lose entries")
     func entryIdsAreUnique() {
         let ids = DatasetStore.shared.entries.map(\.tmdbId)
@@ -71,6 +80,31 @@ struct DatasetPresentationTests {
     @Test("an unknown list id has no copy")
     func unknownIdHasNoCopy() {
         #expect(CuratedListCopy.title(for: "not-a-list") == nil)
+    }
+
+    @Test("a genre shelf carries its base shelf's copy, word for word")
+    func genreShelfUsesBaseCopy() {
+        #expect(CuratedListCopy.title(for: "falls-off/18") == CuratedListCopy.title(for: "falls-off"))
+        #expect(CuratedListCopy.subtitle(for: "falls-off/18") == CuratedListCopy.subtitle(for: "falls-off"))
+    }
+
+    @Test("the genre is an eyebrow, and only on a genre shelf")
+    func eyebrow() {
+        #expect(CuratedListCopy.eyebrow(for: "never-decline/18") == "DRAMA")
+        #expect(CuratedListCopy.eyebrow(for: "never-decline") == nil)
+    }
+
+    @Test("a genre the app cannot name hides the shelf rather than titling it blank")
+    func genreWithoutNameIsHidden() {
+        #expect(GenreLookup.name(for: 999_999) == nil)
+        #expect(CuratedListCopy.title(for: "falls-off/999999") == nil)
+        #expect(CuratedListCopy.eyebrow(for: "falls-off/999999") == nil)
+    }
+
+    @Test("an unknown or malformed base has no copy, genre or not")
+    func unknownBaseHasNoCopy() {
+        #expect(CuratedListCopy.title(for: "not-a-list/18") == nil)
+        #expect(CuratedListCopy.title(for: "falls-off/18/35") == nil)
     }
 
     @Test("an entry converts to a MediaItem the existing views can render")

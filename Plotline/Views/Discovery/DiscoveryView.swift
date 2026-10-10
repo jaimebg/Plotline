@@ -228,7 +228,7 @@ struct DiscoveryView: View {
     /// from being an empty screen.
     @ViewBuilder
     private var curatedShelves: some View {
-        ForEach(DatasetStore.shared.lists) { list in
+        ForEach(DatasetStore.shared.mainLists) { list in
             if let title = CuratedListCopy.title(for: list.id) {
                 VStack(alignment: .leading, spacing: 0) {
                     MediaSection(

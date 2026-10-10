@@ -25,7 +25,7 @@ struct ColdStartTests {
         // The generator drops a list entirely when it falls below its minimum
         // size, and the other assertions here only iterate the lists that are
         // present — so a vanished shelf is invisible to every one of them.
-        #expect(DatasetStore.shared.lists.count == 5)
+        #expect(DatasetStore.shared.mainLists.count == 5)
     }
 
     @Test("every shelf that ships is renderable")
@@ -65,7 +65,7 @@ struct ColdStartTests {
         // floor near that catches the loss of any shelf of five or more; a
         // floor far below it catches nothing, which is worse than no test
         // because it reads as coverage.
-        let total = DatasetStore.shared.lists.reduce(0) { $0 + $1.tmdbIds.count }
+        let total = DatasetStore.shared.mainLists.reduce(0) { $0 + $1.tmdbIds.count }
         #expect(total >= 55, "only \(total) titles across all shelves — a shelf may have been lost")
     }
 }

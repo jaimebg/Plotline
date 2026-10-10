@@ -72,6 +72,16 @@ final class DatasetStore {
         load()?.lists ?? []
     }
 
+    /// The five main shelves, in the dataset's order.
+    var mainLists: [CuratedList] {
+        lists.filter { list in CuratedListID(list.id).map { $0.genreId == nil } ?? false }
+    }
+
+    /// Genre shelves the app can title: each a main shelf narrowed to a genre.
+    var genreLists: [CuratedList] {
+        lists.filter { CuratedListID($0.id)?.genreId != nil && CuratedListCopy.title(for: $0.id) != nil }
+    }
+
     func entry(forTMDBId id: Int) -> DatasetEntry? {
         load()
         return index[id]
