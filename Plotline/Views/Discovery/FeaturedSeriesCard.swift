@@ -78,23 +78,24 @@ struct FeaturedSeriesCard: View {
                 .foregroundStyle(.secondary)
             Chart {
                 ForEach(Array(averages.enumerated()), id: \.offset) { index, average in
-                    LineMark(x: .value("Season", index + 1), y: .value("Average", average))
+                    LineMark(x: .value("Season", Double(index + 1)), y: .value("Average", average))
                         .interpolationMethod(.catmullRom)
                         .foregroundStyle(Color.plotlineGold)
-                    PointMark(x: .value("Season", index + 1), y: .value("Average", average))
+                    PointMark(x: .value("Season", Double(index + 1)), y: .value("Average", average))
                         .foregroundStyle(Color.plotlineGold)
                         .symbolSize(24)
                 }
             }
             .chartYScale(domain: low...high)
-            .chartXScale(domain: 1...max(averages.count, 2))
+            .chartXScale(domain: 0.5...(Double(max(averages.count, 2)) + 0.5))
             .chartXAxis {
-                AxisMarks(values: .stride(by: 1)) { value in
-                    AxisValueLabel { Text("S\(value.as(Int.self) ?? 0)") }
+                AxisMarks(values: (1...max(averages.count, 1)).map(Double.init)) { value in
+                    AxisValueLabel { Text("S\(Int(value.as(Double.self) ?? 0))") }
                 }
             }
             .chartYAxis(.hidden)
             .frame(height: 80)
+            .accessibilityHidden(true)
         }
     }
 

@@ -17,9 +17,17 @@ struct DiscoveryView: View {
     @State private var navigationPath = NavigationPath()
     /// Today's picks. Recomputed on appearance and pull-to-refresh, so a day
     /// rolling over while the app sits in the background is picked up.
+    /// Seeded in `init` so the first frame already has them.
     @State private var featured: DatasetEntry?
-    @State private var genreShelves: [CuratedList] = []
+    @State private var genreShelves: [CuratedList]
     @Namespace private var namespace
+
+    init() {
+        let store = DatasetStore.shared
+        let now = Date.now
+        _featured = State(initialValue: DiscoverRotation.featured(from: store.entries, on: now, calendar: .current))
+        _genreShelves = State(initialValue: DiscoverRotation.genreShelves(from: store.genreLists, on: now, calendar: .current))
+    }
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
