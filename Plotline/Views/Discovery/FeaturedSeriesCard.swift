@@ -92,7 +92,7 @@ struct FeaturedSeriesCard: View {
             .chartYScale(domain: low...high)
             .chartXScale(domain: 0.5...(Double(max(points.count, 2)) + 0.5))
             .chartXAxis {
-                AxisMarks(values: points.indices.map { Double($0 + 1) }) { value in
+                AxisMarks(values: Self.labelledIndices(count: points.count).map { Double($0 + 1) }) { value in
                     AxisValueLabel { Text(Self.axisLabel(at: value.as(Double.self), in: points)) }
                 }
             }
@@ -100,6 +100,19 @@ struct FeaturedSeriesCard: View {
             .frame(height: 80)
             .accessibilityHidden(true)
         }
+    }
+
+    /// Which points the axis labels, by index. Up to eight points, all of
+    /// them. Past that, every k-th with k = ceil(count / 6), and always the
+    /// last; a sampled point closer than k to the last gives way to it, so no
+    /// two labels sit fewer than k points apart and there are at most seven.
+    /// At iPhone SE width a label per season loses the last one at twelve,
+    /// collides at twenty and is unreadable at thirty-seven.
+    nonisolated static func labelledIndices(count: Int) -> [Int] {
+        guard count > 8 else { return Array(0..<max(count, 0)) }
+        let step = (count + 5) / 6
+        let last = count - 1
+        return stride(from: 0, to: last, by: step).filter { last - $0 >= step } + [last]
     }
 
     /// The label for the point plotted at `position` (1-based).
