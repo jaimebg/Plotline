@@ -39,3 +39,19 @@ struct FeaturedCurveAxisTests {
         #expect(FeaturedSeriesCard.labelledIndices(count: 0).isEmpty)
     }
 }
+
+@MainActor
+@Suite("Featured card backdrop")
+struct FeaturedBackdropTests {
+    @Test("the backdrop loads at w780, never TMDB's original, and not at all without a path")
+    func backdropSize() {
+        let base = ExplorerFixtures.entry(id: 1)
+        let withBackdrop = DatasetEntry(
+            tmdbId: 1, name: base.name, mediaType: "tv", overview: "", posterPath: nil,
+            backdropPath: "/b.jpg", voteAverage: 8, genreIds: [18], firstAirDate: nil,
+            analysis: base.analysis, awards: []
+        )
+        #expect(FeaturedSeriesCard.backdropURL(for: withBackdrop)?.absoluteString == "https://image.tmdb.org/t/p/w780/b.jpg")
+        #expect(FeaturedSeriesCard.backdropURL(for: base) == nil)
+    }
+}

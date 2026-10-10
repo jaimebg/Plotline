@@ -48,6 +48,7 @@ struct CuratedListView: View {
             if let eyebrow = CuratedListCopy.eyebrow(for: list.id) {
                 Text(eyebrow)
                     .font(.caption.weight(.semibold))
+                    .textCase(.uppercase)
                     .foregroundStyle(Color.plotlineGoldText)
             }
             if let subtitle = CuratedListCopy.subtitle(for: list.id) {

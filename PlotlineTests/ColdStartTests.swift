@@ -62,10 +62,13 @@ struct ColdStartTests {
     func shelvesCarryEnoughTitles() {
         // The regenerated dataset ships 450 across five shelves (116 + 65 + 59
         // + 182 + 28 for never-decline, falls-off, slow-burn, perfect-ending
-        // and rollercoaster). The floor is 90% of that total. A
-        // floor near that catches the loss of any shelf of five or more; a
-        // floor far below it catches nothing, which is worse than no test
-        // because it reads as coverage.
+        // and rollercoaster). The floor is 90% of that total, so it catches a
+        // large loss — 46 titles or more, such as any shelf but rollercoaster
+        // vanishing, or every shelf thinning by more than a tenth — but not
+        // rollercoaster's 28 going, nor a few titles here and there. That
+        // every shelf ships is `allShelvesShip`'s job, not this floor's. A
+        // floor far below the total would catch nothing, which is worse than
+        // no test because it reads as coverage.
         let total = DatasetStore.shared.mainLists.reduce(0) { $0 + $1.tmdbIds.count }
         #expect(total >= 405, "only \(total) titles across all shelves — a shelf may have been lost")
     }

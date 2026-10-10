@@ -16,8 +16,8 @@ struct FeaturedCardSourceTests {
         }
     }
 
-    @Test("children are combined under one label that starts with \"Featured series\"")
-    func combinedLabel() throws {
+    @Test("children are ignored under one label that starts with \"Featured series\"")
+    func ignoredChildrenOneLabel() throws {
         let text = try source
         #expect(text.contains(".accessibilityElement(children: .ignore)"))
         #expect(text.contains(".accessibilityLabel(\"Featured series"))

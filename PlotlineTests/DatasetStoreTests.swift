@@ -89,9 +89,12 @@ struct DatasetPresentationTests {
         #expect(CuratedListCopy.subtitle(for: "falls-off/18") == CuratedListCopy.subtitle(for: "falls-off"))
     }
 
-    @Test("the genre is an eyebrow, and only on a genre shelf")
+    @Test("the genre is an eyebrow, by its natural name, and only on a genre shelf")
     func eyebrow() {
-        #expect(CuratedListCopy.eyebrow(for: "never-decline/18") == "DRAMA")
+        // Natural case: the views uppercase it as they draw it, so VoiceOver
+        // reads the word, and accessibility labels use it as it is.
+        #expect(CuratedListCopy.eyebrow(for: "never-decline/18") == "Drama")
+        #expect(CuratedListCopy.eyebrow(for: "falls-off/10765") == "Sci-Fi & Fantasy")
         #expect(CuratedListCopy.eyebrow(for: "never-decline") == nil)
     }
 

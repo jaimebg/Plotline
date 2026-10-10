@@ -35,10 +35,12 @@ enum CuratedListCopy {
     static func title(for id: String) -> String? { resolved(id)?.title }
     static func subtitle(for id: String) -> String? { resolved(id)?.subtitle }
 
-    /// The genre a genre shelf narrows to, as a label above its title.
+    /// The genre a genre shelf narrows to, as a label above its title. Its
+    /// natural name ("Drama"): the views uppercase it as they draw it, so
+    /// VoiceOver reads a word, and accessibility labels can use it as it is.
     static func eyebrow(for id: String) -> String? {
         guard resolved(id) != nil, let genre = CuratedListID(id)?.genreId else { return nil }
-        return GenreLookup.name(for: genre)?.uppercased()
+        return GenreLookup.name(for: genre)
     }
 
     /// Nil for an unknown base, a malformed id, or a genre `GenreLookup`

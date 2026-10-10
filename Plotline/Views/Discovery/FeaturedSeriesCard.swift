@@ -11,10 +11,19 @@ struct FeaturedSeriesCard: View {
         let summary = FeaturedSeriesSummary(entry: entry)
 
         VStack(alignment: .leading, spacing: 0) {
-            CachedAsyncImage(url: entry.asMediaItem.backdropURL) { image in
+            CachedAsyncImage(url: Self.backdropURL(for: entry)) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
-                Rectangle().fill(Color.plotlineBackground)
+                // Offline or still loading: a decorative glyph, as the See-all
+                // rows show, so the band never reads as a broken block.
+                Rectangle()
+                    .fill(Color.plotlineBackground)
+                    .overlay {
+                        Image(systemName: "tv")
+                            .font(.largeTitle)
+                            .foregroundStyle(.secondary)
+                            .accessibilityHidden(true)
+                    }
             }
             .frame(height: 180)
             .frame(maxWidth: .infinity)
@@ -115,17 +124,27 @@ struct FeaturedSeriesCard: View {
         return stride(from: 0, to: last, by: step).filter { last - $0 >= step } + [last]
     }
 
+    /// `w780`, not the `original` that `MediaItem.backdropURL` asks for:
+    /// that can be a 4K file, decoded whole on Discover's first screen for a
+    /// band 180 points tall.
+    static func backdropURL(for entry: DatasetEntry) -> URL? {
+        guard let path = entry.backdropPath, !path.isEmpty else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w780\(path)")
+    }
+
     /// The label for the point plotted at `position` (1-based).
     private static func axisLabel(at position: Double?, in points: [FeaturedSeriesSummary.SeasonPoint]) -> String {
         guard let position, points.indices.contains(Int(position) - 1) else { return "" }
         return points[Int(position) - 1].axisLabel
     }
 
-    /// What VoiceOver reads for the curve: every season, by its own number.
+    /// What VoiceOver reads after the label: every season, by its own
+    /// number, then the basis line sighted users read under the verdict.
     static func accessibilityValue(for summary: FeaturedSeriesSummary) -> String {
         VerdictCardContent.seasonAveragesCaption + ": "
             + summary.seasonPoints
                 .map { String(format: "season %d, %.1f", $0.season, $0.average) }
                 .joined(separator: "; ")
+            + ". " + summary.basis
     }
 }

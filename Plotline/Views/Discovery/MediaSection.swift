@@ -36,6 +36,7 @@ struct MediaSection: View {
                 if let eyebrow {
                     Text(eyebrow)
                         .font(.caption.weight(.semibold))
+                        .textCase(.uppercase)
                         .foregroundStyle(Color.plotlineGoldText)
                 }
 
@@ -91,7 +92,7 @@ struct MediaSection: View {
     /// A genre shelf shares its title with a main shelf; the genre tells
     /// VoiceOver users which is which.
     private var accessibleTitle: String {
-        eyebrow.map { "\($0.capitalized), \(title)" } ?? title
+        eyebrow.map { "\($0), \(title)" } ?? title
     }
 
     // MARK: - Placeholder

@@ -6,6 +6,7 @@ struct DiscoveryView: View {
     @Environment(\.deepLinkManager) private var deepLinkManager
     @Environment(\.favoritesManager) private var favoritesManager
     @Environment(\.watchlistManager) private var watchlistManager
+    @Environment(\.scenePhase) private var scenePhase
     @State private var viewModel = DiscoveryViewModel()
     @State private var tasteProfileVM = TasteProfileViewModel()
     @State private var smartListsVM = SmartListsViewModel()
@@ -15,9 +16,10 @@ struct DiscoveryView: View {
     /// field; the query itself still decides everything below that.
     @State private var isSearchPresented = false
     @State private var navigationPath = NavigationPath()
-    /// Today's picks. Recomputed on appearance and pull-to-refresh, so a day
-    /// rolling over while the app sits in the background is picked up.
-    /// Seeded in `init` so the first frame already has them.
+    /// Today's picks. Recomputed on appearance, on pull-to-refresh and each
+    /// time the scene becomes active, so a day rolling over while the app
+    /// sits in the background is picked up on return — `.onAppear` alone does
+    /// not fire then. Seeded in `init` so the first frame already has them.
     @State private var featured: DatasetEntry?
     @State private var genreShelves: [CuratedList]
     @Namespace private var namespace
@@ -82,6 +84,9 @@ struct DiscoveryView: View {
             consumePendingSearchQuery()
             refreshPersonalisation()
             consumePendingDetail()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { refreshRotation() }
         }
         .onChange(of: deepLinkManager.pendingSearchQuery) { _, _ in
             consumePendingSearchQuery()
@@ -301,7 +306,7 @@ struct DiscoveryView: View {
                 )
             }
             .accessibilityElement(children: .contain)
-            .accessibilityLabel(eyebrow.map { "\($0.capitalized), \(title)" } ?? title)
+            .accessibilityLabel(eyebrow.map { "\($0), \(title)" } ?? title)
             .accessibilityHint(CuratedListCopy.subtitle(for: list.id) ?? "")
             .accessibilityIdentifier(AccessibilityAnchors.discoverShelf)
         }

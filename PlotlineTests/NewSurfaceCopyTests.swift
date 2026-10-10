@@ -77,6 +77,14 @@ struct FeaturedSeriesSummaryTests {
             "Season averages, weighted by votes: season 1, 8.0; season 2, 8.4; season 4, 7.9"
         ))
     }
+
+    @Test("VoiceOver hears every season and then the basis line sighted users read")
+    func accessibilityValueCarriesBasis() {
+        let summary = FeaturedSeriesSummary(entry: makeEntry(seasons: [(1, 8.0), (2, 8.4), (3, 7.9)]))
+        #expect(FeaturedSeriesCard.accessibilityValue(for: summary)
+            == "Season averages, weighted by votes: season 1, 8.0; season 2, 8.4; season 3, 7.9. "
+            + "Based on 30 episodes with enough votes to count, across 3 seasons.")
+    }
 }
 
 @MainActor
@@ -134,5 +142,26 @@ struct CuratedShelfEvidenceTests {
     @Test("an unknown shelf has no evidence line")
     func unknownShelf() {
         #expect(CuratedShelfEvidence.line(forShelf: "not-a-list", analysis: ExplorerFixtures.entry(id: 1).analysis) == nil)
+    }
+
+    /// Guards the bare shelf-id literals in `CuratedShelfEvidence`: one that
+    /// drifts from the dataset's ids returns nil for a whole shelf, and the
+    /// See-all rows lose their evidence without a single error.
+    @Test("every member of every shipped shelf has an evidence line, except endings the status gate hides")
+    func everyShippedMemberHasEvidence() throws {
+        let store = DatasetStore.shared
+        #expect(!store.lists.isEmpty)
+        for list in store.lists {
+            let base = try #require(CuratedListID(list.id)?.base, "\(list.id) does not parse")
+            for entry in store.entries(for: list) {
+                let line = CuratedShelfEvidence.line(forShelf: base, analysis: entry.analysis)
+                if base == "perfect-ending" && entry.analysis.isOngoing {
+                    // Listed as returning: the gate hides the stored ending.
+                    #expect(line == nil, "\(list.id): \(entry.name) shows an ending while listed as returning")
+                } else {
+                    #expect(line != nil, "\(list.id): \(entry.name) has no evidence line")
+                }
+            }
+        }
     }
 }
