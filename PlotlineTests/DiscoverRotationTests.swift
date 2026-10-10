@@ -96,29 +96,79 @@ struct DiscoverRotationTests {
 
     @Test("a genre with several shelves rotates through them in the order given")
     func rotatesWithinGenre() {
-        let lists = genreLists.map(list)
-        // count: 4 so drama is on screen every day; with three slots and four
-        // genres it would drop out on day 2.
+        // Animation and comedy sit on bases drama does not have, so the
+        // distinct-base rule never moves drama off its rotated pick and the
+        // rotation shows through unchanged.
+        let lists = ["slow-burn/16", "never-decline/18", "falls-off/18", "perfect-ending/18", "rollercoaster/35"]
+            .map(list)
         let drama = (1...4).map { day -> String? in
-            DiscoverRotation.genreShelves(from: lists, on: date(2026, 1, day), calendar: Self.calendar, count: 4)
+            DiscoverRotation.genreShelves(from: lists, on: date(2026, 1, day), calendar: Self.calendar)
                 .first { CuratedListID($0.id)?.genreId == 18 }?.id
         }
         // Drama's lists in input order: never-decline, falls-off, perfect-ending.
-        // Drama is genre position 1 of 4, so its index is day + 1: it starts
+        // Drama is genre position 1 of 3, so its index is day + 1: it starts
         // one shelf in and advances one shelf a day.
         #expect(drama == ["falls-off/18", "perfect-ending/18", "never-decline/18", "falls-off/18"])
     }
 
-    @Test("a day's genre shelves come from three different base shelves")
+    @Test("a day's genre shelves come from different base shelves, even when genres have uneven shelf counts")
     func neighboursDiffer() {
-        let bases = ["never-decline", "falls-off", "slow-burn", "perfect-ending", "rollercoaster"]
-        let lists = [16, 18, 35].flatMap { genre in bases.map { list("\($0)/\(genre)") } }
-        for day in 1...10 {
-            let shelves = DiscoverRotation.genreShelves(from: lists, on: date(2026, 1, day), calendar: Self.calendar)
+        // Five, four and one shelves: with `(day + position) mod count` alone
+        // the lone comedy shelf collides with whichever neighbour lands on
+        // never-decline. Distinct bases always exist here, since comedy needs
+        // only its one and the others have three or more to spare.
+        let lists = [
+            "never-decline/16", "falls-off/16", "slow-burn/16", "perfect-ending/16", "rollercoaster/16",
+            "never-decline/18", "falls-off/18", "slow-burn/18", "perfect-ending/18",
+            "never-decline/35",
+        ].map(list)
+        for day in 1...60 {
+            let on = Self.calendar.date(byAdding: .day, value: day - 1, to: date(2026, 1, 1))!
+            let shelves = DiscoverRotation.genreShelves(from: lists, on: on, calendar: Self.calendar)
             let picked = shelves.compactMap { CuratedListID($0.id)?.base }
             #expect(picked.count == 3)
-            #expect(Set(picked).count == 3, "day \(day): \(picked)")
+            #expect(Set(picked).count == 3, "day \(day): \(shelves.map(\.id))")
         }
+    }
+
+    @Test("the first genre shelf avoids the base of the main shelf above it whenever its genre has another")
+    func avoidsTheShelfAbove() throws {
+        let bases = ["never-decline", "falls-off", "slow-burn", "perfect-ending", "rollercoaster"]
+        // War has only the avoided base: it still shows, on that base, rather
+        // than being dropped.
+        let lists = [16, 18, 35].flatMap { genre in bases.map { list("\($0)/\(genre)") } }
+            + [list("rollercoaster/10768")]
+        var firstWasForced = false
+        for day in 1...60 {
+            let on = Self.calendar.date(byAdding: .day, value: day - 1, to: date(2026, 1, 1))!
+            let plain = DiscoverRotation.genreShelves(from: lists, on: on, calendar: Self.calendar)
+            let shelves = DiscoverRotation.genreShelves(
+                from: lists, on: on, calendar: Self.calendar, avoidingBase: "rollercoaster"
+            )
+            // The genres on screen never change; only the shelf within each.
+            #expect(shelves.map { CuratedListID($0.id)?.genreId } == plain.map { CuratedListID($0.id)?.genreId })
+            let first = try #require(shelves.first.flatMap { CuratedListID($0.id) })
+            if first.genreId == 10768 {
+                firstWasForced = true
+                #expect(first.base == "rollercoaster")
+            } else {
+                #expect(first.base != "rollercoaster", "day \(day): \(shelves.map(\.id))")
+            }
+        }
+        #expect(firstWasForced)
+    }
+
+    @Test("the avoided base only steers the first slot, so its genre shelves still appear lower down")
+    func avoidedBaseStillShowsBelow() {
+        let bases = ["never-decline", "falls-off", "slow-burn", "perfect-ending", "rollercoaster"]
+        let lists = [16, 18, 35, 80].flatMap { genre in bases.map { list("\($0)/\(genre)") } }
+        let lower = (1...40).flatMap { day -> [String] in
+            let on = Self.calendar.date(byAdding: .day, value: day - 1, to: date(2026, 1, 1))!
+            return DiscoverRotation.genreShelves(
+                from: lists, on: on, calendar: Self.calendar, avoidingBase: "rollercoaster"
+            ).dropFirst().compactMap { CuratedListID($0.id)?.base }
+        }
+        #expect(lower.contains("rollercoaster"))
     }
 
     @Test("fewer genres than slots shows each once; none shows none; main and malformed ids are ignored")
@@ -127,5 +177,37 @@ struct DiscoverRotationTests {
         let shelves = DiscoverRotation.genreShelves(from: lists, on: date(2026, 1, 1), calendar: Self.calendar)
         #expect(Set(shelves.map(\.id)) == ["falls-off/18", "slow-burn/35"])
         #expect(DiscoverRotation.genreShelves(from: [], on: date(2026, 1, 1), calendar: Self.calendar).isEmpty)
+    }
+}
+
+/// The rotation over the lists that actually ship. Main-actor isolated because
+/// `DatasetStore` is.
+@MainActor
+@Suite("Discover rotation over the shipped dataset")
+struct ShippedDiscoverRotationTests {
+    @Test("a year of genre shelves never repeats a base within a day, nor the main shelf above")
+    func aYearOfShippedGenreShelves() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(identifier: "UTC"))
+        let store = DatasetStore.shared
+        let avoided = try #require(store.mainLists.last.flatMap { CuratedListID($0.id)?.base })
+        let start = try #require(calendar.date(from: DateComponents(year: 2026, month: 1, day: 1)))
+
+        // The shipped genres hold 5, 5, 5, 4, 4, 1, 5 and 5 shelves, and the
+        // rotation repeats every lcm(8, 5, 4) = 40 days, so a year covers
+        // every arrangement several times over. Family's one shelf is
+        // perfect-ending, and no genre has the avoided base as its only shelf,
+        // so the shipped data satisfies both rules on every day: no exception
+        // is allowed.
+        for offset in 0..<365 {
+            let day = try #require(calendar.date(byAdding: .day, value: offset, to: start))
+            let shelves = DiscoverRotation.genreShelves(
+                from: store.genreLists, on: day, calendar: calendar, avoidingBase: avoided
+            )
+            let bases = shelves.compactMap { CuratedListID($0.id)?.base }
+            #expect(shelves.count == DiscoverRotation.genreShelfCount, "day \(offset)")
+            #expect(Set(bases).count == bases.count, "day \(offset): \(shelves.map(\.id))")
+            #expect(bases.first != avoided, "day \(offset): \(shelves.map(\.id)) repeats \(avoided)")
+        }
     }
 }

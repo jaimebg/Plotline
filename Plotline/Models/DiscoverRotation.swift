@@ -27,13 +27,25 @@ nonisolated enum DiscoverRotation {
     }
 
     /// Up to `count` genre shelves, each from a different genre: genres in
-    /// ascending id, starting at the day's index and wrapping; within a genre,
-    /// its shelves in the order given (the generator's shelf order), at the
-    /// day's index plus the genre's position in the sorted ids. The offset
-    /// keeps neighbouring genres on different base shelves, and each genre
-    /// still advances one shelf a day.
+    /// ascending id, starting at the day's index and wrapping. Within a genre,
+    /// its shelves in the order given (the generator's shelf order), rotated
+    /// to start at the day's index plus the genre's position in the sorted
+    /// ids, so each genre advances one shelf a day.
+    ///
+    /// From each rotation the slot takes the first shelf whose base no other
+    /// slot uses, so a day's genre shelves come from different base shelves
+    /// whenever the genres on screen have enough between them. The first slot
+    /// also passes over `avoidingBase` — the base of the main shelf drawn
+    /// directly above it — whenever its genre has another shelf; that rule
+    /// wins over distinctness. The avoided base steers only the first slot:
+    /// lower down it is not a neighbour.
+    ///
+    /// When no arrangement keeps every base distinct, each slot takes its
+    /// first unused base or, failing that, its rotated first shelf. A genre is
+    /// never dropped.
     static func genreShelves(
-        from lists: [CuratedList], on date: Date, calendar: Calendar, count: Int = genreShelfCount
+        from lists: [CuratedList], on date: Date, calendar: Calendar, count: Int = genreShelfCount,
+        avoidingBase: String? = nil
     ) -> [CuratedList] {
         var byGenre: [Int: [CuratedList]] = [:]
         for list in lists {
@@ -45,11 +57,53 @@ nonisolated enum DiscoverRotation {
 
         let day = dayIndex(of: date, calendar: calendar)
         let start = wrapped(day, genres.count)
-        return (0..<min(count, genres.count)).compactMap { offset in
+        // Each slot's candidates: its genre's shelves, rotated.
+        let slots: [[CuratedList]] = (0..<min(count, genres.count)).compactMap { offset in
             let position = (start + offset) % genres.count
-            guard let shelves = byGenre[genres[position]] else { return nil }
-            return shelves[wrapped(day + position, shelves.count)]
+            guard let shelves = byGenre[genres[position]], !shelves.isEmpty else { return nil }
+            let first = wrapped(day + position, shelves.count)
+            return Array(shelves[first...] + shelves[..<first])
         }
+
+        var avoided: Set<String> = []
+        if let avoidingBase, slots.first?.contains(where: { base(of: $0) != avoidingBase }) == true {
+            avoided.insert(avoidingBase)
+        }
+        return distinctBases(slots, firstSlotAvoids: avoided)
+            ?? closestToDistinct(slots, firstSlotAvoids: avoided)
+    }
+
+    /// The first arrangement, in slot order and then rotation order, under
+    /// which no two slots share a base. A depth-first search over at most
+    /// three slots of five shelves.
+    private static func distinctBases(_ slots: [[CuratedList]], firstSlotAvoids avoided: Set<String>) -> [CuratedList]? {
+        func search(_ index: Int, _ used: Set<String>) -> [CuratedList]? {
+            guard index < slots.count else { return [] }
+            let excluded = index == 0 ? used.union(avoided) : used
+            for shelf in slots[index] where !excluded.contains(base(of: shelf)) {
+                if let rest = search(index + 1, used.union([base(of: shelf)])) {
+                    return [shelf] + rest
+                }
+            }
+            return nil
+        }
+        return search(0, [])
+    }
+
+    /// The fallback when the genres on screen have too few bases between
+    /// them: each slot takes its first unused base, else its rotated first.
+    private static func closestToDistinct(_ slots: [[CuratedList]], firstSlotAvoids avoided: Set<String>) -> [CuratedList] {
+        var used: Set<String> = []
+        return slots.enumerated().map { index, shelves in
+            let excluded = index == 0 ? avoided : used
+            let pick = shelves.first { !excluded.contains(base(of: $0)) } ?? shelves[0]
+            used.insert(base(of: pick))
+            return pick
+        }
+    }
+
+    private static func base(of list: CuratedList) -> String {
+        CuratedListID(list.id)?.base ?? list.id
     }
 
     private static func wrapped(_ index: Int, _ count: Int) -> Int {

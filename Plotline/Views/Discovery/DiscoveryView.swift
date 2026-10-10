@@ -26,7 +26,7 @@ struct DiscoveryView: View {
         let store = DatasetStore.shared
         let now = Date.now
         _featured = State(initialValue: DiscoverRotation.featured(from: store.entries, on: now, calendar: .current))
-        _genreShelves = State(initialValue: DiscoverRotation.genreShelves(from: store.genreLists, on: now, calendar: .current))
+        _genreShelves = State(initialValue: Self.rotatedGenreShelves(on: now))
     }
 
     var body: some View {
@@ -100,7 +100,17 @@ struct DiscoveryView: View {
     private func refreshRotation(now: Date = .now) {
         let store = DatasetStore.shared
         featured = DiscoverRotation.featured(from: store.entries, on: now, calendar: .current)
-        genreShelves = DiscoverRotation.genreShelves(from: store.genreLists, on: now, calendar: .current)
+        genreShelves = Self.rotatedGenreShelves(on: now)
+    }
+
+    /// The first genre shelf sits directly under the last main shelf, so the
+    /// rotation steers it off that shelf's base.
+    private static func rotatedGenreShelves(on date: Date) -> [CuratedList] {
+        let store = DatasetStore.shared
+        return DiscoverRotation.genreShelves(
+            from: store.genreLists, on: date, calendar: .current,
+            avoidingBase: store.mainLists.last.flatMap { CuratedListID($0.id)?.base }
+        )
     }
 
     /// Which favourites the taste profile and smart lists describe.
