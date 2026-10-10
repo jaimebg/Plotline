@@ -79,8 +79,26 @@ final class ScreenshotCaptureTests: XCTestCase {
                 shelf.waitForExistence(timeout: 30),
                 "Discover never drew a shelf, so there is nothing to photograph"
             )
+            // Discover opens on the featured series, which rotates daily and
+            // pushes the shelves below the fold. The headline is about the
+            // shelves, so frame the first one near the top. The main shelves
+            // do not depend on the date; the sliver of the featured card left
+            // above them does, so this frame can differ between two days'
+            // captures there and nowhere else.
+            scrollTo(shelf)
         }
 
+        // Scrolling to the shelf collapses the large title, and with it the
+        // search field, which leaves the accessibility tree entirely; the next
+        // step opens a series through search. Re-selecting the Discover tab
+        // does not scroll back to the top (tried: the field stayed gone), so
+        // scroll back by hand until the field is there again. On iPad the
+        // field lives in the toolbar and never leaves, so this does nothing.
+        let search = app.searchFields.firstMatch
+        for _ in 0..<15 where !search.exists {
+            step(up: false)
+        }
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "the search field never came back after scrolling Discover to the top")
         openSeriesDetail(named: "Breaking Bad")
 
         // `scrollTo` only swipes up, so these four have to run in the order
