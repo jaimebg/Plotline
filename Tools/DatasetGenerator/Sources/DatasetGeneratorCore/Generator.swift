@@ -138,6 +138,13 @@ public enum Generator {
         try encoder.encode(dataset).write(to: output)
 
         print("\nWrote \(entries.count) entries, \(skipped.count) skipped, and \(dataset.lists.count) lists to \(output.path)")
+        print("Analysed series per floored genre:")
+        for genre in SeedSelector.flooredGenres {
+            let count = entries.filter { $0.genreIds.contains(genre) }.count
+            print("  \(genre): \(count)")
+        }
+        let genreListCount = dataset.lists.filter { $0.id.contains("/") }.count
+        print("Genre lists: \(genreListCount)")
     }
 }
 

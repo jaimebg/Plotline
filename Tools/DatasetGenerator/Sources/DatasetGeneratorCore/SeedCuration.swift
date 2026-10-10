@@ -41,5 +41,10 @@ enum SeedCuration {
     /// show filed as Comedy, a news magazine filed as Documentary. Deleting
     /// its line from `SeedList` is not enough: the next `seed` run would put
     /// it straight back.
-    static let excludedIds: Set<Int> = []
+    static let excludedIds: Set<Int> = [
+        114695,  // Marvel Studios Legends — recap clips, no episode arc
+        1428,  // MythBusters — standalone experiments, no episode arc
+        15826,  // 1000 Ways to Die — unconnected anthology of deaths
+        32608,  // Ancient Aliens — hundreds of standalone talking-head episodes
+    ]
 }

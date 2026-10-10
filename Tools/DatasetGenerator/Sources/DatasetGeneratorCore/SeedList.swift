@@ -11,162 +11,1058 @@ import Foundation
 /// Ordering does not affect the output: `DatasetBuilder` sorts by id.
 enum SeedList {
     static let discoveredIds: [Int] = [
-        276161,  // Teach You a Lesson
-        299167,  // Dutton Ranch
-        273240,  // Off Campus
-        259837,  // The WONDERfools
-        209867,  // Frieren: Beyond Journey's End
-        85077,  // The Chosen
-        246,  // Avatar: The Last Airbender
-        64010,  // Reply 1988
-        219246,  // When Life Gives You Tangerines
-        37854,  // One Piece
-        301507,  // Heated Rivalry
-        250307,  // The Pitt
-        31911,  // Fullmetal Alchemist: Brotherhood
-        200709,  // Weak Hero
+        71446,  // Money Heist
+        93405,  // Squid Game
+        69050,  // Riverdale
+        84958,  // Loki
+        60735,  // The Flash
+        60574,  // Peaky Blinders
+        85552,  // Euphoria
+        1416,  // Grey's Anatomy
+        119051,  // Wednesday
+        75006,  // The Umbrella Academy
+        18165,  // The Vampire Diaries
+        76669,  // Elite
+        88396,  // The Falcon and the Winter Soldier
+        48866,  // The 100
+        31910,  // Naruto Shippūden
+        81356,  // Sex Education
+        44217,  // Vikings
+        70523,  // Dark
         1429,  // Attack on Titan
-        138502,  // X-Men '97
-        92685,  // The Owl House
-        127532,  // Solo Leveling
-        42573,  // Slam Dunk
-        261145,  // The Amazing Digital Circus
-        46298,  // Hunter x Hunter
-        42705,  // Fighting Spirit
-        131378,  // Adventure Time: Fionna and Cake
-        280945,  // Bon Appétit, Your Majesty
-        89456,  // Primal
-        70785,  // Anne with an E
-        68595,  // Planet Earth II
         85937,  // Demon Slayer: Kimetsu no Yaiba
-        1430,  // Cosmos: A Personal Voyage
-        289219,  // Star Wars: Maul - Shadow Lord
+        100088,  // The Last of Us
+        94997,  // House of the Dragon
+        77169,  // Cobra Kai
+        71912,  // The Witcher
+        19885,  // Sherlock
+        42009,  // Black Mirror
+        1412,  // Arrow
+        63247,  // Westworld
+        1413,  // American Horror Story
+        2288,  // Prison Break
+        46260,  // Naruto
         95557,  // INVINCIBLE
-        74313,  // Blue Planet II
-        31132,  // Regular Show
-        234763,  // The Boy's Word: Blood on the Asphalt
-        1044,  // Planet Earth
-        72637,  // Once
-        3498,  // Wizards of Waverly Place
-        62741,  // Kamisama Kiss
-        13916,  // Death Note
-        259666,  // No One Will Miss Us
-        3854,  // The Spectacular Spider-Man
-        271607,  // The Fragrant Flower Blooms with Dignity
-        57706,  // Ranma ½
-        40075,  // Gravity Falls
-        67915,  // Guardian: The Lonely and Great God
-        220542,  // The Apothecary Diaries
-        60863,  // Haikyu!!
-        35790,  // Cardcaptor Sakura
-        100,  // I Am Not an Animal
-        43,  // 31 Minutes
-        62914,  // Merlí
-        80040,  // Desafío Champions Sendokai
+        1100,  // How I Met Your Mother
+        37680,  // Suits
+        1405,  // Dexter
+        87739,  // The Queen's Gambit
+        62560,  // Mr. Robot
+        37854,  // One Piece
+        61889,  // Marvel's Daredevil
         65930,  // My Hero Academia
-        85349,  // Amphibia
-        79141,  // Scissor Seven
-        4613,  // Band of Brothers
-        21650,  // I'm in the Band
-        119464,  // Navillera
-        82728,  // Bluey
-        37419,  // Zoids: Chaotic Century
-        135157,  // Alchemy of Souls
-        46896,  // The Originals
+        4607,  // Lost
+        62715,  // Dragon Ball Super
+        82883,  // The Act
+        12637,  // Rebelde
+        62104,  // The Seven Deadly Sins
+        13916,  // Death Note
+        2190,  // South Park
+        246,  // Avatar: The Last Airbender
+        1434,  // Family Guy
+        12971,  // Dragon Ball Z
+        70785,  // Anne with an E
+        2004,  // Malcolm in the Middle
+        5920,  // The Mentalist
+        34524,  // Teen Wolf
+        91363,  // What If...?
+        65334,  // Miraculous: Tales of Ladybug & Cat Noir
         95479,  // JUJUTSU KAISEN
-        2098,  // Batman: The Animated Series
-        95269,  // Toilet-Bound Hanako-kun
-        124834,  // Heartstopper
-        230923,  // Lovely Runner
-        36189,  // Boris
-        31356,  // Big Time Rush
-        61663,  // Your Lie in April
-        35610,  // InuYasha
-        98214,  // Villainous
-        61617,  // Over the Garden Wall
-        80564,  // Banana Fish
-        45790,  // JoJo's Bizarre Adventure
+        66788,  // 13 Reasons Why
+        4604,  // Smallville
+        99966,  // All of Us Are Dead
+        62688,  // Supergirl
+        46648,  // True Detective
+        4613,  // Band of Brothers
+        2734,  // Law & Order: Special Victims Unit
+        124364,  // FROM
+        105214,  // Dark Desire
+        63926,  // One-Punch Man
+        90462,  // Chucky
+        86831,  // Love, Death & Robots
+        60797,  // Scorpion
+        4057,  // Criminal Minds
+        48891,  // Brooklyn Nine-Nine
+        78191,  // You
+        46331,  // Under the Dome
+        84773,  // The Lord of the Rings: The Rings of Power
+        615,  // Futurama
+        1403,  // Marvel's Agents of S.H.I.E.L.D.
+        88329,  // Hawkeye
+        79242,  // Chilling Adventures of Sabrina
+        60708,  // Gotham
+        2691,  // Two and a Half Men
+        92749,  // Moon Knight
+        4087,  // The X-Files
+        46952,  // The Blacklist
+        43348,  // Pablo Escobar: The Drug Lord
+        74577,  // The End of the F***ing World
+        44953,  // El Señor de los Cielos
+        46896,  // The Originals
+        39351,  // Grimm
+        40075,  // Gravity Falls
+        1911,  // Bones
+        16286,  // Yo soy Betty, la fea
+        110492,  // Peacemaker
+        79744,  // The Rookie
+        1421,  // Modern Family
+        34307,  // Shameless
+        63351,  // Narcos
+        12609,  // Dragon Ball
+        57243,  // Doctor Who
+        108978,  // Reacher
+        60622,  // Fargo
+        69478,  // The Handmaid's Tale
+        71886,  // Siren
+        91239,  // Bridgerton
+        80213,  // The Purge
+        1409,  // Sons of Anarchy
+        19614,  // It
+        67178,  // Marvel's The Punisher
+        73586,  // Yellowstone
+        1425,  // House of Cards
+        52814,  // Halo
+        387,  // SpongeBob SquarePants
+        15260,  // Adventure Time
+        106379,  // Fallout
+        80020,  // Super Dragon Ball Heroes
+        104877,  // Love Is in the Air
+        67915,  // Guardian: The Lonely and Great God
+        67744,  // MINDHUNTER
+        115036,  // The Book of Boba Fett
+        71728,  // Young Sheldon
+        40008,  // Hannibal
+        46296,  // Spartacus
+        79460,  // Legacies
+        95396,  // Severance
+        56570,  // Outlander
+        61222,  // BoJack Horseman
+        60866,  // iZombie
+        113988,  // DAHMER - Monster: The Jeffrey Dahmer Story
+        63639,  // The Expanse
+        69740,  // Ozark
+        1705,  // Fringe
+        80752,  // See
+        67335,  // Sin senos sí hay paraíso
+        1424,  // Orange Is the New Black
+        75450,  // Titans
+        72844,  // The Haunting of Hill House
+        75219,  // 9-1-1
+        110316,  // Alice in Borderland
+        153312,  // Tulsa King
+        125988,  // Silo
+        95057,  // Superman & Lois
+        90802,  // The Sandman
+        62127,  // Marvel's Iron Fist
+        112888,  // True Beauty
+        38472,  // Marvel's Jessica Jones
+        1920,  // Twin Peaks
+        97546,  // Ted Lasso
+        1407,  // Homeland
+        1639,  // Heroes
+        96677,  // Lupin
+        58841,  // Chicago P.D.
+        92783,  // She-Hulk: Attorney at Law
+        61374,  // Tokyo Ghoul
+        16997,  // The Pacific
+        31911,  // Fullmetal Alchemist: Brotherhood
+        1981,  // Charmed
+        62710,  // Blindspot
+        39272,  // Once Upon a Time
+        62455,  // Locked Up
+        1892,  // The Fresh Prince of Bel-Air
+        70881,  // Boruto: Naruto Next Generations
+        62643,  // DC's Legends of Tomorrow
+        1437,  // Firefly
+        71914,  // The Wheel of Time
+        1400,  // Seinfeld
+        1433,  // American Dad!
+        44006,  // Chicago Fire
+        71915,  // Good Omens
+        65494,  // The Crown
+        4194,  // Star Wars: The Clone Wars
+        33880,  // The Legend of Korra
+        68421,  // Altered Carbon
+        92830,  // Obi-Wan Kenobi
+        102903,  // Control Z
+        120089,  // SPY x FAMILY
+        1395,  // Gossip Girl
+        114410,  // Chainsaw Man
+        31132,  // Regular Show
+        107113,  // Only Murders in the Building
+        30984,  // Bleach
+        27240,  // Seven Deadly Sins
+        60572,  // Pokémon
+        83867,  // Andor
+        73223,  // Black Clover
+        46298,  // Hunter x Hunter
+        105,  // Sex and the City
+        95594,  // Fast & Furious Spy Racers
+        18347,  // Community
+        45782,  // Sword Art Online
+        1411,  // Person of Interest
         890,  // Neon Genesis Evangelion
+        1419,  // Castle
+        10545,  // True Blood
+        693,  // Desperate Housewives
+        11250,  // Pasión de Gavilanes
+        12697,  // Dragon Ball GT
+        67198,  // Star Trek: Discovery
+        35610,  // InuYasha
+        62126,  // Marvel's Luke Cage
+        66573,  // The Good Place
+        47,  // El Chavo del Ocho
+        95,  // Buffy the Vampire Slayer
+        45950,  // High School DxD
+        74428,  // Rosario Tijeras (Mexico)
+        61550,  // Marvel's Agent Carter
+        47640,  // The Strain
+        63333,  // The Last Kingdom
+        60573,  // Silicon Valley
+        89641,  // Love Alarm
+        30991,  // Cowboy Bebop
+        90239,  // The Game of Keys
+        127532,  // Solo Leveling
+        45871,  // Locked Up: The Oasis
+        90260,  // I Am Not Okay with This
+        105248,  // Cyberpunk: Edgerunners
+        2038,  // Drake & Josh
+        31586,  // La Reina del Sur
+        68507,  // His Dark Materials
+        67070,  // Fleabag
+        136315,  // The Bear
+        85949,  // Star Trek: Picard
+        111110,  // ONE PIECE
+        100883,  // Never Have I Ever
+        76121,  // DARLING in the FRANXX
+        61664,  // Sense8
+        8592,  // Parks and Recreation
+        75758,  // Lost in Space
+        114868,  // Record of Ragnarok
+        126308,  // Shōgun
+        1606,  // Ghost Whisperer
+        93741,  // Jurassic World Camp Cretaceous
+        4629,  // Stargate SG-1
+        32798,  // Hawaii Five-0
+        2098,  // Batman: The Animated Series
+        73375,  // Tom Clancy's Jack Ryan
+        1415,  // Elementary
+        1973,  // 24
+        96815,  // Sex, Explained
+        63401,  // We Bare Bears
+        1972,  // Battlestar Galactica
+        655,  // Star Trek: The Next Generation
+        79696,  // Manifest
+        85723,  // Raised by Wolves
+        16420,  // Boys Over Flowers
+        92685,  // The Owl House
+        46639,  // American Gods
+        93740,  // Foundation
+        4686,  // Ben 10
+        117581,  // Ginny & Georgia
+        46786,  // Bates Motel
+        62046,  // Scream Queens
+        61617,  // Over the Garden Wall
+        12926,  // Teresa
+        61056,  // How to Get Away with Murder
+        64464,  // 11.22.63
+        62264,  // Ash vs Evil Dead
+        249042,  // Adolescence
+        37606,  // The Amazing World of Gumball
+        86031,  // Dr. STONE
+        76331,  // Succession
+        39340,  // 2 Broke Girls
+        124834,  // Heartstopper
+        115004,  // Mare of Easttown
+        77606,  // The Boss Baby: Back in Business
+        4589,  // Arrested Development
+        94664,  // Mushoku Tensei: Jobless Reincarnation
+        84661,  // The Outsider
+        1620,  // CSI: Miami
+        66292,  // Big Little Lies
+        31251,  // Victorious
+        8358,  // Lie to Me
+        58474,  // Cosmos
+        1420,  // New Girl
+        62285,  // Marvel's The Defenders
+        131927,  // Dexter: New Blood
+        64432,  // The Magicians
+        86430,  // Your Honor
+        80743,  // Insatiable
+        79788,  // Watchmen
+        2490,  // The IT Crowd
+        200875,  // IT: Welcome to Derry
+        42035,  // The Boat
+        108545,  // 3 Body Problem
+        31356,  // Big Time Rush
+        71789,  // SEAL Team
+        71411,  // El Chapo
+        2085,  // Courage the Cowardly Dog
+        67136,  // This Is Us
+        113962,  // Lioness
+        52,  // That '70s Show
+        45790,  // JoJo's Bizarre Adventure
+        103768,  // Sweet Tooth
+        60743,  // Constantine
         97186,  // Love, Victor
         94954,  // Hazbin Hotel
-        76662,  // My Mister
-        2192,  // Robotech
-        9302,  // Digimon Tamers
-        79744,  // The Rookie
-        73488,  // Les Contes de la rue Broca
-        12313,  // Shadow Hunter
-        65844,  // KONOSUBA - God's blessing on this wonderful 
-        86031,  // Dr. STONE
-        240411,  // Dan Da Dan
-        83121,  // Kaguya-sama: Love Is War
-        37606,  // The Amazing World of Gumball
-        32118,  // Generator Rex
-        207250,  // The Dangers in My Heart
-        9160,  // Candy Candy
-        259909,  // Dexter: Resurrection
-        31910,  // Naruto Shippūden
-        88040,  // given
-        61222,  // BoJack Horseman
-        210733,  // Hidden Love
-        83880,  // Our Planet
-        60574,  // Peaky Blinders
-        94796,  // Crash Landing on You
-        83100,  // Dororo
-        256721,  // Gachiakuta
-        28136,  // Rurouni Kenshin
-        30981,  // Monster
-        126506,  // Smiling Friends
-        114410,  // Chainsaw Man
-        90447,  // Hotel Del Luna
-        82739,  // Rascal Does Not Dream of Bunny Girl Senpai
-        76121,  // DARLING in the FRANXX
-        108291,  // Snowdrop
-        117376,  // Vincenzo
-        3793,  // Invader ZIM
-        67389,  // Golden Time
-        68129,  // Yuri!!! on Ice
-        120089,  // SPY x FAMILY
-        83639,  // Girl from Nowhere
-        73223,  // Black Clover
-        19885,  // Sherlock
-        15260,  // Adventure Time
-        126485,  // Moving
-        89901,  // Dickinson
-        88803,  // Vinland Saga
-        125910,  // Young Royals
-        110070,  // Horimiya
-        58474,  // Cosmos
-        77721,  // Real Girl
-        6357,  // The Twilight Zone
-        75214,  // Violet Evergarden
-        127529,  // Bloodhounds
+        4327,  // Mr. Bean
+        205715,  // Gen V
+        128839,  // La Brea
+        85720,  // Shadow and Bone
+        87784,  // Defending Jacob
+        96648,  // Sweet Home
+        89456,  // Primal
+        79699,  // La hija del Mariachi
+        71024,  // Castlevania
+        21510,  // White Collar
+        69629,  // The Gifted
+        67195,  // Legion
+        89247,  // Batwoman
+        1104,  // Mad Men
+        71790,  // S.W.A.T.
+        90669,  // 1899
+        83095,  // The Rising of the Shield Hero
+        72305,  // Kakegurui
+        82596,  // Emily in Paris
+        1891,  // Rome
+        97180,  // Selena: The Series
+        80240,  // The Queen of Flow
+        5371,  // iCarly
+        97175,  // Fate: The Winx Saga
+        54671,  // Penny Dreadful
+        100049,  // TONIKAWA: Over the Moon for You
+        253,  // Star Trek
+        62017,  // The Man in the High Castle
+        72750,  // Killing Eve
+        76773,  // Station 19
+        111803,  // The White Lotus
+        60863,  // Haikyu!!
+        57706,  // Ranma ½
+        80968,  // Narcos: Mexico
+        65708,  // Taboo
+        79525,  // The Last Dance
+        71740,  // 40 y 20
+        72637,  // Once
+        92782,  // Ms. Marvel
+        61923,  // Star vs. the Forces of Evil
+        47665,  // Black Sails
+        194764,  // The Penguin
         96462,  // It's Okay to Not Be Okay
-        67075,  // Mob Psycho 100
-        45950,  // High School DxD
-        68349,  // Weightlifting Fairy Kim Bok-joo
-        11466,  // Kaamelott
-        124364,  // FROM
-        66433,  // Scarlet Heart: Ryeo
-        229480,  // No Gain No Love
-        108261,  // Mr. Queen
-        40143,  // Shaman King
-        30991,  // Cowboy Bebop
-        225180,  // BLUE EYE SAMURAI
+        86423,  // Locke & Key
+        79501,  // Doom Patrol
+        42671,  // Elfen Lied
+        56296,  // Orphan Black
+        86248,  // Upload
+        79680,  // Snowpiercer
+        10283,  // Archer
+        109958,  // The Haunting of Bly Manor
+        92396,  // Lady, la vendedora de rosas
+        71738,  // The Orville
+        65844,  // KONOSUBA - God's blessing on this wonderful world!
+        114472,  // Secret Invasion
+        61459,  // Parasyte -the maxim-
+        69061,  // The OA
+        2384,  // Knight Rider
         42444,  // Saint Seiya
-        35935,  // Berserk
-        56568,  // NANA
+        41727,  // Banshee
+        90027,  // Carnival Row
+        4616,  // Xena: Warrior Princess
+        900,  // Skins
+        1431,  // CSI: Crime Scene Investigation
+        100834,  // Veneno
+        2710,  // It's Always Sunny in Philadelphia
+        66276,  // The Night Of
+        4574,  // X-Men
+        90461,  // Monsters at Work
+        202411,  // Monarch: Legacy of Monsters
+        95403,  // The Peripheral
+        126280,  // Sex/Life
+        89905,  // Normal People
+        61859,  // The Night Manager
+        80623,  // BAKI
+        34967,  // Falling Skies
+        61175,  // Steven Universe
+        5451,  // Without Breasts There Is No Paradise
+        1215,  // Californication
+        82452,  // Avatar: The Last Airbender
+        58450,  // What Life Took From Me
+        67075,  // Mob Psycho 100
+        76719,  // The Rain
+        73021,  // Disenchantment
+        222766,  // The Day of the Jackal
+        604,  // Teen Titans
+        64230,  // Preacher
+        83100,  // Dororo
+        105009,  // Tokyo Revengers
+        90937,  // BEASTARS
+        94667,  // De viaje con los Derbez
+        74016,  // The Resident
+        2352,  // The Nanny
+        82739,  // Rascal Does Not Dream of Bunny Girl Senpai
+        87689,  // Warrior Nun
+        97400,  // Midnight Mass
+        1621,  // Boardwalk Empire
+        114461,  // Ahsoka
+        1695,  // Monk
+        83097,  // The Promised Neverland
+        4586,  // Gilmore Girls
+        39852,  // The Sinner
+        54650,  // Power
+        54344,  // The Leftovers
+        65249,  // ERASED
+        1044,  // Planet Earth
+        100757,  // Outer Banks
+        81354,  // Ratched
+        71578,  // Atypical
+        62650,  // Chicago Med
+        4239,  // Married... with Children
+        129552,  // The Night Agent
+        70593,  // Kingdom
+        241259,  // Baby Reindeer
+        4658,  // ALF
+        17610,  // NCIS: Los Angeles
+        31268,  // El Capo
+        62110,  // Assassination Classroom
+        33907,  // Downton Abbey
+        1426,  // Luther
+        1404,  // Chuck
+        115857,  // Daughter from Another Mother
+        61223,  // Akame ga Kill!
+        74204,  // Big Mouth
+        63210,  // Shadowhunters
+        33217,  // Young Justice
+        605,  // Sabrina, the Teenage Witch
+        2290,  // Stargate Atlantis
+        89393,  // 9-1-1: Lone Star
+        42705,  // Fighting Spirit
+        120911,  // The Terminal List
+        127235,  // Invasion
+        80307,  // Bodyguard
+        125910,  // Young Royals
+        120168,  // Who Killed Sara?
+        60948,  // 12 Monkeys
+        73107,  // Barry
+        94305,  // The Walking Dead: World Beyond
+        63407,  // Mi corazón es tuyo
+        224372,  // A Knight of the Seven Kingdoms
+        3498,  // Wizards of Waverly Place
+        93812,  // The Great
+        105971,  // Star Wars: The Bad Batch
+        7225,  // Merlin
+        80986,  // DC's Stargirl
+        6040,  // Ben 10: Alien Force
+        67026,  // Designated Survivor
+        5178,  // Stairway to Heaven
+        70828,  // Surviving Escobar - Alias JJ
+        61663,  // Your Lie in April
+        74440,  // Harley Quinn
+        62823,  // Scream: The TV Series
+        62914,  // Merlí
+        2317,  // My Name Is Earl
+        1274,  // Six Feet Under
+        888,  // Spider-Man
+        2309,  // Danny Phantom
+        4313,  // Full House
+        61852,  // Henry Danger
+        110070,  // Horimiya
+        68267,  // Trollhunters: Tales of Arcadia
+        7842,  // The Tom and Jerry Show
+        157239,  // Alien: Earth
+        1855,  // Star Trek: Voyager
+        79410,  // After Life
+        252,  // Everybody Hates Chris
+        91557,  // Ragnarok
+        32726,  // Bob's Burgers
+        4630,  // The Fairly OddParents
+        194766,  // The Summer I Turned Pretty
+        79649,  // Project Blue Book
+        70453,  // Sharp Objects
+        63109,  // Moses and the Ten Commandments
+        13027,  // Amor Real
+        50825,  // Sleepy Hollow
+        18123,  // Scooby-Doo! Mystery Incorporated
+        225171,  // Pluribus
+        81146,  // Rosario Tijeras
+        66203,  // Soy Luna
+        64196,  // Overlord
+        202555,  // Daredevil: Born Again
+        1988,  // ThunderCats
+        4500,  // The Wonder Years
+        1516,  // The A-Team
+        3763,  // Dinosaurs
+        46533,  // The Americans
+        80350,  // New Amsterdam
+        117376,  // Vincenzo
+        116135,  // Vikings: Valhalla
+        73481,  // Ecomoda
+        110356,  // My Name
+        42589,  // Another
+        18011,  // Vecinos
+        37863,  // Fullmetal Alchemist
+        79240,  // Swamp Thing
+        155537,  // Black Bird
+        60802,  // The Last Ship
+        86848,  // Evil
+        83659,  // Guillermo del Toro's Cabinet of Curiosities
+        64513,  // American Crime Story
+        62852,  // Billions
+        6357,  // The Twilight Zone
+        1778,  // Zoey 101
+        81355,  // When They See Us
+        31072,  // La familia P. Luche
+        84977,  // Russian Doll
+        96580,  // Resident Alien
+        65294,  // A Series of Unfortunate Events
+        31295,  // Misfits
+        90660,  // KENGAN ASHURA
+        1877,  // Phineas and Ferb
+        92967,  // Mucize Doktor
+        83631,  // What We Do in the Shadows
+        87917,  // For All Mankind
+        64122,  // The Shannara Chronicles
+        73411,  // Maniac
+        34391,  // Marvel's Ultimate Spider-Man
+        46261,  // Fairy Tail
+        75191,  // The Terror
+        902,  // Yu-Gi-Oh! Duel Monsters
+        99071,  // Redo of Healer
+        3570,  // Sailor Moon
+        138501,  // Agatha All Along
+        154385,  // BEEF
+        1427,  // Broadchurch
+        118357,  // 1883
+        117488,  // Yellowjackets
+        1447,  // Psych
+        186,  // Weeds
+        88803,  // Vinland Saga
+        60554,  // Star Wars Rebels
+        102966,  // 100 días para enamorarnos
+        433,  // Terminator: The Sarah Connor Chronicles
+        1781,  // Little House on the Prairie
+        897,  // The Grim Adventures of Billy and Mandy
+        2426,  // Angel
+        607,  // The Powerpuff Girls
+        106651,  // Hellbound
+        62741,  // Kamisama Kiss
+        32692,  // Blue Bloods
+        580,  // Star Trek: Deep Space Nine
+        95480,  // Slow Horses
+        1996,  // The Flintstones
+        71365,  // Battlestar Galactica
+        97727,  // Inside Job
+        2391,  // Tales from the Crypt
+        56998,  // High School of the Dead
+        85077,  // The Chosen
+        75214,  // Violet Evergarden
+        49010,  // The Fall
+        42509,  // Steins;Gate
+        70796,  // The Marvelous Mrs. Maisel
         1600,  // Ned's Declassified School Survival Guide
+        2996,  // The Office
+        14141,  // V
+        1406,  // Deadwood
+        67466,  // Marvel's Runaways
+        61888,  // The Last Man on Earth
+        113036,  // American Horror Stories
+        537,  // Hey Arnold!
+        250307,  // The Pitt
+        98986,  // Uzaki-chan Wants to Hang Out!
+        83125,  // Cursed
+        89901,  // Dickinson
+        96316,  // Rent-a-Girlfriend
+        74387,  // Final Space
+        82684,  // That Time I Got Reincarnated as a Slime
+        247718,  // MobLand
+        111141,  // Maid
+        61345,  // Z Nation
+        236235,  // The Gentlemen
+        62687,  // Limitless
+        314,  // Star Trek: Enterprise
         197067,  // Extraordinary Attorney Woo
-        79818,  // Meteor Garden
-        5920,  // The Mentalist
-        233643,  // Secret Mission - Undercover Agents Never Bac
-        94997,  // House of the Dragon
-        2734,  // Law & Order: Special Victims Unit
-        1416,  // Grey's Anatomy
-        125988,  // Silo
-        65334,  // Miraculous: Tales of Ladybug & Cat Noir
+        209867,  // Frieren: Beyond Journey's End
+        42573,  // Slam Dunk
+        71663,  // Black Lightning
+        63767,  // She Was Pretty
+        4546,  // Curb Your Enthusiasm
+        67133,  // MacGyver
+        2673,  // The O.C.
+        1417,  // Glee
+        68595,  // Planet Earth II
+        66330,  // W
+        43020,  // Continuum
+        94796,  // Crash Landing on You
+        88236,  // How to Sell Drugs Online (Fast)
+        4588,  // ER
+        2875,  // MacGyver
+        136283,  // The Glory
+        276161,  // Teach You a Lesson
+        96713,  // The Midnight Gospel
+        88055,  // Servant
+        68349,  // Weightlifting Fairy Kim Bok-joo
+        240411,  // Dan Da Dan
+        83639,  // Girl from Nowhere
+        53425,  // Wayward Pines
+        123249,  // My Dress-Up Darling
+        90282,  // The Morning Show
+        80748,  // FBI
+        67773,  // Dirk Gently's Holistic Detective Agency
+        65820,  // Van Helsing
+        43899,  // The Bible
+        31654,  // Digimon: Digital Monsters
+        3452,  // Frasier
+        3854,  // The Spectacular Spider-Man
+        31724,  // Code Geass: Lelouch of the Rebellion
+        86374,  // War of the Worlds
+        82104,  // The Order
+        2723,  // Samurai Jack
+        2382,  // Freaks and Geeks
+        80564,  // Banana Fish
+        211684,  // The Walking Dead: Daryl Dixon
+        114479,  // The Acolyte
+        32754,  // Terra Nova
+        12313,  // Shadow Hunter
+        4229,  // Dexter's Laboratory
+        93846,  // The King: Eternal Monarch
+        110642,  // RESIDENT EVIL: Infinite Darkness
+        46994,  // Slugterra
+        82700,  // Baby
+        61418,  // Jane the Virgin
+        34415,  // The Killing
+        80169,  // The House of Flowers
+        72002,  // Dynasty
+        54155,  // Hanna
+        67683,  // Travelers
+        1414,  // The Shield
+        18350,  // Atrévete a Soñar
+        83851,  // The Undoing
+        31109,  // Ben 10: Ultimate Alien
+        138502,  // X-Men '97
+        77236,  // A Discovery of Witches
+        157065,  // The Fall of the House of Usher
+        97513,  // The Boarding School: Las Cumbres
+        84200,  // Justice League Unlimited
+        9687,  // The Odyssey
+        240,  // Jackie Chan Adventures
+        62425,  // Dark Matter
+        1436,  // Justified
+        48865,  // Reign
+        96160,  // My Holo Love
+        83121,  // Kaguya-sama: Love Is War
+        65495,  // Atlanta
+        69291,  // Miss Kobayashi's Dragon Maid
+        3322,  // Oz
+        85922,  // Space Force
+        220102,  // Spider-Noir
+        97617,  // The Misfit of Demon King Academy
+        82747,  // Kung Fu Panda: The Paws of Destiny
+        198102,  // Hijack
+        273240,  // Off Campus
+        81349,  // Devs
+        2129,  // The Adventures of Jimmy Neutron: Boy Genius
+        62649,  // Superstore
+        61593,  // Mr. Pickles
+        160,  // Teenage Mutant Ninja Turtles
+        68315,  // The Mist
+        3475,  // The L Word
+        2328,  // Power Rangers
+        157744,  // 1923
+        1423,  // Ray Donovan
+        69470,  // Santa Clarita Diet
+        2942,  // The Tudors
+        72517,  // Classroom of the Elite
+        873,  // Columbo
+        225180,  // BLUE EYE SAMURAI
+        103516,  // Star Trek: Strange New Worlds
+        35935,  // Berserk
+        39358,  // Revenge
+        91275,  // Unbelievable
+        86850,  // Dracula
+        110290,  // Mums Make Porn
+        98387,  // Rubi
+        926,  // Scooby-Doo, Where Are You!
+        4608,  // 30 Rock
+        2207,  // Fawlty Towers
+        2025,  // Beverly Hills, 90210
+        62273,  // Food Wars! Shokugeki no Soma
+        30981,  // Monster
+        21494,  // V
+        103540,  // Percy Jackson and the Olympians
+        76231,  // Mayans M.C.
+        1660,  // I Dream of Jeannie
+        47450,  // Into the Badlands
+        25707,  // Captain Tsubasa
+        95601,  // Merlí. Sapere Aude
+        79732,  // She-Ra and the Princesses of Power
+        210232,  // The Watcher
+        65143,  // Descendants of the Sun
+        5148,  // Stargate Universe
+        74682,  // I Am Not a Robot
+        105556,  // DON'T TOY WITH ME, MISS NAGATORO
+        65988,  // Wynonna Earp
+        28136,  // Rurouni Kenshin
+        61709,  // Dragon Ball Z Kai
+        60957,  // My Love from the Star
+        106541,  // The Witcher: Blood Origin
+        66786,  // Timeless
+        57532,  // PAW Patrol
+        56295,  // Halo 4: Forward Unto Dawn
+        196322,  // Dark Matter
+        135157,  // Alchemy of Souls
+        207468,  // Kaiju No. 8
+        1063,  // Samurai Champloo
+        606,  // Ed, Edd n Eddy
+        119243,  // iCarly
+        71694,  // Snowfall
+        127529,  // Bloodhounds
+        62704,  // Ballers
+        34899,  // The Magnificent Century
+        78722,  // Una familia de diez
+        67116,  // Lethal Weapon
+        35790,  // Cardcaptor Sakura
+        51817,  // Teenage Mutant Ninja Turtles
+        194583,  // The Walking Dead: Dead City
+        4018,  // Quantum Leap
+        88040,  // given
+        82816,  // Lovecraft Country
+        93484,  // Jupiter's Legacy
+        68716,  // Marvel's Inhumans
+        154825,  // Business Proposal
+        85801,  // High School Musical: The Musical: The Series
+        36250,  // xxxHOLiC
+        33623,  // The Avengers: Earth's Mightiest Heroes
+        65942,  // Re:ZERO -Starting Life in Another World-
+        38693,  // Ninjago: Masters of Spinjitzu
+        93149,  // Plunderer
+        79141,  // Scissor Seven
+        30983,  // Detective Conan
+        2660,  // Codename: Kids Next Door
+        84669,  // The Quintessential Quintuplets
+        79086,  // Godfather of Harlem
+        82,  // Animaniacs
+        95269,  // Toilet-Bound Hanako-kun
+        15819,  // Warehouse 13
+        100,  // I Am Not an Animal
+        2458,  // CSI: NY
+        1422,  // The Middle
+        94280,  // Steven Universe Future
+        13023,  // El Chapulín Colorado
+        33765,  // My Little Pony: Friendship Is Magic
+        60808,  // No Game No Life
+        99581,  // Unorthodox
+        75208,  // Devilman Crybaby
+        62428,  // Saint Seiya: Soul of Gold
+        15621,  // The Newsroom
+        3022,  // Rugrats
+        12782,  // Marimar
+        918,  // M*A*S*H
+        2228,  // Pinky and the Brain
+        4238,  // The King of Queens
+        67135,  // The Exorcist
+        44305,  // DreamWorks Dragons
+        4482,  // Bewitched
+        12225,  // Peppa Pig
+        64706,  // Prison School
+        60585,  // Bosch
+        720,  // DuckTales
+        1481,  // The 4400
+        201834,  // ted
+        112314,  // Archive 81
+        61733,  // Empire
+        132559,  // The Croods: Family Tree
+        66398,  // Diomedes, el Cacique de La Junta
+        97173,  // Behind Her Eyes
+        86382,  // The Stand
+        112163,  // High-Rise Invasion
+        99778,  // The God of High School
+        68734,  // El Chema
+        65320,  // SKAM
+        61752,  // Hellsing Ultimate
+        73467,  // Godless
+        66857,  // Shooter
+        61662,  // Schitt's Creek
+        46901,  // Amores verdaderos
+        5522,  // Doña Bárbara
+        4610,  // Hannah Montana
+        82728,  // Bluey
+        77240,  // Captain Tsubasa
+        1558,  // Home Improvement
+        206586,  // The Walking Dead: The Ones Who Live
+        96777,  // The Silent Sea
+        849,  // Monty Python's Flying Circus
+        127865,  // The Chestnut Man
+        196454,  // Queen Charlotte: A Bridgerton Story
+        4620,  // Eureka
+        1432,  // Veronica Mars
+        87623,  // Hercai
+        4345,  // Saved by the Bell
+        62816,  // Quantico
+        45140,  // Teen Titans Go!
+        45016,  // The Bridge
+        71769,  // The Alienist
+        79434,  // What's Wrong with Secretary Kim
+        112836,  // Money Heist: Korea - Joint Economic Area
+        197588,  // Man vs Bee
+        2675,  // The Little Mermaid
+        9160,  // Candy Candy
         549,  // Law & Order
-        13945,  // Gute Zeiten, schlechte Zeiten
+        136311,  // Shrinking
+        2046,  // Alias
+        64710,  // Noragami
+        2260,  // H2O: Just Add Water
+        121,  // Doctor Who
+        80828,  // The Nevers
+        98123,  // The Daily Life of the Immortal King
+        62822,  // Humans
+        46028,  // Girl Meets World
+        40293,  // Da Vinci's Demons
+        221851,  // Marry My Husband
+        85021,  // Gangs of London
+        81046,  // The Dragon Prince
+        71715,  // Good Girls
+        135934,  // The Legend of Vox Machina
+        72710,  // The Continental: From the World of John Wick
+        46511,  // Utopia
+        65555,  // Endless Love
+        18685,  // Hasta que el dinero nos separe
+        141,  // Cheers
+        71116,  // Castle Rock
+        146176,  // Berlin
+        4605,  // The Suite Life of Zack & Cody
+        95281,  // S.O.Z: Soldiers or Zombies
+        96203,  // Gleipnir
+        64684,  // And Then There Were None
+        1435,  // The Good Wife
+        2122,  // King of the Hill
+        652,  // What's New, Scooby-Doo?
+        195670,  // XO, Kitty
+        2131,  // Daria
+        156933,  // Presumed Innocent
+        59427,  // Marvel's Avengers
+        90814,  // Extracurricular
+        67126,  // Himouto! Umaru-chan
+        15655,  // Knight Rider
+        73544,  // Warrior
+        218539,  // My Demon
+        96129,  // Don't F**k with Cats: Hunting an Internet Killer
+        76747,  // On My Block
+        226637,  // High Potential
+        66190,  // Marvel's Cloak & Dagger
+        42916,  // Toradora!
+        38974,  // Jessie
+        250670,  // Maxton Hall – The World Between Us
+        204832,  // MASHLE: MAGIC AND MUSCLES
+        97951,  // Mayor of Kingstown
+        95350,  // Lanterns
+        62699,  // The Young Pope
+        97645,  // Solar Opposites
+        93785,  // Barbarians
+        32351,  // Ugly Americans
+        48462,  // The Heirs
+        62858,  // Colony
+        17572,  // Kick Buttowski: Suburban Daredevil
+        1940,  // Entourage
+        63764,  // Senora Acero
+        2140,  // Everybody Loves Raymond
+        72636,  // Made in Abyss
+        68129,  // Yuri!!! on Ice
+        61389,  // Saint Seiya: The Lost Canvas
+        259909,  // Dexter: Resurrection
+        218230,  // Death's Game
+        131041,  // BLUE LOCK
+        90855,  // SAINT SEIYA: Knights of the Zodiac
+        60726,  // Forever
+        4429,  // Timon and Pumbaa
+        1087,  // Serial Experiments Lain
+        122226,  // Echo
+        88046,  // Fire Force
+        89844,  // 30 Coins
+        63145,  // Charlotte
+        87083,  // Formula 1: Drive to Survive
+        1126,  // Happy Tree Friends
+        61339,  // Sailor Moon Crystal
+        2405,  // Johnny Bravo
+        2355,  // Lilo & Stitch: The Series
+        128883,  // Hometown Cha-Cha-Cha
+        220542,  // The Apothecary Diaries
+        108296,  // Resident Evil
+        46518,  // Masters of the Air
+        90228,  // Dune: Prophecy
+        86034,  // Arifureta: From Commonplace to World's Strongest
+        81357,  // Dead to Me
+        93287,  // The Flight Attendant
+        5835,  // Goosebumps
+        61671,  // Unbreakable Kimmy Schmidt
+        49011,  // Mom
+        1410,  // Revolution
+        157741,  // Landman
+        96444,  // Interspecies Reviewers
+        79622,  // Hunters
+        113901,  // Maradona, Blessed Dream
+        61611,  // Pinocchio
+        90447,  // Hotel Del Luna
+        903,  // Black Books
+        84647,  // The Society
+        73321,  // The King of Fighters: Destiny
+        198004,  // King the Land
+        73777,  // María de Todos los Ángeles
+        60699,  // Marco Polo
+        111111,  // Blood of Zeus
+        68878,  // La Doña
+        88640,  // Looking for Alaska
+        513,  // Batman Beyond
+        88052,  // Black Summer
+        4743,  // The Boarding School
+        98034,  // Digimon Adventure:
+        73157,  // Future Man
+        4271,  // Farscape
+        88989,  // Nine Perfect Strangers
+        236994,  // Dragon Ball DAIMA
+        98754,  // Club 57
+        79084,  // POSE
+        2327,  // Dawson's Creek
+        269,  // One Tree Hill
+        96557,  // Pandemic: How to Prevent an Outbreak
+        82591,  // Goblin Slayer
+        65648,  // Maid Sama!
+        45783,  // Kuroko's Basketball
+        42025,  // Mako: Island of Secrets
+        61901,  // Death Parade
+        2913,  // Are You Afraid of the Dark?
+        1618,  // Justice League
+        106292,  // Julie and the Phantoms
+        21729,  // Gurren Lagann
+        11721,  // La fea más bella
+        12777,  // Corazón salvaje
+        35753,  // The Familiar of Zero
+        62517,  // Zoo
+        3137,  // Babylon 5
+        301507,  // Heated Rivalry
+        39269,  // Scandal
+        18197,  // The Langoliers
+        2287,  // Batman
+        16830,  // Hellsing
+        4615,  // Hercules: The Legendary Journeys
+        79818,  // Meteor Garden
+        299167,  // Dutton Ranch
+        114395,  // A Love So Beautiful
+        57911,  // Doraemon
+        688,  // The West Wing
+        104555,  // The Great Heist
+        45094,  // The Following
+        100698,  // Tiger King
+        88324,  // Virgin River
+        2919,  // Burn Notice
+        123876,  // Komi Can't Communicate
+        58981,  // The Thundermans
+        6782,  // Pucca
+        93811,  // Into the Night
+        64439,  // Making a Murderer
+        92916,  // Marianne
+        79008,  // Luis Miguel: The Series
+        70637,  // Akashic Records of Bastard Magic Instructor
+        64254,  // Master of None
+        66433,  // Scarlet Heart: Ryeo
+        104819,  // La jauría
+        99494,  // Flower of Evil
+        32218,  // Soy tu dueña
+        107124,  // Animaniacs
+        7458,  // The Cartel
+        61068,  // Gomorrah
+        261579,  // Secret Level
+        233629,  // Bodies
+        219246,  // When Life Gives You Tangerines
+        63623,  // Fuller House
+        96608,  // The Stranger
+        32962,  // Louie
+        4454,  // Will & Grace
+        59659,  // Halt and Catch Fire
+        5687,  // The Smurfs
+        709,  // Robot Chicken
+        67389,  // Golden Time
+        1777,  // Boy Meets World
+        424,  // Torchwood
+        3772,  // Walker, Texas Ranger
+        790,  // Agatha Christie's Poirot
+        36,  // Medium
+        135340,  // Happiness
+        14929,  // Heartland
+        69998,  // Hugo Chávez, El Comandante
+        61929,  // The Jinx
+        95171,  // Prehistoric Planet
+        129035,  // The Walking Dead: Origins
+        83880,  // Our Planet
+        1430,  // Cosmos: A Personal Voyage
+        103506,  // Jeffrey Epstein: Filthy Rich
+        99626,  // The Trials of Gabriel Fernandez
+        127700,  // Welcome to Earth
+        128876,  // The Beatles: Get Back
+        16946,  // Life
+        13579,  // The Blue Planet
+        85833,  // Conversations with a Killer: The Ted Bundy Tapes
+        116989,  // Crime Scene: The Vanishing at the Cecil Hotel
+        66185,  // The Story of God with Morgan Freeman
+        114705,  // Night Stalker: The Hunt for a Serial Killer
+        74313,  // Blue Planet II
+        111119,  // Súbete a mi moto
+        96481,  // Rise of Empires: Ottoman
+        105177,  // Unsolved Mysteries
+        58957,  // Nathan for You
+        103847,  // MATARIFE
+        8724,  // Frozen Planet
+        77601,  // Wild Wild Country
+        103026,  // Undertaker: The Last Ride
+        105288,  // Down to Earth with Zac Efron
+        83247,  // Haunted
+        93736,  // Age of Samurai: Battle for Japan
+        17035,  // Generation Kill
+        2947,  // Veep
+        66871,  // SIX
+        216082,  // Zero Day
+        203857,  // The Diplomat
+        46849,  // Generation War
+        69346,  // Saga of Tanya the Evil
+        87104,  // Years and Years
+        46976,  // Hitler: The Rise of Evil
+        28379,  // The Diary of Anne Frank
+        57092,  // The White Queen
+        61378,  // Madam Secretary
+        43062,  // King David
+        66761,  // Medici: Masters of Florence
+        108291,  // Snowdrop
+        95603,  // Kuruluş Osman
+        93256,  // Cautious Hero: The Hero Is Overpowered but Overly Cautious
+        70215,  // The White Princess
+        82744,  // Catch-22
+        61314,  // Apocalypse: World War I
+        365,  // Jericho
+        215866,  // American Primeval
+        1018,  // Bonanza
+        4324,  // Dr. Quinn, Medicine Woman
+        1401,  // Hell on Wheels
+        43016,  // Hatfields & McCoys
+        43901,  // Longmire
+        65493,  // The Ranch
+        99346,  // The English
+        1472,  // Kung Fu
+        41692,  // Lonesome Dove
+        4681,  // Zorro
+        138971,  // Billy the Kid
+        20056,  // Broken Trail
+        61865,  // When Calls the Heart
+        240993,  // Ransom Canyon
+        223300,  // The Abandons
+        3713,  // Gunsmoke
+        87523,  // The Good Lord Bird
+        283304,  // Little House on the Prairie
+        122235,  // Joe Pickett
+        1463,  // The Adventures of Brisco County, Jr.
+        71979,  // Damnation
+        57389,  // Klondike
+        89498,  // Deputy
+        65392,  // Lucky Luke
+        157084,  // That Dirty Black Bag
+        10929,  // The Wild Wild West
     ]
 
     static var seriesIds: [Int] { SeedCuration.handPickedIds + discoveredIds }
