@@ -52,3 +52,6 @@ fastlane/
 # docs/ — local-only: App Review notes, Resolution Center replies, store copy
 # rationale, plans and specs. Kept on disk, kept out of the public repo.
 docs/
+
+# Claude Code agent worktrees — local scratch checkouts, never part of the repo
+.claude/worktrees/
