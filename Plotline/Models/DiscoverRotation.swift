@@ -29,8 +29,8 @@ nonisolated enum DiscoverRotation {
     /// Up to `count` genre shelves, each from a different genre: genres in
     /// ascending id, starting at the day's index and wrapping. Within a genre,
     /// its shelves in the order given (the generator's shelf order), rotated
-    /// to start at the day's index plus the genre's position in the sorted
-    /// ids, so each genre advances one shelf a day.
+    /// by how many times that genre has been on screen, so each genre
+    /// advances one shelf per appearance and every shelf comes round.
     ///
     /// From each rotation the slot takes the first shelf whose base no other
     /// slot uses, so a day's genre shelves come from different base shelves
@@ -57,11 +57,15 @@ nonisolated enum DiscoverRotation {
 
         let day = dayIndex(of: date, calendar: calendar)
         let start = wrapped(day, genres.count)
+        let slotCount = min(count, genres.count)
         // Each slot's candidates: its genre's shelves, rotated.
-        let slots: [[CuratedList]] = (0..<min(count, genres.count)).compactMap { offset in
+        let slots: [[CuratedList]] = (0..<slotCount).compactMap { offset in
             let position = (start + offset) % genres.count
             guard let shelves = byGenre[genres[position]], !shelves.isEmpty else { return nil }
-            let first = wrapped(day + position, shelves.count)
+            let first = wrapped(
+                appearance(ofGenreAt: position, onDay: day, genreCount: genres.count, slotCount: slotCount),
+                shelves.count
+            )
             return Array(shelves[first...] + shelves[..<first])
         }
 
@@ -100,6 +104,22 @@ nonisolated enum DiscoverRotation {
             used.insert(base(of: pick))
             return pick
         }
+    }
+
+    /// How many times the genre at `position` has been on screen before
+    /// `day`: it shows on `slotCount` consecutive days out of every
+    /// `genreCount`, so this counts up by one per appearance and never skips.
+    ///
+    /// Rotating by the calendar day instead ties the shelf to the day's
+    /// residue modulo the genre count. With eight genres, a genre is only ever
+    /// seen on three residues, so a genre with four shelves never showed one
+    /// of them — two shipped genre lists could not reach Discover at all.
+    private static func appearance(ofGenreAt position: Int, onDay day: Int, genreCount: Int, slotCount: Int) -> Int {
+        // Shift so the genre's run of visible days starts each cycle at 0.
+        let shifted = day - position + (slotCount - 1)
+        let withinCycle = wrapped(shifted, genreCount)
+        let cycle = (shifted - withinCycle) / genreCount
+        return cycle * slotCount + withinCycle
     }
 
     private static func base(of list: CuratedList) -> String {

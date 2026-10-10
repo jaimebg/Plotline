@@ -171,6 +171,42 @@ struct DiscoverRotationTests {
         #expect(lower.contains("rollercoaster"))
     }
 
+    /// Eight genres, one with four shelves: the shape the shipped data has.
+    /// Every base is unique to its genre, so the distinct-base rule never
+    /// moves a pick and the rotation itself is what is measured.
+    private var eightGenres: [CuratedList] {
+        let genres = [16, 18, 35, 80, 9648, 10751, 10759, 10765]
+        return genres.flatMap { genre in
+            (0..<(genre == 80 ? 4 : 5)).map { list("b\($0)g\(genre)/\(genre)") }
+        }
+    }
+
+    @Test("a genre advances one shelf each time it appears, whatever the genre count")
+    func advancesPerAppearance() {
+        let crime = (0..<120).compactMap { offset -> String? in
+            let on = Self.calendar.date(byAdding: .day, value: offset, to: date(2026, 1, 1))!
+            return DiscoverRotation.genreShelves(from: eightGenres, on: on, calendar: Self.calendar)
+                .first { CuratedListID($0.id)?.genreId == 80 }?.id
+        }
+        let order = (0..<4).map { "b\($0)g80/80" }
+        // Each appearance is the shelf after the previous one, so all four
+        // come round in turn instead of the same three.
+        for (previous, next) in zip(crime, crime.dropFirst()) {
+            let expected = order[(order.firstIndex(of: previous)! + 1) % order.count]
+            #expect(next == expected, "\(previous) was followed by \(next)")
+        }
+        #expect(Set(crime) == Set(order))
+    }
+
+    @Test("every shelf of every genre reaches Discover")
+    func everyShelfIsReachable() {
+        let shown = (0..<120).reduce(into: Set<String>()) { seen, offset in
+            let on = Self.calendar.date(byAdding: .day, value: offset, to: date(2026, 1, 1))!
+            seen.formUnion(DiscoverRotation.genreShelves(from: eightGenres, on: on, calendar: Self.calendar).map(\.id))
+        }
+        #expect(shown == Set(eightGenres.map(\.id)))
+    }
+
     @Test("fewer genres than slots shows each once; none shows none; main and malformed ids are ignored")
     func fewerGenres() {
         let lists = ["never-decline", "falls-off/18", "bad//1", "slow-burn/35"].map(list)
@@ -193,12 +229,10 @@ struct ShippedDiscoverRotationTests {
         let avoided = try #require(store.mainLists.last.flatMap { CuratedListID($0.id)?.base })
         let start = try #require(calendar.date(from: DateComponents(year: 2026, month: 1, day: 1)))
 
-        // The shipped genres hold 5, 5, 5, 4, 4, 1, 5 and 5 shelves, and the
-        // rotation repeats every lcm(8, 5, 4) = 40 days, so a year covers
-        // every arrangement several times over. Family's one shelf is
-        // perfect-ending, and no genre has the avoided base as its only shelf,
-        // so the shipped data satisfies both rules on every day: no exception
-        // is allowed.
+        // The shipped genres hold 5, 5, 5, 4, 4, 1, 5 and 5 shelves. Family's
+        // one shelf is perfect-ending, and no genre has the avoided base as
+        // its only shelf, so the shipped data satisfies both rules on every
+        // day: no exception is allowed.
         for offset in 0..<365 {
             let day = try #require(calendar.date(byAdding: .day, value: offset, to: start))
             let shelves = DiscoverRotation.genreShelves(
@@ -209,5 +243,26 @@ struct ShippedDiscoverRotationTests {
             #expect(Set(bases).count == bases.count, "day \(offset): \(shelves.map(\.id))")
             #expect(bases.first != avoided, "day \(offset): \(shelves.map(\.id)) repeats \(avoided)")
         }
+    }
+
+    @Test("every shipped genre shelf reaches Discover within a year")
+    func everyShippedGenreShelfAppears() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(identifier: "UTC"))
+        let store = DatasetStore.shared
+        let avoided = try #require(store.mainLists.last.flatMap { CuratedListID($0.id)?.base })
+        let start = try #require(calendar.date(from: DateComponents(year: 2026, month: 1, day: 1)))
+
+        var shown = Set<String>()
+        for offset in 0..<365 {
+            let day = try #require(calendar.date(byAdding: .day, value: offset, to: start))
+            shown.formUnion(
+                DiscoverRotation.genreShelves(from: store.genreLists, on: day, calendar: calendar, avoidingBase: avoided)
+                    .map(\.id)
+            )
+        }
+        // A genre list that never comes round is a shelf nobody can reach:
+        // genre lists surface nowhere else.
+        #expect(Set(store.genreLists.map(\.id)).subtracting(shown).isEmpty, "never shown: \(Set(store.genreLists.map(\.id)).subtracting(shown).sorted())")
     }
 }
