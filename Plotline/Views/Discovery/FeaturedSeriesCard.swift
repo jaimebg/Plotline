@@ -46,7 +46,7 @@ struct FeaturedSeriesCard: View {
                     }
                 }
 
-                curve(summary.seasonAverages)
+                curve(summary.seasonPoints)
 
                 Text(summary.verdict)
                     .font(.headline)
@@ -64,33 +64,36 @@ struct FeaturedSeriesCard: View {
         // a child of this card (see FeaturedCardSourceTests).
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Featured series: \(summary.title). Plotline Score \(summary.score). \(summary.verdict).")
-        .accessibilityValue(curveDescription(summary.seasonAverages))
+        .accessibilityValue(Self.accessibilityValue(for: summary))
         .accessibilityHint("Opens the series")
         // No `.isButton` trait: the NavigationLink around the card supplies it.
     }
 
-    private func curve(_ averages: [Double]) -> some View {
+    private func curve(_ points: [FeaturedSeriesSummary.SeasonPoint]) -> some View {
+        let averages = points.map(\.average)
         let low = (averages.min() ?? 0) - 0.3
         let high = (averages.max() ?? 10) + 0.3
         return VStack(alignment: .leading, spacing: 4) {
             Text(VerdictCardContent.seasonAveragesCaption)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            // x is the point's position, so a skipped season leaves no hole in
+            // the line; every label names the season's own number.
             Chart {
-                ForEach(Array(averages.enumerated()), id: \.offset) { index, average in
-                    LineMark(x: .value("Season", Double(index + 1)), y: .value("Average", average))
+                ForEach(Array(points.enumerated()), id: \.offset) { index, point in
+                    LineMark(x: .value("Season", Double(index + 1)), y: .value("Average", point.average))
                         .interpolationMethod(.catmullRom)
                         .foregroundStyle(Color.plotlineGold)
-                    PointMark(x: .value("Season", Double(index + 1)), y: .value("Average", average))
+                    PointMark(x: .value("Season", Double(index + 1)), y: .value("Average", point.average))
                         .foregroundStyle(Color.plotlineGold)
                         .symbolSize(24)
                 }
             }
             .chartYScale(domain: low...high)
-            .chartXScale(domain: 0.5...(Double(max(averages.count, 2)) + 0.5))
+            .chartXScale(domain: 0.5...(Double(max(points.count, 2)) + 0.5))
             .chartXAxis {
-                AxisMarks(values: (1...max(averages.count, 1)).map(Double.init)) { value in
-                    AxisValueLabel { Text("S\(Int(value.as(Double.self) ?? 0))") }
+                AxisMarks(values: points.indices.map { Double($0 + 1) }) { value in
+                    AxisValueLabel { Text(Self.axisLabel(at: value.as(Double.self), in: points)) }
                 }
             }
             .chartYAxis(.hidden)
@@ -99,10 +102,17 @@ struct FeaturedSeriesCard: View {
         }
     }
 
-    private func curveDescription(_ averages: [Double]) -> String {
+    /// The label for the point plotted at `position` (1-based).
+    private static func axisLabel(at position: Double?, in points: [FeaturedSeriesSummary.SeasonPoint]) -> String {
+        guard let position, points.indices.contains(Int(position) - 1) else { return "" }
+        return points[Int(position) - 1].axisLabel
+    }
+
+    /// What VoiceOver reads for the curve: every season, by its own number.
+    static func accessibilityValue(for summary: FeaturedSeriesSummary) -> String {
         VerdictCardContent.seasonAveragesCaption + ": "
-            + averages.enumerated()
-                .map { String(format: "season %d, %.1f", $0.offset + 1, $0.element) }
+            + summary.seasonPoints
+                .map { String(format: "season %d, %.1f", $0.season, $0.average) }
                 .joined(separator: "; ")
     }
 }

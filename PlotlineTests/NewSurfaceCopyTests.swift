@@ -34,14 +34,48 @@ struct FeaturedSeriesSummaryTests {
         #expect(VerdictCardContent.seasonAveragesCaption == "Season averages, weighted by votes")
     }
 
-    @Test("the summary carries the name, score, season averages and basis")
+    /// An entry whose analysed seasons carry these numbers and averages.
+    private func makeEntry(seasons: [(number: Int, average: Double)]) -> DatasetEntry {
+        let base = ExplorerFixtures.entry(id: 7, name: "Example")
+        let a = base.analysis
+        let summaries = seasons.map {
+            SeasonSummary(seasonNumber: $0.number, weightedAverage: $0.average, standardDeviation: 0.2,
+                          reliableEpisodeCount: 10, airedEpisodeCount: 10, bestEpisode: nil, worstEpisode: nil)
+        }
+        return DatasetEntry(
+            tmdbId: base.tmdbId, name: base.name, mediaType: "tv", overview: "", posterPath: nil,
+            backdropPath: "/b.jpg", voteAverage: 8, genreIds: [18], firstAirDate: base.firstAirDate,
+            analysis: SeriesAnalysis(
+                seasons: summaries, bestSeason: a.bestSeason, worstSeason: a.worstSeason,
+                declinePoint: a.declinePoint, declineTest: a.declineTest, consistency: a.consistency,
+                standoutHighs: [], standoutLows: [], openingVerdict: a.openingVerdict,
+                endingVerdict: a.endingVerdict, score: a.score, isOngoing: a.isOngoing
+            ),
+            awards: []
+        )
+    }
+
+    @Test("the summary carries the name, score, each season's number and average, and basis")
     func fields() {
-        let entry = ExplorerFixtures.entry(id: 7, name: "Example")
+        let entry = makeEntry(seasons: [(1, 8.1), (2, 8.4), (3, 7.6)])
         let summary = FeaturedSeriesSummary(entry: entry)
         #expect(summary.title == "Example")
         #expect(summary.score == entry.analysis.score.value)
-        #expect(summary.seasonAverages == entry.analysis.seasons.map(\.weightedAverage))
+        #expect(summary.seasonPoints.map(\.season) == entry.analysis.seasons.map(\.seasonNumber))
+        #expect(summary.seasonPoints.map(\.average) == entry.analysis.seasons.map(\.weightedAverage))
         #expect(summary.basis == VerdictCardContent.basis(for: entry.analysis))
+    }
+
+    @Test("a season the analysis skips keeps its own number on the axis and for VoiceOver")
+    func seasonGap() {
+        // Blue Bloods' analysed seasons run 1–11 and then 14; numbering by
+        // position would call season 14 "S12".
+        let summary = FeaturedSeriesSummary(entry: makeEntry(seasons: [(1, 8.0), (2, 8.4), (4, 7.9)]))
+        #expect(summary.seasonPoints.map(\.season) == [1, 2, 4])
+        #expect(summary.seasonPoints.map(\.axisLabel) == ["S1", "S2", "S4"])
+        #expect(FeaturedSeriesCard.accessibilityValue(for: summary).hasPrefix(
+            "Season averages, weighted by votes: season 1, 8.0; season 2, 8.4; season 4, 7.9"
+        ))
     }
 }
 
