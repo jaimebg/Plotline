@@ -25,6 +25,11 @@ enum DatasetBuilder {
     /// miniature, so it is dropped rather than shipped looking broken.
     static let minimumListSize = 3
 
+    /// A genre shelf is the same predicate over a narrower slice, so it has to
+    /// earn its place with more than the main shelves' floor: a genre shelf as
+    /// thin as the thinnest main one is the emptiness this exists to remove.
+    static let minimumGenreListSize = 6
+
     /// Every list is a query over the analysis. Nothing here is hand-picked,
     /// which is the point: the lists are Plotline's own reading of the data, and
     /// they are exactly as defensible as the engine that produced them.
@@ -105,11 +110,27 @@ enum DatasetBuilder {
             )
         ]
 
-        return candidates.compactMap { candidate in
-            let ids = entries.filter(candidate.match).map(\.tmdbId)
-            guard ids.count >= minimumListSize else { return nil }
-
-            return CuratedList(id: candidate.id, tmdbIds: ids)
+        let matched = candidates.map { candidate in
+            (id: candidate.id, members: entries.filter(candidate.match))
         }
+
+        let mainLists = matched.compactMap { shelf -> CuratedList? in
+            guard shelf.members.count >= minimumListSize else { return nil }
+            return CuratedList(id: shelf.id, tmdbIds: shelf.members.map(\.tmdbId))
+        }
+
+        // The same predicate, narrowed to one genre. Nothing new is claimed: a
+        // member of "falls-off/18" is a member of "falls-off" that TMDB files
+        // under genre 18. The app titles it with the base shelf's copy.
+        let genreIds = Set(entries.flatMap(\.genreIds)).sorted()
+        let genreLists = matched.flatMap { shelf in
+            genreIds.compactMap { genre -> CuratedList? in
+                let ids = shelf.members.filter { $0.genreIds.contains(genre) }.map(\.tmdbId)
+                guard ids.count >= minimumGenreListSize else { return nil }
+                return CuratedList(id: "\(shelf.id)/\(genre)", tmdbIds: ids)
+            }
+        }
+
+        return mainLists + genreLists
     }
 }

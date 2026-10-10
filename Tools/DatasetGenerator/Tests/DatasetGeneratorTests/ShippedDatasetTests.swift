@@ -96,6 +96,27 @@ struct ShippedDatasetTests {
         }
     }
 
+    /// Vacuous until the dataset is regenerated with genre lists (Task 6), and
+    /// load-bearing from then on: a genre list that is not exactly its base
+    /// shelf narrowed to one genre would claim something the base copy does not.
+    @Test("every genre list is its base shelf narrowed to one genre")
+    func genreListsNarrowTheirBase() throws {
+        let dataset = try shippedDataset()
+        let byId = Dictionary(uniqueKeysWithValues: dataset.entries.map { ($0.tmdbId, $0) })
+        let listsById = Dictionary(uniqueKeysWithValues: dataset.lists.map { ($0.id, $0) })
+
+        for list in dataset.lists where list.id.contains("/") {
+            let parts = list.id.split(separator: "/", omittingEmptySubsequences: false)
+            try #require(parts.count == 2, "malformed list id \(list.id)")
+            let base = try #require(listsById[String(parts[0])], "\(list.id) has no base list")
+            let genre = try #require(Int(parts[1]), "\(list.id) has a non-numeric genre")
+
+            #expect(list.tmdbIds.count >= DatasetBuilder.minimumGenreListSize)
+            let expected = base.tmdbIds.filter { byId[$0]?.genreIds.contains(genre) == true }
+            #expect(list.tmdbIds == expected, "\(list.id) is not exactly \(base.id) narrowed to genre \(genre)")
+        }
+    }
+
     @Test("no skip reason carries anything that could be a secret")
     func skipsCarryNoSecrets() throws {
         let dataset = try shippedDataset()

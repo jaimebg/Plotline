@@ -30,7 +30,8 @@ struct DatasetBuilderTests {
         id: Int,
         name: String,
         ratings: [[Double]],
-        awards: [String] = []
+        awards: [String] = [],
+        genreIds: [Int] = [18]
     ) -> DatasetEntry? {
         var episodes: [EpisodeMetric] = []
         for (index, season) in ratings.enumerated() {
@@ -61,7 +62,7 @@ struct DatasetBuilderTests {
             posterPath: nil,
             backdropPath: nil,
             voteAverage: 8.4,
-            genreIds: [18],
+            genreIds: genreIds,
             firstAirDate: "2010-01-01",
             analysis: analysis,
             awards: awards
@@ -69,8 +70,8 @@ struct DatasetBuilderTests {
     }
 
     /// `minimumListSize` copies of a shape, so a list built from them ships.
-    private func entries(ids: [Int], ratings: [[Double]]) throws -> [DatasetEntry] {
-        try ids.map { try #require(entry(id: $0, name: "Series \($0)", ratings: ratings)) }
+    private func entries(ids: [Int], ratings: [[Double]], genreIds: [Int] = [18]) throws -> [DatasetEntry] {
+        try ids.map { try #require(entry(id: $0, name: "Series \($0)", ratings: ratings, genreIds: genreIds)) }
     }
 
     @Test("collects series that never decline")
@@ -161,7 +162,7 @@ struct DatasetBuilderTests {
         for list in dataset.lists {
             for id in list.tmdbIds {
                 let analysis = try #require(byId[id]).analysis
-                switch list.id {
+                switch String(list.id.split(separator: "/").first ?? "") {
                 case "never-decline":
                     #expect(analysis.declinePoint == nil)
                     #expect(analysis.endingVerdict?.kind != .fadesOut)
@@ -215,6 +216,67 @@ struct DatasetBuilderTests {
         let encoded = try #require(String(data: try JSONEncoder().encode(dataset.lists), encoding: .utf8))
         #expect(!encoded.contains("title"))
         #expect(!encoded.contains("subtitle"))
+    }
+
+    // MARK: - Genre lists
+
+    private static let shelfOrder = ["never-decline", "falls-off", "slow-burn", "perfect-ending", "rollercoaster"]
+
+    @Test("a shelf narrowed to one genre ships once six members share it")
+    func emitsGenreList() throws {
+        let steady = try entries(ids: [1, 2, 3, 4, 5, 6], ratings: Self.steadyRatings, genreIds: [18])
+        let lists = DatasetBuilder.build(entries: steady, generatedAt: "2026-01-01T00:00:00Z").lists
+
+        let genre = try #require(lists.first { $0.id == "never-decline/18" })
+        #expect(genre.tmdbIds == [1, 2, 3, 4, 5, 6])
+        #expect(lists.contains { $0.id == "never-decline" })
+    }
+
+    @Test("a genre list is never emitted below six members, though its base list is")
+    func dropsUndersizedGenreLists() throws {
+        let steady = try entries(ids: [1, 2, 3, 4, 5], ratings: Self.steadyRatings, genreIds: [18])
+        let lists = DatasetBuilder.build(entries: steady, generatedAt: "2026-01-01T00:00:00Z").lists
+
+        #expect(lists.contains { $0.id == "never-decline" })
+        #expect(!lists.contains { $0.id.contains("/") })
+        #expect(DatasetBuilder.minimumGenreListSize == 6)
+    }
+
+    @Test("a genre list holds exactly its base list's members that carry the genre")
+    func genreListIsBaseNarrowed() throws {
+        let dramaComedies = try entries(ids: [1, 2, 3, 4, 5, 6], ratings: Self.steadyRatings, genreIds: [18, 35])
+        let comedies = try entries(ids: [7, 8], ratings: Self.steadyRatings, genreIds: [35])
+        let fallingDramas = try entries(ids: [9, 10, 11, 12, 13, 14], ratings: Self.fallerRatings, genreIds: [18])
+        let lists = DatasetBuilder.build(
+            entries: dramaComedies + comedies + fallingDramas, generatedAt: "2026-01-01T00:00:00Z"
+        ).lists
+
+        #expect(lists.first { $0.id == "never-decline/18" }?.tmdbIds == [1, 2, 3, 4, 5, 6])
+        #expect(lists.first { $0.id == "never-decline/35" }?.tmdbIds == [1, 2, 3, 4, 5, 6, 7, 8])
+        #expect(lists.first { $0.id == "falls-off/18" }?.tmdbIds == [9, 10, 11, 12, 13, 14])
+        #expect(!lists.contains { $0.id == "falls-off/35" })
+    }
+
+    @Test("main lists come first in shelf order, then genre lists by shelf and genre")
+    func listOrder() throws {
+        let steady = try entries(ids: [1, 2, 3, 4, 5, 6], ratings: Self.steadyRatings, genreIds: [35, 18])
+        let fallers = try entries(ids: [7, 8, 9, 10, 11, 12], ratings: Self.fallerRatings, genreIds: [18])
+        let ids = DatasetBuilder.build(entries: fallers + steady, generatedAt: "2026-01-01T00:00:00Z").lists.map(\.id)
+
+        let main = ids.filter { !$0.contains("/") }
+        let genre = ids.filter { $0.contains("/") }
+        #expect(ids == main + genre)
+        #expect(main == Self.shelfOrder.filter(main.contains))
+
+        let keys = genre.map { id -> String in
+            let parts = id.split(separator: "/")
+            let shelf = Self.shelfOrder.firstIndex(of: String(parts[0])) ?? -1
+            return String(format: "%02d-%08d", shelf, Int(parts[1]) ?? -1)
+        }
+        #expect(keys == keys.sorted())
+        #expect(genre.contains("never-decline/18"))
+        #expect(genre.contains("never-decline/35"))
+        #expect(genre.contains("falls-off/18"))
     }
 
     @Test("entries come back sorted by id so regeneration is reproducible")
