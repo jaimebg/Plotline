@@ -60,12 +60,13 @@ struct ColdStartTests {
 
     @Test("the shelves carry enough titles between them to fill a screen")
     func shelvesCarryEnoughTitles() {
-        // The dataset ships 59 across five shelves (19 + 4 + 9 + 24 + 3) since
-        // "never-decline" began requiring a decline test that actually ran. A
+        // The regenerated dataset ships 450 across five shelves (116 + 65 + 59
+        // + 182 + 28 for never-decline, falls-off, slow-burn, perfect-ending
+        // and rollercoaster). The floor is 90% of that total. A
         // floor near that catches the loss of any shelf of five or more; a
         // floor far below it catches nothing, which is worse than no test
         // because it reads as coverage.
         let total = DatasetStore.shared.mainLists.reduce(0) { $0 + $1.tmdbIds.count }
-        #expect(total >= 55, "only \(total) titles across all shelves — a shelf may have been lost")
+        #expect(total >= 405, "only \(total) titles across all shelves — a shelf may have been lost")
     }
 }

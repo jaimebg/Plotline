@@ -13,8 +13,9 @@ struct DatasetStoreTests {
     @Test("the dataset ships a usable number of series")
     func shipsEnoughSeries() {
         // The whole point of this dataset is that the app is not empty on a
-        // clean install, so a handful of entries would defeat it.
-        #expect(DatasetStore.shared.entries.count >= 50)
+        // clean install, so a handful of entries would defeat it. The floor
+        // tracks the regenerated size (768 entries): 90% of it, rounded down.
+        #expect(DatasetStore.shared.entries.count >= 691)
     }
 
     @Test("every entry carries what a MediaItem needs")
