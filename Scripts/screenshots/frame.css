@@ -51,8 +51,28 @@ html, body { margin: 0; padding: 0; background: #0E0E12; }
    .frame, regardless of how deep the element sits inside .stage — so the same
    value now reads as the same bezel everywhere. The thinner figure is the one
    kept: it reads closer to a real device bezel at this frame size. */
-.phone { border-radius: 9% / 4.1%; padding: 1.1cqw; }
-.phone img { border-radius: 8% / 3.6%; object-position: top center; }
+/* iPhone proportions: the screen keeps the capture's 1320:2868 ratio, so its
+   height follows from its width and nothing is cropped. Corner radii are cqw
+   so they stay circular whatever the device's size — a % radius resolves
+   against width and height separately and draws an ellipse. The screen's
+   radius is the 17 Pro Max's display corner (about 14% of the screen's
+   width); the body's is that plus the bezel, so the two curves stay
+   concentric. */
+.phone { border-radius: 10.1cqw; padding: 1.1cqw; }
+.phone img { height: auto; aspect-ratio: 1320 / 2868; border-radius: 9cqw; }
+
+/* Simulator captures leave out the Dynamic Island — the status bar is drawn
+   around it but the cut-out itself is not in the framebuffer — and without it
+   the device does not read as an iPhone. 126 x 37pt at 11pt from the top of a
+   440pt-wide screen, scaled to the 64cqw screen. */
+.phone .island {
+  position: absolute; z-index: 1;
+  left: 50%; transform: translateX(-50%);
+  top: calc(1.1cqw + 1.6cqw);
+  width: 18.3cqw; height: 5.4cqw;
+  border-radius: 99px;
+  background: #000;
+}
 
 .tablet { border-radius: 3.4% / 2.6%; padding: .8cqw; }
 .tablet img { border-radius: 3% / 2.2%; object-position: top center; }

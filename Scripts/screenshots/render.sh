@@ -136,7 +136,9 @@ if [ "$n" -ne "$COUNT" ]; then echo "$n file(s) in $OUT, expected $COUNT" >&2; e
 # two stops are checked too, in case a different failure leaves the device
 # box itself unpainted instead.
 case "$FAMILY" in
-    iphone-69) HERO_X=660;  HERO_Y=(1681 1624 1681 1700 1700 1652 1710 1652) ;;
+    # iPhone: every frame draws one upright device, top 27%, screen 64cqw at
+    # 1320:2868 plus a 1.1cqw bezel each side: 774.4 + (1835.5 + 29.0) / 2.
+    iphone-69) HERO_X=660;  HERO_Y=(1707 1707 1707 1707 1707 1707 1707 1707) ;;
     ipad-13)   HERO_X=1376; HERO_Y=(1315 1273 1315 1284 1284 1294 1335 1294) ;;
 esac
 BEZEL="2A2A2E"

@@ -29,64 +29,34 @@ var FRAMES = [
   { head: 'Decade against decade,<br><em>charted</em>', chip: null }
 ];
 
-// Two shared scenes. Offsets are cqw — percentages of ONE frame's width —
-// across a stage three frames wide. Scene A spans frames 1·2·3, scene B
-// spans 6·7·8; frames 4 and 5 carry a single upright device.
+// One upright device per frame, centred. An earlier version tilted the
+// heroes across two shared three-frame scenes and slid smaller supporting
+// devices in behind them at the frame boundaries; the second phone read as
+// clutter, and the device box was 1320:2400 against captures that are
+// 1320:2868, so every phone looked squat and lost the bottom of its screen
+// to object-fit: cover. The gold curve still runs across all eight frames,
+// so the strip keeps its continuity without the scenes.
 //
-// Each of the three frames in a scene gets exactly one hero: large, fully
-// inside its own 100cqw window, tilted only a few degrees. Two smaller,
-// more-tilted supporting devices sit behind the heroes straddling the two
-// internal boundaries (stage x=100 and x=200) — each is cut cleanly by the
-// frame edge on one side, so it reads as the same phone entering frame N+1
-// that was leaving frame N, without ever being the thing a headline's proof
-// depends on. Devices are listed supporting-first so the heroes (drawn
-// last) always sit on top where they'd otherwise touch.
-var SCENE_A = [
-  { left: 85,  top: 41, width: 28, rotate: 9 },
-  { left: 187, top: 39, width: 28, rotate: -8 },
-  { left: 17,  top: 31, width: 66, rotate: -3 },
-  { left: 117, top: 29, width: 66, rotate: 3 },
-  { left: 217, top: 31, width: 66, rotate: -3 }
-];
-var SCENE_B = [
-  { left: 85,  top: 40, width: 28, rotate: -9 },
-  { left: 187, top: 42, width: 28, rotate: 8 },
-  { left: 17,  top: 30, width: 66, rotate: 3 },
-  { left: 117, top: 32, width: 66, rotate: -3 },
-  { left: 217, top: 30, width: 66, rotate: 3 }
-];
-// Which raw capture each device in a scene shows, in scene order. The two
-// supporting devices preview the next frame's hero (the same capture that
-// device shows large one frame later), which is what makes the boundary
-// read as one phone sliding through rather than two unrelated crops.
-var SCENE_A_SHOTS = ['02', '03', '01', '02', '03'];
-var SCENE_B_SHOTS = ['07', '08', '06', '07', '08'];
+// The screen keeps the capture's own 1320:2868 ratio (.phone img), so nothing
+// is cropped. 27% from the top clears the tallest headline-plus-chip
+// (frames 1-3); at 64cqw the device ends near 92% of the frame. render.sh's
+// hero probe (HERO_Y) is derived from these two numbers — change them
+// together.
+var DEVICE_TOP = 27;
+var DEVICE_WIDTH = 64;
 
-function device(shot, d) {
-  return '<div class="device phone" style="left:' + d.left + 'cqw;top:' + d.top +
-    '%;width:' + d.width + 'cqw;aspect-ratio:1320/2400;transform:rotate(' + d.rotate + 'deg)">' +
+function device(shot) {
+  return '<div class="device phone" style="left:50%;top:' + DEVICE_TOP + '%;width:' +
+    DEVICE_WIDTH + 'cqw;transform:translateX(-50%)">' +
+    '<div class="island"></div>' +
     '<img src="../../screenshots/raw/iphone-69/' + shot + '.png" alt=""></div>';
-}
-
-function stage(scene, shots, windowIndex) {
-  var html = '<div class="stage" style="--window:' + windowIndex + '">';
-  for (var i = 0; i < scene.length; i++) html += device(shots[i], scene[i]);
-  return html + '</div>';
 }
 
 var out = '';
 for (var i = 0; i < 8; i++) {
   var f = FRAMES[i];
   out += '<div class="frame">' + PlotlineCurve.svg(i, 8);
-  if (i < 3) {
-    out += stage(SCENE_A, SCENE_A_SHOTS, i);
-  } else if (i >= 5) {
-    out += stage(SCENE_B, SCENE_B_SHOTS, i - 5);
-  } else {
-    out += '<div class="device phone" style="left:50%;top:30%;width:70cqw;' +
-           'aspect-ratio:1320/2400;transform:translateX(-50%)">' +
-           '<img src="../../screenshots/raw/iphone-69/0' + (i + 1) + '.png" alt=""></div>';
-  }
+  out += device('0' + (i + 1));
   out += '<div class="headline' + (f.centred ? ' centred' : '') + '">' + f.head + '</div>';
   if (f.chip) out += '<div class="chip' + (f.centred ? ' centred' : '') + '">' + f.chip + '</div>';
   out += '</div>';
