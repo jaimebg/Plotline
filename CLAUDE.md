@@ -19,6 +19,9 @@ That distinction matters when working here. The app is not a TMDB catalogue brow
 
 Discover · Analysis · Library · Stats · Settings (`.sidebarAdaptable`).
 
+- **Discover** opens on a featured series (one a day), then the five main
+  shelves, each with "See all", then three genre shelves a day chosen by
+  `DiscoverRotation`, then the TMDB sections.
 - **Library** holds the Watchlist and Favorites behind one segmented control
   (`LibrarySegment`, remembered per viewer with `@AppStorage`). `LibraryView`
   owns the navigation stack and every piece of state that must survive a
@@ -50,8 +53,8 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Plotline.app && \
 xcrun simctl launch booted com.jbgsoft.Plotline
 
-# Run tests — 445 passing test cases (a parameterised function counts once per argument). Day to day,
-# skip the UI suites: they take ~15 min and are checked by hand during
+# Run tests — 423 distinct passing test cases (by name in the log). Day to
+# day, skip the UI suites: they take ~15 min and are checked by hand during
 # development. They stay in the scheme on purpose — release-preflight.sh runs
 # the 9-method cold-start UI suite (starved of a TMDB key) and capture.sh runs
 # ScreenshotCaptureTests, both via -only-testing, which cannot reach a target
@@ -66,6 +69,9 @@ xcodebuild -project Plotline.xcodeproj -scheme Plotline -destination 'platform=i
 
 # The dataset generator's own suite
 cd Tools/DatasetGenerator && swift test
+
+# Reseed the dataset from TMDB (then run the generator with no arguments)
+TMDB_API_KEY=… swift run --package-path Tools/DatasetGenerator dataset-generator seed
 
 # Everything that has to be true before a release
 ./Scripts/release-preflight.sh
@@ -111,7 +117,6 @@ Episode payloads are cached on disk (`DiskCache`) because a long-running series 
 - `DiskCache` - Generic on-disk cache used to avoid redundant network calls
 - `Analysis/SeriesAnalysisEngine` - Pure function over episode ratings. Foundation only, no networking, no I/O
 - `DatasetStore` - Reads the bundled dataset. `@MainActor`, deliberately not `@Observable`
-- `DiscoverRotation` - Which series Discover features and which genre shelves it shows, by day. Pure, date injected, so a test can pin any day; neighbouring genre shelves come from different base shelves
 - `WatchRegionStore` - Which region's streaming availability to show. `@MainActor`, same shape as `DatasetStore`
 
 **Models** (`Models/`)
@@ -119,6 +124,9 @@ Episode payloads are cached on disk (`DiskCache`) because a long-running series 
 - `EpisodeMetric` - Episode data (sourced from TMDB's season endpoint) for Swift Charts visualization
 - `SeriesAnalysis` - The engine's output: decline point, consistency, standout episodes, opening and ending verdicts, Plotline Score, and `declineTest` — the engine's own record of whether the decline test ran and over which boundaries. Nil in analyses written before it existed; nil licenses no claim about scope
 - `CurrentSeriesStatus` - App-side: TMDB's status as a screen knows it now, or that the details never arrived. `SeriesAnalysis.visibleEndingVerdict(under:)` is the one ending-verdict gate for the detail screen, the share card and Compare
+- `DiscoverRotation` - Which series Discover features and which genre shelves it shows, by day. Pure, date injected, so a test can pin any day; neighbouring genre shelves come from different base shelves
+- `CuratedListID` - Parses list ids of the form `<base>/<genreId>`; a genre shelf takes its base shelf's copy plus a genre eyebrow
+- `FeaturedSeriesSummary`, `CuratedShelfEvidence` - The featured card's and "See all"'s copy, built only from existing verdict helpers
 - `PlotlineDataset` - The contract between the app and the dataset generator
 - `APIResponses/` - TMDB response wrappers with decoding
 
@@ -142,7 +150,9 @@ Four files under `Plotline/` are also compiled by the SwiftPM tool in `Tools/Dat
 
 `Resources/PlotlineDataset.json` ships a pre-analysed set of series, five curated shelves, plus the same shelves narrowed to a genre. It is a **seed and a fallback, never the truth**: the app shows it in the first frame and offline, and a live recomputation replaces it as soon as fresher episodes arrive — but only when the live result is at least as complete, so a partial fetch cannot replace a full analysis with a fragment.
 
-Regenerate with the tool in `Tools/DatasetGenerator/`. It has its own test suite (`swift test`).
+Regenerate with the tool in `Tools/DatasetGenerator/`, in two steps. `TMDB_API_KEY=… swift run --package-path Tools/DatasetGenerator dataset-generator seed` rewrites `SeedList.swift` from TMDB's most-voted series with per-genre floors; `SeedCuration.swift` holds the hand-picked ids and an exclusion list for series with no episode arc, so deleting a line from `SeedList.swift` alone does not stick. Then run the generator without arguments. It has its own test suite (`swift test`).
+
+Siri / App Shortcut suggestions are capped at 150 by Plotline Score, because Apple allows 1,000 trigger phrases per app.
 
 ### App Store Screenshots
 

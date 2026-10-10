@@ -87,7 +87,7 @@ The engine also identifies episodes that stand out within their season. That out
 - **Decade Battle** and **Franchise Tracker**
 
 ### System
-- **Siri App Shortcuts** — search Plotline, ask what to watch, show your stats
+- **Siri App Shortcuts** — search Plotline, ask what to watch, show your stats (suggestions are capped at 150 by Plotline Score, Apple's 1,000-phrase limit)
 - **Light and dark**, following the system or overridden in Settings
 - **iPhone and iPad** — grids that size themselves from available width, text capped to a readable measure, correct in multitasking splits
 
@@ -193,7 +193,7 @@ Four files — `EpisodeMetric`, `SeriesAnalysis`, `PlotlineDataset` and `SeriesA
 ## Testing
 
 ```bash
-# App suites: 445 passing test cases (parameterised arguments counted separately), plus the cold-start UI suite
+# App suites: 423 distinct passing test cases, plus the cold-start UI suite
 xcodebuild -project Plotline.xcodeproj -scheme Plotline \
   -destination 'platform=iOS Simulator,name=iPhone 17' test
 
