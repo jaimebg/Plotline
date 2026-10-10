@@ -169,6 +169,21 @@ struct SeriesEntityRankingTests {
         ])
         #expect(suggested.map(\.id) == [2, 3, 1])
     }
+
+    @Test("suggestions stop at the cap, keeping the best scores")
+    func suggestionsAreCapped() {
+        let many = (1...200).map { bundled($0, "Series \($0)", score: $0) }
+        let suggested = SeriesEntityRanking.suggested(many)
+
+        #expect(SeriesEntityRanking.suggestionLimit == 150)
+        #expect(suggested.map(\.id) == Array((51...200).reversed()))
+    }
+
+    @Test("an empty query returns the capped suggestions")
+    func emptyQueryIsCapped() {
+        let many = (1...200).map { bundled($0, "Series \($0)", score: $0) }
+        #expect(SeriesEntityRanking.rank(query: "", bundled: many, searched: []).count == 150)
+    }
 }
 
 // MARK: - Verdict copy

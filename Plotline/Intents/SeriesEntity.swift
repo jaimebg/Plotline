@@ -145,9 +145,15 @@ nonisolated struct SeriesEntityQuery: EntityStringQuery {
 
 /// Pure ordering rules for the entity query, testable without a network.
 nonisolated enum SeriesEntityRanking {
+    /// Each suggestion seeds four App Shortcut phrases, and Apple allows 1,000
+    /// trigger phrases per app (WWDC23, "Spotlight your app with App
+    /// Shortcuts"). At the dataset's old size every series fitted; at ~800 it
+    /// would not. Searching by name still covers the whole dataset.
+    static let suggestionLimit = 150
+
     /// Highest bundled score first; ties broken by name so the order is stable.
-    static func suggested(_ bundled: [SeriesEntity]) -> [SeriesEntity] {
-        bundled.sorted(by: byScoreThenName)
+    static func suggested(_ bundled: [SeriesEntity], limit: Int = suggestionLimit) -> [SeriesEntity] {
+        Array(bundled.sorted(by: byScoreThenName).prefix(limit))
     }
 
     /// Bundled series whose name matches come first — exact, then prefix, then
